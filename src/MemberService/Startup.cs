@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using MemberService.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Runtime.InteropServices;
 
 namespace MemberService
 {
@@ -36,8 +37,18 @@ namespace MemberService
             });
 
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+            {
+                if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    options.UseSqlite("Data Source=members.db");
+                }
+                else
+                {
+                    options.UseSqlServer(
+                        Configuration.GetConnectionString("DefaultConnection"));
+                }
+            });
+
             services.AddDefaultIdentity<IdentityUser>()
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
