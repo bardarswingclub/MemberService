@@ -71,10 +71,8 @@ namespace MemberService
                 app.UseHsts();
             }
 
-            if (!context.Database.EnsureCreated())
-            {
-                context.Database.Migrate();
-            }
+            context.Database.Migrate();
+
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
