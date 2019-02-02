@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class MemberContext : IdentityDbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        public MemberContext(DbContextOptions<MemberContext> options)
             : base(options)
         {
         }

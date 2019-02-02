@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Clave.NamespaceViewLocationExpander;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MemberService.Data;
@@ -36,7 +32,7 @@ namespace MemberService
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddDbContext<ApplicationDbContext>(options =>
+            services.AddDbContext<MemberContext>(options =>
             {
                 if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
@@ -50,14 +46,16 @@ namespace MemberService
             });
 
             services.AddDefaultIdentity<IdentityUser>()
+                .AddDefaultTokenProviders()
                 .AddDefaultUI(UIFramework.Bootstrap4)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddEntityFrameworkStores<MemberContext>();
 
+            services.UseNamespaceViewLocations();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ApplicationDbContext context)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, MemberContext context)
         {
             if (env.IsDevelopment())
             {
@@ -72,7 +70,6 @@ namespace MemberService
             }
 
             context.Database.Migrate();
-
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
