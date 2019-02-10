@@ -1,6 +1,6 @@
 using System;
 
-namespace MemberService.Models
+namespace MemberService.Pages.Home
 {
     public class ErrorViewModel
     {

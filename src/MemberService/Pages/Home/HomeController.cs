@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using MemberService.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
