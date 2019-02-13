@@ -10,6 +10,7 @@ using MemberService.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Runtime.InteropServices;
+using Stripe;
 
 namespace MemberService
 {
@@ -25,6 +26,8 @@ namespace MemberService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddScoped<ChargeService>();
+
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
@@ -66,6 +69,7 @@ namespace MemberService
             }
 
             context.Database.Migrate();
+            StripeConfiguration.SetApiKey("-----------------");
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

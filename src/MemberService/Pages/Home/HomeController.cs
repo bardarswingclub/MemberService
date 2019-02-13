@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 
 namespace MemberService.Pages.Home
 {
@@ -16,13 +18,16 @@ namespace MemberService.Pages.Home
     {
         private readonly MemberContext _memberContext;
         private readonly UserManager<MemberUser> _userManager;
+        private readonly ChargeService _stripeChargeService;
 
         public HomeController(
             MemberContext memberContext,
-            UserManager<MemberUser> userManager)
+            UserManager<MemberUser> userManager,
+            ChargeService stripeChargeService)
         {
             _memberContext = memberContext;
             _userManager = userManager;
+            _stripeChargeService = stripeChargeService;
         }
 
         public async Task<IActionResult> Index()
@@ -30,26 +35,53 @@ namespace MemberService.Pages.Home
             var user = await GetCurrentUser();
 
             var thisYear = new DateTime(DateTime.Today.Year, 1, 1);
-            var latestPayment = user.Payments
-                .Where(p => p.PayedAt > thisYear)
-                .FirstOrDefault();
+            var hasPayedThisYear = user.Payments
+                .Any(p => p.PayedAt > thisYear);
 
             return View(new IndexViewModel
             {
                 User = user,
-                HasPayedThisYear = latestPayment != null
+                HasPayedThisYear = hasPayedThisYear
             });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Pay()
+        public async Task<IActionResult> Pay([FromForm] StripePayment payment)
         {
             var user = await GetCurrentUser();
+
+            if(payment.stripeEmail != user.Email){
+                throw new Exception("Who is this email for???");
+            }
+
+            var options = new ChargeCreateOptions
+            {
+                Amount = payment.Amount,
+                Currency = "nok",
+                Description = "medlemskap",
+                SourceId = payment.stripeToken,
+                ReceiptEmail = payment.stripeEmail,
+                Metadata = new Dictionary<string, string>
+                {
+                    ["name"] = user.UserName,
+                    ["email"] = user.Email,
+                    ["amount_owed"] = payment.Amount.ToString(),
+                    ["period"] = "Våren 2017",
+                    ["long_desc"] = "Kun medlemskap",
+                    ["short_desc"] = "medlemskap"
+                }
+            };
+
+            var charge = await _stripeChargeService.CreateAsync(options);
+
             _memberContext.Payments.Add(new Payment
             {
                 User = user,
-                PayedAt = DateTime.Now
+                PayedAt = DateTime.Now,
+                StripeChargeId = charge.Id,
+                Amount = charge.Amount,
+                Description = charge.Description
             });
             await _memberContext.SaveChangesAsync();
             return RedirectToAction("Index");

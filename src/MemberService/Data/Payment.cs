@@ -12,5 +12,14 @@ namespace MemberService.Data
 
         [Required]
         public DateTime PayedAt { get; set; }
+
+        [Required]
+        public string StripeChargeId { get; set; }
+
+        [Required]
+        public long Amount { get; set; }
+
+        [Required]
+        public string Description { get; set; }
     }
 }

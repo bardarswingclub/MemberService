@@ -15,7 +15,22 @@
     {
         <p>Du har ikke betalt medlemsavgift for 2019...</p>
         <form asp-controller="Home" asp-action="Pay" method="post">
-            <button type="submit">Betalt nå</button>
+            <input type="hidden" name="amount" value="30000">
+
+            <script
+                src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+                data-key="--------------"
+                data-amount="30000"
+                data-name="Bårdar Swing Club"
+                data-description="medlemskap"
+                data-image="/img/logo.png"
+                data-locale="no"
+                data-zip-code="false"
+                data-currency="nok"
+                data-email="@Model.User.Email"
+                data-label="Betal nå"
+                data-allowRememberMe="false">
+            </script>
         </form>
     }
 </div>
