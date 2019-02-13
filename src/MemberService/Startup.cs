@@ -34,7 +34,14 @@ namespace MemberService
 
             services.AddDbContext<MemberContext>(ConfigureConnectionString);
 
-            services.AddDefaultIdentity<MemberUser>()
+            services.AddDefaultIdentity<MemberUser>(config =>
+                config.Password = new PasswordOptions {
+                    RequireDigit = false,
+                    RequireLowercase = false,
+                    RequireNonAlphanumeric = false,
+                    RequireUppercase = false,
+                    RequiredLength = 4
+                })
                 .AddDefaultTokenProviders()
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<MemberContext>();
