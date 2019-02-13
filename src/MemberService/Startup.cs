@@ -32,20 +32,9 @@ namespace MemberService
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddDbContext<MemberContext>(options =>
-            {
-                if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    options.UseSqlite("Data Source=members.db");
-                }
-                else
-                {
-                    options.UseSqlServer(
-                        Configuration.GetConnectionString("DefaultConnection"));
-                }
-            });
+            services.AddDbContext<MemberContext>(ConfigureConnectionString);
 
-            services.AddDefaultIdentity<IdentityUser>()
+            services.AddDefaultIdentity<MemberUser>()
                 .AddDefaultTokenProviders()
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<MemberContext>();
@@ -83,6 +72,18 @@ namespace MemberService
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        private void ConfigureConnectionString(DbContextOptionsBuilder options)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                options.UseSqlite("Data Source=members.db");
+            }
+            else
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+            }
         }
     }
 }
