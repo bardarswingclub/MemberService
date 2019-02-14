@@ -51,7 +51,8 @@ namespace MemberService.Pages.Home
         {
             var user = await GetCurrentUser();
 
-            if(payment.stripeEmail != user.Email){
+            if (payment.stripeEmail != user.Email)
+            {
                 throw new Exception("Who is this email for???");
             }
 

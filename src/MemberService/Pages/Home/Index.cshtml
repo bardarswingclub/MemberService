@@ -7,14 +7,14 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Hei @Model.User.UserName</h1>
+    <h2 class="display-4">Hei @Model.User.UserName</h2>
     @if(Model.HasPayedThisYear)
     {
         <p>Du er medlem i år</p>
     }
     else
     {
-        <p>Du har ikke betalt medlemsavgift for 2019...</p>
+        <p>Du har ikke betalt medlemsavgift for i år. Trykk på knappen under for å betale 300,- i medlemsavgift. </p>
         <form asp-controller="Home" asp-action="Pay" method="post">
             <input type="hidden" name="amount" value="30000">
 
@@ -29,7 +29,7 @@
                 data-zip-code="false"
                 data-currency="nok"
                 data-email="@Model.User.Email"
-                data-label="Betal nå"
+                data-label="Bli medlem"
                 data-allowRememberMe="false">
             </script>
         </form>

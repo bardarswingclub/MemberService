@@ -19,6 +19,7 @@ namespace MemberService.Data
         {
             return await Users
                 .Include(x => x.Payments)
+                .AsNoTracking()
                 .SingleOrDefaultAsync(x => x.Id == id);
         }
     }

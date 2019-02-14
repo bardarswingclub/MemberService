@@ -5,16 +5,38 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using MemberService.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace MemberService
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            using (var host = CreateWebHostBuilder(args).Build())
+            {
+                using (var scope = host.Services.CreateScope())
+                {
+                    await scope.ServiceProvider
+                        .GetService<MemberContext>()
+                        .Database.MigrateAsync();
+
+                    await scope.ServiceProvider
+                        .GetService<RoleManager<IdentityRole>>()
+                        .SeedRoles();
+
+                    await scope.ServiceProvider
+                        .GetService<UserManager<MemberUser>>()
+                        .SeedUserRoles();
+                }
+
+                await host.RunAsync();
+            }
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>

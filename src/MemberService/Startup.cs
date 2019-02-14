@@ -41,13 +41,15 @@ namespace MemberService
             services.AddDbContext<MemberContext>(ConfigureConnectionString);
 
             services.AddDefaultIdentity<MemberUser>(config =>
-                config.Password = new PasswordOptions {
+                config.Password = new PasswordOptions
+                {
                     RequireDigit = false,
                     RequireLowercase = false,
                     RequireNonAlphanumeric = false,
                     RequireUppercase = false,
                     RequiredLength = 4
                 })
+                .AddRoles<IdentityRole>()
                 .AddDefaultTokenProviders()
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<MemberContext>();
@@ -57,7 +59,7 @@ namespace MemberService
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, MemberContext context)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -71,7 +73,6 @@ namespace MemberService
                 app.UseHsts();
             }
 
-            context.Database.Migrate();
             StripeConfiguration.SetApiKey(
                 Configuration
                     .GetSection("Stripe")
