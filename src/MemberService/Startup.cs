@@ -40,7 +40,7 @@ namespace MemberService
 
             services.AddDbContext<MemberContext>(ConfigureConnectionString);
 
-            services.AddDefaultIdentity<MemberUser>(config =>
+            services.AddIdentity<MemberUser, MemberRole>(config =>
                 config.Password = new PasswordOptions
                 {
                     RequireDigit = false,
@@ -49,7 +49,7 @@ namespace MemberService
                     RequireUppercase = false,
                     RequiredLength = 4
                 })
-                .AddRoles<IdentityRole>()
+                .AddRoles<MemberRole>()
                 .AddDefaultTokenProviders()
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<MemberContext>();

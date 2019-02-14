@@ -27,7 +27,7 @@ namespace MemberService
                         .Database.MigrateAsync();
 
                     await scope.ServiceProvider
-                        .GetService<RoleManager<IdentityRole>>()
+                        .GetService<RoleManager<MemberRole>>()
                         .SeedRoles();
 
                     await scope.ServiceProvider

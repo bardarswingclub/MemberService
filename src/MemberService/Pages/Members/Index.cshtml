@@ -10,11 +10,42 @@
     <tr>
         <th>Email</th>
         <th>Har betalt i år</th>
+        @if(User.IsInRole(Roles.ADMIN)){
+            <th colspan="2">Admin</th>
+        }
     </tr>
     @foreach(var user in Model){
         <tr>
             <td>@user.UserName</td>
             <td>@user.Payments.Any(p => p.PayedAt > thisYear)</td>
+            @if(User.IsInRole(Roles.ADMIN)){
+                <td>
+                    @if(user.UserRoles.Any(r => r.Role.Name == Roles.ADMIN))
+                    {
+                        <text>Admin</text>
+                    }
+                    else
+                    {
+                        <form asp-controller="Members" asp-action="MakeAdmin" method="post">
+                            <input type="hidden" name="email" value="@user.Email">
+                            <button>Admin</button>
+                        </form>
+                    }
+                </td>
+                <td>
+                    @if(user.UserRoles.Any(r => r.Role.Name == Roles.COORDINATOR))
+                    {
+                        <text>Coordinator</text>
+                    }
+                    else
+                    {
+                        <form asp-controller="Members" asp-action="MakeCoordinator" method="post">
+                            <input type="hidden" name="email" value="@user.Email">
+                            <button>Coordinator</button>
+                        </form>
+                    }
+                </td>
+            }
         </tr>
     }
 </table>

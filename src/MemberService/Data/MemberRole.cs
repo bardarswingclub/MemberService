@@ -3,10 +3,8 @@ using Microsoft.AspNetCore.Identity;
 
 namespace MemberService.Data
 {
-    public class MemberUser : IdentityUser
+    public class MemberRole : IdentityRole
     {
-        public ICollection<Payment> Payments { get; set; }
-
         public ICollection<MemberUserRole> UserRoles { get; set; }
     }
 }

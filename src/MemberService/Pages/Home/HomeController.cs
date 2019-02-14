@@ -85,7 +85,7 @@ namespace MemberService.Pages.Home
                 Description = charge.Description
             });
             await _memberContext.SaveChangesAsync();
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
         public IActionResult Privacy()
