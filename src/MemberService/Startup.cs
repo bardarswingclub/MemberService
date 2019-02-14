@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Runtime.InteropServices;
 using Stripe;
+using MemberService.Config;
 
 namespace MemberService
 {
@@ -34,6 +35,8 @@ namespace MemberService
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+
+            services.AddSingleton(Configuration.GetSection("Stripe").Get<StripeConfig>());
 
             services.AddDbContext<MemberContext>(ConfigureConnectionString);
 
@@ -69,7 +72,10 @@ namespace MemberService
             }
 
             context.Database.Migrate();
-            StripeConfiguration.SetApiKey("-----------------");
+            StripeConfiguration.SetApiKey(
+                Configuration
+                    .GetSection("Stripe")
+                    .GetValue<string>("SecretKey"));
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

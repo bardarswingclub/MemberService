@@ -1,5 +1,6 @@
 ﻿@using MemberService.Pages.Home
 @model IndexViewModel
+@inject StripeConfig StripeConfig
 
 @{
     ViewData["Title"] = "Home Page";
@@ -19,7 +20,7 @@
 
             <script
                 src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-                data-key="--------------"
+                data-key="@StripeConfig.PublicKey"
                 data-amount="30000"
                 data-name="Bårdar Swing Club"
                 data-description="medlemskap"
