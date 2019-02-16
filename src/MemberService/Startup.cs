@@ -11,7 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Runtime.InteropServices;
 using Stripe;
-using MemberService.Config;
+using MemberService.Configs;
 
 namespace MemberService
 {
@@ -36,7 +36,7 @@ namespace MemberService
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddSingleton(Configuration.GetSection("Stripe").Get<StripeConfig>());
+            services.AddSingleton(Configuration.Get<Config>());
 
             services.AddDbContext<MemberContext>(ConfigureConnectionString);
 
@@ -59,7 +59,7 @@ namespace MemberService
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, Config config)
         {
             if (env.IsDevelopment())
             {
@@ -73,10 +73,7 @@ namespace MemberService
                 app.UseHsts();
             }
 
-            StripeConfiguration.SetApiKey(
-                Configuration
-                    .GetSection("Stripe")
-                    .GetValue<string>("SecretKey"));
+            StripeConfiguration.SetApiKey(config.Stripe.SecretKey);
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
