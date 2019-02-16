@@ -12,6 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Runtime.InteropServices;
 using Stripe;
 using MemberService.Configs;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using MemberService.Auth;
 
 namespace MemberService
 {
@@ -37,17 +39,23 @@ namespace MemberService
             });
 
             services.AddSingleton(Configuration.Get<Config>());
+            services.AddTransient<IEmailSender, EmailSender>();
 
             services.AddDbContext<MemberContext>(ConfigureConnectionString);
 
             services.AddIdentity<MemberUser, MemberRole>(config =>
-                config.Password = new PasswordOptions
                 {
-                    RequireDigit = false,
-                    RequireLowercase = false,
-                    RequireNonAlphanumeric = false,
-                    RequireUppercase = false,
-                    RequiredLength = 4
+                    config.SignIn.RequireConfirmedEmail = true;
+                    config.User.RequireUniqueEmail = true;
+
+                    config.Password = new PasswordOptions
+                    {
+                        RequireDigit = false,
+                        RequireLowercase = false,
+                        RequireNonAlphanumeric = false,
+                        RequireUppercase = false,
+                        RequiredLength = 4
+                    };
                 })
                 .AddRoles<MemberRole>()
                 .AddDefaultTokenProviders()
