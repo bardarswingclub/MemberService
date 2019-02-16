@@ -1,4 +1,4 @@
-namespace MemberService.Config
+namespace MemberService.Configs
 {
     public class StripeConfig
     {
