@@ -32,7 +32,7 @@ namespace MemberService.Areas.Identity.Pages.Account
         {
             [Required]
             [EmailAddress]
-            [Display(Name = "E-mail")]
+            [Display(Name = "E-post")]
             public string Email { get; set; }
 
             [Required]
