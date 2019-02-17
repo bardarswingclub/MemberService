@@ -59,11 +59,17 @@ namespace MemberService
                 })
                 .AddRoles<MemberRole>()
                 .AddDefaultTokenProviders()
-                .AddDefaultUI(UIFramework.Bootstrap4)
-                .AddEntityFrameworkStores<MemberContext>();
+                .AddEntityFrameworkStores<MemberContext>()
+                .AddPasswordlessLoginTokenProvider();
 
             services.UseNamespaceViewLocations();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = $"/identity/account/login";
+                options.LogoutPath = $"/identity/account/logout";
+                options.AccessDeniedPath = $"/identity/account/accessDenied";
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
