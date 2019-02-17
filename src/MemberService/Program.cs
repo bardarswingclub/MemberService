@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using MemberService.Data;
 using Microsoft.EntityFrameworkCore;
+using MemberService.Configs;
 
 namespace MemberService
 {
@@ -20,6 +21,8 @@ namespace MemberService
         {
             using (var host = CreateWebHostBuilder(args).Build())
             {
+                var config = host.Services.GetService<Config>();
+
                 using (var scope = host.Services.CreateScope())
                 {
                     await scope.ServiceProvider
@@ -32,7 +35,7 @@ namespace MemberService
 
                     await scope.ServiceProvider
                         .GetService<UserManager<MemberUser>>()
-                        .SeedUserRoles();
+                        .SeedUserRoles(config.Email.From);
                 }
 
                 await host.RunAsync();
