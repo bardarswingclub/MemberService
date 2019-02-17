@@ -37,7 +37,7 @@ namespace MemberService.Areas.Identity.Pages.Account
                 return NotFound($"Unable to load user with ID '{userId}'.");
             }
 
-            var isValid = await _userManager.VerifyUserTokenAsync(user, "PasswordlessLoginProvider", "passwordless-auth", token);
+            var isValid = await _userManager.VerifyUserTokenAsync(user, "LongToken", "passwordless-auth", token);
 
             if (!isValid)
             {
@@ -53,11 +53,8 @@ namespace MemberService.Areas.Identity.Pages.Account
             }
 
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var result = await _userManager.ConfirmEmailAsync(user, code);
-            if (!result.Succeeded)
-            {
-                throw new InvalidOperationException($"Error confirming email for user with ID '{userId}':");
-            }
+
+            await _userManager.ConfirmEmailAsync(user, code);
 
             await _signInManager.SignInAsync(user, true, IdentityConstants.ApplicationScheme);
 

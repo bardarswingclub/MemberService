@@ -45,6 +45,7 @@ namespace MemberService.Areas.Identity.Pages.Account
         {
             [Required]
             [EmailAddress]
+            [Display(Name = "E-mail")]
             public string Email { get; set; }
         }
 
@@ -75,35 +76,52 @@ namespace MemberService.Areas.Identity.Pages.Account
 
             var user = await GetOrCreateUser();
 
-            var token = await _userManager.GenerateUserTokenAsync(user, "PasswordlessLoginProvider", "passwordless-auth");
-            var callbackUrl = Url.Page(
-                "/Account/LoginCallback",
-                pageHandler: null,
-                values: new { userId = user.Id, token },
-                protocol: Request.Scheme);
-
             await _emailSender.SendEmailAsync(
                 Input.Email,
                 "Logg inn - Bårdar Swing Club",
-                CreateBody(callbackUrl, user));
+                await CreateBody(user));
 
-            return RedirectToPage("/Account/LoginConfirmation");
+            return RedirectToPage("/Account/LoginConfirmation", null, new { email = Input.Email });
         }
 
-        private static string CreateBody(string callbackUrl, MemberUser user)
-            => $@"{Greeting(user)}
+        private async Task<string> CreateBody(MemberUser user)
+        {
+            string callbackUrl = await GetCallbackUrl(user);
+            var code = await _userManager.GenerateUserTokenAsync(user, "ShortToken", "passwordless-auth");
+
+            return $@"<h2>{Greeting(user)}</h2>
 
             <p>
-                For å logge inn hos Bårdar Swing Club, <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>trykk her</a>.
+                Bruk denne koden for å logge inn på siden
             </p>
 
-            Hilsen<br>
-            Bårdar Swing Club";
+            <h1>{code}</h1>
+
+            <p>
+                Eller <a href='{callbackUrl}'>trykk her</a>.
+            </p>
+
+            <i>Hilsen</i><br>
+            <i>Bårdar Swing Club</i>";
+        }
 
         private static string Greeting(MemberUser user)
             => string.IsNullOrEmpty(user.FullName)
                 ? "Hei!"
                 : $"Hei {user.FullName}!";
+
+        private async Task<string> GetCallbackUrl(MemberUser user)
+        {
+            var token = await _userManager.GenerateUserTokenAsync(user, "LongToken", "passwordless-auth");
+
+            var url = Url.Page(
+                "/Account/LoginCallback",
+                pageHandler: null,
+                values: new { userId = user.Id, token },
+                protocol: Request.Scheme);
+
+            return HtmlEncoder.Default.Encode(url);
+        }
 
         private async Task<MemberUser> GetOrCreateUser()
         {
