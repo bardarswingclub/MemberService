@@ -6,9 +6,15 @@ namespace MemberService.Auth
     {
         public static IdentityBuilder AddPasswordlessLoginTokenProvider(this IdentityBuilder builder)
         {
-            var userType = builder.UserType;
-            var totpProvider = typeof(PasswordlessLoginTokenProvider<>).MakeGenericType(userType);
-            return builder.AddTokenProvider("PasswordlessLoginProvider", totpProvider);
+            builder.AddTokenProvider(
+                "LongToken",
+                typeof(LongTokenProvider<>).MakeGenericType(builder.UserType));
+
+            builder.AddTokenProvider(
+                "ShortToken",
+                typeof(ShortTokenProvider<>).MakeGenericType(builder.UserType));
+
+            return builder;
         }
     }
 

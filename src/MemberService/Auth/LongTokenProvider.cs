@@ -4,14 +4,15 @@ using Microsoft.Extensions.Options;
 
 namespace MemberService.Auth
 {
-    public class PasswordlessLoginTokenProvider<TUser> : DataProtectorTokenProvider<TUser>
+    public class LongTokenProvider<TUser> : DataProtectorTokenProvider<TUser>
     where TUser : class
     {
-        public PasswordlessLoginTokenProvider(
+        public LongTokenProvider(
             IDataProtectionProvider dataProtectionProvider,
-            IOptions<PasswordlessLoginTokenProviderOptions> options)
+            IOptions<LongTokenProviderOptions> options)
             : base(dataProtectionProvider, options)
         {
         }
     }
+
 }
