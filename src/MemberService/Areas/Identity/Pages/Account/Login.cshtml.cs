@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using MemberService.Data;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using System.Text.Encodings.Web;
 
 namespace MemberService.Areas.Identity.Pages.Account
 {
@@ -17,20 +19,24 @@ namespace MemberService.Areas.Identity.Pages.Account
     public class LoginModel : PageModel
     {
         private readonly SignInManager<MemberUser> _signInManager;
+        private readonly UserManager<MemberUser> _userManager;
+        private readonly IEmailSender _emailSender;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(SignInManager<MemberUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(
+            SignInManager<MemberUser> signInManager,
+            UserManager<MemberUser> userManager,
+            IEmailSender emailSender,
+            ILogger<LoginModel> logger)
         {
             _signInManager = signInManager;
+            _userManager = userManager;
+            _emailSender = emailSender;
             _logger = logger;
         }
 
         [BindProperty]
         public InputModel Input { get; set; }
-
-        public IList<AuthenticationScheme> ExternalLogins { get; set; }
-
-        public string ReturnUrl { get; set; }
 
         [TempData]
         public string ErrorMessage { get; set; }
@@ -40,64 +46,84 @@ namespace MemberService.Areas.Identity.Pages.Account
             [Required]
             [EmailAddress]
             public string Email { get; set; }
-
-            [Required]
-            [DataType(DataType.Password)]
-            public string Password { get; set; }
-
-            [Display(Name = "Remember me?")]
-            public bool RememberMe { get; set; }
         }
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public async Task<IActionResult> OnGetAsync()
         {
+            if (_signInManager.IsSignedIn(User))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
                 ModelState.AddModelError(string.Empty, ErrorMessage);
             }
 
-            returnUrl = returnUrl ?? Url.Content("~/");
-
             // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-
-            ReturnUrl = returnUrl;
+            return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+        public async Task<IActionResult> OnPostAsync()
         {
-            returnUrl = returnUrl ?? Url.Content("~/");
-
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: true);
+                return Page();
+            }
+
+            var user = await GetOrCreateUser();
+
+            var token = await _userManager.GenerateUserTokenAsync(user, "PasswordlessLoginProvider", "passwordless-auth");
+            var callbackUrl = Url.Page(
+                "/Account/LoginCallback",
+                pageHandler: null,
+                values: new { userId = user.Id, token },
+                protocol: Request.Scheme);
+
+            await _emailSender.SendEmailAsync(
+                Input.Email,
+                "Logg inn - Bårdar Swing Club",
+                CreateBody(callbackUrl, user));
+
+            return RedirectToPage("/Account/LoginConfirmation");
+        }
+
+        private static string CreateBody(string callbackUrl, MemberUser user)
+            => $@"{Greeting(user)}
+
+            <p>
+                For å logge inn hos Bårdar Swing Club, <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>trykk her</a>.
+            </p>
+
+            Hilsen<br>
+            Bårdar Swing Club";
+
+        private static string Greeting(MemberUser user)
+            => string.IsNullOrEmpty(user.FullName)
+                ? "Hei!"
+                : $"Hei {user.FullName}!";
+
+        private async Task<MemberUser> GetOrCreateUser()
+        {
+            if (await _userManager.FindByEmailAsync(Input.Email) is MemberUser user)
+            {
+                return user;
+            }
+            else
+            {
+                var newUser = new MemberUser { UserName = Input.Email, Email = Input.Email };
+                var result = await _userManager.CreateAsync(newUser);
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("User logged in.");
-                    return LocalRedirect(returnUrl);
-                }
-                if (result.RequiresTwoFactor)
-                {
-                    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
-                }
-                if (result.IsLockedOut)
-                {
-                    _logger.LogWarning("User account locked out.");
-                    return RedirectToPage("./Lockout");
+                    return newUser;
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return Page();
+                    throw new Exception($"Couldn't create user, {result.Errors.Select(e => $"{e.Code}: {e.Description}").FirstOrDefault()}");
                 }
             }
-
-            // If we got this far, something failed, redisplay form
-            return Page();
         }
     }
 }

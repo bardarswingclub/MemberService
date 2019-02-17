@@ -1,14 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace MemberService.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
-    public class LockoutModel : PageModel
+    public class LoginConfirmationModel : PageModel
     {
         public void OnGet()
         {

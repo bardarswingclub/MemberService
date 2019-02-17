@@ -16,7 +16,10 @@ namespace MemberService.Auth
 
         public async Task SendEmailAsync(string email, string subject, string message)
         {
-            var mail = new MailMessage(_config.From, email, subject, message);
+            var mail = new MailMessage(_config.From, email, subject, message)
+            {
+                IsBodyHtml = true
+            };
 
             await CreateClient(_config).SendMailAsync(mail);
         }
