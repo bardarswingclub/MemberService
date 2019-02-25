@@ -9,6 +9,7 @@
 
 
   <ItemGroup>
+    <PackageReference Include="Clave.ExtensionMethods" Version="0.1.7" />
     <PackageReference Include="Clave.NamespaceViewLocationExpander" Version="0.2.5" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />

@@ -39,6 +39,11 @@
                                 <a class="nav-link text-white" asp-area="" asp-controller="Members" asp-action="Index">Medlemmer</a>
                             </li>
                         }
+                        @if(User.IsInRole(Roles.ADMIN)){
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-area="" asp-controller="Admin" asp-action="Index">Admin</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

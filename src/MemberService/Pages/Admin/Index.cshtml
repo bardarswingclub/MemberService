@@ -1,0 +1,11 @@
+@if(TempData["message"] != null)
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["message"]
+    </div>
+}
+
+<form asp-action="Import" method="POST">
+    <label>Fra <input type="date" name="after" value="@DateTime.Now.ToString("yyyy-MM-dd")"></label>
+    <button type="submit">Go</button>
+</form>
