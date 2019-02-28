@@ -1,10 +1,42 @@
-@model IReadOnlyList<MemberUser>
+@using MemberService.Pages.Members
+@model MembersViewModel
 
 
 @{
     var thisYear = new DateTime(DateTime.Today.Year, 1, 1);
 }
 <h2>Users</h2>
+
+<form class="form-inline" asp-action="Index" method="GET">
+    <div class="form-check mb-2 mr-sm-2">
+        <input class="form-check-input" type="radio" id="AllUsers" name="filter" value="AllUsers" checked=@(!Model.OnlyMembers && !Model.OnlyTraining && !Model.OnlyClasses)>
+        <label class="form-check-label" for="AllUsers">
+        Alle medlemmer
+        </label>
+    </div>
+
+    <div class="form-check mb-2 mr-sm-2">
+        <input class="form-check-input" type="radio" id="OnlyMembers" name="filter" value="OnlyMembers" checked=@Model.OnlyMembers>
+        <label class="form-check-label" for="OnlyMembers">
+        Som har betalt medlemskap
+        </label>
+    </div>
+
+    <div class="form-check mb-2 mr-sm-2">
+        <input class="form-check-input" type="radio" id="OnlyTraining" name="filter" value="OnlyTraining" checked=@Model.OnlyTraining>
+        <label class="form-check-label" for="OnlyTraining">
+        Som har betalt treningsavgift
+        </label>
+    </div>
+
+    <div class="form-check mb-2 mr-sm-2">
+        <input class="form-check-input" type="radio" id="OnlyClasses" name="filter" value="OnlyClasses" checked=@Model.OnlyClasses>
+        <label class="form-check-label" for="OnlyClasses">
+        Som har betalt kursavgift
+        </label>
+    </div>
+    <button type="submit" class="btn btn-primary mb-2">Filtrer</button>
+</form>
 
 <table>
     <tr>
@@ -14,10 +46,10 @@
             <th colspan="2">Admin</th>
         }
     </tr>
-    @foreach(var user in Model){
+    @foreach(var user in Model.Users){
         <tr>
             <td>@user.UserName</td>
-            <td>@user.Payments.Any(p => p.PayedAt > thisYear)</td>
+            <td>@user.HasPayedMembershipThisYear()</td>
             @if(User.IsInRole(Roles.ADMIN)){
                 <td>
                     @if(user.UserRoles.Any(r => r.Role.Name == Roles.ADMIN))

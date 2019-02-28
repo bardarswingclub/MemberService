@@ -1,9 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 using MemberService.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace MemberService.Pages.Members
 {
@@ -21,16 +25,23 @@ namespace MemberService.Pages.Members
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string filter)
         {
             var users = await _memberContext.Users
                 .Include(u => u.Payments)
                 .Include(u => u.UserRoles)
                 .ThenInclude(r => r.Role)
                 .AsNoTracking()
+                .Where(Filter(filter))
                 .ToListAsync();
 
-            return View(users);
+            return View(new MembersViewModel
+            {
+                Users = users,
+                OnlyMembers = filter == "OnlyMembers",
+                OnlyTraining = filter == "OnlyTraining",
+                OnlyClasses = filter == "OnlyClasses"
+            });
         }
 
         [Authorize(Roles = Roles.ADMIN)]
@@ -49,6 +60,21 @@ namespace MemberService.Pages.Members
             await _userManager.EnsureUserHasRole(email, Roles.COORDINATOR);
 
             return RedirectToAction(nameof(Index));
+        }
+
+        private static Expression<Func<MemberUser, bool>> Filter(string filter)
+        {
+            switch (filter)
+            {
+                case "OnlyMembers":
+                    return Extensions.HasPayedMembershipThisYearExpression;
+                case "OnlyTraining":
+                    return Extensions.HasPayedTrainingThisSemesterExpression;
+                case "OnlyClasses":
+                    return Extensions.HasPayedClassesThisSemesterExpression;
+                default:
+                    return user => true;
+            }
         }
     }
 }

@@ -14,6 +14,7 @@ using Stripe;
 using MemberService.Configs;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using MemberService.Auth;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace MemberService
 {
@@ -105,6 +106,10 @@ namespace MemberService
 
         private void ConfigureConnectionString(DbContextOptionsBuilder options)
         {
+
+            options
+                .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning));
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 options.UseSqlite("Data Source=members.db");

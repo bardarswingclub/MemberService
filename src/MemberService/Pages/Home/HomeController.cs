@@ -34,14 +34,10 @@ namespace MemberService.Pages.Home
         {
             var user = await GetCurrentUser();
 
-            var thisYear = new DateTime(DateTime.Today.Year, 1, 1);
-            var hasPayedThisYear = user.Payments
-                .Any(p => p.PayedAt > thisYear);
-
-            return View(new IndexViewModel
+            return base.View(new IndexViewModel
             {
                 User = user,
-                HasPayedThisYear = hasPayedThisYear
+                HasPayedMembershipThisYear = user.HasPayedMembershipThisYear()
             });
         }
 
@@ -68,7 +64,6 @@ namespace MemberService.Pages.Home
                     ["name"] = user.UserName,
                     ["email"] = user.Email,
                     ["amount_owed"] = payment.Amount.ToString(),
-                    ["period"] = "Våren 2017",
                     ["long_desc"] = "Kun medlemskap",
                     ["short_desc"] = "medlemskap"
                 }
@@ -82,7 +77,8 @@ namespace MemberService.Pages.Home
                 PayedAt = DateTime.Now,
                 StripeChargeId = charge.Id,
                 Amount = charge.Amount,
-                Description = charge.Description
+                Description = charge.Description,
+                IncludesMembership = true
             });
             await _memberContext.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

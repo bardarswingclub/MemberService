@@ -21,5 +21,11 @@ namespace MemberService.Data
 
         [Required]
         public string Description { get; set; }
+
+        public bool IncludesMembership { get; set; }
+
+        public bool IncludesTraining { get; set; }
+
+        public bool IncludesClasses { get; set; }
     }
 }
