@@ -35,12 +35,12 @@ namespace MemberService.Pages.Home
         {
             var user = await GetCurrentUser();
 
-            var fee = user.GetMembershipFee();
-
             return View(new IndexViewModel
             {
                 User = user,
-                MembershipFee = fee
+                MembershipFee = user.GetMembershipFee(),
+                TrainingFee = user.GetTrainingFee(),
+                ClassesFee = user.GetClassesFee()
             });
         }
 
@@ -55,7 +55,7 @@ namespace MemberService.Pages.Home
                 throw new Exception("Who is this email for???");
             }
 
-            var fee = user.GetMembershipFee();
+            var fee = user.GetFee(payment.Fee);
 
             if (fee == null)
             {
@@ -64,7 +64,7 @@ namespace MemberService.Pages.Home
 
             var options = new ChargeCreateOptions
             {
-                Amount = (long)fee.Amount * 100,
+                Amount = fee.AmountInCents,
                 Currency = "nok",
                 Description = fee.Description,
                 SourceId = payment.stripeToken,
@@ -88,7 +88,9 @@ namespace MemberService.Pages.Home
                 StripeChargeId = charge.Id,
                 Amount = charge.Amount,
                 Description = charge.Description,
-                IncludesMembership = true
+                IncludesMembership = fee.IncludesMembership,
+                IncludesTraining = fee.IncludesTraining,
+                IncludesClasses = fee.IncludesClasses
             });
             await _memberContext.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

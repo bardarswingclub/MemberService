@@ -1,4 +1,5 @@
 ﻿@using MemberService.Pages.Home
+@using MemberService.Services
 @model IndexViewModel
 @inject Config Config
 
@@ -7,29 +8,119 @@
 }
 
 <div class="text-center">
-    <h2>Hei @Model.User.FullName</h2>
-    @if(Model.MembershipFee == null)
-    {
-        <p>Du er medlem i år</p>
-    }
-    else
-    {
-        <p>Du har ikke betalt medlemsavgift for i år. Trykk på knappen under for å betale @Model.MembershipFee.Amount,- i medlemsavgift. </p>
-        <form asp-controller="Home" asp-action="Pay" method="post">
-            <script
-                src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-                data-key="@Config.Stripe.PublicKey"
-                data-amount="@Model.MembershipFee.AmountInCents"
-                data-name="Bårdar Swing Club"
-                data-description="@Model.MembershipFee.Description"
-                data-image="/img/logo.png"
-                data-locale="no"
-                data-zip-code="false"
-                data-currency="nok"
-                data-email="@Model.User.Email"
-                data-label="Bli medlem"
-                data-allowRememberMe="false">
-            </script>
-        </form>
-    }
+    <div class="row justify-content-around">
+        @if(Model.MembershipFee is Fee membershipFee)
+        {
+            <form class="col-4" asp-controller="Home" asp-action="Pay" method="post">
+                <h3>Medlemskap</h3>
+                <h2 class="font-weight-bold">@membershipFee.Amount,-</h2>
+                <small class="text-muted text-uppercase">per kalenderår</small>
+                <p>
+                    Rabatt på klubbens arrangementer. Tillgang til å melde seg på på ekstraordinære kurs mot betaling.
+                </p>
+                <input type="hidden" name="Fee" value="@Fee.Membership" />
+                <script
+                    src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+                    data-key="@Config.Stripe.PublicKey"
+                    data-amount="@membershipFee.AmountInCents"
+                    data-name="Bårdar Swing Club"
+                    data-description="@membershipFee.Description"
+                    data-image="/img/logo.png"
+                    data-locale="no"
+                    data-zip-code="false"
+                    data-currency="nok"
+                    data-email="@Model.User.Email"
+                    data-label="Bli medlem"
+                    data-allowRememberMe="false">
+                </script>
+            </form>
+        }
+        else
+        {
+            <div class="col-4">
+                <h3>Medlemskap</h3>
+                <h2 class="font-weight-bold"><span style="color: #0a0">&#x2713;</span> Betalt</h2>
+                <small class="text-muted text-uppercase">per kalenderår</small>
+                <p>
+                    Rabatt på klubbens arrangementer. Tillgang til å melde seg på på ekstraordinære kurs mot betaling.
+                </p>
+            </div>
+        }
+
+        @if(Model.TrainingFee is Fee trainingFee)
+        {
+            <form class="col-4" asp-controller="Home" asp-action="Pay" method="post">
+                <h3>Treningsavgift</h3>
+                <h2 class="font-weight-bold">@trainingFee.Amount,-</h2>
+                <small class="text-muted text-uppercase">per semester</small>
+                <p>
+                    Tilgang til klubbens egentreningstider.
+                </p>
+                <input type="hidden" name="Fee" value="@Fee.Training" />
+                <script
+                    src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+                    data-key="@Config.Stripe.PublicKey"
+                    data-amount="@trainingFee.AmountInCents"
+                    data-name="Bårdar Swing Club"
+                    data-description="@trainingFee.Description"
+                    data-image="/img/logo.png"
+                    data-locale="no"
+                    data-zip-code="false"
+                    data-currency="nok"
+                    data-email="@Model.User.Email"
+                    data-label="Betal treningsavgift"
+                    data-allowRememberMe="false">
+                </script>
+            </form>
+        }
+        else
+        {
+            <div class="col-4">
+                <h3>Treningsavgift</h3>
+                <h2 class="font-weight-bold"><span style="color: #0a0">&#x2713;</span> Betalt</h2>
+                <small class="text-muted text-uppercase">per semester</small>
+                <p>
+                    Tilgang til klubbens egentreningstider.
+                </p>
+            </div>
+        }
+
+        @if(Model.ClassesFee is Fee classesFee)
+        {
+            <form class="col-4" asp-controller="Home" asp-action="Pay" method="post">
+                <h3>Kurs</h3>
+                <h2 class="font-weight-bold">@classesFee.Amount,-</h2>
+                <small class="text-muted text-uppercase">per semester</small>
+                <p>
+                    Prisen inkluderer obligatorisk medlemskap. Tilgang til alle klubbens ordinære kurs, så lenge det er plass.
+                </p>
+                <input type="hidden" name="Fee" value="@Fee.Classes" />
+                <script
+                    src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+                    data-key="@Config.Stripe.PublicKey"
+                    data-amount="@classesFee.AmountInCents"
+                    data-name="Bårdar Swing Club"
+                    data-description="@classesFee.Description"
+                    data-image="/img/logo.png"
+                    data-locale="no"
+                    data-zip-code="false"
+                    data-currency="nok"
+                    data-email="@Model.User.Email"
+                    data-label="Betal kursavgift"
+                    data-allowRememberMe="false">
+                </script>
+            </form>
+        }
+        else
+        {
+            <div class="col-4">
+                <h3>Kurs</h3>
+                <h2 class="font-weight-bold"><span style="color: #0a0">&#x2713;</span> Betalt</h2>
+                <small class="text-muted text-uppercase">per semester</small>
+                <p>
+                    Prisen inkluderer obligatorisk medlemskap. Tilgang til alle klubbens ordinære kurs, så lenge det er plass.
+                </p>
+            </div>
+        }
+    </div>
 </div>

@@ -8,5 +8,9 @@ namespace MemberService.Pages.Home
         public MemberUser User { get; set; }
 
         public Fee MembershipFee { get; set; }
+
+        public Fee TrainingFee { get; set; }
+
+        public Fee ClassesFee { get; set; }
     }
 }
