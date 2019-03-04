@@ -76,18 +76,19 @@ namespace MemberService.Areas.Identity.Pages.Account
 
             var user = await GetOrCreateUser();
 
+            var code = await _userManager.GenerateUserTokenAsync(user, "ShortToken", "passwordless-auth");
+
             await _emailSender.SendEmailAsync(
                 Input.Email,
-                "Logg inn - Bårdar Swing Club",
-                await CreateBody(user));
+                $"Logg inn - {code} - Bårdar Swing Club",
+                await CreateBody(user, code));
 
             return RedirectToPage("/Account/LoginConfirmation", null, new { email = Input.Email });
         }
 
-        private async Task<string> CreateBody(MemberUser user)
+        private async Task<string> CreateBody(MemberUser user, string code)
         {
             string callbackUrl = await GetCallbackUrl(user);
-            var code = await _userManager.GenerateUserTokenAsync(user, "ShortToken", "passwordless-auth");
 
             return $@"<h2>{Greeting(user)}</h2>
 
