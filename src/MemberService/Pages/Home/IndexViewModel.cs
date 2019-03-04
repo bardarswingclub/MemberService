@@ -1,11 +1,12 @@
 ﻿using MemberService.Data;
+using MemberService.Services;
 
 namespace MemberService.Pages.Home
 {
     public class IndexViewModel
     {
-        public bool HasPayedMembershipThisYear { get; set; }
+        public MemberUser User { get; set; }
 
-        public MemberUser User { get; internal set; }
+        public Fee MembershipFee { get; set; }
     }
 }

@@ -8,22 +8,20 @@
 
 <div class="text-center">
     <h2>Hei @Model.User.FullName</h2>
-    @if(Model.HasPayedMembershipThisYear)
+    @if(Model.MembershipFee == null)
     {
         <p>Du er medlem i år</p>
     }
     else
     {
-        <p>Du har ikke betalt medlemsavgift for i år. Trykk på knappen under for å betale 300,- i medlemsavgift. </p>
+        <p>Du har ikke betalt medlemsavgift for i år. Trykk på knappen under for å betale @Model.MembershipFee.Amount,- i medlemsavgift. </p>
         <form asp-controller="Home" asp-action="Pay" method="post">
-            <input type="hidden" name="amount" value="30000">
-
             <script
                 src="https://checkout.stripe.com/checkout.js" class="stripe-button"
                 data-key="@Config.Stripe.PublicKey"
-                data-amount="30000"
+                data-amount="@Model.MembershipFee.AmountInCents"
                 data-name="Bårdar Swing Club"
-                data-description="medlemskap"
+                data-description="@Model.MembershipFee.Description"
                 data-image="/img/logo.png"
                 data-locale="no"
                 data-zip-code="false"

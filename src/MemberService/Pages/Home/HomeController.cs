@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using MemberService.Data;
+using MemberService.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -34,10 +35,12 @@ namespace MemberService.Pages.Home
         {
             var user = await GetCurrentUser();
 
-            return base.View(new IndexViewModel
+            var fee = user.GetMembershipFee();
+
+            return View(new IndexViewModel
             {
                 User = user,
-                HasPayedMembershipThisYear = user.HasPayedMembershipThisYear()
+                MembershipFee = fee
             });
         }
 
@@ -52,20 +55,27 @@ namespace MemberService.Pages.Home
                 throw new Exception("Who is this email for???");
             }
 
+            var fee = user.GetMembershipFee();
+
+            if (fee == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
             var options = new ChargeCreateOptions
             {
-                Amount = payment.Amount,
+                Amount = (long)fee.Amount * 100,
                 Currency = "nok",
-                Description = "medlemskap",
+                Description = fee.Description,
                 SourceId = payment.stripeToken,
                 ReceiptEmail = payment.stripeEmail,
                 Metadata = new Dictionary<string, string>
                 {
                     ["name"] = user.UserName,
                     ["email"] = user.Email,
-                    ["amount_owed"] = payment.Amount.ToString(),
-                    ["long_desc"] = "Kun medlemskap",
-                    ["short_desc"] = "medlemskap"
+                    ["amount_owed"] = fee.Amount.ToString(),
+                    ["long_desc"] = fee.Description,
+                    ["short_desc"] = fee.Description
                 }
             };
 
