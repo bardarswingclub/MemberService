@@ -38,46 +38,54 @@
     <button type="submit" class="btn btn-primary mb-2">Filtrer</button>
 </form>
 
-<table>
-    <tr>
-        <th>Email</th>
-        <th>Har betalt i år</th>
-        @if(User.IsInRole(Roles.ADMIN)){
-            <th colspan="2">Admin</th>
-        }
-    </tr>
-    @foreach(var user in Model.Users){
+<table class="table">
+    <thead>
         <tr>
-            <td>@user.UserName</td>
-            <td>@user.HasPayedMembershipThisYear()</td>
+            <th>Email</th>
+            <th class="text-center">Medlemskap</th>
+            <th class="text-center">Treningsavgift</th>
+            <th class="text-center">Kurs</th>
             @if(User.IsInRole(Roles.ADMIN)){
-                <td>
-                    @if(user.UserRoles.Any(r => r.Role.Name == Roles.ADMIN))
-                    {
-                        <text>Admin</text>
-                    }
-                    else
-                    {
-                        <form asp-controller="Members" asp-action="MakeAdmin" method="post">
-                            <input type="hidden" name="email" value="@user.Email">
-                            <button>Admin</button>
-                        </form>
-                    }
-                </td>
-                <td>
-                    @if(user.UserRoles.Any(r => r.Role.Name == Roles.COORDINATOR))
-                    {
-                        <text>Coordinator</text>
-                    }
-                    else
-                    {
-                        <form asp-controller="Members" asp-action="MakeCoordinator" method="post">
-                            <input type="hidden" name="email" value="@user.Email">
-                            <button>Coordinator</button>
-                        </form>
-                    }
-                </td>
+                <th colspan="2">Admin</th>
             }
         </tr>
-    }
+    </thead>
+    <tbody>
+        @foreach(var user in Model.Users){
+            <tr>
+                <td>@user.UserName</td>
+                <td class="font-weight-bold text-center text-success">@(user.HasPayedMembershipThisYear() ? "\u2713" : "" )</td>
+                <td class="font-weight-bold text-center text-success">@(user.HasPayedTrainingThisSemester() ? "\u2713" : "" )</td>
+                <td class="font-weight-bold text-center text-success">@(user.HasPayedClassesThisSemester() ? "\u2713" : "" )</td>
+                @if(User.IsInRole(Roles.ADMIN)){
+                    <td>
+                        @if(user.UserRoles.Any(r => r.Role.Name == Roles.ADMIN))
+                        {
+                            <text>Admin</text>
+                        }
+                        else
+                        {
+                            <form asp-controller="Members" asp-action="MakeAdmin" method="post">
+                                <input type="hidden" name="email" value="@user.Email">
+                                <button>Admin</button>
+                            </form>
+                        }
+                    </td>
+                    <td>
+                        @if(user.UserRoles.Any(r => r.Role.Name == Roles.COORDINATOR))
+                        {
+                            <text>Coordinator</text>
+                        }
+                        else
+                        {
+                            <form asp-controller="Members" asp-action="MakeCoordinator" method="post">
+                                <input type="hidden" name="email" value="@user.Email">
+                                <button>Coordinator</button>
+                            </form>
+                        }
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
 </table>
