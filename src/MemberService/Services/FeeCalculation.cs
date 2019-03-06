@@ -6,7 +6,7 @@ namespace MemberService.Services
     public static class FeeCalculation
     {
         public const decimal MembershipFee = 300;
-        public const decimal TrainingFee = 125;
+        public const decimal TrainingFee = 425;
         public const decimal ClassesFee = 900;
 
         public static Fee GetFee(this MemberUser user, string key)

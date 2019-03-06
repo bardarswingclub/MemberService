@@ -55,6 +55,10 @@
                 <small class="text-muted text-uppercase">per semester</small>
                 <p>
                     Tilgang til klubbens egentreningstider.
+                    @if(Model.MembershipFee != null)
+                    {
+                        @:Prisen inkluderer obligatorisk medlemskap.
+                    }
                 </p>
                 <input type="hidden" name="Fee" value="@Fee.Training" />
                 <script
@@ -92,7 +96,11 @@
                 <h2 class="font-weight-bold">@classesFee.Amount,-</h2>
                 <small class="text-muted text-uppercase">per semester</small>
                 <p>
-                    Prisen inkluderer obligatorisk medlemskap. Tilgang til alle klubbens ordinære kurs, så lenge det er plass.
+                    Tilgang til alle klubbens ordinære kurs, så lenge det er plass.
+                    @if(Model.MembershipFee != null)
+                    {
+                        @:Prisen inkluderer obligatorisk medlemskap.
+                    }
                 </p>
                 <input type="hidden" name="Fee" value="@Fee.Classes" />
                 <script
@@ -118,7 +126,7 @@
                 <h2 class="font-weight-bold"><span style="color: #0a0">&#x2713;</span> Betalt</h2>
                 <small class="text-muted text-uppercase">per semester</small>
                 <p>
-                    Prisen inkluderer obligatorisk medlemskap. Tilgang til alle klubbens ordinære kurs, så lenge det er plass.
+                    Tilgang til alle klubbens ordinære kurs, så lenge det er plass.
                 </p>
             </div>
         }

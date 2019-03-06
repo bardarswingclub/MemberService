@@ -84,8 +84,8 @@ namespace Tests
             var fee = user.GetTrainingFee();
 
             fee.Description.ShouldBe("Medlemskap og treningsavgift");
-            fee.Amount.ShouldBe(425);
-            fee.AmountInCents.ShouldBe(425_00);
+            fee.Amount.ShouldBe(725);
+            fee.AmountInCents.ShouldBe(725_00);
             fee.IncludesMembership.ShouldBeTrue();
             fee.IncludesTraining.ShouldBeTrue();
             fee.IncludesClasses.ShouldBeFalse();
@@ -131,8 +131,8 @@ namespace Tests
             var fee = user.GetTrainingFee();
 
             fee.Description.ShouldBe("Medlemskap og treningsavgift");
-            fee.Amount.ShouldBe(425);
-            fee.AmountInCents.ShouldBe(425_00);
+            fee.Amount.ShouldBe(725);
+            fee.AmountInCents.ShouldBe(725_00);
             fee.IncludesMembership.ShouldBeTrue();
             fee.IncludesTraining.ShouldBeTrue();
             fee.IncludesClasses.ShouldBeFalse();
@@ -156,8 +156,8 @@ namespace Tests
             var fee = user.GetTrainingFee();
 
             fee.Description.ShouldBe("Treningsavgift");
-            fee.Amount.ShouldBe(125);
-            fee.AmountInCents.ShouldBe(125_00);
+            fee.Amount.ShouldBe(425);
+            fee.AmountInCents.ShouldBe(425_00);
             fee.IncludesMembership.ShouldBeFalse();
             fee.IncludesTraining.ShouldBeTrue();
             fee.IncludesClasses.ShouldBeFalse();
@@ -274,8 +274,8 @@ namespace Tests
             var fee = user.GetClassesFee();
 
             fee.Description.ShouldBe("Kursavgift");
-            fee.Amount.ShouldBe(775);
-            fee.AmountInCents.ShouldBe(775_00);
+            fee.Amount.ShouldBe(475);
+            fee.AmountInCents.ShouldBe(475_00);
             fee.IncludesMembership.ShouldBeFalse();
             fee.IncludesTraining.ShouldBeFalse();
             fee.IncludesClasses.ShouldBeTrue();
