@@ -28,6 +28,7 @@ namespace MemberService.Areas.Identity.Pages.Account.Manage
             _emailSender = emailSender;
         }
 
+        [Display(Name = "E-post")]
         public string Email { get; set; }
 
         [TempData]

@@ -11,7 +11,7 @@
     <div class="row justify-content-around">
         @if(Model.MembershipFee is Fee membershipFee)
         {
-            <form class="col-4" asp-controller="Home" asp-action="Pay" method="post">
+            <form class="col-md-4 col-sm-8" asp-controller="Home" asp-action="Pay" method="post">
                 <h3>Medlemskap</h3>
                 <h2 class="font-weight-bold">@membershipFee.Amount,-</h2>
                 <small class="text-muted text-uppercase">per kalenderår</small>
@@ -37,7 +37,7 @@
         }
         else
         {
-            <div class="col-4">
+            <div class="col-md-4 col-sm-8">
                 <h3>Medlemskap</h3>
                 <h2 class="font-weight-bold"><span style="color: #0a0">&#x2713;</span> Betalt</h2>
                 <small class="text-muted text-uppercase">per kalenderår</small>
@@ -49,7 +49,7 @@
 
         @if(Model.TrainingFee is Fee trainingFee)
         {
-            <form class="col-4" asp-controller="Home" asp-action="Pay" method="post">
+            <form class="col-md-4 col-sm-8" asp-controller="Home" asp-action="Pay" method="post">
                 <h3>Treningsavgift</h3>
                 <h2 class="font-weight-bold">@trainingFee.Amount,-</h2>
                 <small class="text-muted text-uppercase">per semester</small>
@@ -79,7 +79,7 @@
         }
         else
         {
-            <div class="col-4">
+            <div class="col-md-4 col-sm-8">
                 <h3>Treningsavgift</h3>
                 <h2 class="font-weight-bold"><span style="color: #0a0">&#x2713;</span> Betalt</h2>
                 <small class="text-muted text-uppercase">per semester</small>
@@ -91,7 +91,7 @@
 
         @if(Model.ClassesFee is Fee classesFee)
         {
-            <form class="col-4" asp-controller="Home" asp-action="Pay" method="post">
+            <form class="col-md-4 col-sm-8" asp-controller="Home" asp-action="Pay" method="post">
                 <h3>Kurs</h3>
                 <h2 class="font-weight-bold">@classesFee.Amount,-</h2>
                 <small class="text-muted text-uppercase">per semester</small>
@@ -121,7 +121,7 @@
         }
         else
         {
-            <div class="col-4">
+            <div class="col-md-4 col-sm-8">
                 <h3>Kurs</h3>
                 <h2 class="font-weight-bold"><span style="color: #0a0">&#x2713;</span> Betalt</h2>
                 <small class="text-muted text-uppercase">per semester</small>
