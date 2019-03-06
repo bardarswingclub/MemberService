@@ -1,0 +1,35 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Opprett bruker";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<hr>
+
+<div class="alert alert-primary" role="alert">
+    Hei og velkommen til Bårdar Swing Club! Vennligst fyll in fullt navn under :)
+</div>
+
+<div class="row justify-content-md-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                Opprett bruker
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <input type="hidden" asp-for="Input.ReturnUrl" />
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="Input.FullName"></label>
+                        <input asp-for="Input.FullName" class="form-control" />
+                        <span asp-validation-for="Input.FullName" class="text-danger"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Lagre</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

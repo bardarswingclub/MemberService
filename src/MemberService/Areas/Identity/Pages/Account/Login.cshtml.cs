@@ -47,9 +47,11 @@ namespace MemberService.Areas.Identity.Pages.Account
             [EmailAddress]
             [Display(Name = "E-post")]
             public string Email { get; set; }
+
+            public string ReturnUrl { get; set; }
         }
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> OnGetAsync(string returnUrl)
         {
             if (_signInManager.IsSignedIn(User))
             {
@@ -60,6 +62,11 @@ namespace MemberService.Areas.Identity.Pages.Account
             {
                 ModelState.AddModelError(string.Empty, ErrorMessage);
             }
+
+            Input = new InputModel
+            {
+                ReturnUrl = returnUrl
+            };
 
             // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
@@ -83,7 +90,7 @@ namespace MemberService.Areas.Identity.Pages.Account
                 $"Logg inn - {code} - Bårdar Swing Club",
                 await CreateBody(user, code));
 
-            return RedirectToPage("/Account/LoginConfirmation", null, new { email = Input.Email });
+            return RedirectToPage("/Account/LoginConfirmation", null, new { email = Input.Email, returnUrl = Input.ReturnUrl });
         }
 
         private async Task<string> CreateBody(MemberUser user, string code)
@@ -118,7 +125,7 @@ namespace MemberService.Areas.Identity.Pages.Account
             var url = Url.Page(
                 "/Account/LoginCallback",
                 pageHandler: null,
-                values: new { userId = user.Id, token },
+                values: new { userId = user.Id, token, returnUrl = Input.ReturnUrl },
                 protocol: Request.Scheme);
 
             return HtmlEncoder.Default.Encode(url);

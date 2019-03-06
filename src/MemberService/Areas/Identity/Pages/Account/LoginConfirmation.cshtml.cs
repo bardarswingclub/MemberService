@@ -23,10 +23,10 @@ namespace MemberService.Areas.Identity.Pages.Account
             _signInManager = signInManager;
         }
 
-        public string Email { get; set; }
-
         [BindProperty]
         public InputModel Input { get; set; }
+
+        public bool ShowError { get; set; }
 
         public class InputModel
         {
@@ -38,55 +38,26 @@ namespace MemberService.Areas.Identity.Pages.Account
             [Required]
             [Display(Name = "Kode")]
             public string Code { get; set; }
+
+            public string ReturnUrl { get; set; }
         }
 
-        public IActionResult OnGet(string email)
+        public IActionResult OnGet(string email, string returnUrl, bool showError)
         {
             if (email == null)
             {
                 return RedirectToAction("Index", "Home");
             }
 
-            Email = email;
+            ShowError = showError;
+
+            Input = new InputModel
+            {
+                Email = email,
+                ReturnUrl = returnUrl
+            };
 
             return Page();
-        }
-
-        public async Task<IActionResult> OnPostAsync()
-        {
-            if (_signInManager.IsSignedIn(User) || !ModelState.IsValid)
-            {
-                return RedirectToAction("Index", "Home");
-            }
-
-            var user = await _userManager.FindByEmailAsync(Input.Email);
-            if (user == null)
-            {
-                return NotFound($"Unable to load user with email '{Input.Email}'.");
-            }
-
-            var isValid = await _userManager.VerifyUserTokenAsync(user, "ShortToken", "passwordless-auth", Input.Code.Trim());
-
-            if (!isValid)
-            {
-                return Page();
-            }
-
-            await _userManager.UpdateSecurityStampAsync(user);
-
-            if (await _userManager.IsEmailConfirmedAsync(user))
-            {
-                await _signInManager.SignInAsync(user, true, IdentityConstants.ApplicationScheme);
-                return RedirectToAction("Index", "Home");
-            }
-
-            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-
-            await _userManager.ConfirmEmailAsync(user, code);
-
-            await _signInManager.SignInAsync(user, true, IdentityConstants.ApplicationScheme);
-
-            return RedirectToPage("/Account/Manage/Index");
         }
     }
 }

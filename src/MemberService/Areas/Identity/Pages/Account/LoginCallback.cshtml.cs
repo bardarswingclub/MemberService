@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using MemberService.Data;
@@ -16,6 +17,23 @@ namespace MemberService.Areas.Identity.Pages.Account
         private readonly UserManager<MemberUser> _userManager;
         private readonly SignInManager<MemberUser> _signInManager;
 
+        [BindProperty]
+        public InputModel Input { get; set; }
+
+        public class InputModel
+        {
+            [Required]
+            [EmailAddress]
+            [Display(Name = "E-post")]
+            public string Email { get; set; }
+
+            [Required]
+            [Display(Name = "Kode")]
+            public string Code { get; set; }
+
+            public string ReturnUrl { get; set; }
+        }
+
         public LoginCallbackModel(
             UserManager<MemberUser> userManager,
             SignInManager<MemberUser> signInManager)
@@ -24,7 +42,7 @@ namespace MemberService.Areas.Identity.Pages.Account
             _signInManager = signInManager;
         }
 
-        public async Task<IActionResult> OnGetAsync(string userId, string token)
+        public async Task<IActionResult> OnGetAsync(string userId, string token, string returnUrl)
         {
             if (_signInManager.IsSignedIn(User) || userId == null || token == null)
             {
@@ -34,14 +52,37 @@ namespace MemberService.Areas.Identity.Pages.Account
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{userId}'.");
+                return RedirectToAction("Index", "Home");
             }
 
             var isValid = await _userManager.VerifyUserTokenAsync(user, "LongToken", "passwordless-auth", token);
 
+            return await SignIn(user, isValid, returnUrl);
+        }
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+            if (_signInManager.IsSignedIn(User) || !ModelState.IsValid)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            var user = await _userManager.FindByEmailAsync(Input.Email);
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with email '{Input.Email}'.");
+            }
+
+            var isValid = await _userManager.VerifyUserTokenAsync(user, "ShortToken", "passwordless-auth", Input.Code.Trim());
+
+            return await SignIn(user, isValid, Input.ReturnUrl);
+        }
+
+        private async Task<IActionResult> SignIn(MemberUser user, bool isValid, string returnUrl)
+        {
             if (!isValid)
             {
-                return Page();
+                return RedirectToPage("LoginConfirmation", new { user.Email, returnUrl, showError = true });
             }
 
             await _userManager.UpdateSecurityStampAsync(user);
@@ -49,7 +90,10 @@ namespace MemberService.Areas.Identity.Pages.Account
             if (await _userManager.IsEmailConfirmedAsync(user))
             {
                 await _signInManager.SignInAsync(user, true, IdentityConstants.ApplicationScheme);
-                return RedirectToAction("Index", "Home");
+
+                return Url.IsLocalUrl(returnUrl)
+                    ? Redirect(returnUrl)
+                    : Redirect("/");
             }
 
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -58,7 +102,7 @@ namespace MemberService.Areas.Identity.Pages.Account
 
             await _signInManager.SignInAsync(user, true, IdentityConstants.ApplicationScheme);
 
-            return RedirectToPage("/Account/Manage/Index");
+            return RedirectToPage("Register", new { returnUrl });
         }
     }
 }
