@@ -5,7 +5,7 @@ namespace MemberService.Pages.Home
 {
     public class IndexViewModel
     {
-        public MemberUser User { get; set; }
+        public string Email { get; set; }
 
         public Fee MembershipFee { get; set; }
 

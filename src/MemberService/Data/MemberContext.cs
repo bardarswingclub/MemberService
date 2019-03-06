@@ -17,13 +17,6 @@ namespace MemberService.Data
 
         public DbSet<Payment> Payments { get; set; }
 
-        public async Task<MemberUser> GetUser(string id)
-        {
-            return await Users
-                .Include(x => x.Payments)
-                .SingleOrDefaultAsync(x => x.Id == id);
-        }
-
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

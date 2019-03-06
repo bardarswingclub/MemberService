@@ -37,7 +37,7 @@ namespace MemberService.Pages.Home
 
             return View(new IndexViewModel
             {
-                User = user,
+                Email = user.Email,
                 MembershipFee = user.GetMembershipFee(),
                 TrainingFee = user.GetTrainingFee(),
                 ClassesFee = user.GetClassesFee()
@@ -108,6 +108,8 @@ namespace MemberService.Pages.Home
         }
 
         private async Task<MemberUser> GetCurrentUser()
-            => await _memberContext.GetUser(_userManager.GetUserId(User));
+            => await _memberContext.Users
+                .Include(x => x.Payments)
+                .SingleUser(_userManager.GetUserId(User));
     }
 }

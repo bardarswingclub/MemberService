@@ -9,27 +9,27 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Areas.Identity.Pages.Account.Manage
 {
     public partial class IndexModel : PageModel
     {
         private readonly UserManager<MemberUser> _userManager;
-        private readonly SignInManager<MemberUser> _signInManager;
-        private readonly IEmailSender _emailSender;
+        private readonly MemberContext _memberContext;
 
         public IndexModel(
             UserManager<MemberUser> userManager,
-            SignInManager<MemberUser> signInManager,
-            IEmailSender emailSender)
+            MemberContext memberContext)
         {
             _userManager = userManager;
-            _signInManager = signInManager;
-            _emailSender = emailSender;
+            _memberContext = memberContext;
         }
 
         [Display(Name = "E-post")]
         public string Email { get; set; }
+
+        public IReadOnlyCollection<Payment> Payments { get; private set; }
 
         [TempData]
         public string StatusMessage { get; set; }
@@ -45,15 +45,22 @@ namespace MemberService.Areas.Identity.Pages.Account.Manage
 
         public async Task<IActionResult> OnGetAsync()
         {
-            var user = await _userManager.GetUserAsync(User);
+            var userId = _userManager.GetUserId(User);
+
+            var user = await _memberContext.Users
+                .Include(x => x.Payments)
+                .SingleUser(userId);
+
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return base.NotFound($"Unable to load user with ID '{userId}'.");
             }
 
-            var email = await _userManager.GetEmailAsync(user);
+            Email = user.Email;
 
-            Email = email;
+            Payments = user.Payments
+                .OrderByDescending(p => p.PayedAt)
+                .ToList();
 
             Input = new InputModel
             {
@@ -76,7 +83,6 @@ namespace MemberService.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
             if (Input.FullName != user.FullName)
             {
                 user.FullName = Input.FullName;
@@ -84,7 +90,6 @@ namespace MemberService.Areas.Identity.Pages.Account.Manage
 
             await _userManager.UpdateAsync(user);
 
-            await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Navnet ditt har blitt lagret :)";
             return RedirectToPage();
         }

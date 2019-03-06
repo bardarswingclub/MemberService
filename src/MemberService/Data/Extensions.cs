@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Data
 {
@@ -27,5 +29,8 @@ namespace MemberService.Data
         public static bool HasPayedTrainingThisSemester(this MemberUser user) => HasPayedTrainingThisSemesterFunc(user);
 
         public static bool HasPayedClassesThisSemester(this MemberUser user) => HasPayedClassesThisSemesterFunc(user);
+
+        public static async Task<MemberUser> SingleUser(this IQueryable<MemberUser> users, string id)
+            => await users.SingleOrDefaultAsync(user => user.Id == id);
     }
 }
