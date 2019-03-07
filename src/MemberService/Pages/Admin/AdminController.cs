@@ -66,16 +66,22 @@ namespace MemberService.Pages.Admin
         private async Task SavePayment(Charge charge)
         {
             var email = charge.Metadata["email"];
+            var name = charge.Metadata["name"];
             var user = await _memberContext.Users
                 .Include(u => u.Payments)
                 .FirstOrDefaultAsync(u => u.NormalizedEmail == email.ToUpperInvariant());
+
+            var (includesMembership, includesTraining, includesClasses) = GetIncludedFees(charge.Description);
 
             var payment = new Payment
             {
                 Amount = charge.Amount,
                 Description = charge.Description,
                 PayedAt = charge.Created,
-                StripeChargeId = charge.Id
+                StripeChargeId = charge.Id,
+                IncludesMembership = charge.Metadata["inc_membership"] == "yes" || includesMembership,
+                IncludesTraining = charge.Metadata["inc_training"] == "yes" || includesTraining,
+                IncludesClasses = charge.Metadata["inc_classes"] == "yes" || includesClasses,
             };
 
             if (user == null)
@@ -84,10 +90,11 @@ namespace MemberService.Pages.Admin
                 {
                     UserName = email,
                     Email = email,
+                    FullName = name,
                     Payments = new List<Payment>
-                        {
-                            payment
-                        }
+                    {
+                        payment
+                    }
                 });
             }
             else
@@ -99,6 +106,33 @@ namespace MemberService.Pages.Admin
             }
 
             await _memberContext.SaveChangesAsync();
+        }
+
+        private readonly Dictionary<string, (bool?, bool?, bool?)> DescriptionMap = new Dictionary<string, (bool?, bool?, bool?)>
+        {
+            ["medlemskap"] = (true, null, null),
+            ["medlemskap+kurs"] = (true, true, true),
+            ["medlemskapgratisKurs"] = (true, true, true),
+            ["medlemskap+trening"] = (true, true, null),
+            ["2018"] = (false, false, false)
+        };
+
+        private (bool, bool, bool) GetIncludedFees(string description)
+        {
+            var membership = false;
+            var training = false;
+            var classes = false;
+            foreach (var (d, (m, t, c)) in DescriptionMap)
+            {
+                if (description.Contains(d, StringComparison.OrdinalIgnoreCase))
+                {
+                    membership = m ?? membership;
+                    training = t ?? training;
+                    classes = c ?? classes;
+                }
+            }
+
+            return (membership, training, classes);
         }
     }
 }

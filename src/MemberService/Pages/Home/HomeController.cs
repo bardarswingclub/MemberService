@@ -75,7 +75,10 @@ namespace MemberService.Pages.Home
                     ["email"] = user.Email,
                     ["amount_owed"] = fee.Amount.ToString(),
                     ["long_desc"] = fee.Description,
-                    ["short_desc"] = fee.Description
+                    ["short_desc"] = fee.Description,
+                    ["inc_membership"] = fee.IncludesMembership ? "yes" : "no",
+                    ["inc_training"] = fee.IncludesTraining ? "yes" : "no",
+                    ["inc_classes"] = fee.IncludesClasses ? "yes" : "no"
                 }
             };
 
