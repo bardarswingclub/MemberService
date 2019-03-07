@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +17,8 @@ namespace MemberService.Data
         }
 
         public DbSet<Payment> Payments { get; set; }
+
+        public DbSet<Event> Events { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -37,6 +42,27 @@ namespace MemberService.Data
             builder.Entity<Payment>(payment =>
             {
                 payment.HasIndex(p => p.PayedAtUtc);
+            });
+
+            builder.Entity<EventSignupOptions>(options => 
+            {
+                options.HasIndex(o => o.SignupOpensAt);
+                options.HasIndex(o => o.SignupClosesAt);
+            });
+
+            builder.Entity<EventSignup>(signup =>
+            {
+                signup
+                    .Property(s => s.Role)
+                    .HasConversion(
+                        v => v.ToString(),
+                        v => (DanceRole)Enum.Parse(typeof(DanceRole), v));
+
+                signup
+                    .Property(s => s.Status)
+                    .HasConversion(
+                        v => v.ToString(),
+                        v => (Status)Enum.Parse(typeof(Status), v));
             });
         }
     }
