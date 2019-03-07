@@ -1,0 +1,23 @@
+@model Event
+
+<h2>@Model.Title</h2>
+
+
+<h4>Påmeldte</h4>
+<table class="table">
+<thead>
+    <tr>
+        <th>Navn</th>
+        <th>Dato</th>
+    </tr>
+</thead>
+<tbody>
+    @foreach(var signup in Model.Signups)
+    {
+        <tr>
+            <td>@signup.User.FullName</td>
+            <td>@signup.SignedUpAt</td>
+        </tr>
+    }
+</tbody>
+</table>

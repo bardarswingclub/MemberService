@@ -1,0 +1,23 @@
+@model List<Event>
+
+<h2>Eventer</h2>
+
+<a asp-action="Create">Opprett ny event</a>
+
+<table class="table">
+<thead>
+    <tr>
+        <th>Navn</th>
+        <th>Påmeldte</th>
+    </tr>
+</thead>
+<tbody>
+    @foreach(var eventEntry in Model)
+    {
+        <tr>
+            <td><a asp-action="View" asp-route-id="@eventEntry.Id">@eventEntry.Title</a></td>
+            <td>@eventEntry.Signups.Count</td>
+        </tr>
+    }
+</tbody>
+</table>

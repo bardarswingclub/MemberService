@@ -1,0 +1,73 @@
+@using MemberService.Pages.Event
+@model CreateEventModel
+
+<h2>Opprett ny event</h2>
+
+<form method="POST" asp-action="Create" class="form-row">
+    <div class="form-group col-12">
+        <label asp-for="Title"></label>
+        <input type="text" class="form-control" asp-for="Title">
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <div class="form-group col-12">
+        <label asp-for="Description"></label>
+        <input type="text" class="form-control" asp-for="Description">
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <div class="form-group col-md-6">
+        <label asp-for="SignupOpensAt"></label>
+        <input type="text" placeholder="@DateTime.Now" class="form-control" asp-for="SignupOpensAt">
+        <span asp-validation-for="SignupOpensAt" class="text-danger"></span>
+    </div>
+    <div class="form-group col-md-6">
+        <label asp-for="SignupClosesAt"></label>
+        <input type="text" placeholder="@DateTime.Now" class="form-control" asp-for="SignupClosesAt">
+        <span asp-validation-for="SignupClosesAt" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" asp-for="RequiresMembershipFee">
+            <label class="form-check-label" asp-for="RequiresMembershipFee"></label>
+            <span asp-validation-for="RequiresMembershipFee" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" asp-for="RequiresTrainingFee">
+            <label class="form-check-label" asp-for="RequiresTrainingFee"></label>
+            <span asp-validation-for="RequiresTrainingFee" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" asp-for="RequiresClassesFee">
+            <label class="form-check-label" asp-for="RequiresClassesFee"></label>
+            <span asp-validation-for="RequiresClassesFee" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group col-md-6">
+        <label asp-for="PriceForMembers"></label>
+        <input type="number" placeholder="0" value="0" class="form-control" asp-for="PriceForMembers">
+        <span asp-validation-for="PriceForMembers" class="text-danger"></span>
+    </div>
+    <div class="form-group col-md-6">
+        <label asp-for="PriceForNonMembers"></label>
+        <input type="number" placeholder="0" value="0" class="form-control" asp-for="PriceForNonMembers">
+        <span asp-validation-for="PriceForNonMembers" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" asp-for="RoleSignup">
+            <label class="form-check-label" asp-for="RoleSignup"></label>
+            <span asp-validation-for="RoleSignup" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" asp-for="AllowPartnerSignup">
+            <label class="form-check-label" asp-for="AllowPartnerSignup"></label>
+            <span asp-validation-for="AllowPartnerSignup" class="text-danger"></span>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Opprett</button>
+</form>
