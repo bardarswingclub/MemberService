@@ -63,6 +63,8 @@ namespace MemberService
                 .AddEntityFrameworkStores<MemberContext>()
                 .AddPasswordlessLoginTokenProvider();
 
+            services.AddScoped<IUserClaimsPrincipalFactory<MemberUser>, MemberUserClaimsPrincipalFactory>();
+
             services.UseNamespaceViewLocations();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.ConfigureApplicationCookie(options =>
