@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Clave.ExtensionMethods;
 using MemberService.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -33,15 +34,35 @@ namespace MemberService.Pages.Members
                 .ThenInclude(r => r.Role)
                 .AsNoTracking()
                 .Where(Filter(filter))
+                .OrderBy(u => u.FullName)
                 .ToListAsync();
 
             return View(new MembersViewModel
             {
-                Users = users,
+                Users = users
+                    .GroupBy(u => u.FullName[0], (key, u) => (key, u.ToReadOnlyCollection()))
+                    .ToReadOnlyCollection(),
                 OnlyMembers = filter == "OnlyMembers",
                 OnlyTraining = filter == "OnlyTraining",
                 OnlyClasses = filter == "OnlyClasses"
             });
+        }
+
+        public async Task<IActionResult> Details(string id)
+        {
+            var user = await _memberContext.Users
+                .Include(u => u.Payments)
+                .Include(u => u.UserRoles)
+                .ThenInclude(r => r.Role)
+                .AsNoTracking()
+                .SingleOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return View(user);
         }
 
         [Authorize(Roles = Roles.ADMIN)]

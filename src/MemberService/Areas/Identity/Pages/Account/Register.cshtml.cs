@@ -72,6 +72,7 @@ namespace MemberService.Areas.Identity.Pages.Account
             }
 
             await _userManager.UpdateAsync(user);
+            await _signInManager.RefreshSignInAsync(user);
 
             return Url.IsLocalUrl(Input.ReturnUrl)
                 ? Redirect(Input.ReturnUrl)

@@ -17,13 +17,16 @@ namespace MemberService.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<MemberUser> _userManager;
         private readonly MemberContext _memberContext;
+        private readonly SignInManager<MemberUser> _signInManager;
 
         public IndexModel(
             UserManager<MemberUser> userManager,
-            MemberContext memberContext)
+            MemberContext memberContext,
+            SignInManager<MemberUser> signInManager)
         {
             _userManager = userManager;
             _memberContext = memberContext;
+            _signInManager = signInManager;
         }
 
         [Display(Name = "E-post")]
@@ -89,6 +92,7 @@ namespace MemberService.Areas.Identity.Pages.Account.Manage
             }
 
             await _userManager.UpdateAsync(user);
+            await _signInManager.RefreshSignInAsync(user);
 
             StatusMessage = "Navnet ditt har blitt lagret :)";
             return RedirectToPage();

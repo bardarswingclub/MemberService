@@ -5,7 +5,7 @@ namespace MemberService.Pages.Members
 {
     public class MembersViewModel
     {
-        public IReadOnlyCollection<MemberUser> Users { get; set; }
+        public IReadOnlyCollection<(char, IReadOnlyCollection<MemberUser>)> Users { get; set; }
 
         public bool OnlyMembers { get; set; }
 

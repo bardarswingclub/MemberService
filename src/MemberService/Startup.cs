@@ -90,6 +90,8 @@ namespace MemberService
                 app.UseHsts();
             }
 
+            app.UseStatusCodePagesWithReExecute("/Home/StatusCode/{0}");
+
             StripeConfiguration.SetApiKey(config.Stripe.SecretKey);
 
             app.UseHttpsRedirection();

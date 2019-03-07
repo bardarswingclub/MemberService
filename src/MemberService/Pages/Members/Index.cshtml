@@ -1,13 +1,12 @@
 @using MemberService.Pages.Members
 @model MembersViewModel
 
-
 @{
-    var thisYear = new DateTime(DateTime.Today.Year, 1, 1);
+    ViewData["Title"] = "Medlemmer";
 }
-<h2>Users</h2>
+<h2>@ViewData["Title"]</h2>
 
-<form class="form-inline" asp-action="Index" method="GET">
+<form class="form-inline d-print-none" asp-action="Index" method="GET">
     <div class="form-check mb-2 mr-sm-2">
         <input class="form-check-input" type="radio" id="AllUsers" name="filter" value="AllUsers" checked=@(!Model.OnlyMembers && !Model.OnlyTraining && !Model.OnlyClasses)>
         <label class="form-check-label" for="AllUsers">
@@ -41,51 +40,29 @@
 <table class="table">
     <thead>
         <tr>
-            <th>Email</th>
+            <th>Navn</th>
+            <th>E-post</th>
             <th class="text-center">Medlemskap</th>
             <th class="text-center">Treningsavgift</th>
             <th class="text-center">Kurs</th>
-            @if(User.IsInRole(Roles.ADMIN)){
-                <th colspan="2">Admin</th>
-            }
         </tr>
     </thead>
-    <tbody>
-        @foreach(var user in Model.Users){
+    @foreach(var (character, users) in Model.Users){
+        <thead class="thead-light">
             <tr>
-                <td>@user.UserName</td>
-                <td class="font-weight-bold text-center text-success">@(user.HasPayedMembershipThisYear() ? "\u2713" : "" )</td>
-                <td class="font-weight-bold text-center text-success">@(user.HasPayedTrainingThisSemester() ? "\u2713" : "" )</td>
-                <td class="font-weight-bold text-center text-success">@(user.HasPayedClassesThisSemester() ? "\u2713" : "" )</td>
-                @if(User.IsInRole(Roles.ADMIN)){
-                    <td>
-                        @if(user.UserRoles.Any(r => r.Role.Name == Roles.ADMIN))
-                        {
-                            <text>Admin</text>
-                        }
-                        else
-                        {
-                            <form asp-controller="Members" asp-action="MakeAdmin" method="post">
-                                <input type="hidden" name="email" value="@user.Email">
-                                <button>Admin</button>
-                            </form>
-                        }
-                    </td>
-                    <td>
-                        @if(user.UserRoles.Any(r => r.Role.Name == Roles.COORDINATOR))
-                        {
-                            <text>Coordinator</text>
-                        }
-                        else
-                        {
-                            <form asp-controller="Members" asp-action="MakeCoordinator" method="post">
-                                <input type="hidden" name="email" value="@user.Email">
-                                <button>Coordinator</button>
-                            </form>
-                        }
-                    </td>
-                }
+                <th colspan="5" class="text-uppercase">@character</th>
             </tr>
-        }
-    </tbody>
+        </thead>
+        <tbody>
+            @foreach(var user in users){
+                <tr>
+                    <td><a asp-action="Details" asp-route-id="@user.Id">@user.FullName</a></td>
+                    <td>@user.Email</td>
+                    <td class="font-weight-bold text-center text-success">@(user.HasPayedMembershipThisYear() ? "\u2713" : "" )</td>
+                    <td class="font-weight-bold text-center text-success">@(user.HasPayedTrainingThisSemester() ? "\u2713" : "" )</td>
+                    <td class="font-weight-bold text-center text-success">@(user.HasPayedClassesThisSemester() ? "\u2713" : "" )</td>
+                </tr>
+            }
+        </tbody>
+    }
 </table>

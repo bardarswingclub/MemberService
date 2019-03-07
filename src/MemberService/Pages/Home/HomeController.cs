@@ -71,7 +71,7 @@ namespace MemberService.Pages.Home
                 ReceiptEmail = payment.stripeEmail,
                 Metadata = new Dictionary<string, string>
                 {
-                    ["name"] = user.UserName,
+                    ["name"] = user.FullName,
                     ["email"] = user.Email,
                     ["amount_owed"] = fee.Amount.ToString(),
                     ["long_desc"] = fee.Description,
@@ -108,6 +108,12 @@ namespace MemberService.Pages.Home
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult StatusCode(string statusCode)
+        {
+            return View();
         }
 
         private async Task<MemberUser> GetCurrentUser()

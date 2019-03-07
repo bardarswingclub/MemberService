@@ -1,0 +1,21 @@
+@model IEnumerable<Payment>
+
+<h4>Betalinger</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Dato</th>
+            <th>Beskrivelse</th>
+            <th>Beløp</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var payment in Model){
+            <tr>
+                <td>@payment.PayedAt</td>
+                <td>@payment.Description</td>
+                <td>@payment.Amount.FormatMoney()</td>
+            </tr>
+        }
+    </tbody>
+</table>

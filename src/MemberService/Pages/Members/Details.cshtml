@@ -1,0 +1,42 @@
+@model MemberUser
+
+@{
+    ViewData["Title"] = Model.FullName;
+}
+<h2>@ViewData["Title"]</h2>
+<h3>@Model.Email</h3>
+
+<hr>
+
+<div class="row">
+    <div class="col-md-6">
+        <partial name="_Payments" for="Payments">
+    </div>
+    <div class="col-md-6">
+        @if(User.IsInRole(Roles.ADMIN)){
+            <h4>Rettigheter</h4>
+            @if(Model.UserRoles.Any(r => r.Role.Name == Roles.ADMIN))
+            {
+                <div>Admin</div>
+            }
+            else
+            {
+                <form asp-controller="Members" asp-action="MakeAdmin" method="post">
+                    <input type="hidden" name="email" value="@Model.Email">
+                    <button>Make admin</button>
+                </form>
+            }
+            @if(Model.UserRoles.Any(r => r.Role.Name == Roles.COORDINATOR))
+            {
+                <div>Coordinator</div>
+            }
+            else
+            {
+                <form asp-controller="Members" asp-action="MakeCoordinator" method="post">
+                    <input type="hidden" name="email" value="@Model.Email">
+                    <button>Make coordinator</button>
+                </form>
+            }
+        }
+    </div>
+</div>
