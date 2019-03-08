@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -41,8 +40,8 @@ namespace MemberService.Pages.Members
             return View(new MembersViewModel
             {
                 Users = users
-                    .GroupBy(u => u.FullName[0], (key, u) => (key, u?.ToReadOnlyCollection() ?? Empty.ReadOnlyCollection<MemberUser>()))
-                    ?.ToReadOnlyCollection() ?? Empty.ReadOnlyCollection<(char, IReadOnlyCollection<MemberUser>)>(),
+                    .GroupBy(u => u.FullName?.FirstOrDefault() ?? '?', (key, u) => (key, u.ToReadOnlyCollection()))
+                    .ToReadOnlyCollection(),
                 OnlyMembers = filter == "OnlyMembers",
                 OnlyTraining = filter == "OnlyTraining",
                 OnlyClasses = filter == "OnlyClasses"
