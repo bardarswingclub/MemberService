@@ -41,7 +41,7 @@ namespace MemberService.Pages.Members
             {
                 Users = users
                     .GroupBy(u => u.FullName[0], (key, u) => (key, u?.ToReadOnlyCollection() ?? Empty.ReadOnlyCollection<MemberUser>()))
-                    .ToReadOnlyCollection(),
+                    ?.ToReadOnlyCollection() ?? Empty.ReadOnlyCollection<(char, IReadOnlyCollection<MemberUser>)>(),
                 OnlyMembers = filter == "OnlyMembers",
                 OnlyTraining = filter == "OnlyTraining",
                 OnlyClasses = filter == "OnlyClasses"
