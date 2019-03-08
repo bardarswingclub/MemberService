@@ -79,9 +79,9 @@ namespace MemberService.Pages.Admin
                 Description = charge.Description,
                 PayedAt = charge.Created,
                 StripeChargeId = charge.Id,
-                IncludesMembership = charge.Metadata["inc_membership"] == "yes" || includesMembership,
-                IncludesTraining = charge.Metadata["inc_training"] == "yes" || includesTraining,
-                IncludesClasses = charge.Metadata["inc_classes"] == "yes" || includesClasses,
+                IncludesMembership = charge.Metadata.TryGetValue("inc_membership", out var m) && m == "yes" || includesMembership,
+                IncludesTraining = charge.Metadata.TryGetValue("inc_training", out var t) && t == "yes" || includesTraining,
+                IncludesClasses = charge.Metadata.TryGetValue("inc_classes", out var c) && c == "yes" || includesClasses,
             };
 
             if (user == null)
