@@ -40,7 +40,7 @@ namespace MemberService.Pages.Members
             return View(new MembersViewModel
             {
                 Users = users
-                    .GroupBy(u => u.FullName[0], (key, u) => (key, u.ToReadOnlyCollection()))
+                    .GroupBy(u => u.FullName[0], (key, u) => (key, u.?ToReadOnlyCollection() ?? Empty.ReadOnlyCollection<MemberUser>()))
                     .ToReadOnlyCollection(),
                 OnlyMembers = filter == "OnlyMembers",
                 OnlyTraining = filter == "OnlyTraining",
