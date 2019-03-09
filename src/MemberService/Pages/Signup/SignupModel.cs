@@ -1,4 +1,5 @@
 using System;
+using Clave.Expressionify;
 using MemberService.Data;
 
 namespace MemberService.Pages.Signup
@@ -16,5 +17,17 @@ namespace MemberService.Pages.Signup
         public SignupInputModel Input { get; set; }
 
         public MemberUser User { get; set; }
+
+        public EventSignup UserEventSignup { get; set; }
+
+        [Expressionify]
+        public static SignupModel Create(Data.Event e)
+            => new SignupModel
+            {
+                Id = e.Id,
+                Title = e.Title,
+                Description = e.Description,
+                Options = e.SignupOptions
+            };
     }
 }

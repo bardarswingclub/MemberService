@@ -1,26 +1,34 @@
-@model Event
+@using MemberService.Pages.Event
+@model EventModel
 
 @{
     ViewData["Title"] = Model.Title;
 }
 <h2>@ViewData["Title"]</h2>
 
+<a asp-controller="Signup" asp-action="Index" asp-route-id="@Model.Id">Delbar link til påmelding</a>
 
-<h4>Påmeldte</h4>
-<table class="table">
-<thead>
-    <tr>
-        <th>Navn</th>
-        <th>Dato</th>
-    </tr>
-</thead>
-<tbody>
-    @foreach(var signup in Model.Signups)
+<form class="row" method="POST">
+    @if(Model.IsRoleSignup)
     {
-        <tr>
-            <td>@signup.User.FullName</td>
-            <td>@signup.SignedUpAt</td>
-        </tr>
+        <div class="col-md-6">
+            <h4>Førere</h4>
+            <partial name="_ParticipantTable" for="@Model.Leads" />
+        </div>
+        <div class="col-md-6">
+            <h4>Følgere</h4>
+            <partial name="_ParticipantTable" for="@Model.Follows" />
+        </div>
     }
-</tbody>
-</table>
+    else
+    {
+        <div class="col-md-12">
+            <h4>Solo</h4>
+            <partial name="_ParticipantTable" for="@Model.Solo" />
+        </div>
+    }
+    <div class="col-md-12">
+        <button type="submit" class="btn btn-primary">Lagre</button>
+    </div>
+</form>
+

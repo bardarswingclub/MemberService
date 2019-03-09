@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Clave.Expressionify;
+using Clave.ExtensionMethods;
 using MemberService.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -73,18 +75,30 @@ namespace MemberService.Pages.Event
             return RedirectToAction(nameof(View), new { id = entity.Id });
         }
 
+        [HttpGet]
         public async Task<IActionResult> View(Guid id)
         {
-            var eventEntry = await _database.Events
+            var model = await _database.Events
                 .AsNoTracking()
+                .Expressionify()
+                .Select(e => new EventModel
+                {
+                    Id = e.Id,
+                    Title = e.Title,
+                    Description = e.Description,
+                    IsRoleSignup = e.SignupOptions.RoleSignup,
+                    Leads = e.GetSignups(DanceRole.Lead),
+                    Follows = e.GetSignups(DanceRole.Follow),
+                    Solo = e.GetSignups(DanceRole.None)
+                })
                 .SingleOrDefaultAsync(e => e.Id == id);
 
-            if (eventEntry == null)
+            if (model == null)
             {
                 return NotFound();
             }
 
-            return View(eventEntry);
+            return View(model);
         }
 
         private async Task<MemberUser> GetCurrentUser()

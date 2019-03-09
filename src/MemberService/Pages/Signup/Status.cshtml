@@ -1,0 +1,15 @@
+@using MemberService.Pages.Signup
+@model SignupModel
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+<h2>@ViewData["Title"]</h2>
+
+<div class="alert alert-primary" role="alert">
+    Du har allerede meldt deg på dette arrangementet.
+</div>
+
+<strong>@Model.UserEventSignup.Role</strong>
+<br>
+<strong>@Model.UserEventSignup.Status</strong>

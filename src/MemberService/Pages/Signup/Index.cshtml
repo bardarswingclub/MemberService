@@ -26,6 +26,37 @@ else if(Model.Options.RequiresMembershipFee && !Model.User.HasPayedMembershipThi
     </div>
 }
 
+@if(Model.User.HasPayedMembershipThisYear())
+{
+    if(Model.Options.PriceForMembers > 0)
+    {
+        <div class="alert alert-primary" role="alert">
+            Det koster kr @Model.Options.PriceForMembers for medlemmer å delta på dette arrangementet. Du kan melde deg på nå og betale først når du har fått plass.
+        </div>
+    }
+}
+else
+{
+    if(Model.Options.PriceForNonMembers > 0)
+    {
+        <div class="alert alert-primary" role="alert">
+            Det koster kr @Model.Options.PriceForNonMembers for ikke-medlemmer å delta på dette arrangementet. Du kan melde deg på nå og betale først når du har fått plass.
+
+            @if(Model.Options.PriceForMembers < Model.Options.PriceForMembers)
+            {
+                if(Model.Options.PriceForMembers == 0)
+                {
+                    @: Dette arrangementet er gratis for medlemmer som har betalt medlemsavgiften i år.
+                }
+                else
+                {
+                    @: Dette arrangementet koster bare kr @Model.Options.PriceForMembers for medlemmer som har betalt medlemsavgiften i år.
+                }
+            }
+        </div>
+    }
+}
+
 <form method="POST" asp-action="Create" class="form">
     <p>@Model.Description</p>
     @if(Model.Options.RoleSignup)
@@ -33,14 +64,14 @@ else if(Model.Options.RequiresMembershipFee && !Model.User.HasPayedMembershipThi
         <div class="form-group">
             <label asp-for="Input.Role"></label>
             <select class="form-control" asp-for="Input.Role">
-                <option value="lead">Fører</option>
-                <option value="follow">Følger</option>
+                <option value="@DanceRole.Lead">Fører</option>
+                <option value="@DanceRole.Follow">Følger</option>
             </select>
             <span asp-validation-for="Input.Role" class="text-danger"></span>
         </div>
         @if(Model.Options.AllowPartnerSignup)
         {
-            <div class="form-group col-12">
+            <div class="form-group">
                 <label asp-for="Input.PartnerEmail"></label>
                 <input type="text" class="form-control" asp-for="Input.PartnerEmail">
                 <span asp-validation-for="Input.PartnerEmail" class="text-danger"></span>

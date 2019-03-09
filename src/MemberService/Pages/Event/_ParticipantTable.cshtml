@@ -1,0 +1,42 @@
+@using MemberService.Pages.Event
+@model IEnumerable<EventSignupModel>
+
+<table class="table">
+    <thead class="thead-light">
+        <tr>
+            <th></th>
+            <th>Navn</th>
+            <th>Dato</th>
+        </tr>
+    </thead>
+    <thead>
+        <tr>
+            <th colspan="3">Bekreftet og betalt</th>
+        </tr>
+    </thead>
+    <partial name="_Participants" model="@Model.Where(p => p.Status == Status.ConfirmedAndPayed)">
+    <thead>
+        <tr>
+            <th colspan="3">Akseptert</th>
+        </tr>
+    </thead>
+    <partial name="_Participants" model="@Model.Where(p => p.Status == Status.Accepted)">
+    <thead>
+        <tr>
+            <th colspan="3">På venteliste</th>
+        </tr>
+    </thead>
+    <partial name="_Participants" model="@Model.Where(p => p.Status == Status.WaitingList)">
+    <thead>
+        <tr>
+            <th colspan="3">Anbefalt</th>
+        </tr>
+    </thead>
+    <partial name="_Participants" model="@Model.Where(p => p.Status == Status.Recommended)">
+    <thead>
+        <tr>
+            <th colspan="3">Påmeldt</th>
+        </tr>
+    </thead>
+    <partial name="_Participants" model="@Model.Where(p => p.Status == Status.Pending)">
+</table>

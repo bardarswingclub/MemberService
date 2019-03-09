@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Clave.Expressionify;
 using MemberService.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -28,13 +29,8 @@ namespace MemberService.Pages.Signup
             var model = await _database.Events
                 .Include(e => e.SignupOptions)
                 .AsNoTracking()
-                .Select(e => new SignupModel
-                {
-                    Id = e.Id,
-                    Title = e.Title,
-                    Description = e.Description,
-                    Options = e.SignupOptions
-                })
+                .Expressionify()
+                .Select(e => SignupModel.Create(e))
                 .SingleOrDefaultAsync(e => e.Id == id);
 
             if (model == null)
@@ -48,16 +44,27 @@ namespace MemberService.Pages.Signup
                 .AsNoTracking()
                 .SingleUser(_userManager.GetUserId(User));
 
-            if (model.User.EventSignups.Any(e => e.EventId == id))
+            if (model.User.EventSignups.FirstOrDefault(e => e.EventId == id) is EventSignup eventSignup)
             {
-                return View("AlreadySignedUp", model);
+                model.UserEventSignup = eventSignup;
+                return View("Status", model);
+            }
+
+            if (model.Options.SignupOpensAt > DateTime.Now)
+            {
+                return View("NotOpenYet", model);
+            }
+
+            if (model.Options.SignupClosesAt < DateTime.Now)
+            {
+                return View("ClosedAlready", model);
             }
 
             return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Index(Guid id, [FromForm] SignupInputModel inputModel)
+        public async Task<IActionResult> Index(Guid id, [FromForm] SignupInputModel input)
         {
             if (!ModelState.IsValid)
             {
@@ -72,8 +79,8 @@ namespace MemberService.Pages.Signup
             {
                 EventId = id,
                 Priority = 1,
-                Role = inputModel.Role,
-                PartnerEmail = inputModel.PartnerEmail,
+                Role = input.Role,
+                PartnerEmail = input.PartnerEmail,
                 Status = Status.Pending
             });
 
@@ -86,15 +93,10 @@ namespace MemberService.Pages.Signup
         public async Task<IActionResult> ThankYou(Guid id)
         {
             var model = await _database.Events
+                .Expressionify()
                 .Include(e => e.SignupOptions)
                 .AsNoTracking()
-                .Select(e => new SignupModel
-                {
-                    Id = e.Id,
-                    Title = e.Title,
-                    Description = e.Description,
-                    Options = e.SignupOptions
-                })
+                .Select(e => SignupModel.Create(e))
                 .SingleOrDefaultAsync(e => e.Id == id);
 
             return View(model);

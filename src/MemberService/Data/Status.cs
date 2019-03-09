@@ -5,6 +5,7 @@ namespace MemberService.Data
         Unknown,
         Pending,
         Recommended,
+        WaitingList,
         Accepted,
         ConfirmedAndPayed
     }

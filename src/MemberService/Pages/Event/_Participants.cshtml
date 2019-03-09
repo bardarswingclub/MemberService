@@ -1,0 +1,26 @@
+@using MemberService.Pages.Event
+@model IEnumerable<EventSignupModel>
+
+<tbody>
+    @if(Model.NotAny())
+    {
+        <tr>
+            <td colspan="3" class="text-center text-uppercase text-muted">Ingen</td>
+        </tr>
+    }
+
+    @foreach(var signup in Model)
+    {
+        <tr>
+            <td>
+                <input type="checkbox" name="Input_Selected[@signup.Id]" value="true">
+            </td>
+            <td>
+                @signup.FullName
+            </td>
+            <td>
+                @signup.SignedUpAt
+            </td>
+        </tr>
+    }
+</tbody>
