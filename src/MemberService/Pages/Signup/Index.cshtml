@@ -1,0 +1,51 @@
+@using MemberService.Pages.Signup
+@model SignupModel
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+<h2>@ViewData["Title"]</h2>
+
+@if(Model.Options.RequiresClassesFee && !Model.User.HasPayedClassesFeeThisSemester())
+{
+    <div class="alert alert-warning" role="alert">
+        For å delta på dette arrangementet må du ha betalt kursavgift. Du kan melde deg på nå, men hvis du får tildelt plass så må du betale kursavgiften for å godta plassen.
+    </div>
+}
+else
+if(Model.Options.RequiresTrainingFee && !Model.User.HasPayedTrainingFeeThisSemester())
+{
+    <div class="alert alert-warning" role="alert">
+        For å delta på dette arrangementet må du ha betalt treningsavgift. Du kan melde deg på nå, men hvis du får tildelt plass så må du betale treningsavgiften for å godta plassen.
+    </div>
+}
+else if(Model.Options.RequiresMembershipFee && !Model.User.HasPayedMembershipThisYear())
+{
+    <div class="alert alert-warning" role="alert">
+        For å delta på dette arrangementet må du ha betalt medlemsavgift for i år. Du kan melde deg på nå, men hvis du får tildelt plass så må du betale medlemsavgiften for å godta plassen.
+    </div>
+}
+
+<form method="POST" asp-action="Create" class="form">
+    <p>@Model.Description</p>
+    @if(Model.Options.RoleSignup)
+    {
+        <div class="form-group">
+            <label asp-for="Input.Role"></label>
+            <select class="form-control" asp-for="Input.Role">
+                <option value="lead">Fører</option>
+                <option value="follow">Følger</option>
+            </select>
+            <span asp-validation-for="Input.Role" class="text-danger"></span>
+        </div>
+        @if(Model.Options.AllowPartnerSignup)
+        {
+            <div class="form-group col-12">
+                <label asp-for="Input.PartnerEmail"></label>
+                <input type="text" class="form-control" asp-for="Input.PartnerEmail">
+                <span asp-validation-for="Input.PartnerEmail" class="text-danger"></span>
+            </div>
+        }
+    }
+    <button type="submit" class="btn btn-primary">Meld deg på</button>
+</form>

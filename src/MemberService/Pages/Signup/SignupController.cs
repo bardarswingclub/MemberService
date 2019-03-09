@@ -1,0 +1,107 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using MemberService.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace MemberService.Pages.Signup
+{
+    [Authorize]
+    public class SignupController : Controller
+    {
+        private MemberContext _database;
+        private UserManager<MemberUser> _userManager;
+
+        public SignupController(
+            MemberContext database,
+            UserManager<MemberUser> userManager)
+        {
+            _database = database;
+            _userManager = userManager;
+        }
+
+        public async Task<IActionResult> Index(Guid id)
+        {
+            var model = await _database.Events
+                .Include(e => e.SignupOptions)
+                .AsNoTracking()
+                .Select(e => new SignupModel
+                {
+                    Id = e.Id,
+                    Title = e.Title,
+                    Description = e.Description,
+                    Options = e.SignupOptions
+                })
+                .SingleOrDefaultAsync(e => e.Id == id);
+
+            if (model == null)
+            {
+                return NotFound();
+            }
+
+            model.User = await _database.Users
+                .Include(u => u.Payments)
+                .Include(u => u.EventSignups)
+                .AsNoTracking()
+                .SingleUser(_userManager.GetUserId(User));
+
+            if (model.User.EventSignups.Any(e => e.EventId == id))
+            {
+                return View("AlreadySignedUp", model);
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Index(Guid id, [FromForm] SignupInputModel inputModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Index), new { id });
+            }
+
+            var user = await _database.Users
+                .Include(u => u.EventSignups)
+                .SingleUser(_userManager.GetUserId(User));
+
+            user.EventSignups.Add(new EventSignup
+            {
+                EventId = id,
+                Priority = 1,
+                Role = inputModel.Role,
+                PartnerEmail = inputModel.PartnerEmail,
+                Status = Status.Pending
+            });
+
+            await _database.SaveChangesAsync();
+
+            return RedirectToAction(nameof(ThankYou), new { id });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ThankYou(Guid id)
+        {
+            var model = await _database.Events
+                .Include(e => e.SignupOptions)
+                .AsNoTracking()
+                .Select(e => new SignupModel
+                {
+                    Id = e.Id,
+                    Title = e.Title,
+                    Description = e.Description,
+                    Options = e.SignupOptions
+                })
+                .SingleOrDefaultAsync(e => e.Id == id);
+
+            return View(model);
+        }
+
+        private async Task<MemberUser> GetCurrentUser()
+            => await _database.Users
+                .SingleUser(_userManager.GetUserId(User));
+    }
+}

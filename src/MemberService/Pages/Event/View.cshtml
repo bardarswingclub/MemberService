@@ -1,6 +1,9 @@
 @model Event
 
-<h2>@Model.Title</h2>
+@{
+    ViewData["Title"] = Model.Title;
+}
+<h2>@ViewData["Title"]</h2>
 
 
 <h4>Påmeldte</h4>

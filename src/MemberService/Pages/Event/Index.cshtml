@@ -1,6 +1,9 @@
 @model List<Event>
 
-<h2>Eventer</h2>
+@{
+    ViewData["Title"] = "Eventer";
+}
+<h2>@ViewData["Title"]</h2>
 
 <a asp-action="Create">Opprett ny event</a>
 

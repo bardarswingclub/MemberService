@@ -76,6 +76,7 @@ namespace MemberService.Pages.Event
         public async Task<IActionResult> View(Guid id)
         {
             var eventEntry = await _database.Events
+                .AsNoTracking()
                 .SingleOrDefaultAsync(e => e.Id == id);
 
             if (eventEntry == null)
@@ -85,6 +86,7 @@ namespace MemberService.Pages.Event
 
             return View(eventEntry);
         }
+
         private async Task<MemberUser> GetCurrentUser()
             => await _database.Users
                 .SingleUser(_userManager.GetUserId(User));
