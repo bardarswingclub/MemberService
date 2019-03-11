@@ -9,34 +9,53 @@
             <th>Dato</th>
         </tr>
     </thead>
+
     <thead>
         <tr>
-            <th colspan="3">Bekreftet og betalt</th>
+            <th colspan="3" class="text-success">Godtatt og betalt</th>
         </tr>
     </thead>
-    <partial name="_Participants" model="@Model.Where(p => p.Status == Status.ConfirmedAndPayed)">
+    <partial name="_Participants" model="@Model.Where(p => p.Status == Status.AcceptedAndPayed).ToList()">
+
     <thead>
         <tr>
-            <th colspan="3">Akseptert</th>
+            <th colspan="3" class="text-success">Gitt plass</th>
         </tr>
     </thead>
-    <partial name="_Participants" model="@Model.Where(p => p.Status == Status.Accepted)">
+    <partial name="_Participants" model="@Model.Where(p => p.Status == Status.Approved).ToList()">
+
     <thead>
         <tr>
             <th colspan="3">På venteliste</th>
         </tr>
     </thead>
-    <partial name="_Participants" model="@Model.Where(p => p.Status == Status.WaitingList)">
+    <partial name="_Participants" model="@Model.Where(p => p.Status == Status.WaitingList).ToList()">
+
     <thead>
         <tr>
             <th colspan="3">Anbefalt</th>
         </tr>
     </thead>
-    <partial name="_Participants" model="@Model.Where(p => p.Status == Status.Recommended)">
+    <partial name="_Participants" model="@Model.Where(p => p.Status == Status.Recommended).ToList()">
+
     <thead>
         <tr>
             <th colspan="3">Påmeldt</th>
         </tr>
     </thead>
-    <partial name="_Participants" model="@Model.Where(p => p.Status == Status.Pending)">
+    <partial name="_Participants" model="@Model.Where(p => p.Status == Status.Pending).ToList()">
+
+    <thead>
+        <tr>
+            <th colspan="3" class="text-danger">Takket nei til plass</th>
+        </tr>
+    </thead>
+    <partial name="_Participants" model="@Model.Where(p => p.Status == Status.RejectedOrNotPayed).ToList()">
+
+    <thead>
+        <tr>
+            <th colspan="3" class="text-danger">Fratatt plass</th>
+        </tr>
+    </thead>
+    <partial name="_Participants" model="@Model.Where(p => p.Status == Status.Denied).ToList()">
 </table>

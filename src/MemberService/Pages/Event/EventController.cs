@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Clave.Expressionify;
@@ -89,8 +90,8 @@ namespace MemberService.Pages.Event
                     IsRoleSignup = e.SignupOptions.RoleSignup,
                     Leads = e.GetSignups(DanceRole.Lead),
                     Follows = e.GetSignups(DanceRole.Follow),
-                    Solo = e.GetSignups(DanceRole.None)
-                })
+                    Solos = e.GetSignups(DanceRole.None)
+                        })
                 .SingleOrDefaultAsync(e => e.Id == id);
 
             if (model == null)
@@ -99,6 +100,32 @@ namespace MemberService.Pages.Event
             }
 
             return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> View(Guid id, [FromForm] EventSaveModel input)
+        {
+            var selected = input.Leads
+                .Concat(input.Follows)
+                .Concat(input.Solos)
+                .Where(l => l.Selected)
+                .Select(l => l.Id);
+
+            if (input.Status != Status.Unknown)
+            {
+                var eventEntry = await _database.Events
+                    .Include(e => e.Signups)
+                    .SingleOrDefaultAsync(e => e.Id == id);
+
+                foreach (var signup in selected)
+                {
+                    eventEntry.Signups.Single(s => s.Id == signup).Status = input.Status;
+                }
+
+                await _database.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(View), new { id });
         }
 
         private async Task<MemberUser> GetCurrentUser()

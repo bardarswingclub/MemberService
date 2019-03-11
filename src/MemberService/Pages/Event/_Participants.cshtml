@@ -1,5 +1,5 @@
 @using MemberService.Pages.Event
-@model IEnumerable<EventSignupModel>
+@model IReadOnlyList<EventSignupModel>
 
 <tbody>
     @if(Model.NotAny())
@@ -9,11 +9,13 @@
         </tr>
     }
 
-    @foreach(var signup in Model)
+    @for(var i = 0; i < Model.Count; i++)
     {
+        var signup = Model[i];
         <tr>
             <td>
-                <input type="checkbox" name="Input_Selected[@signup.Id]" value="true">
+                <input type="hidden" asp-for="@Model[i].Id">
+                <input type="checkbox" asp-for="@Model[i].Selected">
             </td>
             <td>
                 @signup.FullName

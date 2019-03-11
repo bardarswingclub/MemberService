@@ -18,6 +18,6 @@ namespace MemberService.Pages.Event
 
         public ICollection<EventSignupModel> Follows { get; set; }
 
-        public ICollection<EventSignupModel> Solo { get; set; }
+        public ICollection<EventSignupModel> Solos { get; set; }
     }
 }

@@ -81,7 +81,8 @@ namespace MemberService.Pages.Signup
                 Priority = 1,
                 Role = input.Role,
                 PartnerEmail = input.PartnerEmail,
-                Status = Status.Pending
+                Status = Status.Pending,
+                SignedUpAt = DateTime.UtcNow
             });
 
             await _database.SaveChangesAsync();
@@ -102,8 +103,22 @@ namespace MemberService.Pages.Signup
             return View(model);
         }
 
-        private async Task<MemberUser> GetCurrentUser()
-            => await _database.Users
+        [HttpPost]
+        public async Task<IActionResult> AcceptOrReject([FromForm] Guid id, [FromForm] bool accept)
+        {
+            var user = await _database.Users
+                .Include(u => u.EventSignups)
                 .SingleUser(_userManager.GetUserId(User));
+
+            var signup = user.EventSignups.FirstOrDefault(s => s.EventId == id);
+
+            if (signup?.Status == Status.Approved)
+            {
+                signup.Status = accept ? Status.AcceptedAndPayed : Status.RejectedOrNotPayed;
+                await _database.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index), new { id });
+        }
     }
 }

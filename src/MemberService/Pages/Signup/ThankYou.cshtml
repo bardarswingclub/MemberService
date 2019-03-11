@@ -4,8 +4,12 @@
 @{
     ViewData["Title"] = Model.Title;
 }
-<h2>@ViewData["Title"]</h2>
 
+<div class="jumbotron">
+    <h2>@ViewData["Title"]</h2>
+
+    <p class="lead">@Model.Description</p>
+</div>
 
 <div class="alert alert-success" role="alert">
     <h3 class="alert-headeing">Du er nå påmeldt @Model.Title</h3>

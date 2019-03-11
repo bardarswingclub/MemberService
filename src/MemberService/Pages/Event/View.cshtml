@@ -24,11 +24,22 @@
     {
         <div class="col-md-12">
             <h4>Solo</h4>
-            <partial name="_ParticipantTable" for="@Model.Solo" />
+            <partial name="_ParticipantTable" for="@Model.Solos" />
         </div>
     }
-    <div class="col-md-12">
-        <button type="submit" class="btn btn-primary">Lagre</button>
+    <div class="col-md-12 form-row align-items-center">
+        <div class="col-auto">
+            <select name="Status" class="custom-select">
+                <option selected="selected" value="">Velg en handling</option>
+                <option value="2">Anbefall plass</option>
+                <option value="4">Gi plass</option>
+                <option value="3">Sett på venteliste</option>
+                <option value="7">Frata plass</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Lagre</button>
+        </div>
     </div>
 </form>
 
