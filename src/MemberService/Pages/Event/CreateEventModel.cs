@@ -1,41 +1,52 @@
 using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace MemberService.Pages.Event
 {
     public class CreateEventModel
     {
-        [Display(Name = "Navn")]
+        [DisplayName("Navn")]
         public string Title { get; set; }
 
-        [Display(Name = "Beskrivelse")]
+        [DisplayName("Beskrivelse")]
         public string Description { get; set; }
 
-        [Display(Name = "Påmeldingen åpner")]
-        public DateTime? SignupOpensAt { get; set; }
+        public bool EnableSignupOpensAt { get; set; }
 
-        [Display(Name = "Påmelding stenger")]
-        public DateTime? SignupClosesAt { get; set; }
+        [DisplayName("Påmeldingen åpner")]
+        public string SignupOpensAtDate { get; set; }
 
-        [Display(Name = "Krever medlemskap")]
+        [RegularExpression(@"^\d\d:\d\d$")]
+        public string SignupOpensAtTime { get; set; }
+
+        public bool EnableSignupClosesAt { get; set; }
+
+        [DisplayName("Påmelding stenger")]
+        public string SignupClosesAtDate { get; set; }
+
+        [RegularExpression(@"^\d\d:\d\d$")]
+        public string SignupClosesAtTime { get; set; }
+
+        [DisplayName("Krever medlemskap")]
         public bool RequiresMembershipFee { get; set; }
 
-        [Display(Name = "Krever betalt treningsavgift")]
+        [DisplayName("Krever betalt treningsavgift")]
         public bool RequiresTrainingFee { get; set; }
 
-        [Display(Name = "Krever betalt kursavgift")]
+        [DisplayName("Krever betalt kursavgift")]
         public bool RequiresClassesFee { get; set; }
 
-        [Display(Name = "Pris for medlemmer")]
+        [DisplayName("Pris for medlemmer")]
         public decimal PriceForMembers { get; set; }
 
-        [Display(Name = "Pris for ikke-medlemmer")]
+        [DisplayName("Pris for ikke-medlemmer")]
         public decimal PriceForNonMembers { get; set; }
 
-        [Display(Name = "La par melde seg på sammen")]
+        [DisplayName("La par melde seg på sammen")]
         public bool AllowPartnerSignup { get; set; }
 
-        [Display(Name = "Fører og følger")]
+        [DisplayName("Fører og følger")]
         public bool RoleSignup { get; set; }
     }
 }

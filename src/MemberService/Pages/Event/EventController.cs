@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Clave.Expressionify;
@@ -9,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NodaTime.Text;
 
 namespace MemberService.Pages.Event
 {
@@ -63,8 +63,8 @@ namespace MemberService.Pages.Event
                     RequiresClassesFee = model.RequiresClassesFee,
                     PriceForMembers = model.PriceForMembers,
                     PriceForNonMembers = model.PriceForNonMembers,
-                    SignupOpensAt = model.SignupOpensAt,
-                    SignupClosesAt = model.SignupClosesAt,
+                    SignupOpensAt = GetUtc(model.EnableSignupOpensAt, model.SignupOpensAtDate, model.SignupOpensAtTime),
+                    SignupClosesAt = GetUtc(model.EnableSignupClosesAt, model.SignupClosesAtDate, model.SignupClosesAtTime),
                     AllowPartnerSignup = model.AllowPartnerSignup,
                     RoleSignup = model.RoleSignup
                 }
@@ -91,7 +91,7 @@ namespace MemberService.Pages.Event
                     Leads = e.GetSignups(DanceRole.Lead),
                     Follows = e.GetSignups(DanceRole.Follow),
                     Solos = e.GetSignups(DanceRole.None)
-                        })
+                })
                 .SingleOrDefaultAsync(e => e.Id == id);
 
             if (model == null)
@@ -126,6 +126,17 @@ namespace MemberService.Pages.Event
             }
 
             return RedirectToAction(nameof(View), new { id });
+        }
+
+        private DateTime? GetUtc(bool enable, string date, string time)
+        {
+            if (!enable) return null;
+
+            var dateTime = $"{date}T{time}:00";
+
+            var localDateTime = LocalDateTimePattern.GeneralIso.Parse(dateTime).GetValueOrThrow();
+
+            return localDateTime.InZoneLeniently(Constants.TimeZoneOslo).ToDateTimeUtc();
         }
 
         private async Task<MemberUser> GetCurrentUser()

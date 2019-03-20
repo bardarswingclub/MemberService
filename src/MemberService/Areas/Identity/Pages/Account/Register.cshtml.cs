@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using MemberService.Data;
@@ -18,7 +19,7 @@ namespace MemberService.Areas.Identity.Pages.Account
         public class InputModel
         {
             [Required]
-            [Display(Name = "Fullt navn")]
+            [DisplayName("Fullt navn")]
             public string FullName { get; set; }
 
             public string ReturnUrl { get; set; }

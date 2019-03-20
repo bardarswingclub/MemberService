@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ namespace MemberService.Areas.Identity.Pages.Account.Manage
             _signInManager = signInManager;
         }
 
-        [Display(Name = "E-post")]
+        [DisplayName("E-post")]
         public string Email { get; set; }
 
         public IReadOnlyCollection<Payment> Payments { get; private set; }
@@ -39,7 +40,7 @@ namespace MemberService.Areas.Identity.Pages.Account.Manage
 
         public class InputModel
         {
-            [Display(Name = "Fullt navn")]
+            [DisplayName("Fullt navn")]
             public string FullName { get; set; }
         }
 

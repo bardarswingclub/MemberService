@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using MemberService.Data;
@@ -21,11 +22,11 @@ namespace MemberService.Areas.Identity.Pages.Account
         {
             [Required]
             [EmailAddress]
-            [Display(Name = "E-post")]
+            [DisplayName("E-post")]
             public string Email { get; set; }
 
             [Required]
-            [Display(Name = "Kode")]
+            [DisplayName("Kode")]
             public string Code { get; set; }
 
             public string ReturnUrl { get; set; }
