@@ -10,6 +10,7 @@
 
 
   <ItemGroup>
+    <PackageReference Include="Clave.Expressionify" Version="0.2.5" />
     <PackageReference Include="Clave.ExtensionMethods" Version="0.1.7" />
     <PackageReference Include="Clave.NamespaceViewLocationExpander" Version="0.2.5" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
@@ -17,6 +18,10 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.1" />
     <PackageReference Include="Stripe.net" Version="22.9.0" />
+    <PackageReference Include="Clave.Expressionify.CodeGen" Version="0.2.5">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>

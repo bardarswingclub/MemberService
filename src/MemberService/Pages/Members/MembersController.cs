@@ -3,6 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Clave.ExtensionMethods;
+using Clave.Expressionify;
 using MemberService.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -29,6 +30,7 @@ namespace MemberService.Pages.Members
         public async Task<IActionResult> Index(string filter)
         {
             var users = await _memberContext.Users
+                .Expressionify()
                 .Include(u => u.Payments)
                 .Include(u => u.UserRoles)
                 .ThenInclude(r => r.Role)
@@ -88,11 +90,11 @@ namespace MemberService.Pages.Members
             switch (filter)
             {
                 case "OnlyMembers":
-                    return Extensions.HasPayedMembershipThisYearExpression;
+                    return user => user.HasPayedMembershipThisYear();
                 case "OnlyTraining":
-                    return Extensions.HasPayedTrainingThisSemesterExpression;
+                    return user => user.HasPayedTrainingThisSemester();
                 case "OnlyClasses":
-                    return Extensions.HasPayedClassesThisSemesterExpression;
+                    return user => user.HasPayedClassesThisSemester();
                 default:
                     return user => true;
             }
