@@ -80,6 +80,7 @@ namespace MemberService.Pages.Event
         public async Task<IActionResult> View(Guid id)
         {
             var model = await _database.Events
+                .Include(e => e.SignupOptions)
                 .AsNoTracking()
                 .Expressionify()
                 .Select(e => new EventModel
@@ -87,7 +88,7 @@ namespace MemberService.Pages.Event
                     Id = e.Id,
                     Title = e.Title,
                     Description = e.Description,
-                    IsRoleSignup = e.SignupOptions.RoleSignup,
+                    Options = e.SignupOptions,
                     Leads = e.GetSignups(DanceRole.Lead),
                     Follows = e.GetSignups(DanceRole.Follow),
                     Solos = e.GetSignups(DanceRole.None)
@@ -124,6 +125,34 @@ namespace MemberService.Pages.Event
 
                 await _database.SaveChangesAsync();
             }
+
+            return RedirectToAction(nameof(View), new { id });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SetStatus(Guid id, [FromForm] string status)
+        {
+            var model = await _database.Events
+                .Where(e => e.Id == id)
+                .Select(e => e.SignupOptions)
+                .SingleOrDefaultAsync();
+
+            if (model == null)
+            {
+                return NotFound();
+            }
+
+            if (status == "open")
+            {
+                model.SignupOpensAt = DateTime.UtcNow;
+                model.SignupClosesAt = null;
+            }
+            else if (status == "close")
+            {
+                model.SignupClosesAt = DateTime.UtcNow;
+            }
+
+            await _database.SaveChangesAsync();
 
             return RedirectToAction(nameof(View), new { id });
         }

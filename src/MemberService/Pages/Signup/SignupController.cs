@@ -50,17 +50,17 @@ namespace MemberService.Pages.Signup
                 return View("Status", model);
             }
 
-            if (model.Options.SignupOpensAt > DateTime.UtcNow)
+            if (model.Options.IsOpen())
             {
-                return View("NotOpenYet", model);
+                return View(model);
             }
 
-            if (model.Options.SignupClosesAt < DateTime.UtcNow)
+            if (model.Options.HasClosed())
             {
                 return View("ClosedAlready", model);
             }
 
-            return View(model);
+            return View("NotOpenYet", model);
         }
 
         [HttpPost]

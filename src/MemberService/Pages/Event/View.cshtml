@@ -8,8 +8,44 @@
 
 <a asp-controller="Signup" asp-action="Index" asp-route-id="@Model.Id">Delbar link til påmelding</a>
 
+<form class="alert alert-info" asp-action="SetStatus" asp-route-id="@Model.Id" method="POST">
+    @if(Model.Options.IsOpen())
+    {
+        <h4 class="alert-heading">Påmeldingen er åpen!</h4>
+        @if(Model.Options.SignupOpensAt.HasValue)
+        {
+            <p>Påmeldingen åpnet @Model.Options.SignupOpensAt</p>
+        }
+        @if(Model.Options.SignupClosesAt.HasValue)
+        {
+            <p>Påmeldingen stenger @Model.Options.SignupClosesAt</p>
+        }
+        <button type="submit" name="status" value="close" class="btn btn-outline-danger">Steng påmeldingen nå</button>
+    }
+    else if(Model.Options.HasClosed())
+    {
+        <h4 class="alert-heading">Påmeldingen har stengt!</h4>
+        @if(Model.Options.SignupOpensAt.HasValue)
+        {
+            <p>Påmeldingen åpnet @Model.Options.SignupOpensAt</p>
+        }
+        <p>Påmeldingen stengte @Model.Options.SignupClosesAt</p>
+        <button type="submit" name="status" value="open" class="btn btn-outline-success">Gjennåpne påmeldingen nå</button>
+    }
+    else
+    {
+        <h4 class="alert-heading">Påmeldingen har ikke åpnet ennå!</h4>
+        <p>Påmeldingen åpner @Model.Options.SignupOpensAt</p>
+        @if(Model.Options.SignupClosesAt.HasValue)
+        {
+            <p>Påmeldingen stenger @Model.Options.SignupClosesAt</p>
+        }
+        <button type="submit" name="status" value="open" class="btn btn-outline-success">Åpne påmeldingen nå</button>
+    }
+</form>
+
 <form class="row" method="POST">
-    @if(Model.IsRoleSignup)
+    @if(Model.Options.RoleSignup)
     {
         <div class="col-md-6">
             <h4>Førere</h4>
