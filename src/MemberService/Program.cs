@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using MemberService.Data;
@@ -21,20 +16,20 @@ namespace MemberService
         {
             using (var host = CreateWebHostBuilder(args).Build())
             {
-                var config = host.Services.GetService<Config>();
+                var config = host.Services.GetRequiredService<Config>();
 
                 using (var scope = host.Services.CreateScope())
                 {
                     await scope.ServiceProvider
-                        .GetService<MemberContext>()
+                        .GetRequiredService<MemberContext>()
                         .Database.MigrateAsync();
 
                     await scope.ServiceProvider
-                        .GetService<RoleManager<MemberRole>>()
+                        .GetRequiredService<RoleManager<MemberRole>>()
                         .SeedRoles();
 
                     await scope.ServiceProvider
-                        .GetService<UserManager<MemberUser>>()
+                        .GetRequiredService<UserManager<MemberUser>>()
                         .SeedUserRoles(config.Email.From);
                 }
 
@@ -44,6 +39,10 @@ namespace MemberService
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureLogging((hostingContext, logging) =>
+                {
+                    logging.AddConsole();
+                })
                 .UseStartup<Startup>();
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Clave.NamespaceViewLocationExpander;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,12 +19,14 @@ namespace MemberService
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IHostingEnvironment hostingEnvironment)
         {
             Configuration = configuration;
+            HostingEnvironment = hostingEnvironment;
         }
 
         public IConfiguration Configuration { get; }
+        public IHostingEnvironment HostingEnvironment { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -40,7 +41,15 @@ namespace MemberService
             });
 
             services.AddSingleton(Configuration.Get<Config>());
-            services.AddTransient<IEmailSender, EmailSender>();
+
+            if (HostingEnvironment.IsDevelopment())
+            {
+                services.AddTransient<IEmailSender, DummyEmailSender>();
+            }
+            else
+            {
+                services.AddTransient<IEmailSender, EmailSender>();
+            }
 
             services.AddDbContext<MemberContext>(ConfigureConnectionString);
 
