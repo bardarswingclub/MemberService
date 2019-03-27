@@ -123,13 +123,13 @@ namespace MemberService
             options
                 .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning));
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                options.UseSqlite("Data Source=members.db");
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             }
             else
             {
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                options.UseSqlite("Data Source=members.db");
             }
         }
     }
