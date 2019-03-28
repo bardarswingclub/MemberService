@@ -1,10 +1,11 @@
+using MemberService.Auth.Development;
 using Microsoft.AspNetCore.Identity;
 
 namespace MemberService.Auth
 {
     public static class CustomIdentityBuilderExtensions
     {
-        public static IdentityBuilder AddPasswordlessLoginTokenProvider(this IdentityBuilder builder)
+        public static IdentityBuilder AddPasswordlessLoginTokenProvider(this IdentityBuilder builder, bool isDevelopment)
         {
             builder.AddTokenProvider(
                 "LongToken",
@@ -12,9 +13,14 @@ namespace MemberService.Auth
 
             builder.AddTokenProvider(
                 "ShortToken",
-                typeof(ShortTokenProvider<>).MakeGenericType(builder.UserType));
+                GetShortTokenProvider(isDevelopment).MakeGenericType(builder.UserType));
 
             return builder;
+        }
+
+        private static System.Type GetShortTokenProvider(bool useDummyProvider)
+        {
+            return useDummyProvider ? typeof(DummyShortTokenProvider<>) : typeof(ShortTokenProvider<>);
         }
     }
 

@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity.UI.Services;
 
-namespace MemberService.Auth
+namespace MemberService.Auth.Development
 {
-    public class DummyEmailSender : IEmailSender
+    public class DummyConsoleEmailSender : IEmailSender
     {
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {

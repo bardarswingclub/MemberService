@@ -14,6 +14,7 @@ using MemberService.Configs;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using MemberService.Auth;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using MemberService.Auth.Development;
 
 namespace MemberService
 {
@@ -27,6 +28,7 @@ namespace MemberService
 
         public IConfiguration Configuration { get; }
         public IHostingEnvironment HostingEnvironment { get; }
+        private bool IsDevelopment => HostingEnvironment.IsDevelopment();
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -42,9 +44,9 @@ namespace MemberService
 
             services.AddSingleton(Configuration.Get<Config>());
 
-            if (HostingEnvironment.IsDevelopment())
+            if (IsDevelopment)
             {
-                services.AddTransient<IEmailSender, DummyEmailSender>();
+                services.AddTransient<IEmailSender, DummyConsoleEmailSender>();
             }
             else
             {
@@ -70,7 +72,7 @@ namespace MemberService
                 .AddRoles<MemberRole>()
                 .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<MemberContext>()
-                .AddPasswordlessLoginTokenProvider();
+                .AddPasswordlessLoginTokenProvider(IsDevelopment);
 
             services.AddScoped<IUserClaimsPrincipalFactory<MemberUser>, MemberUserClaimsPrincipalFactory>();
 
@@ -85,9 +87,9 @@ namespace MemberService
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, Config config)
+        public void Configure(IApplicationBuilder app, Config config)
         {
-            if (env.IsDevelopment())
+            if (IsDevelopment)
             {
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
