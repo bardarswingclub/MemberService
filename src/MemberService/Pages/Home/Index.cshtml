@@ -7,17 +7,28 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <div class="row justify-content-around">
+<div class="card-deck text-center">
+    <div class="card">
+        <div class="card-header">
+            <h3>Medlemskap</h3>
+        </div>
+        <div class="card-body">
+            @if(Model.MembershipFee != null)
+            {
+                <h2 class="font-weight-bold">@Model.MembershipFee.Amount,-</h2>
+            }
+            else
+            {
+                <h2 class="font-weight-bold"><span style="color: #0a0">&#x2713;</span> Betalt</h2>
+            }
+            <small class="text-muted text-uppercase">per kalenderår</small>
+            <p>
+                Rabatt på klubbens arrangementer. Tilgang til å melde seg på på ekstraordinære kurs mot betaling.
+            </p>
+        </div>
         @if(Model.MembershipFee is Fee membershipFee)
         {
-            <form class="col-md-4 col-sm-8" asp-controller="Home" asp-action="Pay" method="post">
-                <h3>Medlemskap</h3>
-                <h2 class="font-weight-bold">@membershipFee.Amount,-</h2>
-                <small class="text-muted text-uppercase">per kalenderår</small>
-                <p>
-                    Rabatt på klubbens arrangementer. Tilgang til å melde seg på på ekstraordinære kurs mot betaling.
-                </p>
+            <form class="card-footer" asp-controller="Home" asp-action="Pay" method="post">
                 <input type="hidden" name="Fee" value="@Fee.Membership" />
                 <script
                     src="https://checkout.stripe.com/checkout.js" class="stripe-button"
@@ -35,31 +46,33 @@
                 </script>
             </form>
         }
-        else
-        {
-            <div class="col-md-4 col-sm-8">
-                <h3>Medlemskap</h3>
-                <h2 class="font-weight-bold"><span style="color: #0a0">&#x2713;</span> Betalt</h2>
-                <small class="text-muted text-uppercase">per kalenderår</small>
-                <p>
-                    Rabatt på klubbens arrangementer. Tillgang til å melde seg på på ekstraordinære kurs mot betaling.
-                </p>
-            </div>
-        }
+    </div>
 
+    <div class="card">
+        <div class="card-header">
+            <h3>Treningsavgift</h3>
+        </div>
+        <div class="card-body">
+            @if(Model.TrainingFee != null)
+            {
+                <h2 class="font-weight-bold">@Model.TrainingFee.Amount,-</h2>
+            }
+            else
+            {
+                <h2 class="font-weight-bold"><span style="color: #0a0">&#x2713;</span> Betalt</h2>
+            }
+            <small class="text-muted text-uppercase">per semester</small>
+            <p>
+                Tilgang til klubbens egentreningstider.
+                @if(Model.TrainingFee != null)
+                {
+                    @:Prisen inkluderer obligatorisk medlemskap.
+                }
+            </p>
+        </div>
         @if(Model.TrainingFee is Fee trainingFee)
         {
-            <form class="col-md-4 col-sm-8" asp-controller="Home" asp-action="Pay" method="post">
-                <h3>Treningsavgift</h3>
-                <h2 class="font-weight-bold">@trainingFee.Amount,-</h2>
-                <small class="text-muted text-uppercase">per semester</small>
-                <p>
-                    Tilgang til klubbens egentreningstider.
-                    @if(Model.MembershipFee != null)
-                    {
-                        @:Prisen inkluderer obligatorisk medlemskap.
-                    }
-                </p>
+            <form class="card-footer" asp-controller="Home" asp-action="Pay" method="post">
                 <input type="hidden" name="Fee" value="@Fee.Training" />
                 <script
                     src="https://checkout.stripe.com/checkout.js" class="stripe-button"
@@ -77,32 +90,42 @@
                 </script>
             </form>
         }
-        else
-        {
-            <div class="col-md-4 col-sm-8">
-                <h3>Treningsavgift</h3>
-                <h2 class="font-weight-bold"><span style="color: #0a0">&#x2713;</span> Betalt</h2>
-                <small class="text-muted text-uppercase">per semester</small>
-                <p>
-                    Tilgang til klubbens egentreningstider.
-                </p>
-            </div>
-        }
+    </div>
 
+    <div class="card">
+        <div class="card-header">
+            <h3>Kurs</h3>
+        </div>
+        <div class="card-body">
+            @if(Model.ClassesFee != null)
+            {
+                <h2 class="font-weight-bold">@Model.ClassesFee.Amount,-</h2>
+            }
+            else
+            {
+                <h2 class="font-weight-bold"><span style="color: #0a0">&#x2713;</span> Betalt</h2>
+            }
+            <small class="text-muted text-uppercase">per semester</small>
+            <p>
+                Tilgang til alle klubbens ordinære kurs, så lenge det er plass.
+                @if(Model.TrainingFee != null && Model.MembershipFee != null)
+                {
+                    @:Prisen inkluderer obligatorisk medlemskap og treningsavgift.
+                }
+                else if(Model.MembershipFee != null)
+                {
+                    @:Prisen inkluderer obligatorisk medlemskap.
+                }
+                else if(Model.TrainingFee != null)
+                {
+                    @:Prisen inkluderer treningsavgift.
+                }
+            </p>
+        </div>
         @if(Model.ClassesFee is Fee classesFee)
         {
-            <form class="col-md-4 col-sm-8" asp-controller="Home" asp-action="Pay" method="post">
-                <h3>Kurs</h3>
-                <h2 class="font-weight-bold">@classesFee.Amount,-</h2>
-                <small class="text-muted text-uppercase">per semester</small>
-                <p>
-                    Tilgang til alle klubbens ordinære kurs, så lenge det er plass.
-                    @if(Model.MembershipFee != null)
-                    {
-                        @:Prisen inkluderer obligatorisk medlemskap.
-                    }
-                </p>
-                <input type="hidden" name="Fee" value="@Fee.Classes" />
+            <form class="card-footer" asp-controller="Home" asp-action="Pay" method="post">
+                <input type="hidden" name="Fee" value="@Fee.Training" />
                 <script
                     src="https://checkout.stripe.com/checkout.js" class="stripe-button"
                     data-key="@Config.Stripe.PublicKey"
@@ -118,17 +141,6 @@
                     data-allowRememberMe="false">
                 </script>
             </form>
-        }
-        else
-        {
-            <div class="col-md-4 col-sm-8">
-                <h3>Kurs</h3>
-                <h2 class="font-weight-bold"><span style="color: #0a0">&#x2713;</span> Betalt</h2>
-                <small class="text-muted text-uppercase">per semester</small>
-                <p>
-                    Tilgang til alle klubbens ordinære kurs, så lenge det er plass.
-                </p>
-            </div>
         }
     </div>
 </div>

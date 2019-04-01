@@ -44,7 +44,9 @@ html {
 body {
   /* Margin bottom by footer height */
   margin-bottom: 60px;
+  font-family: "Lato";
 }
+
 .footer {
   position: absolute;
   bottom: 0;
@@ -57,8 +59,17 @@ body {
 
 .navbar {
   background: #27364c;
+  font-size: 1.25rem;
 }
 
 .navbar-brand img {
   height: 3em;
+}
+
+.navbar .nav-link.btn.btn-link {
+  font-size: inherit;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Voltaire";
 }
