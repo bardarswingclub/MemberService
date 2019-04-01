@@ -18,7 +18,11 @@ namespace MemberService.Auth.Development
 
         public Task<bool> ValidateAsync(string purpose, string token, UserManager<TUser> manager, TUser user)
         {
+#if DEBUG
             return Task.FromResult(true);
+#else
+            throw new System.Exception("Dummy methods are only available in debug builds!");
+#endif
         }
     }
 }
