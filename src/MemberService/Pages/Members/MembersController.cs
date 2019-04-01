@@ -30,10 +30,10 @@ namespace MemberService.Pages.Members
         public async Task<IActionResult> Index(string filter)
         {
             var users = await _memberContext.Users
-                .Expressionify()
                 .Include(u => u.Payments)
                 .Include(u => u.UserRoles)
                 .ThenInclude(r => r.Role)
+                .Expressionify()
                 .AsNoTracking()
                 .Where(Filter(filter))
                 .OrderBy(u => u.FullName)
@@ -42,7 +42,7 @@ namespace MemberService.Pages.Members
             return View(new MembersViewModel
             {
                 Users = users
-                    .GroupBy(u => u.FullName?.FirstOrDefault() ?? '?', (key, u) => (key, u.ToReadOnlyCollection()))
+                    .GroupBy(u => u.FullName?.ToUpper().FirstOrDefault() ?? '?', (key, u) => (key, u.ToReadOnlyCollection()))
                     .ToReadOnlyCollection(),
                 OnlyMembers = filter == "OnlyMembers",
                 OnlyTraining = filter == "OnlyTraining",

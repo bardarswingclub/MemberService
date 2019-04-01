@@ -65,47 +65,49 @@ namespace MemberService.Pages.Admin
 
         private async Task SavePayment(Charge charge)
         {
-            var email = charge.Metadata["email"];
-            var name = charge.Metadata["name"];
-            var user = await _memberContext.Users
-                .Include(u => u.Payments)
-                .FirstOrDefaultAsync(u => u.NormalizedEmail == email.ToUpperInvariant());
-
-            var (includesMembership, includesTraining, includesClasses) = GetIncludedFees(charge.Description);
-
-            var payment = new Payment
+            if (charge.Metadata.TryGetValue("email", out var email)
+            && charge.Metadata.TryGetValue("name", out var name))
             {
-                Amount = charge.Amount,
-                Description = charge.Description,
-                PayedAt = charge.Created,
-                StripeChargeId = charge.Id,
-                IncludesMembership = charge.Metadata.TryGetValue("inc_membership", out var m) && m == "yes" || includesMembership,
-                IncludesTraining = charge.Metadata.TryGetValue("inc_training", out var t) && t == "yes" || includesTraining,
-                IncludesClasses = charge.Metadata.TryGetValue("inc_classes", out var c) && c == "yes" || includesClasses,
-            };
+                var user = await _memberContext.Users
+                    .Include(u => u.Payments)
+                    .FirstOrDefaultAsync(u => u.NormalizedEmail == email.ToUpperInvariant());
 
-            if (user == null)
-            {
-                await _userManager.CreateAsync(new MemberUser
+                var (includesMembership, includesTraining, includesClasses) = GetIncludedFees(charge.Description);
+
+                var payment = new Payment
                 {
-                    UserName = email,
-                    Email = email,
-                    FullName = name,
-                    Payments = new List<Payment>
+                    Amount = charge.Amount,
+                    Description = charge.Description,
+                    PayedAt = charge.Created,
+                    StripeChargeId = charge.Id,
+                    IncludesMembership = charge.Metadata.TryGetValue("inc_membership", out var m) && m == "yes" || includesMembership,
+                    IncludesTraining = charge.Metadata.TryGetValue("inc_training", out var t) && t == "yes" || includesTraining,
+                    IncludesClasses = charge.Metadata.TryGetValue("inc_classes", out var c) && c == "yes" || includesClasses,
+                };
+
+                if (user == null)
+                {
+                    await _userManager.CreateAsync(new MemberUser
                     {
-                        payment
-                    }
-                });
-            }
-            else
-            {
-                if (user.Payments.NotAny(p => p.StripeChargeId == charge.Id))
-                {
-                    user.Payments.Add(payment);
+                        UserName = email,
+                        Email = email,
+                        FullName = name,
+                        Payments = new List<Payment>
+                        {
+                            payment
+                        }
+                    });
                 }
-            }
+                else
+                {
+                    if (user.Payments.NotAny(p => p.StripeChargeId == charge.Id))
+                    {
+                        user.Payments.Add(payment);
+                    }
+                }
 
-            await _memberContext.SaveChangesAsync();
+                await _memberContext.SaveChangesAsync();
+            }
         }
 
         private readonly Dictionary<string, (bool?, bool?, bool?)> DescriptionMap = new Dictionary<string, (bool?, bool?, bool?)>
