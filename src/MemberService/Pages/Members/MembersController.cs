@@ -3,7 +3,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Clave.ExtensionMethods;
-using Clave.Expressionify;
 using MemberService.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -33,7 +32,6 @@ namespace MemberService.Pages.Members
                 .Include(u => u.Payments)
                 .Include(u => u.UserRoles)
                 .ThenInclude(r => r.Role)
-                .Expressionify()
                 .AsNoTracking()
                 .Where(Filter(filter))
                 .OrderBy(u => u.FullName)
@@ -90,11 +88,11 @@ namespace MemberService.Pages.Members
             switch (filter)
             {
                 case "OnlyMembers":
-                    return user => user.HasPayedMembershipThisYear();
+                    return Extensions.HasPayedMembershipThisYearExpression;
                 case "OnlyTraining":
-                    return user => user.HasPayedTrainingThisSemester();
+                    return Extensions.HasPayedTrainingThisSemesterExpression;
                 case "OnlyClasses":
-                    return user => user.HasPayedClassesThisSemester();
+                    return Extensions.HasPayedClassesThisSemesterExpression;
                 default:
                     return user => true;
             }
