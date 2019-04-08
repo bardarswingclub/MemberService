@@ -59,8 +59,8 @@
                     <td><a asp-action="Details" asp-route-id="@user.Id">@user.FullName</a></td>
                     <td>@user.Email</td>
                     <td class="font-weight-bold text-center text-success">@(user.HasPayedMembershipThisYear() ? "\u2713" : "" )</td>
-                    <td class="font-weight-bold text-center text-success">@(user.HasPayedTrainingThisSemester() ? "\u2713" : "" )</td>
-                    <td class="font-weight-bold text-center text-success">@(user.HasPayedClassesThisSemester() ? "\u2713" : "" )</td>
+                    <td class="font-weight-bold text-center text-success">@(user.HasPayedTrainingFeeThisSemester() ? "\u2713" : "" )</td>
+                    <td class="font-weight-bold text-center text-success">@(user.HasPayedClassesFeeThisSemester() ? "\u2713" : "" )</td>
                 </tr>
             }
         </tbody>

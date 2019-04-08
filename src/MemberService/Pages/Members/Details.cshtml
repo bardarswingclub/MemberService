@@ -3,40 +3,58 @@
 @{
     ViewData["Title"] = Model.FullName;
 }
+
 <h2>@ViewData["Title"]</h2>
 <h3>@Model.Email</h3>
 
 <hr>
 
-<div class="row">
-    <div class="col-md-6">
-        <partial name="_Payments" for="Payments">
-    </div>
-    <div class="col-md-6">
-        @if(User.IsInRole(Roles.ADMIN)){
-            <h4>Rettigheter</h4>
-            @if(Model.UserRoles.Any(r => r.Role.Name == Roles.ADMIN))
-            {
-                <div>Admin</div>
-            }
-            else
-            {
-                <form asp-controller="Members" asp-action="MakeAdmin" method="post">
-                    <input type="hidden" name="email" value="@Model.Email">
-                    <button>Make admin</button>
-                </form>
-            }
-            @if(Model.UserRoles.Any(r => r.Role.Name == Roles.COORDINATOR))
-            {
-                <div>Coordinator</div>
-            }
-            else
-            {
-                <form asp-controller="Members" asp-action="MakeCoordinator" method="post">
-                    <input type="hidden" name="email" value="@Model.Email">
-                    <button>Make coordinator</button>
-                </form>
-            }
+<h5 class="d-flex justify-content-between">
+    <span>
+        @if(Model.HasPayedMembershipThisYear())
+        {
+            @: <span style="color: #0a0">&#x2713;</span> Medlemskap betalt
         }
-    </div>
+        else
+        {
+            @: <span style="color: #d00">&#x2718;</span> Medlemskap ikke betalt
+        }
+    </span>
+    <span>
+        @if(Model.HasPayedTrainingFeeThisSemester())
+        {
+            @: <span style="color: #0a0">&#x2713;</span> Treningsavgift
+        }
+        else
+        {
+            @: <span style="color: #d00">&#x2718;</span> Treningsavgift ikke betalt
+        }
+    </span>
+    <span>
+        @if(Model.HasPayedClassesFeeThisSemester())
+        {
+            @: <span style="color: #0a0">&#x2713;</span> Kursavgift
+        }
+        else
+        {
+            @: <span style="color: #d00">&#x2718;</span> Kursavgift ikke betalt
+        }
+    </span>
+</h5>
+<hr>
+
+<div class="card-deck">
+    <partial name="_Payments" for="Payments">
+    @if(User.IsInRole(Roles.ADMIN))
+    {
+        <div class="card">
+            <h3 class="card-header">
+                Rettigheter
+            </h3>
+            <div class="card-body">
+                <partial name="_Role" model="(Model, Roles.ADMIN)" />
+                <partial name="_Role" model="(Model, Roles.COORDINATOR)" />
+            </div>
+        </div>
+    }
 </div>

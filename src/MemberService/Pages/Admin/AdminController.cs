@@ -72,19 +72,6 @@ namespace MemberService.Pages.Admin
                     .Include(u => u.Payments)
                     .FirstOrDefaultAsync(u => u.NormalizedEmail == email.ToUpperInvariant());
 
-                var (includesMembership, includesTraining, includesClasses) = GetIncludedFees(charge.Description);
-
-                var payment = new Payment
-                {
-                    Amount = charge.Amount,
-                    Description = charge.Description,
-                    PayedAt = charge.Created,
-                    StripeChargeId = charge.Id,
-                    IncludesMembership = charge.Metadata.TryGetValue("inc_membership", out var m) && m == "yes" || includesMembership,
-                    IncludesTraining = charge.Metadata.TryGetValue("inc_training", out var t) && t == "yes" || includesTraining,
-                    IncludesClasses = charge.Metadata.TryGetValue("inc_classes", out var c) && c == "yes" || includesClasses,
-                };
-
                 if (user == null)
                 {
                     await _userManager.CreateAsync(new MemberUser
@@ -94,15 +81,19 @@ namespace MemberService.Pages.Admin
                         FullName = name,
                         Payments = new List<Payment>
                         {
-                            payment
+                            CreatePayment(charge)
                         }
                     });
                 }
                 else
                 {
-                    if (user.Payments.NotAny(p => p.StripeChargeId == charge.Id))
+                    if (user.Payments.FirstOrDefault(p => p.StripeChargeId == charge.Id) is Payment existingPayment)
                     {
-                        user.Payments.Add(payment);
+                        existingPayment.Refunded = charge.Refunded;
+                    }
+                    else
+                    {
+                        user.Payments.Add(CreatePayment(charge));
                     }
                 }
 
@@ -110,7 +101,24 @@ namespace MemberService.Pages.Admin
             }
         }
 
-        private readonly Dictionary<string, (bool?, bool?, bool?)> DescriptionMap = new Dictionary<string, (bool?, bool?, bool?)>
+        private static Payment CreatePayment(Charge charge)
+        {
+            var (includesMembership, includesTraining, includesClasses) = GetIncludedFees(charge.Description);
+
+            return new Payment
+            {
+                Amount = charge.Amount,
+                Description = charge.Description,
+                PayedAt = charge.Created,
+                StripeChargeId = charge.Id,
+                IncludesMembership = charge.Metadata.TryGetValue("inc_membership", out var m) && m == "yes" || includesMembership,
+                IncludesTraining = charge.Metadata.TryGetValue("inc_training", out var t) && t == "yes" || includesTraining,
+                IncludesClasses = charge.Metadata.TryGetValue("inc_classes", out var c) && c == "yes" || includesClasses,
+                Refunded = charge.Refunded
+            };
+        }
+
+        private static readonly Dictionary<string, (bool?, bool?, bool?)> DescriptionMap = new Dictionary<string, (bool?, bool?, bool?)>
         {
             ["medlemskap"] = (true, null, null),
             ["medlemskap+kurs"] = (true, true, true),
@@ -119,7 +127,7 @@ namespace MemberService.Pages.Admin
             ["2018"] = (false, false, false)
         };
 
-        private (bool, bool, bool) GetIncludedFees(string description)
+        private static (bool, bool, bool) GetIncludedFees(string description)
         {
             var membership = false;
             var training = false;

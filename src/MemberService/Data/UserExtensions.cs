@@ -29,6 +29,7 @@ namespace MemberService.Data
                 await roleManager.CreateAsync(role);
             }
         }
+
         public static async Task<bool> EnsureUserHasRole(this UserManager<MemberUser> userManager, string email, string role)
         {
             if (await userManager.FindByEmailAsync(email) is MemberUser user)

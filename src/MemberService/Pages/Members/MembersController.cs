@@ -67,20 +67,24 @@ namespace MemberService.Pages.Members
 
         [Authorize(Roles = Roles.ADMIN)]
         [HttpPost]
-        public async Task<IActionResult> MakeAdmin([FromForm]string email)
+        public async Task<IActionResult> ToggleRole([FromForm] string email, [FromForm] string role, [FromForm] bool value)
         {
-            await _userManager.EnsureUserHasRole(email, Roles.ADMIN);
+            if (await _userManager.FindByEmailAsync(email) is MemberUser user)
+            {
+                if (value && !await _userManager.IsInRoleAsync(user, role))
+                {
+                    await _userManager.AddToRoleAsync(user, role);
+                }
+                else if (!value && await _userManager.IsInRoleAsync(user, role))
+                {
+                    await _userManager.RemoveFromRoleAsync(user, role);
+                }
 
-            return RedirectToAction(nameof(Index));
-        }
 
-        [Authorize(Roles = Roles.ADMIN)]
-        [HttpPost]
-        public async Task<IActionResult> MakeCoordinator([FromForm]string email)
-        {
-            await _userManager.EnsureUserHasRole(email, Roles.COORDINATOR);
+                return RedirectToAction(nameof(Details), new { id = user.Id });
+            }
 
-            return RedirectToAction(nameof(Index));
+            return NotFound();
         }
 
         private static Expression<Func<MemberUser, bool>> Filter(string filter)
@@ -90,9 +94,9 @@ namespace MemberService.Pages.Members
                 case "OnlyMembers":
                     return Extensions.HasPayedMembershipThisYearExpression;
                 case "OnlyTraining":
-                    return Extensions.HasPayedTrainingThisSemesterExpression;
+                    return Extensions.HasPayedTrainingFeeThisSemesterExpression;
                 case "OnlyClasses":
-                    return Extensions.HasPayedClassesThisSemesterExpression;
+                    return Extensions.HasPayedClassesFeeThisSemesterExpression;
                 default:
                     return user => true;
             }

@@ -37,7 +37,7 @@ namespace MemberService.Services
 
         public static Fee GetTrainingFee(this MemberUser user)
         {
-            if (user.HasPayedTrainingThisSemester())
+            if (user.HasPayedTrainingFeeThisSemester())
                 return null;
 
             if (user.HasPayedMembershipThisYear())
@@ -55,10 +55,10 @@ namespace MemberService.Services
 
         public static Fee GetClassesFee(this MemberUser user)
         {
-            if (user.HasPayedClassesThisSemester())
+            if (user.HasPayedClassesFeeThisSemester())
                 return null;
 
-            if (user.HasPayedTrainingThisSemester())
+            if (user.HasPayedTrainingFeeThisSemester())
                 return new Fee("Kursavgift", ClassesFee - TrainingFee)
                 {
                     IncludesClasses = true
