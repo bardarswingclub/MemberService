@@ -27,5 +27,7 @@ namespace MemberService.Data
         public bool IncludesTraining { get; set; }
 
         public bool IncludesClasses { get; set; }
+
+        public bool Refunded { get; set; }
     }
 }
