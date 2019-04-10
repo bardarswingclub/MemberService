@@ -5,12 +5,12 @@ namespace MemberService.Pages.Members
 {
     public class MembersViewModel
     {
-        public IReadOnlyCollection<(char, IReadOnlyCollection<MemberUser>)> Users { get; set; }
+        public IReadOnlyCollection<(char Letter, IReadOnlyCollection<MemberUser> Users)> Users { get; set; }
 
-        public bool OnlyMembers { get; set; }
+        public string MemberFilter { get; set; }
 
-        public bool OnlyTraining { get; set; }
+        public string TrainingFilter { get; set; }
 
-        public bool OnlyClasses { get; set; }
+        public string ClassesFilter { get; set; }
     }
 }

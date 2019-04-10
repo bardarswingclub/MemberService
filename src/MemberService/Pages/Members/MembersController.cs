@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Clave.Expressionify;
 using Clave.ExtensionMethods;
 using MemberService.Data;
 using Microsoft.AspNetCore.Authorization;
@@ -26,14 +27,17 @@ namespace MemberService.Pages.Members
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index(string filter)
+        public async Task<IActionResult> Index(string memberFilter, string trainingFilter, string classesFilter)
         {
             var users = await _memberContext.Users
                 .Include(u => u.Payments)
                 .Include(u => u.UserRoles)
                 .ThenInclude(r => r.Role)
                 .AsNoTracking()
-                .Where(Filter(filter))
+                .Expressionify()
+                .Where(MemberFilter(memberFilter))
+                .Where(TrainingFilter(trainingFilter))
+                .Where(ClassesFilter(classesFilter))
                 .OrderBy(u => u.FullName)
                 .ToListAsync();
 
@@ -42,9 +46,9 @@ namespace MemberService.Pages.Members
                 Users = users
                     .GroupBy(u => u.FullName?.ToUpper().FirstOrDefault() ?? '?', (key, u) => (key, u.ToReadOnlyCollection()))
                     .ToReadOnlyCollection(),
-                OnlyMembers = filter == "OnlyMembers",
-                OnlyTraining = filter == "OnlyTraining",
-                OnlyClasses = filter == "OnlyClasses"
+                MemberFilter = memberFilter,
+                TrainingFilter = trainingFilter,
+                ClassesFilter = classesFilter
             });
         }
 
@@ -87,16 +91,40 @@ namespace MemberService.Pages.Members
             return NotFound();
         }
 
-        private static Expression<Func<MemberUser, bool>> Filter(string filter)
+        private static Expression<Func<MemberUser, bool>> MemberFilter(string filter)
         {
             switch (filter)
             {
-                case "OnlyMembers":
-                    return Extensions.HasPayedMembershipThisYearExpression;
-                case "OnlyTraining":
-                    return Extensions.HasPayedTrainingFeeThisSemesterExpression;
-                case "OnlyClasses":
-                    return Extensions.HasPayedClassesFeeThisSemesterExpression;
+                case "Only":
+                    return user => user.HasPayedMembershipThisYear();
+                case "Not":
+                    return user => !user.HasPayedMembershipThisYear();
+                default:
+                    return user => true;
+            }
+        }
+
+        private static Expression<Func<MemberUser, bool>> TrainingFilter(string filter)
+        {
+            switch (filter)
+            {
+                case "Only":
+                    return user => user.HasPayedTrainingFeeThisSemester();
+                case "Not":
+                    return user => !user.HasPayedTrainingFeeThisSemester();
+                default:
+                    return user => true;
+            }
+        }
+
+        private static Expression<Func<MemberUser, bool>> ClassesFilter(string filter)
+        {
+            switch (filter)
+            {
+                case "Only":
+                    return user => user.HasPayedClassesFeeThisSemester();
+                case "Not":
+                    return user => !user.HasPayedClassesFeeThisSemester();
                 default:
                     return user => true;
             }

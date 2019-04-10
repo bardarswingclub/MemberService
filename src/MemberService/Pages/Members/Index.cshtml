@@ -4,47 +4,42 @@
 @{
     ViewData["Title"] = "Medlemmer";
 }
-<h2>@ViewData["Title"]</h2>
-
-<form class="form-inline d-print-none" asp-action="Index" method="GET">
-    <div class="form-check mb-2 mr-sm-2">
-        <input class="form-check-input" type="radio" id="AllUsers" name="filter" value="AllUsers" checked=@(!Model.OnlyMembers && !Model.OnlyTraining && !Model.OnlyClasses)>
-        <label class="form-check-label" for="AllUsers">
-        Alle medlemmer
-        </label>
+<h2>@ViewData["Title"] <span class="text-muted">(@Model.Users.Sum(p => p.Users.Count))</span></h2>
+<hr>
+<form class="form mb-3 d-print-none" asp-action="Index" method="GET">
+    <div class="form-row align-items-center">
+        <div class="col">
+            <select class="custom-select" asp-for="MemberFilter" onchange="this.form.submit()">
+                <option value="All">Alle</option>
+                <option value="Only">&#x2713; Som har betalt medlemskap</option>
+                <option value="Not">&#x2717; Som ikke har betalt medlemskap</option>
+            </select>
+        </div>
+        <div class="col">
+            <select class="custom-select" asp-for="TrainingFilter" onchange="this.form.submit()">
+                <option value="All">Alle</option>
+                <option value="Only">&#x2713; Som har betalt treningsavgift</option>
+                <option value="Not">&#x2717; Som ikke har betalt treningsavgift</option>
+            </select>
+        </div>
+        <div class="col">
+            <select class="custom-select" asp-for="ClassesFilter" onchange="this.form.submit()">
+                <option value="All">Alle</option>
+                <option value="Only">&#x2713; Som har betalt for kurs</option>
+                <option value="Not">&#x2717; Som ikke har betalt for kurs</option>
+            </select>
+        </div>
     </div>
-
-    <div class="form-check mb-2 mr-sm-2">
-        <input class="form-check-input" type="radio" id="OnlyMembers" name="filter" value="OnlyMembers" checked=@Model.OnlyMembers>
-        <label class="form-check-label" for="OnlyMembers">
-        Som har betalt medlemskap
-        </label>
-    </div>
-
-    <div class="form-check mb-2 mr-sm-2">
-        <input class="form-check-input" type="radio" id="OnlyTraining" name="filter" value="OnlyTraining" checked=@Model.OnlyTraining>
-        <label class="form-check-label" for="OnlyTraining">
-        Som har betalt treningsavgift
-        </label>
-    </div>
-
-    <div class="form-check mb-2 mr-sm-2">
-        <input class="form-check-input" type="radio" id="OnlyClasses" name="filter" value="OnlyClasses" checked=@Model.OnlyClasses>
-        <label class="form-check-label" for="OnlyClasses">
-        Som har betalt kursavgift
-        </label>
-    </div>
-    <button type="submit" class="btn btn-primary mb-2">Filtrer</button>
 </form>
 
 <table class="table">
     <thead>
         <tr>
+            <th class="text-center"><abbr title="Medlemskap">M</abbr></th>
+            <th class="text-center"><abbr title="Treningsavgift">T</abbr></th>
+            <th class="text-center"><abbr title="Kurs">K</abbr></th>
             <th>Navn</th>
             <th>E-post</th>
-            <th class="text-center">Medlemskap</th>
-            <th class="text-center">Treningsavgift</th>
-            <th class="text-center">Kurs</th>
         </tr>
     </thead>
     @foreach(var (character, users) in Model.Users){
@@ -56,11 +51,11 @@
         <tbody>
             @foreach(var user in users){
                 <tr>
-                    <td><a asp-action="Details" asp-route-id="@user.Id">@user.FullName</a></td>
-                    <td>@user.Email</td>
                     <td class="font-weight-bold text-center text-success">@(user.HasPayedMembershipThisYear() ? "\u2713" : "" )</td>
                     <td class="font-weight-bold text-center text-success">@(user.HasPayedTrainingFeeThisSemester() ? "\u2713" : "" )</td>
                     <td class="font-weight-bold text-center text-success">@(user.HasPayedClassesFeeThisSemester() ? "\u2713" : "" )</td>
+                    <td><a asp-action="Details" asp-route-id="@user.Id">@user.FullName</a></td>
+                    <td>@user.Email</td>
                 </tr>
             }
         </tbody>
