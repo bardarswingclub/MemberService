@@ -44,7 +44,7 @@ steps:
   inputs:
     UserName: 'Azure DevOps'
     Message: '$(Build.BuildNumber) failed to build!'
-    ApiToken: $(SlackToken)
+    ApiToken: '$(SlackToken)'
     Channel: '#edb'
   condition: failed()
 
