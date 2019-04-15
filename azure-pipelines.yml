@@ -1,21 +1,50 @@
-# ASP.NET Core
-- task: DotNetCoreInstaller@0
-  inputs:
-    packageType: 'sdk'
-    version: '2.2.103'
-# Build and test ASP.NET Core projects targeting .NET Core.
-# Add steps that run tests, create a NuGet package, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
-
-trigger:
-- master
-
 pool:
-  vmImage: 'Ubuntu-16.04'
-
-variables:
-  buildConfiguration: 'Release'
+  name: Hosted VS2017
 
 steps:
-- script: dotnet build --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
+- task: DotNetCoreInstaller@0
+  displayName: 'Use .NET Core sdk 2.2.103'
+  inputs:
+    version: 2.2.103
+
+- task: DotNetCoreCLI@2
+  displayName: Restore
+  inputs:
+    command: restore
+    projects: '$(Parameters.RestoreBuildProjects)'
+
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    projects: '$(Parameters.RestoreBuildProjects)'
+    arguments: '--configuration $(BuildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: Test
+  inputs:
+    command: test
+    projects: '$(Parameters.UnitTestProjects)'
+    arguments: '--configuration $(BuildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: Publish
+  inputs:
+    command: publish
+    publishWebProjects: True
+    arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)'
+    zipAfterPublish: True
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact'
+  inputs:
+    PathtoPublish: '$(build.artifactstagingdirectory)'
+
+- task: louisgerard.slackposter.slackposterbuild.SlackPoster@2
+  displayName: 'Post to Slack '
+  inputs:
+    UserName: 'Azure DevOps'
+    Message: '$(Build.BuildNumber) failed to build!'
+    ApiToken: $(SlackToken)
+    Channel: '#edb'
+  condition: failed()
+
