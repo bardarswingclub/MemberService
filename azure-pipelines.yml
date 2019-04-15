@@ -39,12 +39,4 @@ steps:
   inputs:
     PathtoPublish: '$(build.artifactstagingdirectory)'
 
-- task: louisgerard.slackposter.slackposterbuild.SlackPoster@2
-  displayName: 'Post to Slack '
-  inputs:
-    UserName: 'Azure DevOps'
-    Message: '$(Build.BuildNumber) failed to build!'
-    ApiToken: '$(SlackToken)'
-    Channel: '#edb'
-  condition: failed()
 
