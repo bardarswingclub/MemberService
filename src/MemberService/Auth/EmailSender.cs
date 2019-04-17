@@ -16,8 +16,14 @@ namespace MemberService.Auth
 
         public async Task SendEmailAsync(string email, string subject, string message)
         {
-            var mail = new MailMessage(_config.From, email, subject, message)
+            var mail = new MailMessage
             {
+                Sender = new MailAddress(_config.From, "Bårdar Swing Club"),
+                To = {
+                    new MailAddress(email)
+                },
+                Subject = subject,
+                Body = message,
                 IsBodyHtml = true
             };
 
