@@ -7,7 +7,6 @@ using Stripe;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 using System.Linq;
-using Clave.ExtensionMethods;
 
 namespace MemberService.Pages.Admin
 {

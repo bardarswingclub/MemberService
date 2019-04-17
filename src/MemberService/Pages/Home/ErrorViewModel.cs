@@ -1,5 +1,3 @@
-using System;
-
 namespace MemberService.Pages.Home
 {
     public class ErrorViewModel

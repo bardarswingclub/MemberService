@@ -1,5 +1,4 @@
-﻿using MemberService.Data;
-using MemberService.Services;
+﻿using MemberService.Services;
 
 namespace MemberService.Pages.Home
 {
