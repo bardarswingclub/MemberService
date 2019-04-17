@@ -33,6 +33,11 @@ namespace MemberService.Data
                     .HasForeignKey(ur => ur.UserId)
                     .IsRequired();
             });
+
+            builder.Entity<Payment>(payment =>
+            {
+                payment.HasIndex(p => p.PayedAt);
+            });
         }
     }
 }
