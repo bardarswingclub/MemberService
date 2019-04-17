@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Clave.Expressionify;
 using Clave.ExtensionMethods;
 using MemberService.Data;
+using MemberService.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -26,17 +27,22 @@ namespace MemberService.Pages.Members
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index(string memberFilter, string trainingFilter, string classesFilter)
+        public async Task<IActionResult> Index(
+            string memberFilter, 
+            string trainingFilter, 
+            string classesFilter, 
+            string exemptTrainingFilter, 
+            string exemptClassesFilter)
         {
             var users = await _memberContext.Users
                 .Include(u => u.Payments)
-                .Include(u => u.UserRoles)
-                .ThenInclude(r => r.Role)
                 .AsNoTracking()
                 .Expressionify()
-                .Where(MemberFilter(memberFilter))
-                .Where(TrainingFilter(trainingFilter))
-                .Where(ClassesFilter(classesFilter))
+                .Where(Filter(memberFilter, user => user.HasPayedMembershipThisYear()))
+                .Where(Filter(trainingFilter, user => user.HasPayedTrainingFeeThisSemester()))
+                .Where(Filter(classesFilter, user => user.HasPayedClassesFeeThisSemester()))
+                .Where(Filter(exemptTrainingFilter, user => user.ExemptFromTrainingFee))
+                .Where(Filter(exemptClassesFilter, user => user.ExemptFromClassesFee))
                 .OrderBy(u => u.FullName)
                 .ToListAsync();
 
@@ -47,7 +53,9 @@ namespace MemberService.Pages.Members
                     .ToReadOnlyCollection(),
                 MemberFilter = memberFilter,
                 TrainingFilter = trainingFilter,
-                ClassesFilter = classesFilter
+                ClassesFilter = classesFilter,
+                ExemptTrainingFilter = exemptTrainingFilter,
+                ExemptClassesFilter = exemptClassesFilter
             });
         }
 
@@ -68,11 +76,11 @@ namespace MemberService.Pages.Members
             return View(user);
         }
 
-        [Authorize(Roles = Roles.ADMIN)]
         [HttpPost]
-        public async Task<IActionResult> ToggleRole([FromForm] string email, [FromForm] string role, [FromForm] bool value)
+        [Authorize(Roles = Roles.ADMIN)]
+        public async Task<IActionResult> ToggleRole(string id, [FromForm] string role, [FromForm] bool value)
         {
-            if (await _userManager.FindByEmailAsync(email) is MemberUser user)
+            if (await _userManager.FindByIdAsync(id) is MemberUser user)
             {
                 if (value && !await _userManager.IsInRoleAsync(user, role))
                 {
@@ -90,40 +98,31 @@ namespace MemberService.Pages.Members
             return NotFound();
         }
 
-        private static Expression<Func<MemberUser, bool>> MemberFilter(string filter)
+        [HttpPost]
+        [Authorize(Roles = Roles.ADMIN)]
+        public async Task<IActionResult> SetExemptions(string id, [FromForm] bool exemptFromTrainingFee, [FromForm] bool exemptFromClassesFee)
         {
-            switch (filter)
+            if (await _memberContext.FindAsync<MemberUser>(id) is MemberUser user)
             {
-                case "Only":
-                    return user => user.HasPayedMembershipThisYear();
-                case "Not":
-                    return user => !user.HasPayedMembershipThisYear();
-                default:
-                    return user => true;
+                user.ExemptFromTrainingFee = exemptFromTrainingFee;
+                user.ExemptFromClassesFee = exemptFromClassesFee;
+
+                await _memberContext.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Details), new { id = user.Id });
             }
+
+            return NotFound();
         }
 
-        private static Expression<Func<MemberUser, bool>> TrainingFilter(string filter)
+        private static Expression<Func<MemberUser, bool>> Filter(string filter, Expression<Func<MemberUser, bool>> predicate)
         {
             switch (filter)
             {
                 case "Only":
-                    return user => user.HasPayedTrainingFeeThisSemester();
+                    return predicate;
                 case "Not":
-                    return user => !user.HasPayedTrainingFeeThisSemester();
-                default:
-                    return user => true;
-            }
-        }
-
-        private static Expression<Func<MemberUser, bool>> ClassesFilter(string filter)
-        {
-            switch (filter)
-            {
-                case "Only":
-                    return user => user.HasPayedClassesFeeThisSemester();
-                case "Not":
-                    return user => !user.HasPayedClassesFeeThisSemester();
+                    return predicate.Not();
                 default:
                     return user => true;
             }

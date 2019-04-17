@@ -12,5 +12,9 @@ namespace MemberService.Pages.Members
         public string TrainingFilter { get; set; }
 
         public string ClassesFilter { get; set; }
+
+        public string ExemptTrainingFilter { get; set; }
+
+        public string ExemptClassesFilter { get; set; }
     }
 }

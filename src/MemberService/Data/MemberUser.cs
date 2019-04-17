@@ -11,5 +11,9 @@ namespace MemberService.Data
         public ICollection<Payment> Payments { get; set; }
 
         public ICollection<MemberUserRole> UserRoles { get; set; }
+
+        public bool ExemptFromTrainingFee { get; set; }
+
+        public bool ExemptFromClassesFee { get; set; }
     }
 }

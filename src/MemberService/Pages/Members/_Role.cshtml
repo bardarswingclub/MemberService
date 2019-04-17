@@ -1,14 +1,13 @@
 @model (MemberUser User, string Role)
 
-<form asp-controller="Members" asp-action="ToggleRole" method="post" class="mb-3">
-    <input type="hidden" name="email" value="@Model.User.Email">
+<form asp-controller="Members" asp-action="ToggleRole" asp-route-id="@Model.User.Id" method="post" class="d-inline">
     <input type="hidden" name="role" value="@Model.Role">
     @if(Model.User.UserRoles.Any(r => r.Role.Name == Model.Role))
     {
-        <button class="btn btn-danger" type="submit" name="value" value="false">Revoke @Model.Role role</button>
+        <button class="btn btn-danger" type="submit" name="value" value="false">&#x2718; Fjern @Model.Role</button>
     }
     else
     {
-        <button class="btn btn-success" type="submit" name="value" value="true">Grant @Model.Role role</button>
+        <button class="btn btn-success" type="submit" name="value" value="true">&#x2713; Gj&oslash;r til @Model.Role</button>
     }
 </form>

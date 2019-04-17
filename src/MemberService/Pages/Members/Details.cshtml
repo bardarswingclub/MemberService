@@ -54,6 +54,17 @@
             <div class="card-body">
                 <partial name="_Role" model="(Model, Roles.ADMIN)" />
                 <partial name="_Role" model="(Model, Roles.COORDINATOR)" />
+                <hr />
+                <form asp-controller="Members" asp-action="SetExemptions" asp-route-id="@Model.Id" method="post" class="form">
+                    <div class="form-check">
+                        <input class="form-check-input" asp-for="ExemptFromTrainingFee" onchange="form.submit()" />
+                        <label class="form-check-label" asp-for="ExemptFromTrainingFee">Fritatt fra treningsavgift</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" asp-for="ExemptFromClassesFee" onchange="form.submit()"/>
+                        <label class="form-check-label" asp-for="ExemptFromClassesFee">Fritatt fra kursavgift</label>
+                    </div>
+                </form>
             </div>
         </div>
     }

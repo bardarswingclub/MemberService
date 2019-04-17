@@ -29,6 +29,20 @@
                 <option value="Not">&#x2717; Som ikke har betalt for kurs</option>
             </select>
         </div>
+        <div class="col">
+            <select class="custom-select" asp-for="ExemptTrainingFilter" onchange="this.form.submit()">
+                <option value="All">Alle</option>
+                <option value="Only">&#x2713; Som er fritatt treningsavgift</option>
+                <option value="Not">&#x2717; Som ikke er fritatt treningsavgift</option>
+            </select>
+        </div>
+        <div class="col">
+            <select class="custom-select" asp-for="ExemptClassesFilter" onchange="this.form.submit()">
+                <option value="All">Alle</option>
+                <option value="Only">&#x2713; Som er fritatt kursavgift</option>
+                <option value="Not">&#x2717; Som ikke er fritatt kursavgift</option>
+            </select>
+        </div>
     </div>
 </form>
 
