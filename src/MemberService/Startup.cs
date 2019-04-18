@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using MemberService.Auth;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using MemberService.Auth.Development;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
 
 namespace MemberService
 {
@@ -89,6 +91,8 @@ namespace MemberService
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, Config config)
         {
+            StripeConfiguration.SetApiKey(config.Stripe.SecretKey);
+
             if (IsDevelopment)
             {
                 app.UseDeveloperExceptionPage();
@@ -101,9 +105,21 @@ namespace MemberService
                 app.UseHsts();
             }
 
-            app.UseStatusCodePagesWithReExecute("/Home/StatusCode/{0}");
+            var supportedCultures = new[]
+            {
+                new CultureInfo("nb-NO")
+            };
 
-            StripeConfiguration.SetApiKey(config.Stripe.SecretKey);
+            app.UseRequestLocalization(new RequestLocalizationOptions
+            {
+                DefaultRequestCulture = new RequestCulture("nb-NO"),
+                // Formatting numbers, dates, etc.
+                SupportedCultures = supportedCultures,
+                // UI strings that we have localized.
+                SupportedUICultures = supportedCultures
+            });
+
+            app.UseStatusCodePagesWithReExecute("/Home/StatusCode/{0}");
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
