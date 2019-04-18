@@ -44,8 +44,42 @@
 <hr>
 
 <div class="card-deck">
-    <partial name="_Payments" for="Payments">
-    @if(User.IsInRole(Roles.ADMIN))
+    <div class="card shadow-sm">
+        <h3 class="card-header">
+            Betalinger
+        </h3>
+        <table class="table card-body">
+            <thead>
+                <tr>
+                    <th>Dato</th>
+                    <th>Beskrivelse</th>
+                    <th>Beløp</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var payment in Model.Payments)
+                {
+                    <tr class="@(payment.Refunded ? "line-through" : "")">
+                        <td>
+                            @if (User.IsInRole(Roles.ADMIN) && payment.StripeChargeId != null)
+                            {
+                                <a href="https://dashboard.stripe.com/payments/@payment.StripeChargeId" target="_blank">
+                                    @payment.PayedAt
+                                </a>
+                            }
+                            else
+                            {
+                                @payment.PayedAt
+                            }
+                        </td>
+                        <td>@payment.Description</td>
+                        <td>@payment.Amount.FormatMoney()</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (User.IsInRole(Roles.ADMIN))
     {
         <div class="card">
             <h3 class="card-header">
@@ -61,7 +95,7 @@
                         <label class="form-check-label" asp-for="ExemptFromTrainingFee">Fritatt fra treningsavgift</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" asp-for="ExemptFromClassesFee" onchange="form.submit()"/>
+                        <input class="form-check-input" asp-for="ExemptFromClassesFee" onchange="form.submit()" />
                         <label class="form-check-label" asp-for="ExemptFromClassesFee">Fritatt fra kursavgift</label>
                     </div>
                 </form>

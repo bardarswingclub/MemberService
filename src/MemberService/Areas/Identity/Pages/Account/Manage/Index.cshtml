@@ -2,13 +2,14 @@
 @model IndexModel
 @{
     ViewData["Title"] = "Min profil";
+    ViewData["BodyClass"] = "cover";
 }
 
 <partial name="_StatusMessage" for="StatusMessage" />
 <div class="card-deck">
     <div class="card shadow-sm">
         <h3 class="card-header">
-            Min profil
+            Hvem er du?
         </h3>
         <form class="card-body" method="post">
             <span asp-validation-summary="All" class="text-danger"></span>
@@ -24,10 +25,41 @@
             <button id="update-profile-button" type="submit" class="btn btn-success btn-block">Lagre</button>
         </form>
     </div>
-    @if(Model.Payments.Any())
-    {
-        <partial name="_Payments" for="Payments" />
-    }
+    <div class="card shadow-sm">
+        <h3 class="card-header">
+            Hva har du betalt for?
+        </h3>
+        @if (Model.Payments.Any())
+        {
+            <table class="table card-body">
+                <thead>
+                    <tr>
+                        <th>Dato</th>
+                        <th>Beskrivelse</th>
+                        <th>Beløp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var payment in Model.Payments)
+                    {
+                        <tr class="@(payment.Refunded ? "line-through" : "")">
+                            <td>@payment.PayedAt</td>
+                            <td>@payment.Description</td>
+                            <td>@payment.Amount.FormatMoney()</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="card-body">
+                <h4 class="text-muted text-center mt-5">
+                    Du har ikke betalt for noe ennå
+                </h4>
+            </div>
+        }
+    </div>
 </div>
 
 @section Scripts {
