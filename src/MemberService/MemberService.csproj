@@ -17,10 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Pages\Members\_ManualPaymentForm.cshtml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Clave.Expressionify" Version="0.3.2" />
     <PackageReference Include="Clave.Expressionify.Tasks" Version="0.3.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
