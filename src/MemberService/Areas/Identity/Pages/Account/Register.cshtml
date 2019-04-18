@@ -2,32 +2,29 @@
 @model RegisterModel
 @{
     ViewData["Title"] = "Opprett bruker";
+    ViewData["BodyClass"] = "cover";
 }
 
-<h2>@ViewData["Title"]</h2>
-
-<hr>
-
-<div class="alert alert-primary" role="alert">
-    Hei og velkommen til Bårdar Swing Club! Vennligst fyll in fullt navn under :)
+<div class="alert alert-info shadow-sm mb-5" role="alert">
+    Hei og velkommen til Bårdar Swing Club!
 </div>
 
 <div class="row justify-content-md-center">
     <div class="col-md-6">
-        <div class="card">
+        <div class="card shadow">
             <h3 class="card-header">
                 Opprett bruker
             </h3>
             <div class="card-body">
                 <form method="post">
                     <input type="hidden" asp-for="Input.ReturnUrl" />
-                    <div asp-validation-summary="All" class="text-danger"></div>
+                    <span asp-validation-summary="All" class="text-danger"></span>
                     <div class="form-group">
                         <label asp-for="Input.FullName"></label>
                         <input asp-for="Input.FullName" class="form-control" />
                         <span asp-validation-for="Input.FullName" class="text-danger"></span>
                     </div>
-                    <button type="submit" class="btn btn-primary">Lagre</button>
+                    <button type="submit" class="btn btn-success btn-block">Fullfør</button>
                 </form>
             </div>
         </div>

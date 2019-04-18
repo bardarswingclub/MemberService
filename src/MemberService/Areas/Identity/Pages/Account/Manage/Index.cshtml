@@ -6,12 +6,12 @@
 
 <partial name="_StatusMessage" for="StatusMessage" />
 <div class="card-deck">
-    <div class="card">
+    <div class="card shadow-sm">
         <h3 class="card-header">
             Min profil
         </h3>
         <form class="card-body" method="post">
-            <div asp-validation-summary="All" class="text-danger"></div>
+            <span asp-validation-summary="All" class="text-danger"></span>
             <div class="form-group">
                 <label asp-for="Email"></label>
                 <input asp-for="Email" class="form-control" disabled />
@@ -21,7 +21,7 @@
                 <input asp-for="Input.FullName" class="form-control" />
                 <span asp-validation-for="Input.FullName" class="text-danger"></span>
             </div>
-            <button id="update-profile-button" type="submit" class="btn btn-primary">Lagre</button>
+            <button id="update-profile-button" type="submit" class="btn btn-success btn-block">Lagre</button>
         </form>
     </div>
     @if(Model.Payments.Any())

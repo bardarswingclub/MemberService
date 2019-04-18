@@ -2,35 +2,28 @@
 @model LoginModel
 
 @{
-    ViewData["Title"] = "Logg inn";
+    ViewData["Title"] = "Logg inn / bli medlem";
+    ViewData["BodyClass"] = "cover";
 }
-
-<h2>@ViewData["Title"]</h2>
-
-<hr>
-
-<p>
-    For å bli medlem trenger du en e-post addresse. Fyll inn e-post addressen din her og trykk på knappen under.
-    Du vil motta en e-post med en kode du kan bruke for å logge inn.
-</p>
 
 <div class="row justify-content-md-center">
     <div class="col-md-6">
-        <div class="card">
+
+        <div class="card mt-5 shadow">
             <h3 class="card-header">
-                Logg inn
+                Logg inn / bli medlem
             </h3>
             <div class="card-body">
                 <form method="post">
                     <input type="hidden" asp-for="Input.ReturnUrl">
-                    <div asp-validation-summary="All" class="text-danger"></div>
+                    <span asp-validation-summary="All" class="text-danger"></span>
                     <div class="form-group">
                         <label asp-for="Input.Email"></label>
                         <input asp-for="Input.Email" class="form-control" placeholder="epost@eksempel.no" />
                         <span asp-validation-for="Input.Email" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <button type="submit" class="btn btn-primary btn-block">Gå videre &#x27a4;</button>
+                        <button type="submit" class="btn btn-success btn-block">Gå videre &#x27a4;</button>
                     </div>
                 </form>
             </div>
