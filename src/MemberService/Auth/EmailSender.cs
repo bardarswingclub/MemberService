@@ -19,6 +19,7 @@ namespace MemberService.Auth
             var mail = new MailMessage
             {
                 Sender = new MailAddress(_config.From, "Bårdar Swing Club"),
+                From = new MailAddress(_config.From, "Bårdar Swing Club"),
                 To = {
                     new MailAddress(email)
                 },
