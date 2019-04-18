@@ -9,10 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Pages\Members\_ManualPaymentForm.cshtml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <DotNetCliToolReference Include="dotnet-expressionify" Version="0.3.2" />
   </ItemGroup>
 
