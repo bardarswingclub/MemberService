@@ -92,7 +92,7 @@ namespace MemberService.Pages.Members
                 }
 
 
-                return RedirectToAction(nameof(Details), new { id = user.Id });
+                return RedirectToAction(nameof(Details), new { id });
             }
 
             return NotFound();
@@ -109,7 +109,35 @@ namespace MemberService.Pages.Members
 
                 await _memberContext.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Details), new { id = user.Id });
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            return NotFound();
+        }
+
+        [HttpPost]
+        [Authorize(Roles = Roles.ADMIN)]
+        public async Task<IActionResult> AddManualPayment(string id, [FromForm] ManualPaymentModel model)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            if (await _memberContext.FindAsync<MemberUser>(id) is MemberUser user)
+            {
+                await _memberContext.AddAsync(new Payment
+                {
+                    User = user,
+                    Amount = model.Amount*100,
+                    Description = model.Description,
+                    IncludesMembership = model.IncludesMembership,
+                    IncludesTraining = model.IncludesTraining,
+                    IncludesClasses = model.IncludesClasses,
+                    PayedAt = DateTime.UtcNow,
+                    ManualPayment = User.Identity.Name
+                });
+
+                await _memberContext.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Details), new { id });
             }
 
             return NotFound();

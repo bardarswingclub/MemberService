@@ -1,0 +1,24 @@
+﻿@using MemberService.Pages.Members
+@model ManualPaymentModel
+
+<div class="form-group">
+    <label asp-for="Amount"></label>
+    <input type="number" class="form-control" asp-for="Amount">
+</div>
+<div class="form-check">
+    <input class="form-check-input" asp-for="IncludesMembership" />
+    <label class="form-check-label" asp-for="IncludesMembership"></label>
+</div>
+<div class="form-check">
+    <input class="form-check-input" asp-for="IncludesTraining" />
+    <label class="form-check-label" asp-for="IncludesTraining"></label>
+</div>
+<div class="form-check">
+    <input class="form-check-input" asp-for="IncludesClasses" />
+    <label class="form-check-label" asp-for="IncludesClasses"></label>
+</div>
+<div class="form-group">
+    <label asp-for="Description"></label>
+    <input type="text" class="form-control" asp-for="Description">
+</div>
+<button type="submit" class="btn btn-success">Legg til</button>

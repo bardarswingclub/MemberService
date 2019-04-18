@@ -1,3 +1,4 @@
+@using  MemberService.Pages.Members
 @model MemberUser
 
 @{
@@ -78,6 +79,17 @@
                 }
             </tbody>
         </table>
+        @if (User.IsInRole(Roles.ADMIN))
+        {
+            <div class="card-footer">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#addManualPayment" aria-expanded="false" aria-controls="addManualPayment">
+                    Legg til manuell betaling
+                </button>
+                <form class="collapse" id="addManualPayment" method="post" asp-action="AddManualPayment" asp-route-id="@Model.Id">
+                    <partial name="_ManualPaymentForm" model="new ManualPaymentModel()" />
+                </form>
+            </div>
+        }
     </div>
     @if (User.IsInRole(Roles.ADMIN))
     {
