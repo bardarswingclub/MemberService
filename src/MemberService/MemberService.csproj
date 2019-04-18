@@ -20,11 +20,16 @@
     </PackageReference>
     <PackageReference Include="Clave.ExtensionMethods" Version="0.1.7" />
     <PackageReference Include="Clave.NamespaceViewLocationExpander" Version="0.2.5" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.5.1" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.1" />
     <PackageReference Include="Stripe.net" Version="22.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services" />
   </ItemGroup>
 
 </Project>
