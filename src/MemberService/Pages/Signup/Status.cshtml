@@ -3,96 +3,110 @@
 
 @{
     ViewData["Title"] = Model.Title;
+    Layout = "~/Pages/Shared/_CoverLayout.cshtml";
     var options = Model.Options;
     var user = Model.User;
 }
 
-<div class="jumbotron">
-    <h2>@ViewData["Title"]</h2>
-
-    <p class="lead">@Model.Description</p>
-</div>
-
-@if(Model.UserEventSignup.Status == Status.Approved)
+@if (Model.UserEventSignup.Status == Status.Approved)
 {
-    <form class="form" asp-action="acceptOrReject" method="POST">
-        <div class="alert alert-success" role="alert">
-            <h3 class="alert-heading">Gratulerer, du har fått plass på kurs!</h3>
+    <form class="card shadow" asp-action="acceptOrReject" asp-route-id="@Model.Id" method="POST">
+        <h3 class="card-header">
+            @ViewData["Title"]
+        </h3>
+        <div class="card-body">
+            <p class="lead">@Model.Description</p>
 
-            @if(options.RequiresClassesFee && !user.HasPayedClassesFeeThisSemester())
-            {
-                <p>Betal kursavgiften for dette semesteret for å godta plassen.</p>
-            }
-            else if(options.RequiresTrainingFee && !user.HasPayedTrainingFeeThisSemester())
-            {
-                <p>Betal treningsavgiften for dette semesteret for å godta plassen.</p>
-            }
-            else if(options.RequiresMembershipFee && !user.HasPayedMembershipThisYear())
-            {
-                <p>Du må være medlem for å delta på dette arrangementet. Betal medlemsavgiften for i år for å godta plassen.</p>
-            }
-            else if(user.HasPayedMembershipThisYear())
-            {
-                if(options.PriceForMembers > 0)
+            <div class="alert alert-success" role="alert">
+                <h3 class="alert-heading">Gratulerer, du har fått plass på kurs!</h3>
+
+                @if (options.RequiresClassesFee && !user.HasPayedClassesFeeThisSemester())
                 {
-                    <p>Du må betale kroner @options.PriceForMembers for å godta plassen</p>
+                    <p>Betal kursavgiften for dette semesteret for å godta plassen.</p>
+                }
+                else if (options.RequiresTrainingFee && !user.HasPayedTrainingFeeThisSemester())
+                {
+                    <p>Betal treningsavgiften for dette semesteret for å godta plassen.</p>
+                }
+                else if (options.RequiresMembershipFee && !user.HasPayedMembershipThisYear())
+                {
+                    <p>Du må være medlem for å delta på dette arrangementet. Betal medlemsavgiften for i år for å godta plassen.</p>
+                }
+                else if (user.HasPayedMembershipThisYear())
+                {
+                    if (options.PriceForMembers > 0)
+                    {
+                        <p>Du må betale @options.PriceForMembers.FormatMoney() for å godta plassen</p>
+                    }
+                    else
+                    {
+                        <p>Trykk på knappen under for å godta plassen. Hvis du ikke vil ha plassen kan du takke nei til plassen, så kan noen andre få den.</p>
+                    }
                 }
                 else
                 {
-                    <p>Trykk på knappen under for å godta plassen. Hvis du ikke vil ha plassen kan du takke nei til plassen, så kan noen andre få den.</p>
+                    if (options.PriceForNonMembers > 0)
+                    {
+                        <p>Du må betale @options.PriceForNonMembers.FormatMoney() </p>
+                    }
+                    else
+                    {
+                        <p>Trykk på knappen under for å godta plassen. Hvis du ikke vil ha plassen kan du takke nei til plassen, så kan noen andre få den.</p>
+                    }
                 }
-            }
-            else
-            {
-                if(options.PriceForNonMembers > 0)
-                {
-                    <p>Du må betale kroner @options.PriceForNonMembers </p>
-                }
-                else
-                {
-                    <p>Trykk på knappen under for å godta plassen. Hvis du ikke vil ha plassen kan du takke nei til plassen, så kan noen andre få den.</p>
-                }
-            }
 
+            </div>
         </div>
-
-        <input type="hidden"  asp-for="Id">
-        <button type="submit" name="accept" value="true" class="btn btn-success">Godta plass</button>
-        <button type="submit" name="accept" value="false" class="btn btn-light">Nei takk, jeg vil heller gi plassen min til noen andre</button>
+        <div class="card-footer d-flex">
+            <button type="submit" name="accept" value="true" class="btn btn-success flex-fill mr-1">Godta plass</button>
+            <button type="submit" name="accept" value="false" class="btn btn-light">Nei takk, jeg vil heller gi plassen min til noen andre</button>
+        </div>
     </form>
-}
-else if(Model.UserEventSignup.Status == Status.WaitingList)
-{
-    <div class="alert alert-primary" role="alert">
-        <h3 class="alert-heading">Du er på ventelisten</h3>
-        <p>Det er veldig mange som ønsker å delta, og arrangementet er desverre fullt. Du er på ventelisten, så hvis noen gir fra seg plassen så kan du kanskje få plass likevel. Kryss fingrene!</p>
-    </div>
-}
-else if(Model.UserEventSignup.Status == Status.AcceptedAndPayed)
-{
-    <div class="alert alert-success" role="alert">
-        <h3 class="alert-heading">Du har godtatt plassen</h3>
-        <p>Du har gjort alt som trengs for å delta på dette arrangementet.</p>
-    </div>
-}
-else if(Model.UserEventSignup.Status == Status.RejectedOrNotPayed)
-{
-    <div class="alert alert-warning" role="alert">
-        <h3 class="alert-heading">Du har takket nei til denne plassen</h3>
-        <p>Du har takket nei til denne plassen.</p>
-    </div>
-}
-else if(Model.UserEventSignup.Status == Status.Denied)
-{
-    <div class="alert alert-warning" role="alert">
-        <h3 class="alert-heading">Du har mistet plassen din</h3>
-        <p>Du har ikke lenger plass på dette arrangementet.</p>
-    </div>
 }
 else
 {
-    <div class="alert alert-primary" role="alert">
-        <h3 class="alert-heading">Du er påmeldt</h3>
-        <p>Du vil få beskjed når vi har tildelt plassene.</p>
+    <div class="card shadow">
+        <h3 class="card-header">
+            @ViewData["Title"]
+        </h3>
+        <div class="card-body">
+            <p class="lead">@Model.Description</p>
+
+            @if (Model.UserEventSignup.Status == Status.WaitingList)
+            {
+                <div class="alert alert-info" role="alert">
+                    <h3 class="alert-heading">Du er på ventelisten</h3>
+                    <p>Det er veldig mange som ønsker å delta, og arrangementet er desverre fullt. Du er på ventelisten, så hvis noen gir fra seg plassen så kan du kanskje få plass likevel. Kryss fingrene!</p>
+                </div>
+            }
+            else if (Model.UserEventSignup.Status == Status.AcceptedAndPayed)
+            {
+                <div class="alert alert-success" role="alert">
+                    <h3 class="alert-heading">Du har godtatt plassen</h3>
+                    <p>Du har gjort alt som trengs for å delta på dette arrangementet.</p>
+                </div>
+            }
+            else if (Model.UserEventSignup.Status == Status.RejectedOrNotPayed)
+            {
+                <div class="alert alert-warning" role="alert">
+                    <h3 class="alert-heading">Du har takket nei til denne plassen</h3>
+                    <p>Du har takket nei til denne plassen.</p>
+                </div>
+            }
+            else if (Model.UserEventSignup.Status == Status.Denied)
+            {
+                <div class="alert alert-warning" role="alert">
+                    <h3 class="alert-heading">Du har mistet plassen din</h3>
+                    <p>Du har ikke lenger plass på dette arrangementet.</p>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info" role="alert">
+                    <h3 class="alert-heading">Du er påmeldt</h3>
+                    <p>Du vil få beskjed når vi har tildelt plassene.</p>
+                </div>
+            }
+        </div>
     </div>
 }

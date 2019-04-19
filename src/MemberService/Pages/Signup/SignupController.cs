@@ -104,7 +104,7 @@ namespace MemberService.Pages.Signup
         }
 
         [HttpPost]
-        public async Task<IActionResult> AcceptOrReject([FromForm] Guid id, [FromForm] bool accept)
+        public async Task<IActionResult> AcceptOrReject(Guid id, [FromForm] bool accept)
         {
             var user = await _database.Users
                 .Include(u => u.EventSignups)

@@ -3,15 +3,19 @@
 
 @{
     ViewData["Title"] = Model.Title;
+    Layout = "~/Pages/Shared/_CoverLayout.cshtml";
 }
 
-<div class="jumbotron">
-    <h2>@ViewData["Title"]</h2>
+<div class="card shadow">
+    <h3 class="card-header">
+        @ViewData["Title"]
+    </h3>
+    <div class="card-body">
+        <p class="lead">@Model.Description</p>
 
-    <p class="lead">@Model.Description</p>
-</div>
-
-<div class="alert alert-success" role="alert">
-    <h3 class="alert-headeing">Du er nå påmeldt @Model.Title</h3>
-    <p>Du vil få en e-post hvis du får plass på dette arrangementet. Du kan også sjekke statusen på denne og andre påmeldinger <a href="/" class="alert-link">her</>.
+        <div class="alert alert-success" role="alert">
+            <h3 class="alert-headeing">Du er nå påmeldt @Model.Title</h3>
+            <p>Du vil få en e-post hvis du får plass på dette arrangementet. Du kan også sjekke statusen på denne og andre påmeldinger <a href="/" class="alert-link">her</>.
+        </div>
+    </div>
 </div>

@@ -3,83 +3,88 @@
 
 @{
     ViewData["Title"] = Model.Title;
+    Layout = "~/Pages/Shared/_CoverLayout.cshtml";
 }
 
-<div class="jumbotron">
-    <h2>@ViewData["Title"]</h2>
+<form method="POST" class="card shadow">
+    <h3 class="card-header">
+        @ViewData["Title"]
+    </h3>
+    <div class="card-body">
+        <p class="lead">@Model.Description</p>
 
-    <p class="lead">@Model.Description</p>
-</div>
-
-@if(Model.Options.RequiresClassesFee && !Model.User.HasPayedClassesFeeThisSemester())
-{
-    <div class="alert alert-warning" role="alert">
-        For å delta på dette arrangementet må du ha betalt kursavgift. Du kan melde deg på nå, men hvis du får tildelt plass så må du betale kursavgiften for å godta plassen.
-    </div>
-}
-else if(Model.Options.RequiresTrainingFee && !Model.User.HasPayedTrainingFeeThisSemester())
-{
-    <div class="alert alert-warning" role="alert">
-        For å delta på dette arrangementet må du ha betalt treningsavgift. Du kan melde deg på nå, men hvis du får tildelt plass så må du betale treningsavgiften for å godta plassen.
-    </div>
-}
-else if(Model.Options.RequiresMembershipFee && !Model.User.HasPayedMembershipThisYear())
-{
-    <div class="alert alert-warning" role="alert">
-        For å delta på dette arrangementet må du ha betalt medlemsavgift for i år. Du kan melde deg på nå, men hvis du får tildelt plass så må du betale medlemsavgiften for å godta plassen.
-    </div>
-}
-
-@if(Model.User.HasPayedMembershipThisYear())
-{
-    if(Model.Options.PriceForMembers > 0)
-    {
-        <div class="alert alert-primary" role="alert">
-            Det koster kr @Model.Options.PriceForMembers for medlemmer å delta på dette arrangementet. Du kan melde deg på nå og betale først når du har fått plass.
-        </div>
-    }
-}
-else
-{
-    if(Model.Options.PriceForNonMembers > 0)
-    {
-        <div class="alert alert-primary" role="alert">
-            Det koster kr @Model.Options.PriceForNonMembers for ikke-medlemmer å delta på dette arrangementet. Du kan melde deg på nå og betale først når du har fått plass.
-
-            @if(Model.Options.PriceForMembers < Model.Options.PriceForMembers)
-            {
-                if(Model.Options.PriceForMembers == 0)
-                {
-                    @: Dette arrangementet er gratis for medlemmer som har betalt medlemsavgiften i år.
-                }
-                else
-                {
-                    @: Dette arrangementet koster bare kr @Model.Options.PriceForMembers for medlemmer som har betalt medlemsavgiften i år.
-                }
-            }
-        </div>
-    }
-}
-
-<form method="POST" asp-action="Create" class="form">
-    @if(Model.Options.RoleSignup)
-    {
-        <div class="form-group">
-            <label asp-for="Input.Role"></label>
-            <select class="form-control" asp-for="Input.Role">
-                <option value="@DanceRole.Lead">Fører</option>
-                <option value="@DanceRole.Follow">Følger</option>
-            </select>
-            <span asp-validation-for="Input.Role" class="text-danger"></span>
-        </div>
-        @if(Model.Options.AllowPartnerSignup)
+        @if (Model.Options.RequiresClassesFee && !Model.User.HasPayedClassesFeeThisSemester())
         {
-            <div class="form-group">
-                <label asp-for="Input.PartnerEmail"></label>
-                <input type="text" class="form-control" asp-for="Input.PartnerEmail">
-                <span asp-validation-for="Input.PartnerEmail" class="text-danger"></span>
+            <div class="alert alert-warning" role="alert">
+                For å delta på dette arrangementet må du ha betalt kursavgift. Du kan melde deg på nå, men hvis du får tildelt plass så må du betale kursavgiften for å godta plassen.
             </div>
         }
-    }
-    <button type="submit" class="btn btn-primary">Meld deg på</button>
+        else if (Model.Options.RequiresTrainingFee && !Model.User.HasPayedTrainingFeeThisSemester())
+        {
+            <div class="alert alert-warning" role="alert">
+                For å delta på dette arrangementet må du ha betalt treningsavgift. Du kan melde deg på nå, men hvis du får tildelt plass så må du betale treningsavgiften for å godta plassen.
+            </div>
+        }
+        else if (Model.Options.RequiresMembershipFee && !Model.User.HasPayedMembershipThisYear())
+        {
+            <div class="alert alert-warning" role="alert">
+                For å delta på dette arrangementet må du ha betalt medlemsavgift for i år. Du kan melde deg på nå, men hvis du får tildelt plass så må du betale medlemsavgiften for å godta plassen.
+            </div>
+        }
+
+        @if (Model.User.HasPayedMembershipThisYear())
+        {
+            if (Model.Options.PriceForMembers > 0)
+            {
+                <div class="alert alert-info" role="alert">
+                    Det koster @Model.Options.PriceForMembers.FormatMoney() for medlemmer å delta på dette arrangementet. Du kan melde deg på nå og betale først når du har fått plass.
+                </div>
+            }
+        }
+        else
+        {
+            if (Model.Options.PriceForNonMembers > 0)
+            {
+                <div class="alert alert-info" role="alert">
+                    Det koster kr @Model.Options.PriceForNonMembers for ikke-medlemmer å delta på dette arrangementet. Du kan melde deg på nå og betale først når du har fått plass.
+
+                    @if (Model.Options.PriceForMembers < Model.Options.PriceForMembers)
+                    {
+                        if (Model.Options.PriceForMembers == 0)
+                        {
+                            @: Dette arrangementet er gratis for medlemmer som har betalt medlemsavgiften i år.
+                        }
+                        else
+                        {
+                            @: Dette arrangementet koster bare kr @Model.Options.PriceForMembers for medlemmer som har betalt medlemsavgiften i år.
+                        }
+                    }
+                </div>
+            }
+        }
+
+        @if (Model.Options.RoleSignup)
+        {
+            <div class="form-group">
+                <label asp-for="Input.Role"></label>
+                <select class="form-control" asp-for="Input.Role">
+                    <option value="@DanceRole.Lead">Fører</option>
+                    <option value="@DanceRole.Follow">Følger</option>
+                </select>
+                <span asp-validation-for="Input.Role" class="text-danger"></span>
+            </div>
+            @if (Model.Options.AllowPartnerSignup)
+            {
+                <div class="form-group">
+                    <label asp-for="Input.PartnerEmail"></label>
+                    <input type="text" class="form-control" asp-for="Input.PartnerEmail" placeholder="epost@eksempel.no">
+                    <small class="form-text text-muted">Fyll inn e-post til partner hvis dere to som ønsker å gå kurs sammen. Begge to må melde seg på og skrive opp hverandres e-post.</small>
+                    <span asp-validation-for="Input.PartnerEmail" class="text-danger"></span>
+                </div>
+            }
+        }
+    </div>
+    <div class="card-footer">
+        <button type="submit" class="btn btn-success btn-block">Meld deg på</button>
+    </div>
 </form>

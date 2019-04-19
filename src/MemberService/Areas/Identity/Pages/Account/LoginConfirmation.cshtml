@@ -2,49 +2,47 @@
 @model LoginConfirmationModel
 @{
     ViewData["Title"] = "Logg inn / bli medlem";
-    ViewData["BodyClass"] = "cover";
+    Layout = "~/Pages/Shared/_CoverLayout.cshtml";
 }
 
-@if (Model.ShowError)
+@section AboveCover
 {
-    <div class="alert alert-danger mb-5 shadow" role="alert">
-        Klarte ikke logge inn, prøv på nytt eller <a asp-page="/Account/Login">trykk her</a> for å logge inn med en annen email.
-    </div>
-}
-else
-{
-    <div class="alert alert-info mb-5 shadow" role="alert">
-        <p>
-            En e-post har blitt sendt til <strong>@Model.Input.Email</strong> med en kode for å logge inn.
-        </p>
-        Det kan ta et minutt eller to før e-posten kommer frem.
-    </div>
+    @if (Model.ShowError)
+    {
+        <div class="alert alert-danger mb-5 shadow" role="alert">
+            Klarte ikke logge inn, prøv på nytt eller <a asp-page="/Account/Login">trykk her</a> for å logge inn med en annen email.
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info mb-5 shadow" role="alert">
+            <p>
+                En e-post har blitt sendt til <strong>@Model.Input.Email</strong> med en kode for å logge inn.
+            </p>
+            Det kan ta et minutt eller to før e-posten kommer frem.
+        </div>
+    }
 }
 
-<div class="row justify-content-md-center">
-    <div class="col-md-6">
-        <div class="card shadow">
-            <h3 class="card-header">
-                Logg inn / bli medlem
-            </h3>
-            <div class="card-body">
-                <form method="post" asp-page="LoginCallback">
-                    <input type="hidden" asp-for="Input.ReturnUrl" />
-                    <div class="form-group">
-                        <label asp-for="Input.Email"></label>
-                        <input asp-for="Input.Email" class="form-control-plaintext" readonly />
-                    </div>
-                    <div asp-validation-summary="All" class="text-danger"></div>
-                    <div class="form-group">
-                        <label asp-for="Input.Code"></label>
-                        <input asp-for="Input.Code" class="form-control form-control-lg" placeholder="000000" style="letter-spacing: 10px; text-indent: 10px; text-align: center" maxlength="6" autofocus />
-                        <span asp-validation-for="Input.Code" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-success btn-block">Logg inn</button>
-                    </div>
-                </form>
-            </div>
+
+<form method="post" asp-page="LoginCallback" class="card shadow">
+    <h3 class="card-header">
+        Logg inn / bli medlem
+    </h3>
+    <div class="card-body">
+        <input type="hidden" asp-for="Input.ReturnUrl" />
+        <div class="form-group">
+            <label asp-for="Input.Email"></label>
+            <input asp-for="Input.Email" class="form-control" readonly />
+        </div>
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <div class="form-group">
+            <label asp-for="Input.Code"></label>
+            <input asp-for="Input.Code" class="form-control form-control-lg" placeholder="000000" style="letter-spacing: 10px; text-indent: 10px; text-align: center" maxlength="6" autofocus />
+            <span asp-validation-for="Input.Code" class="text-danger"></span>
         </div>
     </div>
-</div>
+    <div class="card-footer">
+        <button type="submit" class="btn btn-success btn-block">Logg inn</button>
+    </div>
+</form>

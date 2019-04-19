@@ -37,7 +37,8 @@
                         <li class="nav-item">
                             <a class="nav-link text-white" asp-area="" asp-controller="Home" asp-action="Index">Hjem</a>
                         </li>
-                        @if(User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN)){
+                        @if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN))
+                        {
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-area="" asp-controller="Members" asp-action="Index">Medlemmer</a>
                             </li>
@@ -45,7 +46,8 @@
                                 <a class="nav-link text-white" asp-area="" asp-controller="Event" asp-action="Index">Eventer</a>
                             </li>
                         }
-                        @if(User.IsInRole(Roles.ADMIN)){
+                        @if (User.IsInRole(Roles.ADMIN))
+                        {
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-area="" asp-controller="Admin" asp-action="Index">Admin</a>
                             </li>
@@ -87,6 +89,7 @@
         </script>
     </environment>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <partial name="_ValidationScriptsPartial" />
 
     @RenderSection("Scripts", required: false)
 </body>

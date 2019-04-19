@@ -3,34 +3,23 @@
 
 @{
     ViewData["Title"] = "Logg inn / bli medlem";
-    ViewData["BodyClass"] = "cover";
+    Layout = "~/Pages/Shared/_CoverLayout.cshtml";
 }
 
-<div class="row justify-content-md-center">
-    <div class="col-md-6">
-
-        <div class="card mt-5 shadow">
-            <h3 class="card-header">
-                Logg inn / bli medlem
-            </h3>
-            <div class="card-body">
-                <form method="post">
-                    <input type="hidden" asp-for="Input.ReturnUrl">
-                    <span asp-validation-summary="All" class="text-danger"></span>
-                    <div class="form-group">
-                        <label asp-for="Input.Email"></label>
-                        <input asp-for="Input.Email" class="form-control" placeholder="epost@eksempel.no" />
-                        <span asp-validation-for="Input.Email" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-success btn-block">Gå videre &#x27a4;</button>
-                    </div>
-                </form>
-            </div>
+<form method="post" class="card mt-5 shadow">
+    <h3 class="card-header">
+        Logg inn / bli medlem
+    </h3>
+    <div class="card-body">
+        <input type="hidden" asp-for="Input.ReturnUrl">
+        <span asp-validation-summary="All" class="text-danger"></span>
+        <div class="form-group">
+            <label asp-for="Input.Email"></label>
+            <input asp-for="Input.Email" class="form-control" placeholder="epost@eksempel.no" />
+            <span asp-validation-for="Input.Email" class="text-danger"></span>
         </div>
     </div>
-</div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+    <div class="card-footer">
+        <button type="submit" class="btn btn-success btn-block">Gå videre &#x27a4;</button>
+    </div>
+</form>
