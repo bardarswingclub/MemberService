@@ -81,18 +81,9 @@ namespace MemberService.Pages.Event
         {
             var model = await _database.Events
                 .Include(e => e.SignupOptions)
+                .Include(e => e.Signups)
+                .ThenInclude(s => s.User)
                 .AsNoTracking()
-                .Expressionify()
-                .Select(e => new EventModel
-                {
-                    Id = e.Id,
-                    Title = e.Title,
-                    Description = e.Description,
-                    Options = e.SignupOptions,
-                    Leads = e.GetSignups(DanceRole.Lead),
-                    Follows = e.GetSignups(DanceRole.Follow),
-                    Solos = e.GetSignups(DanceRole.None)
-                })
                 .SingleOrDefaultAsync(e => e.Id == id);
 
             if (model == null)
@@ -100,7 +91,24 @@ namespace MemberService.Pages.Event
                 return NotFound();
             }
 
-            return View(model);
+            var statuses = new[] {
+                Status.AcceptedAndPayed,
+                Status.Approved,
+                Status.WaitingList,
+                Status.Recommended,
+                Status.Pending,
+                Status.RejectedOrNotPayed,
+                Status.Denied,
+            };
+
+            return View(new EventModel
+                {
+                    Id = model.Id,
+                    Title = model.Title,
+                    Description = model.Description,
+                    Options = model.SignupOptions,
+                    Signups = statuses.Select(s => EventSignupStatusModel.Create(s, model.Signups.Where(x => x.Status == s))).ToReadOnlyCollection()
+            });
         }
 
         [HttpPost]

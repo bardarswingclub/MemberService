@@ -12,11 +12,7 @@ namespace MemberService.Pages.Event
 
         public string Description { get; set; }
 
-        public ICollection<EventSignupModel> Leads { get; set; }
-
-        public ICollection<EventSignupModel> Follows { get; set; }
-
-        public ICollection<EventSignupModel> Solos { get; set; }
+        public IReadOnlyCollection<EventSignupStatusModel> Signups { get; set; }
 
         public EventSignupOptions Options { get; set; }
     }

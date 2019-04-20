@@ -14,6 +14,8 @@ namespace MemberService.Pages.Event
 
         public Status Status { get; set; }
 
+        public DanceRole Role { get; set; }
+
         public bool Selected { get; set; }
 
         [Expressionify]
@@ -23,7 +25,8 @@ namespace MemberService.Pages.Event
                 Id = s.Id,
                 FullName = s.User.FullName,
                 SignedUpAt = s.SignedUpAt,
-                Status = s.Status
+                Status = s.Status,
+                Role = s.Role
             };
     }
 }

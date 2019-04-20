@@ -4,28 +4,29 @@
 @{
     ViewData["Title"] = Model.Title;
 }
+
 <h2>@ViewData["Title"]</h2>
 
 <a asp-controller="Signup" asp-action="Index" asp-route-id="@Model.Id">Delbar link til påmelding</a>
 
 <form class="alert alert-info" asp-action="SetStatus" asp-route-id="@Model.Id" method="POST">
-    @if(Model.Options.IsOpen())
+    @if (Model.Options.IsOpen())
     {
         <h4 class="alert-heading">Påmeldingen er åpen!</h4>
-        @if(Model.Options.SignupOpensAt.HasValue)
+        @if (Model.Options.SignupOpensAt.HasValue)
         {
             <p>Påmeldingen åpnet @Model.Options.SignupOpensAt</p>
         }
-        @if(Model.Options.SignupClosesAt.HasValue)
+        @if (Model.Options.SignupClosesAt.HasValue)
         {
             <p>Påmeldingen stenger @Model.Options.SignupClosesAt</p>
         }
         <button type="submit" name="status" value="close" class="btn btn-outline-danger">Steng påmeldingen nå</button>
     }
-    else if(Model.Options.HasClosed())
+    else if (Model.Options.HasClosed())
     {
         <h4 class="alert-heading">Påmeldingen har stengt!</h4>
-        @if(Model.Options.SignupOpensAt.HasValue)
+        @if (Model.Options.SignupOpensAt.HasValue)
         {
             <p>Påmeldingen åpnet @Model.Options.SignupOpensAt</p>
         }
@@ -36,7 +37,7 @@
     {
         <h4 class="alert-heading">Påmeldingen har ikke åpnet ennå!</h4>
         <p>Påmeldingen åpner @Model.Options.SignupOpensAt</p>
-        @if(Model.Options.SignupClosesAt.HasValue)
+        @if (Model.Options.SignupClosesAt.HasValue)
         {
             <p>Påmeldingen stenger @Model.Options.SignupClosesAt</p>
         }
@@ -44,38 +45,88 @@
     }
 </form>
 
-<form class="row" method="POST">
-    @if(Model.Options.RoleSignup)
-    {
-        <div class="col-md-6">
-            <h4>Førere</h4>
-            <partial name="_ParticipantTable" for="@Model.Leads" />
-        </div>
-        <div class="col-md-6">
-            <h4>Følgere</h4>
-            <partial name="_ParticipantTable" for="@Model.Follows" />
-        </div>
-    }
-    else
-    {
-        <div class="col-md-12">
-            <h4>Solo</h4>
-            <partial name="_ParticipantTable" for="@Model.Solos" />
-        </div>
-    }
-    <div class="col-md-12 form-row align-items-center">
-        <div class="col-auto">
-            <select name="Status" class="custom-select">
-                <option selected="selected" value="">Velg en handling</option>
-                <option value="2">Anbefall plass</option>
-                <option value="4">Gi plass</option>
-                <option value="3">Sett på venteliste</option>
-                <option value="7">Frata plass</option>
-            </select>
-        </div>
-        <div class="col-auto">
-            <button type="submit" class="btn btn-primary">Lagre</button>
-        </div>
+<div class="card">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
+            @foreach (var signups in Model.Signups)
+            {
+                <li class="nav-item">
+                    <a class="nav-link text-dark @(signups.Active ? "active" : "")" id="tab-@signups.Key" data-toggle="tab" href="#@signups.Key" role="tab" aria-controls="@signups.Key" aria-selected="@signups.Active">
+                        @signups.Display
+                        <small class="text-muted">(@signups.Signups.Count)</small>
+                    </a>
+                </li>
+            }
+        </ul>
     </div>
-</form>
+        <div class="tab-content card-body">
+            @foreach (var signups in Model.Signups)
+            {
+                <form method="post" class="tab-pane @(signups.Active ? "active" : "")" id="@signups.Key" role="tabpanel" aria-labelledby="@signups.Key-tab">
+                    @if (Model.Options.RoleSignup)
+                    {
+                        var leads = signups.Leads;
+                        var follows = signups.Follows;
 
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Førere</h4>
+
+                                <table class="table">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th></th>
+                                            <th>Navn</th>
+                                            <th>Dato</th>
+                                        </tr>
+                                    </thead>
+                                    <partial name="_Participants" for="@leads">
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Følgere</h4>
+
+                                <table class="table">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th></th>
+                                            <th>Navn</th>
+                                            <th>Dato</th>
+                                        </tr>
+                                    </thead>
+                                    <partial name="_Participants" for="@follows">
+                                </table>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <h4>Solo</h4>
+
+                        <table class="table">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th></th>
+                                    <th>Navn</th>
+                                    <th>Dato</th>
+                                </tr>
+                            </thead>
+                            <partial name="_Participants" model="@signups.Solos">
+                        </table>
+                    }
+                    <div class="input-group">
+                        <select name="Status" class="custom-select">
+                            <option selected="selected" value="">Velg en handling</option>
+                            <option value="2">Anbefall plass</option>
+                            <option value="4">Gi plass</option>
+                            <option value="3">Sett på venteliste</option>
+                            <option value="7">Frata plass</option>
+                        </select>
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-success">Lagre</button>
+                        </div>
+                    </div>
+                </form>
+            }
+    </div>
+</div>

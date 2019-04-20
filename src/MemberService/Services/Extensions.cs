@@ -1,6 +1,8 @@
 using NodaTime;
 using System;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace MemberService.Services
 {
@@ -20,5 +22,12 @@ namespace MemberService.Services
 
         private static DateTime WithKind(this DateTime dateTime, DateTimeKind kind)
             => DateTime.SpecifyKind(dateTime, kind);
+
+        public static TAttribute GetAttribute<TAttribute>(this Enum enumValue)
+            where TAttribute : Attribute
+            => enumValue.GetType()
+                .GetMember(enumValue.ToString())
+                .Single()
+                .GetCustomAttribute<TAttribute>();
     }
 }
