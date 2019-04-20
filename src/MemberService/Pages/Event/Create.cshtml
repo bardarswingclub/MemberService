@@ -1,5 +1,5 @@
 @using MemberService.Pages.Event
-@model CreateEventModel
+@model EventInputModel
 
 @{
     ViewData["Title"] = "Opprett ny event";
@@ -7,123 +7,8 @@
 <h2>@ViewData["Title"]</h2>
 
 <form method="POST" asp-action="Create" class="form-row justify-content-between">
-    <div class="form-group col-12">
-        <label asp-for="Title"></label>
-        <input type="text" class="form-control" asp-for="Title">
-        <span asp-validation-for="Title" class="text-danger"></span>
-    </div>
-    <div class="form-group col-12">
-        <label asp-for="Description"></label>
-        <input type="text" class="form-control" asp-for="Description">
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                Betaling
-            </div>
-            <div class="card-body">
-                <div class="form-group row">
-                    <label asp-for="PriceForMembers" class="col-6 col-form-label"></label>
-                    <div class="col-6">
-                        <input type="number" placeholder="0" value="0" class="form-control" asp-for="PriceForMembers">
-                        <span asp-validation-for="PriceForMembers" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <label asp-for="PriceForNonMembers" class="col-6 col-form-label"></label>
-                    <div class="col-6">
-                        <input type="number" placeholder="0" value="0" class="form-control" asp-for="PriceForNonMembers">
-                        <span asp-validation-for="PriceForNonMembers" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="form-group form-check">
-                    <input type="checkbox" class="form-check-input" asp-for="RequiresMembershipFee">
-                    <label class="form-check-label" asp-for="RequiresMembershipFee"></label>
-                    <span asp-validation-for="RequiresMembershipFee" class="text-danger"></span>
-                </div>
-                <div class="form-group form-check">
-                    <input type="checkbox" class="form-check-input" asp-for="RequiresTrainingFee">
-                    <label class="form-check-label" asp-for="RequiresTrainingFee"></label>
-                    <span asp-validation-for="RequiresTrainingFee" class="text-danger"></span>
-                </div>
-                <div class="form-group form-check">
-                    <input type="checkbox" class="form-check-input" asp-for="RequiresClassesFee">
-                    <label class="form-check-label" asp-for="RequiresClassesFee"></label>
-                    <span asp-validation-for="RequiresClassesFee" class="text-danger"></span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card mb-2">
-            <div class="card-header">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="EnableSignupOpensAt" data-toggle="collapse" data-target=".opens-at">
-                    <label class="form-check-label" asp-for="EnableSignupOpensAt">
-                        Påmelding åpner
-                    </label>
-                </div>
-            </div>
-            <div class="card-body opens-at collapse">
-                <div class="form-group row">
-                    <label asp-for="SignupOpensAtDate" class="col-6 col-form-label">Dato</label>
-                    <div class="col-6">
-                        <input type="date" class="form-control" asp-for="SignupOpensAtDate" value="@DateTime.UtcNow.ToString("yyy-MM-dd")">
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <label for="SignupOpensAtTime" class="col-6 col-form-label">Tid</label>
-                    <div class="col-6">
-                        <input type="text" pattern="\d\d:\d\d" class="form-control" asp-for="SignupOpensAtTime" placeholder="00:00" value="20:00">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card mb-2">
-            <div class="card-header">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="EnableSignupClosesAt" data-toggle="collapse" data-target=".closes-at">
-                    <label class="form-check-label" asp-for="EnableSignupClosesAt">
-                        Påmelding stenger
-                    </label>
-                </div>
-            </div>
-            <div class="card-body closes-at collapse">
-                <div class="form-group row">
-                    <label asp-for="SignupClosesAtDate" class="col-6 col-form-label">Dato</label>
-                    <div class="col-6">
-                        <input type="date" class="form-control" asp-for="SignupClosesAtDate" value="@DateTime.UtcNow.ToString("yyy-MM-dd")">
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <label for="SignupClosesAtTime" class="col-6 col-form-label">Tid</label>
-                    <div class="col-6">
-                        <input type="text" pattern="\d\d:\d\d" class="form-control" asp-for="SignupClosesAtTime" placeholder="00:00" value="20:00">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="card mb-2">
-            <div class="card-header">
-                Annet
-            </div>
-            <div class="card-body">
-                <div class="form-group form-check">
-                    <input type="checkbox" class="form-check-input" asp-for="RoleSignup">
-                    <label class="form-check-label" asp-for="RoleSignup"></label>
-                    <span asp-validation-for="RoleSignup" class="text-danger"></span>
-                </div>
-                <div class="form-group form-check">
-                    <input type="checkbox" class="form-check-input" asp-for="AllowPartnerSignup">
-                    <label class="form-check-label" asp-for="AllowPartnerSignup"></label>
-                    <span asp-validation-for="AllowPartnerSignup" class="text-danger"></span>
-                </div>
-            </div>
-        </div>
-    </div>
+    <partial name="_EditEvent" model="@Model" />
     <div class="col-md-12 mt-2">
-        <button type="submit" class="btn btn-primary">Opprett</button>
+        <button type="submit" class="btn btn-success">Opprett</button>
     </div>
 </form>

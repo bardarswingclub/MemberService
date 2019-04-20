@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
 using NodaTime.Text;
 
 namespace MemberService.Pages.Event
@@ -37,13 +38,14 @@ namespace MemberService.Pages.Event
             return View(events);
         }
 
+        [HttpGet]
         public IActionResult Create()
         {
-            return View();
+            return View(new EventInputModel());
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromForm] CreateEventModel model)
+        public async Task<IActionResult> Create([FromForm] EventInputModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -137,6 +139,78 @@ namespace MemberService.Pages.Event
             return RedirectToAction(nameof(View), new { id });
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Edit(Guid id)
+        {
+            var model = await _database.Events
+                .Include(e => e.SignupOptions)
+                .AsNoTracking()
+                .SingleOrDefaultAsync(e => e.Id == id);
+
+            if (model == null)
+            {
+                return NotFound();
+            }
+
+            var (signupOpensAtDate, signupOpensAtTime) = GetLocal(model.SignupOptions.SignupOpensAt);
+            var (signupClosesAtDate, signupClosesAtTime) = GetLocal(model.SignupOptions.SignupClosesAt);
+
+            return View(new EventInputModel
+            {
+                Id = model.Id,
+                Title = model.Title,
+                Description = model.Description,
+                RoleSignup = model.SignupOptions.RoleSignup,
+                AllowPartnerSignup = model.SignupOptions.AllowPartnerSignup,
+                EnableSignupOpensAt = model.SignupOptions.SignupOpensAt.HasValue,
+                SignupOpensAtDate = signupOpensAtDate,
+                SignupOpensAtTime = signupOpensAtTime,
+                EnableSignupClosesAt = model.SignupOptions.SignupClosesAt.HasValue,
+                SignupClosesAtDate = signupClosesAtDate,
+                SignupClosesAtTime = signupClosesAtTime,
+                PriceForMembers = model.SignupOptions.PriceForMembers,
+                PriceForNonMembers = model.SignupOptions.PriceForNonMembers,
+                RequiresMembershipFee = model.SignupOptions.RequiresMembershipFee,
+                RequiresTrainingFee = model.SignupOptions.RequiresTrainingFee,
+                RequiresClassesFee = model.SignupOptions.RequiresClassesFee,
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(Guid id, [FromForm] EventInputModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var entity = await _database.Events
+                .Include(e => e.SignupOptions)
+                .SingleOrDefaultAsync(e => e.Id == id);
+
+            if (entity == null)
+            {
+                return NotFound();
+            }
+
+            entity.Title = model.Title;
+            entity.Description = model.Description;
+
+            entity.SignupOptions.RequiresMembershipFee = model.RequiresMembershipFee;
+            entity.SignupOptions.RequiresTrainingFee = model.RequiresTrainingFee;
+            entity.SignupOptions.RequiresClassesFee = model.RequiresClassesFee;
+            entity.SignupOptions.PriceForMembers = model.PriceForMembers;
+            entity.SignupOptions.PriceForNonMembers = model.PriceForNonMembers;
+            entity.SignupOptions.SignupOpensAt = GetUtc(model.EnableSignupOpensAt, model.SignupOpensAtDate, model.SignupOpensAtTime);
+            entity.SignupOptions.SignupClosesAt = GetUtc(model.EnableSignupClosesAt, model.SignupClosesAtDate, model.SignupClosesAtTime);
+            entity.SignupOptions.AllowPartnerSignup = model.AllowPartnerSignup;
+            entity.SignupOptions.RoleSignup = model.RoleSignup;
+
+            await _database.SaveChangesAsync();
+
+            return RedirectToAction(nameof(View), new { id = entity.Id });
+        }
+
         [HttpPost]
         public async Task<IActionResult> SetStatus(Guid id, [FromForm] string status)
         {
@@ -174,6 +248,16 @@ namespace MemberService.Pages.Event
             var localDateTime = LocalDateTimePattern.GeneralIso.Parse(dateTime).GetValueOrThrow();
 
             return localDateTime.InZoneLeniently(Constants.TimeZoneOslo).ToDateTimeUtc();
+        }
+
+        private (string Date, string Time) GetLocal(DateTime? utc)
+        {
+            if (!utc.HasValue) return (null, null);
+
+            var instant = Instant.FromDateTimeUtc(DateTime.SpecifyKind(utc.Value, DateTimeKind.Utc));
+            var result = instant.InZone(Constants.TimeZoneOslo);
+
+            return (result.Date.ToString("yyyy-MM-dd", null), result.TimeOfDay.ToString("HH:mm", null));
         }
 
         private async Task<MemberUser> GetCurrentUser()

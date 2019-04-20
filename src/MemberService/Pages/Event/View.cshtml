@@ -8,6 +8,8 @@
 <h2>@ViewData["Title"]</h2>
 
 <a asp-controller="Signup" asp-action="Index" asp-route-id="@Model.Id">Delbar link til påmelding</a>
+|
+<a asp-controller="Event" asp-action="Edit" asp-route-id="@Model.Id">Rediger</a>
 
 <form class="alert alert-info" asp-action="SetStatus" asp-route-id="@Model.Id" method="POST">
     @if (Model.Options.IsOpen())
@@ -59,74 +61,74 @@
             }
         </ul>
     </div>
-        <div class="tab-content card-body">
-            @foreach (var signups in Model.Signups)
-            {
-                <form method="post" class="tab-pane @(signups.Active ? "active" : "")" id="@signups.Key" role="tabpanel" aria-labelledby="@signups.Key-tab">
-                    @if (Model.Options.RoleSignup)
-                    {
-                        var leads = signups.Leads;
-                        var follows = signups.Follows;
+    <div class="tab-content card-body">
+        @foreach (var signups in Model.Signups)
+        {
+            <form method="post" class="tab-pane @(signups.Active ? "active" : "")" id="@signups.Key" role="tabpanel" aria-labelledby="@signups.Key-tab">
+                @if (Model.Options.RoleSignup)
+                {
+                    var leads = signups.Leads;
+                    var follows = signups.Follows;
 
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h4>Førere</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4>Førere</h4>
 
-                                <table class="table">
-                                    <thead class="thead-light">
-                                        <tr>
-                                            <th></th>
-                                            <th>Navn</th>
-                                            <th>Dato</th>
-                                        </tr>
-                                    </thead>
-                                    <partial name="_Participants" for="@leads">
-                                </table>
-                            </div>
-                            <div class="col-md-6">
-                                <h4>Følgere</h4>
-
-                                <table class="table">
-                                    <thead class="thead-light">
-                                        <tr>
-                                            <th></th>
-                                            <th>Navn</th>
-                                            <th>Dato</th>
-                                        </tr>
-                                    </thead>
-                                    <partial name="_Participants" for="@follows">
-                                </table>
-                            </div>
+                            <table class="table">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th></th>
+                                        <th>Navn</th>
+                                        <th>Dato</th>
+                                    </tr>
+                                </thead>
+                                <partial name="_Participants" for="@leads">
+                            </table>
                         </div>
-                    }
-                    else
-                    {
-                        <h4>Solo</h4>
+                        <div class="col-md-6">
+                            <h4>Følgere</h4>
 
-                        <table class="table">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th></th>
-                                    <th>Navn</th>
-                                    <th>Dato</th>
-                                </tr>
-                            </thead>
-                            <partial name="_Participants" model="@signups.Solos">
-                        </table>
-                    }
-                    <div class="input-group">
-                        <select name="Status" class="custom-select">
-                            <option selected="selected" value="">Velg en handling</option>
-                            <option value="2">Anbefall plass</option>
-                            <option value="4">Gi plass</option>
-                            <option value="3">Sett på venteliste</option>
-                            <option value="7">Frata plass</option>
-                        </select>
-                        <div class="input-group-append">
-                            <button type="submit" class="btn btn-success">Lagre</button>
+                            <table class="table">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th></th>
+                                        <th>Navn</th>
+                                        <th>Dato</th>
+                                    </tr>
+                                </thead>
+                                <partial name="_Participants" for="@follows">
+                            </table>
                         </div>
                     </div>
-                </form>
-            }
+                }
+                else
+                {
+                    <h4>Solo</h4>
+
+                    <table class="table">
+                        <thead class="thead-light">
+                            <tr>
+                                <th></th>
+                                <th>Navn</th>
+                                <th>Dato</th>
+                            </tr>
+                        </thead>
+                        <partial name="_Participants" model="@signups.Solos">
+                    </table>
+                }
+                <div class="input-group">
+                    <select name="Status" class="custom-select">
+                        <option selected="selected" value="">Velg en handling</option>
+                        <option value="2">Anbefall plass</option>
+                        <option value="4">Gi plass</option>
+                        <option value="3">Sett på venteliste</option>
+                        <option value="7">Frata plass</option>
+                    </select>
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-success">Lagre</button>
+                    </div>
+                </div>
+            </form>
+        }
     </div>
 </div>

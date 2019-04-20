@@ -1,11 +1,14 @@
+using Clave.Expressionify;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace MemberService.Pages.Event
 {
-    public class CreateEventModel
+    public class EventInputModel
     {
+        public Guid Id { get; set; }
+
         [DisplayName("Navn")]
         public string Title { get; set; }
 
