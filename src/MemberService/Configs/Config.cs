@@ -5,5 +5,7 @@ namespace MemberService.Configs
         public StripeConfig Stripe { get; set; }
 
         public EmailConfig Email { get; set; }
+
+        public string AdminEmails { get; set; }
     }
 }

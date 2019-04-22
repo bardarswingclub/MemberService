@@ -30,7 +30,7 @@ namespace MemberService
 
                     await scope.ServiceProvider
                         .GetRequiredService<UserManager<MemberUser>>()
-                        .SeedUserRoles(config.Email.From);
+                        .SeedUserRoles(config.AdminEmails.Split(","));
                 }
 
                 await host.RunAsync();

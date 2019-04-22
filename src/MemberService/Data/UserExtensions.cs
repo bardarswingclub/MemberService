@@ -7,9 +7,12 @@ namespace MemberService.Data
 {
     public static class UserExtensions
     {
-        public static async Task SeedUserRoles(this UserManager<MemberUser> userManager, string email)
+        public static async Task SeedUserRoles(this UserManager<MemberUser> userManager, params string[] emails)
         {
-            await userManager.EnsureUserHasRole(email, Roles.ADMIN);
+            foreach(var email in emails)
+            {
+                await userManager.EnsureUserHasRole(email.Trim(), Roles.ADMIN);
+            }
         }
 
         public static async Task SeedRoles(this RoleManager<MemberRole> roleManager)
