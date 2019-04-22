@@ -9,16 +9,16 @@ namespace MemberService.Data
     {
         [Expressionify]
         public static bool HasPayedMembershipThisYear(this MemberUser user)
-            => user.Payments.Any(p => p.PayedAt > Constants.ThisYear && p.IncludesMembership && !p.Refunded);
+            => user.Payments.Any(p => p.PayedAtUtc > Constants.ThisYearUtc && p.IncludesMembership && !p.Refunded);
 
         [Expressionify]
         public static bool HasPayedTrainingFeeThisSemester(this MemberUser user)
-            => user.Payments.Any(p => p.PayedAt > Constants.ThisSemester && p.IncludesTraining && !p.Refunded)
+            => user.Payments.Any(p => p.PayedAtUtc > Constants.ThisSemesterUtc && p.IncludesTraining && !p.Refunded)
             || user.ExemptFromTrainingFee && user.HasPayedMembershipThisYear();
 
         [Expressionify]
         public static bool HasPayedClassesFeeThisSemester(this MemberUser user)
-            => user.Payments.Any(p => p.PayedAt > Constants.ThisSemester && p.IncludesClasses && !p.Refunded)
+            => user.Payments.Any(p => p.PayedAtUtc > Constants.ThisSemesterUtc && p.IncludesClasses && !p.Refunded)
             || user.ExemptFromClassesFee && user.HasPayedTrainingFeeThisSemester();
 
         public static async Task<MemberUser> SingleUser(this IQueryable<MemberUser> users, string id)

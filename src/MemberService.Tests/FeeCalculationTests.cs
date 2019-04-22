@@ -38,7 +38,7 @@ namespace Tests
                     new Payment
                     {
                         IncludesMembership = true,
-                        PayedAt = DateTime.UtcNow
+                        PayedAtUtc = DateTime.UtcNow
                     }
                 }
             };
@@ -58,7 +58,7 @@ namespace Tests
                     new Payment
                     {
                         IncludesMembership = true,
-                        PayedAt = DateTime.UtcNow.AddYears(-1)
+                        PayedAtUtc = DateTime.UtcNow.AddYears(-1)
                     }
                 }
             };
@@ -102,7 +102,7 @@ namespace Tests
                     {
                         IncludesMembership = true,
                         IncludesTraining = true,
-                        PayedAt = DateTime.UtcNow
+                        PayedAtUtc = DateTime.UtcNow
                     }
                 }
             };
@@ -123,7 +123,7 @@ namespace Tests
                     {
                         IncludesMembership = true,
                         IncludesTraining = true,
-                        PayedAt = DateTime.UtcNow.AddYears(-1)
+                        PayedAtUtc = DateTime.UtcNow.AddYears(-1)
                     }
                 }
             };
@@ -148,7 +148,7 @@ namespace Tests
                     new Payment
                     {
                         IncludesMembership = true,
-                        PayedAt = DateTime.UtcNow
+                        PayedAtUtc = DateTime.UtcNow
                     }
                 }
             };
@@ -193,7 +193,7 @@ namespace Tests
                         IncludesMembership = true,
                         IncludesTraining = true,
                         IncludesClasses = true,
-                        PayedAt = DateTime.UtcNow
+                        PayedAtUtc = DateTime.UtcNow
                     }
                 }
             };
@@ -215,7 +215,7 @@ namespace Tests
                         IncludesMembership = true,
                         IncludesTraining = true,
                         IncludesClasses = true,
-                        PayedAt = DateTime.UtcNow.AddYears(-1)
+                        PayedAtUtc = DateTime.UtcNow.AddYears(-1)
                     }
                 }
             };
@@ -240,7 +240,7 @@ namespace Tests
                     new Payment
                     {
                         IncludesMembership = true,
-                        PayedAt = DateTime.UtcNow
+                        PayedAtUtc = DateTime.UtcNow
                     }
                 }
             };
@@ -266,7 +266,7 @@ namespace Tests
                     {
                         IncludesMembership = true,
                         IncludesTraining = true,
-                        PayedAt = DateTime.UtcNow
+                        PayedAtUtc = DateTime.UtcNow
                     }
                 }
             };

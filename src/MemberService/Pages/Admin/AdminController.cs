@@ -106,9 +106,9 @@ namespace MemberService.Pages.Admin
 
             return new Payment
             {
-                Amount = charge.Amount,
+                Amount = charge.Amount/100m,
                 Description = charge.Description,
-                PayedAt = charge.Created,
+                PayedAtUtc = charge.Created,
                 StripeChargeId = charge.Id,
                 IncludesMembership = charge.Metadata.TryGetValue("inc_membership", out var m) && m == "yes" || includesMembership,
                 IncludesTraining = charge.Metadata.TryGetValue("inc_training", out var t) && t == "yes" || includesTraining,

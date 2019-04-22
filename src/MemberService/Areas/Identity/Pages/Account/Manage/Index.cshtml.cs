@@ -59,7 +59,7 @@ namespace MemberService.Areas.Identity.Pages.Account.Manage
             Email = user.Email;
 
             Payments = user.Payments
-                .OrderByDescending(p => p.PayedAt)
+                .OrderByDescending(p => p.PayedAtUtc)
                 .ToList();
 
             Input = new InputModel

@@ -36,7 +36,7 @@ namespace MemberService.Data
 
             builder.Entity<Payment>(payment =>
             {
-                payment.HasIndex(p => p.PayedAt);
+                payment.HasIndex(p => p.PayedAtUtc);
             });
         }
     }

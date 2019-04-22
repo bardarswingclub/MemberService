@@ -85,9 +85,9 @@ namespace MemberService.Pages.Home
             _memberContext.Payments.Add(new Payment
             {
                 User = user,
-                PayedAt = DateTime.Now,
+                PayedAtUtc = DateTime.UtcNow,
                 StripeChargeId = charge.Id,
-                Amount = charge.Amount,
+                Amount = charge.Amount/100m,
                 Description = charge.Description,
                 IncludesMembership = fee.IncludesMembership,
                 IncludesTraining = fee.IncludesTraining,

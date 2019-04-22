@@ -11,14 +11,14 @@ namespace MemberService.Data
         public MemberUser User { get; set; }
 
         [Required]
-        public DateTime PayedAt { get; set; }
+        public DateTime PayedAtUtc { get; set; }
 
         public string StripeChargeId { get; set; }
 
         public string ManualPayment { get; set; }
 
         [Required]
-        public long Amount { get; set; }
+        public decimal Amount { get; set; }
 
         [Required]
         public string Description { get; set; }

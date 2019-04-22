@@ -65,12 +65,12 @@
                             @if (User.IsInRole(Roles.ADMIN) && payment.StripeChargeId != null)
                             {
                                 <a href="https://dashboard.stripe.com/payments/@payment.StripeChargeId" target="_blank">
-                                    @payment.PayedAt
+                                    @payment.PayedAtUtc
                                 </a>
                             }
                             else
                             {
-                                @payment.PayedAt
+                                @payment.PayedAtUtc
                             }
                         </td>
                         <td>@payment.Description</td>

@@ -28,10 +28,10 @@ namespace MemberService.Pages.Members
         }
 
         public async Task<IActionResult> Index(
-            string memberFilter, 
-            string trainingFilter, 
-            string classesFilter, 
-            string exemptTrainingFilter, 
+            string memberFilter,
+            string trainingFilter,
+            string classesFilter,
+            string exemptTrainingFilter,
             string exemptClassesFilter)
         {
             var users = await _memberContext.Users
@@ -126,12 +126,12 @@ namespace MemberService.Pages.Members
                 await _memberContext.AddAsync(new Payment
                 {
                     User = user,
-                    Amount = model.Amount*100,
+                    Amount = model.Amount,
                     Description = model.Description,
                     IncludesMembership = model.IncludesMembership,
                     IncludesTraining = model.IncludesTraining,
                     IncludesClasses = model.IncludesClasses,
-                    PayedAt = DateTime.UtcNow,
+                    PayedAtUtc = DateTime.UtcNow,
                     ManualPayment = User.Identity.Name
                 });
 
