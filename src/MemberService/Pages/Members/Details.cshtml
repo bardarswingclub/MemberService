@@ -91,13 +91,13 @@
             </div>
         }
     </div>
-    @if (User.IsInRole(Roles.ADMIN))
-    {
-        <div class="card">
-            <h3 class="card-header">
-                Rettigheter
-            </h3>
-            <div class="card-body">
+    <div class="card">
+        <h3 class="card-header">
+            Rettigheter
+        </h3>
+        <div class="card-body">
+            @if (User.IsInRole(Roles.ADMIN))
+            {
                 <partial name="_Role" model="(Model, Roles.ADMIN)" />
                 <partial name="_Role" model="(Model, Roles.COORDINATOR)" />
                 <hr />
@@ -111,7 +111,23 @@
                         <label class="form-check-label" asp-for="ExemptFromClassesFee">Fritatt fra kursavgift</label>
                     </div>
                 </form>
-            </div>
+            }
+            else
+            {
+                @Checkmark(Model.ExemptFromTrainingFee) @: Fritatt fra treningsavgift
+                <br />
+                @Checkmark(Model.ExemptFromClassesFee) @: Fritatt fra kursavgift
+            }
         </div>
-    }
+    </div>
 </div>
+
+@functions{
+
+    string Checkmark(bool exempt)
+    {
+        return exempt
+            ? "\u2611"
+            : "\u2610";
+    }
+}
