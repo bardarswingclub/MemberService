@@ -65,9 +65,9 @@
         <tbody>
             @foreach(var user in users){
                 <tr>
-                    <td class="font-weight-bold text-center text-success">@(user.HasPayedMembershipThisYear() ? "\u2713" : "" )</td>
-                    <td class="font-weight-bold text-center text-success">@(user.HasPayedTrainingFeeThisSemester() ? "\u2713" : "" )</td>
-                    <td class="font-weight-bold text-center text-success">@(user.HasPayedClassesFeeThisSemester() ? "\u2713" : "" )</td>
+                    <td class="font-weight-bold text-center @Color()">@Checkmark(user.HasPayedMembershipThisYear())</td>
+                    <td class="font-weight-bold text-center @Color(user.ExemptFromTrainingFee)">@Checkmark(user.HasPayedTrainingFeeThisSemester())</td>
+                    <td class="font-weight-bold text-center @Color(user.ExemptFromClassesFee)">@Checkmark(user.HasPayedClassesFeeThisSemester())</td>
                     <td><a asp-action="Details" asp-route-id="@user.Id">@user.FullName</a></td>
                     <td>@user.Email</td>
                 </tr>
@@ -75,3 +75,19 @@
         </tbody>
     }
 </table>
+
+@functions{
+    string Checkmark(bool paid)
+    {
+        return paid
+            ? "\u2713"
+            : "";
+    }
+
+    string Color(bool exempt = false)
+    {
+        return exempt
+            ? "text-danger"
+            : "text-success";
+    }
+}

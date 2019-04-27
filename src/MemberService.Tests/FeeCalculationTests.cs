@@ -18,7 +18,9 @@ namespace Tests
                 Payments = new List<Payment>()
             };
 
-            var fee = user.GetMembershipFee();
+            var (status, fee) = user.GetMembershipFee();
+
+            status.ShouldBe(FeeStatus.Unpaid);
 
             fee.Description.ShouldBe("Medlemskap");
             fee.Amount.ShouldBe(300);
@@ -35,15 +37,13 @@ namespace Tests
             {
                 Payments = new[]
                 {
-                    new Payment
-                    {
-                        IncludesMembership = true,
-                        PayedAtUtc = DateTime.UtcNow
-                    }
+                    MembershipPayment()
                 }
             };
 
-            var fee = user.GetMembershipFee();
+            var (status, fee) = user.GetMembershipFee();
+
+            status.ShouldBe(FeeStatus.Paid);
 
             fee.ShouldBeNull();
         }
@@ -55,15 +55,13 @@ namespace Tests
             {
                 Payments = new[]
                 {
-                    new Payment
-                    {
-                        IncludesMembership = true,
-                        PayedAtUtc = DateTime.UtcNow.AddYears(-1)
-                    }
+                    MembershipPayment(-1)
                 }
             };
 
-            var fee = user.GetMembershipFee();
+            var (status, fee) = user.GetMembershipFee();
+
+            status.ShouldBe(FeeStatus.Unpaid);
 
             fee.Description.ShouldBe("Medlemskap");
             fee.Amount.ShouldBe(300);
@@ -81,7 +79,9 @@ namespace Tests
                 Payments = new List<Payment>()
             };
 
-            var fee = user.GetTrainingFee();
+            var (status, fee) = user.GetTrainingFee();
+
+            status.ShouldBe(FeeStatus.Unpaid);
 
             fee.Description.ShouldBe("Medlemskap og treningsavgift");
             fee.Amount.ShouldBe(725);
@@ -98,16 +98,14 @@ namespace Tests
             {
                 Payments = new[]
                 {
-                    new Payment
-                    {
-                        IncludesMembership = true,
-                        IncludesTraining = true,
-                        PayedAtUtc = DateTime.UtcNow
-                    }
+                    MembershipPayment(),
+                    TrainingPayment()
                 }
             };
 
-            var fee = user.GetTrainingFee();
+            var (status, fee) = user.GetTrainingFee();
+
+            status.ShouldBe(FeeStatus.Paid);
 
             fee.ShouldBeNull();
         }
@@ -119,16 +117,14 @@ namespace Tests
             {
                 Payments = new[]
                 {
-                    new Payment
-                    {
-                        IncludesMembership = true,
-                        IncludesTraining = true,
-                        PayedAtUtc = DateTime.UtcNow.AddYears(-1)
-                    }
+                    MembershipPayment(-1),
+                    TrainingPayment(-1)
                 }
             };
 
-            var fee = user.GetTrainingFee();
+            var (status, fee) = user.GetTrainingFee();
+
+            status.ShouldBe(FeeStatus.Unpaid);
 
             fee.Description.ShouldBe("Medlemskap og treningsavgift");
             fee.Amount.ShouldBe(725);
@@ -145,15 +141,13 @@ namespace Tests
             {
                 Payments = new[]
                 {
-                    new Payment
-                    {
-                        IncludesMembership = true,
-                        PayedAtUtc = DateTime.UtcNow
-                    }
+                    MembershipPayment()
                 }
             };
 
-            var fee = user.GetTrainingFee();
+            var (status, fee) = user.GetTrainingFee();
+
+            status.ShouldBe(FeeStatus.Unpaid);
 
             fee.Description.ShouldBe("Treningsavgift");
             fee.Amount.ShouldBe(425);
@@ -171,7 +165,9 @@ namespace Tests
                 Payments = new List<Payment>()
             };
 
-            var fee = user.GetClassesFee();
+            var (status, fee) = user.GetClassesFee();
+
+            status.ShouldBe(FeeStatus.Unpaid);
 
             fee.Description.ShouldBe("Medlemskap og kursavgift");
             fee.Amount.ShouldBe(1200);
@@ -188,17 +184,15 @@ namespace Tests
             {
                 Payments = new[]
                 {
-                    new Payment
-                    {
-                        IncludesMembership = true,
-                        IncludesTraining = true,
-                        IncludesClasses = true,
-                        PayedAtUtc = DateTime.UtcNow
-                    }
+                    MembershipPayment(),
+                    TrainingPayment(),
+                    ClassesPayment()
                 }
             };
 
-            var fee = user.GetClassesFee();
+            var (status, fee) = user.GetClassesFee();
+
+            status.ShouldBe(FeeStatus.Paid);
 
             fee.ShouldBeNull();
         }
@@ -210,17 +204,15 @@ namespace Tests
             {
                 Payments = new[]
                 {
-                    new Payment
-                    {
-                        IncludesMembership = true,
-                        IncludesTraining = true,
-                        IncludesClasses = true,
-                        PayedAtUtc = DateTime.UtcNow.AddYears(-1)
-                    }
+                    MembershipPayment(-1),
+                    TrainingPayment(-1),
+                    ClassesPayment(-1)
                 }
             };
 
-            var fee = user.GetClassesFee();
+            var (status, fee) = user.GetClassesFee();
+
+            status.ShouldBe(FeeStatus.Unpaid);
 
             fee.Description.ShouldBe("Medlemskap og kursavgift");
             fee.Amount.ShouldBe(1200);
@@ -237,15 +229,13 @@ namespace Tests
             {
                 Payments = new[]
                 {
-                    new Payment
-                    {
-                        IncludesMembership = true,
-                        PayedAtUtc = DateTime.UtcNow
-                    }
+                    MembershipPayment()
                 }
             };
 
-            var fee = user.GetClassesFee();
+            var (status, fee) = user.GetClassesFee();
+
+            status.ShouldBe(FeeStatus.Unpaid);
 
             fee.Description.ShouldBe("Kursavgift");
             fee.Amount.ShouldBe(900);
@@ -262,16 +252,14 @@ namespace Tests
             {
                 Payments = new[]
                 {
-                    new Payment
-                    {
-                        IncludesMembership = true,
-                        IncludesTraining = true,
-                        PayedAtUtc = DateTime.UtcNow
-                    }
+                    MembershipPayment(),
+                    TrainingPayment()
                 }
             };
 
-            var fee = user.GetClassesFee();
+            var (status, fee) = user.GetClassesFee();
+
+            status.ShouldBe(FeeStatus.Unpaid);
 
             fee.Description.ShouldBe("Kursavgift");
             fee.Amount.ShouldBe(475);
@@ -280,5 +268,258 @@ namespace Tests
             fee.IncludesTraining.ShouldBeFalse();
             fee.IncludesClasses.ShouldBeTrue();
         }
+
+        [Test]
+        public void TestMembershipFee_ExcemptTraining_NoPayments()
+        {
+            var user = new MemberUser
+            {
+                ExemptFromTrainingFee = true,
+                Payments = new List<Payment>()
+            };
+
+            var (status, fee) = user.GetMembershipFee();
+
+            status.ShouldBe(FeeStatus.Unpaid);
+
+            fee.Description.ShouldBe("Medlemskap");
+            fee.Amount.ShouldBe(300);
+            fee.AmountInCents.ShouldBe(300_00);
+            fee.IncludesMembership.ShouldBeTrue();
+            fee.IncludesTraining.ShouldBeFalse();
+            fee.IncludesClasses.ShouldBeFalse();
+        }
+
+        [Test]
+        public void TestTrainingFee_ExcemptTraining_NoPayments()
+        {
+            var user = new MemberUser
+            {
+                ExemptFromTrainingFee = true,
+                Payments = new List<Payment>()
+            };
+
+            var (status, fee) = user.GetTrainingFee();
+
+            status.ShouldBe(FeeStatus.Unpayable);
+
+            fee.ShouldBeNull();
+        }
+
+        [Test]
+        public void TestClassesFee_ExcemptTraining_NoPayments()
+        {
+            var user = new MemberUser
+            {
+                ExemptFromTrainingFee = true,
+                Payments = new List<Payment>()
+            };
+
+            var (status, fee) = user.GetClassesFee();
+
+            status.ShouldBe(FeeStatus.Unpaid);
+
+            fee.Description.ShouldBe("Medlemskap og kursavgift");
+            fee.Amount.ShouldBe(775);
+            fee.AmountInCents.ShouldBe(775_00);
+            fee.IncludesMembership.ShouldBeTrue();
+            fee.IncludesTraining.ShouldBeFalse();
+            fee.IncludesClasses.ShouldBeTrue();
+        }
+
+        [Test]
+        public void TestClassesFee_ExcemptTraining_MembershipPayed()
+        {
+            var user = new MemberUser
+            {
+                ExemptFromTrainingFee = true,
+                Payments = new[]
+                {
+                    MembershipPayment()
+                }
+            };
+
+            var (status, fee) = user.GetClassesFee();
+
+            status.ShouldBe(FeeStatus.Unpaid);
+
+            fee.Description.ShouldBe("Kursavgift");
+            fee.Amount.ShouldBe(475);
+            fee.AmountInCents.ShouldBe(475_00);
+            fee.IncludesMembership.ShouldBeFalse();
+            fee.IncludesTraining.ShouldBeFalse();
+            fee.IncludesClasses.ShouldBeTrue();
+        }
+
+        [Test]
+        public void TestMembershipFee_ExcemptTrainingAndClasses_NoPayments()
+        {
+            var user = new MemberUser
+            {
+                ExemptFromTrainingFee = true,
+                ExemptFromClassesFee = true,
+                Payments = new List<Payment>()
+            };
+
+            var (status, fee) = user.GetMembershipFee();
+
+            status.ShouldBe(FeeStatus.Unpaid);
+
+            fee.Description.ShouldBe("Medlemskap");
+            fee.Amount.ShouldBe(300);
+            fee.AmountInCents.ShouldBe(300_00);
+            fee.IncludesMembership.ShouldBeTrue();
+            fee.IncludesTraining.ShouldBeFalse();
+            fee.IncludesClasses.ShouldBeFalse();
+        }
+
+        [Test]
+        public void TestTrainingFee_ExcemptTrainingAndClasses_NoPayments()
+        {
+            var user = new MemberUser
+            {
+                ExemptFromTrainingFee = true,
+                ExemptFromClassesFee = true,
+                Payments = new List<Payment>()
+            };
+
+            var (status, fee) = user.GetTrainingFee();
+
+            status.ShouldBe(FeeStatus.Unpayable);
+
+            fee.ShouldBeNull();
+        }
+
+        [Test]
+        public void TestClassesFee_ExcemptTrainingAndClasses_NoPayments()
+        {
+            var user = new MemberUser
+            {
+                ExemptFromTrainingFee = true,
+                ExemptFromClassesFee = true,
+                Payments = new List<Payment>()
+            };
+
+            var (status, fee) = user.GetClassesFee();
+
+            status.ShouldBe(FeeStatus.Unpayable);
+
+            fee.ShouldBeNull();
+        }
+
+        [Test]
+        public void TestClassesFee_ExcemptTrainingAndClasses_MembershipPayed()
+        {
+            var user = new MemberUser
+            {
+                ExemptFromTrainingFee = true,
+                ExemptFromClassesFee = true,
+                Payments = new[]
+                {
+                    MembershipPayment()
+                }
+            };
+
+            var (status, fee) = user.GetClassesFee();
+
+            status.ShouldBe(FeeStatus.Paid);
+
+            fee.ShouldBeNull();
+        }
+
+        [Test]
+        public void TestMembershipFee_ExcemptClasses_NoPayments()
+        {
+            var user = new MemberUser
+            {
+                ExemptFromClassesFee = true,
+                Payments = new List<Payment>()
+            };
+
+            var (status, fee) = user.GetMembershipFee();
+
+            status.ShouldBe(FeeStatus.Unpaid);
+
+            fee.Description.ShouldBe("Medlemskap");
+            fee.Amount.ShouldBe(300);
+            fee.AmountInCents.ShouldBe(300_00);
+            fee.IncludesMembership.ShouldBeTrue();
+            fee.IncludesTraining.ShouldBeFalse();
+            fee.IncludesClasses.ShouldBeFalse();
+        }
+
+        [Test]
+        public void TestTrainingFee_ExcemptClasses_NoPayments()
+        {
+            var user = new MemberUser
+            {
+                ExemptFromClassesFee = true,
+                Payments = new List<Payment>()
+            };
+
+            var (status, fee) = user.GetTrainingFee();
+
+            status.ShouldBe(FeeStatus.Unpaid);
+
+            fee.Description.ShouldBe("Medlemskap og treningsavgift");
+            fee.Amount.ShouldBe(725);
+            fee.AmountInCents.ShouldBe(725_00);
+            fee.IncludesMembership.ShouldBeTrue();
+            fee.IncludesTraining.ShouldBeTrue();
+            fee.IncludesClasses.ShouldBeFalse();
+        }
+
+        [Test]
+        public void TestClassesFee_ExcemptClasses_NoPayments()
+        {
+            var user = new MemberUser
+            {
+                ExemptFromClassesFee = true,
+                Payments = new List<Payment>()
+            };
+
+            var (status, fee) = user.GetClassesFee();
+
+            status.ShouldBe(FeeStatus.Unpayable);
+
+            fee.ShouldBeNull();
+        }
+
+        [Test]
+        public void TestClassesFee_ExcemptClasses_MembershipPayed()
+        {
+            var user = new MemberUser
+            {
+                ExemptFromClassesFee = true,
+                Payments = new[]
+                {
+                    MembershipPayment()
+                }
+            };
+
+            var (status, fee) = user.GetClassesFee();
+
+            status.ShouldBe(FeeStatus.Unpayable);
+
+            fee.ShouldBeNull();
+        }
+
+        private static Payment MembershipPayment(int years = 0) => new Payment
+        {
+            IncludesMembership = true,
+            PayedAtUtc = DateTime.UtcNow.AddYears(years)
+        };
+
+        private static Payment TrainingPayment(int years = 0) => new Payment
+        {
+            IncludesTraining = true,
+            PayedAtUtc = DateTime.UtcNow.AddYears(years)
+        };
+
+        private static Payment ClassesPayment(int years = 0) => new Payment
+        {
+            IncludesClasses = true,
+            PayedAtUtc = DateTime.UtcNow.AddYears(years)
+        };
     }
 }

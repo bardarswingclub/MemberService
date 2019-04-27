@@ -14,20 +14,24 @@
             Medlemskap
         </h3>
         <div class="card-body">
-            @if(Model.MembershipFee != null)
+            @if (Model.MembershipFee.Status == FeeStatus.Paid)
             {
-                <h2 class="font-weight-bold">@Model.MembershipFee.Amount,-</h2>
+                <h2 class="font-weight-bold"><span style="color: #0a0">&#x2713;</span> Betalt</h2>
+            }
+            else if (Model.MembershipFee.Status == FeeStatus.Unpayable)
+            {
+                <h2 class="font-weight-bold">Fritatt</h2>
             }
             else
             {
-                <h2 class="font-weight-bold"><span style="color: #0a0">&#x2713;</span> Betalt</h2>
+                <h2 class="font-weight-bold">@Model.MembershipFee.Fee.Amount,-</h2>
             }
             <small class="text-muted text-uppercase">per kalenderår</small>
             <p>
                 Rabatt på klubbens arrangementer. Tilgang til å melde seg på på ekstraordinære kurs mot betaling.
             </p>
         </div>
-        @if(Model.MembershipFee is Fee membershipFee)
+        @if(Model.MembershipFee.Fee is Fee membershipFee)
         {
             <form class="card-footer" asp-controller="Home" asp-action="Pay" method="post">
                 <input type="hidden" name="Fee" value="@Fee.Membership" />
@@ -54,24 +58,28 @@
             Treningsavgift
         </h3>
         <div class="card-body">
-            @if(Model.TrainingFee != null)
+            @if (Model.TrainingFee.Status == FeeStatus.Paid)
             {
-                <h2 class="font-weight-bold">@Model.TrainingFee.Amount,-</h2>
+                <h2 class="font-weight-bold"><span style="color: #0a0">&#x2713;</span> Betalt</h2>
+            }
+            else if (Model.TrainingFee.Status == FeeStatus.Unpayable)
+            {
+                <h2 class="font-weight-bold">Fritatt</h2>
             }
             else
             {
-                <h2 class="font-weight-bold"><span style="color: #0a0">&#x2713;</span> Betalt</h2>
+                <h2 class="font-weight-bold">@Model.TrainingFee.Fee.Amount,-</h2>
             }
             <small class="text-muted text-uppercase">per semester</small>
             <p>
                 Tilgang til klubbens egentreningstider.
-                @if(Model.TrainingFee != null)
+                @if (Model.MembershipFee.Status == FeeStatus.Unpaid)
                 {
                     @:Prisen inkluderer obligatorisk medlemskap.
                 }
             </p>
         </div>
-        @if(Model.TrainingFee is Fee trainingFee)
+        @if(Model.TrainingFee.Fee is Fee trainingFee)
         {
             <form class="card-footer" asp-controller="Home" asp-action="Pay" method="post">
                 <input type="hidden" name="Fee" value="@Fee.Training" />
@@ -98,32 +106,40 @@
             Kurs
         </h3>
         <div class="card-body">
-            @if(Model.ClassesFee != null)
+            @if (Model.ClassesFee.Status == FeeStatus.Paid)
             {
-                <h2 class="font-weight-bold">@Model.ClassesFee.Amount,-</h2>
+                <h2 class="font-weight-bold"><span style="color: #0a0">&#x2713;</span> Betalt</h2>
+            }
+            else if (Model.ClassesFee.Status == FeeStatus.Unpayable)
+            {
+                <h2 class="font-weight-bold">Fritatt</h2>
             }
             else
             {
-                <h2 class="font-weight-bold"><span style="color: #0a0">&#x2713;</span> Betalt</h2>
+                <h2 class="font-weight-bold">@Model.ClassesFee.Fee.Amount,-</h2>
             }
             <small class="text-muted text-uppercase">per semester</small>
             <p>
                 Tilgang til alle klubbens ordinære kurs, så lenge det er plass.
-                @if(Model.TrainingFee != null && Model.MembershipFee != null)
+                @if (Model.ClassesFee.Status == FeeStatus.Unpayable)
+                {
+                    @:
+                }
+                else if (Model.TrainingFee.Status == FeeStatus.Unpaid && Model.MembershipFee.Status == FeeStatus.Unpaid)
                 {
                     @:Prisen inkluderer obligatorisk medlemskap og treningsavgift.
                 }
-                else if(Model.MembershipFee != null)
+                else if (Model.MembershipFee.Status == FeeStatus.Unpaid)
                 {
                     @:Prisen inkluderer obligatorisk medlemskap.
                 }
-                else if(Model.TrainingFee != null)
+                else if (Model.TrainingFee.Status == FeeStatus.Unpaid)
                 {
                     @:Prisen inkluderer treningsavgift.
                 }
             </p>
         </div>
-        @if(Model.ClassesFee is Fee classesFee)
+        @if(Model.ClassesFee.Fee is Fee classesFee)
         {
             <form class="card-footer" asp-controller="Home" asp-action="Pay" method="post">
                 <input type="hidden" name="Fee" value="@Fee.Training" />

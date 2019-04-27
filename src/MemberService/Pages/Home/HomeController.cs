@@ -53,9 +53,9 @@ namespace MemberService.Pages.Home
                 throw new Exception("Who is this email for???");
             }
 
-            var fee = user.GetFee(payment.Fee);
+            var (status, fee) = user.GetFee(payment.Fee);
 
-            if (fee == null)
+            if (status != FeeStatus.Unpaid)
             {
                 return RedirectToAction(nameof(Index));
             }

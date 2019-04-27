@@ -6,10 +6,10 @@ namespace MemberService.Pages.Home
     {
         public string Email { get; set; }
 
-        public Fee MembershipFee { get; set; }
+        public (FeeStatus Status, Fee Fee) MembershipFee { get; set; }
 
-        public Fee TrainingFee { get; set; }
+        public (FeeStatus Status, Fee Fee) TrainingFee { get; set; }
 
-        public Fee ClassesFee { get; set; }
+        public (FeeStatus Status, Fee Fee) ClassesFee { get; set; }
     }
 }

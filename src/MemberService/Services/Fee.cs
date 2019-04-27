@@ -6,10 +6,18 @@ namespace MemberService.Services
         public const string Training = nameof(Training);
         public const string Classes = nameof(Classes);
 
-        public Fee(string description, decimal amount)
+        public Fee(
+            string description,
+            decimal amount,
+            bool includesMembership = false,
+            bool includesTraining = false,
+            bool includesClasses = false)
         {
             Description = description;
             Amount = amount;
+            IncludesMembership = includesMembership;
+            IncludesTraining = includesTraining;
+            IncludesClasses = includesClasses;
         }
 
         public string Description { get; }
@@ -18,10 +26,10 @@ namespace MemberService.Services
 
         public long AmountInCents => (long)Amount * 100;
 
-        public bool IncludesMembership { get; set; }
+        public bool IncludesMembership { get; }
 
-        public bool IncludesTraining { get; set; }
+        public bool IncludesTraining { get; }
 
-        public bool IncludesClasses { get; set; }
+        public bool IncludesClasses { get; }
     }
 }
