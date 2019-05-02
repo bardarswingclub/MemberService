@@ -93,7 +93,9 @@ namespace MemberService.Pages.Home
                 IncludesTraining = fee.IncludesTraining,
                 IncludesClasses = fee.IncludesClasses
             });
+
             await _memberContext.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
 

@@ -1,0 +1,27 @@
+﻿@using MemberService.Pages.Pay
+@model PayModel
+
+@{
+    ViewData["Title"] = "Betalt";
+    ViewData["BodyClass"] = "cover";
+}
+
+<div class="row justify-content-md-center">
+    <div class="col-md-6">
+
+        <div class="card mt-5 shadow">
+            <h3 class="card-header">
+                <span style="color: #0a0">&#x2713;</span> Betalt for @Model.Name
+            </h3>
+            <div class="card-body">
+                <p>
+                    Takk, du har betalt for @Model.Name (@Model.Description)
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
