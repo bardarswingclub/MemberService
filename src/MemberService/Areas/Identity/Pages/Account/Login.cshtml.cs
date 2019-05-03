@@ -50,7 +50,7 @@ namespace MemberService.Areas.Identity.Pages.Account
             public string ReturnUrl { get; set; }
         }
 
-        public async Task<IActionResult> OnGetAsync(string returnUrl)
+        public async Task<IActionResult> OnGetAsync(string returnUrl, string email=null)
         {
             if (_signInManager.IsSignedIn(User))
             {
@@ -64,7 +64,8 @@ namespace MemberService.Areas.Identity.Pages.Account
 
             Input = new InputModel
             {
-                ReturnUrl = returnUrl
+                ReturnUrl = returnUrl,
+                Email = email
             };
 
             // Clear the existing external cookie to ensure a clean login process
