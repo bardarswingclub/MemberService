@@ -6,6 +6,8 @@ using Stripe;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using MemberService.Services;
+using Microsoft.EntityFrameworkCore;
+using Clave.ExtensionMethods;
 
 namespace MemberService.Pages.Admin
 {
@@ -14,18 +16,34 @@ namespace MemberService.Pages.Admin
     {
         private readonly ChargeService _chargeService;
         private readonly IPaymentService _paymentService;
+        private readonly MemberContext _memberContext;
 
         public AdminController(
             ChargeService chargeService,
-            IPaymentService paymentService)
+            IPaymentService paymentService,
+            MemberContext memberContext)
         {
             _chargeService = chargeService;
             _paymentService = paymentService;
+            _memberContext = memberContext;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var userRoles = await _memberContext.UserRoles
+                .Include(x => x.User)
+                .Include(x => x.Role)
+                .ToListAsync();
+
+            var roles = userRoles
+                .GroupByProp(x => x.Role, x => x.Id)
+                .Select(x => (x.Key, x.Select(u => u.User).ToReadOnlyCollection()))
+                .ToReadOnlyCollection();
+
+            return View(new AdminModel
+            {
+                Roles = roles
+            });
         }
 
         [HttpPost]

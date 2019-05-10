@@ -1,17 +1,48 @@
+@using MemberService.Pages.Admin
+@model AdminModel
 @{
     ViewData["Title"] = "Admin";
 }
 
-@if(TempData["message"] != null)
+@if (TempData["message"] != null)
 {
     <div class="alert alert-success" role="alert">
         @TempData["message"]
     </div>
 }
 
-<h2>Importer fra Stripe</h2>
-<hr />
-<form asp-action="Import" method="POST">
-    <label>Alt etter <input type="date" name="after" value="@DateTime.Now.ToString("yyyy-MM-dd")"></label>
-    <button type="submit">Importer</button>
-</form>
+<div class="card mb-3">
+    <h3 class="card-header">
+        Importer fra Stripe
+    </h3>
+    <form class="card-body form-inline" asp-action="Import" method="POST">
+        <label>Alt etter </label>
+        <input class="form-control mr-2 ml-2" type="date" name="after" value="@DateTime.Now.ToString("yyyy-MM-dd")">
+        <button type="submit" class="btn btn-success">Importer</button>
+    </form>
+</div>
+
+<h2>Roller</h2>
+
+<div class="card-deck">
+    @foreach (var (role, users) in Model.Roles)
+    {
+        <div class="card">
+            <h3 class="card-header">
+                @role.Name
+            </h3>
+            <ul class="list-group list-group-flush">
+                @foreach (var user in users)
+                {
+                    <li class="list-group-item">
+                        <a asp-controller="Members" asp-action="Details" asp-route-id="@user.Id">
+                            @user.FullName
+                            <br />
+                            <span class="text-muted">(@user.Email)</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+</div>
