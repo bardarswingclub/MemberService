@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using MemberService.Data;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
-using Microsoft.AspNetCore.Identity;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using MemberService.Services;
@@ -25,6 +22,7 @@ namespace MemberService.Pages.Admin
             _chargeService = chargeService;
             _paymentService = paymentService;
         }
+
         public IActionResult Index()
         {
             return View();
