@@ -17,6 +17,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using MemberService.Auth.Development;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
+using MemberService.Services;
+using Stripe.Checkout;
 
 namespace MemberService
 {
@@ -35,7 +37,11 @@ namespace MemberService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<ChargeService>();
+            services
+                .AddScoped(typeof(IEmailSender), IsDevelopment ? typeof(DummyConsoleEmailSender) : typeof(EmailSender))
+                .AddScoped<ChargeService>()
+                .AddScoped<SessionService>()
+                .AddScoped<IPaymentService, PaymentService>();
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -46,18 +52,10 @@ namespace MemberService
 
             services.AddSingleton(Configuration.Get<Config>());
 
-            if (IsDevelopment)
-            {
-                services.AddTransient<IEmailSender, DummyConsoleEmailSender>();
-            }
-            else
-            {
-                services.AddTransient<IEmailSender, EmailSender>();
-            }
-
             services.AddDbContext<MemberContext>(ConfigureConnectionString);
 
-            services.AddIdentity<MemberUser, MemberRole>(config =>
+            services
+                .AddIdentity<MemberUser, MemberRole>(config =>
                 {
                     config.SignIn.RequireConfirmedEmail = true;
                     config.User.RequireUniqueEmail = true;
