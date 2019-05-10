@@ -7,9 +7,11 @@ using Stripe;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MemberService.Pages.Admin
 {
+    [Authorize(Roles = Roles.ADMIN)]
     public class AdminController : Controller
     {
         private readonly ChargeService _chargeService;
