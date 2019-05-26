@@ -84,5 +84,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .card-columns.card-columns-2 {
-    column-count: 2;
+    column-count: 1;
+}
+
+@media (min-width: 576px) {
+    .card-columns.card-columns-2 {
+        column-count: 2;
+    }
 }
