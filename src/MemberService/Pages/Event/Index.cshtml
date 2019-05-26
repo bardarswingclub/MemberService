@@ -1,32 +1,70 @@
 @model List<Event>
 
 @{
-    ViewData["Title"] = "Eventer";
+    ViewData["Title"] = "Arrangementer";
 }
 <h2>
     @ViewData["Title"]
-    <a class="btn btn-primary float-right" asp-action="Create">Opprett ny event</a>
+    <a class="btn btn-success float-right" asp-action="Create">Opprett nytt arrangement</a>
 </h2>
 
 
 <table class="table">
-<thead>
-    <tr>
-        <th>Navn</th>
-        <th>Påmeldte</th>
-        <th>Deltakere</th>
-        <th>Dato</th>
-    </tr>
-</thead>
-<tbody>
-    @foreach(var eventEntry in Model)
-    {
+    <thead>
         <tr>
-            <td><a asp-action="View" asp-route-id="@eventEntry.Id">@eventEntry.Title</a></td>
-            <td>@eventEntry.Signups.Count</td>
-            <td>@eventEntry.Signups.Count(s => s.Status == Status.AcceptedAndPayed)</td>
-            <td><abbr title="@eventEntry.CreatedAt.ToOsloDateTime()">@eventEntry.CreatedAt.ToOsloDate()</abbr></td>
+            <th>Navn</th>
+            <th>Påmeldte</th>
+            <th>Deltakere</th>
+            <th>Status</th>
         </tr>
-    }
-</tbody>
+    </thead>
+    <tbody>
+        @foreach(var eventEntry in Model)
+        {
+            <tr>
+                <td><a asp-action="View" asp-route-id="@eventEntry.Id">@eventEntry.Title</a></td>
+                <td>@eventEntry.Signups.Count</td>
+                <td>@eventEntry.Signups.Count(s => s.Status == Status.AcceptedAndPayed)</td>
+                <td>@EventStatus(eventEntry)</td>
+            </tr>
+        }
+    </tbody>
 </table>
+
+<a href="?archived=true">Se gamle arrangementer også</a>
+
+@functions{
+    string EventStatus(Event @event)
+    {
+        if (@event.Archived)
+        {
+            return "Arkivert";
+        }
+        else if (@event.SignupOptions.IsOpen())
+        {
+            if (@event.SignupOptions.SignupOpensAt.HasValue)
+            {
+                return $"Åpnet {@event.SignupOptions.SignupOpensAt.Value.ToOsloDate()}";
+            }
+            else
+            {
+                return "Åpen";
+            }
+        }
+        else
+        {
+            if (@event.SignupOptions.SignupOpensAt > DateTime.UtcNow)
+            {
+                return $"Åpner {@event.SignupOptions.SignupOpensAt.Value.ToOsloDate()}";
+            }
+            if (@event.SignupOptions.SignupClosesAt < DateTime.UtcNow)
+            {
+                return $"Stengte {@event.SignupOptions.SignupClosesAt.Value.ToOsloDate()}";
+            }
+            else
+            {
+                return "Stengt";
+            }
+        }
+    }
+}

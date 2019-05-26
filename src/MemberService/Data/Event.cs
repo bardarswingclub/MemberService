@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -25,5 +25,7 @@ namespace MemberService.Data
         public EventSignupOptions SignupOptions { get; set; }
 
         public ICollection<EventSignup> Signups { get; set; } = new List<EventSignup>();
+
+        public bool Archived { get; set; }
     }
 }

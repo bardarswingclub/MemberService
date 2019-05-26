@@ -4,7 +4,14 @@
 @{
     ViewData["Title"] = $"Rediger {Model.Title}";
 }
-<h2>@ViewData["Title"]</h2>
+<h2>
+    @ViewData["Title"]
+
+    <form method="POST" asp-action="SetStatus" asp-route-id="@Model.Id" class="d-inline float-right">
+        <input type="hidden" name="status" value="archive" />
+        <button class="btn btn-outline-danger">Arkiver</button>
+    </form>
+</h2>
 
 <form method="POST" asp-action="Edit" asp-route-id="@Model.Id" class="form-row justify-content-between">
     <partial name="_EditEvent" model="@Model" />

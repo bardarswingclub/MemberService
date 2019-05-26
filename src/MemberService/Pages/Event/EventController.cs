@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Clave.Expressionify;
@@ -27,12 +27,14 @@ namespace MemberService.Pages.Event
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(bool archived = false)
         {
             var events = await _database.Events
+                .Include(e => e.SignupOptions)
                 .Include(e => e.Signups)
                 .AsNoTracking()
-                .OrderBy(e => e.CreatedAt)
+                .Where(e => archived || e.Archived == false)
+                .OrderByDescending(e => e.CreatedAt)
                 .ToListAsync();
 
             return View(events);
@@ -52,7 +54,7 @@ namespace MemberService.Pages.Event
                 return View(model);
             }
 
-            var entity = new MemberService.Data.Event
+            var entity = new Data.Event
             {
                 Title = model.Title,
                 Description = model.Description,
@@ -104,12 +106,13 @@ namespace MemberService.Pages.Event
             };
 
             return View(new EventModel
-                {
-                    Id = model.Id,
-                    Title = model.Title,
-                    Description = model.Description,
-                    Options = model.SignupOptions,
-                    Signups = statuses.Select(s => EventSignupStatusModel.Create(s, model.Signups.Where(x => x.Status == s))).ToReadOnlyCollection()
+            {
+                Id = model.Id,
+                Title = model.Title,
+                Description = model.Description,
+                Options = model.SignupOptions,
+                Signups = statuses.Select(s => EventSignupStatusModel.Create(s, model.Signups.Where(x => x.Status == s))).ToReadOnlyCollection(),
+                Archived = model.Archived
             });
         }
 
@@ -217,6 +220,7 @@ namespace MemberService.Pages.Event
             var model = await _database.Events
                 .Where(e => e.Id == id)
                 .Select(e => e.SignupOptions)
+                .Include(e => e.Event)
                 .SingleOrDefaultAsync();
 
             if (model == null)
@@ -232,6 +236,11 @@ namespace MemberService.Pages.Event
             else if (status == "close")
             {
                 model.SignupClosesAt = DateTime.UtcNow;
+            }
+            else if(status == "archive")
+            {
+                model.SignupClosesAt = model.SignupClosesAt ?? DateTime.UtcNow;
+                model.Event.Archived = true;
             }
 
             await _database.SaveChangesAsync();

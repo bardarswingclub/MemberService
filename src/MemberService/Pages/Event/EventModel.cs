@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using MemberService.Data;
 
@@ -15,5 +15,7 @@ namespace MemberService.Pages.Event
         public IReadOnlyCollection<EventSignupStatusModel> Signups { get; set; }
 
         public EventSignupOptions Options { get; set; }
+
+        public bool Archived { get; set; }
     }
 }
