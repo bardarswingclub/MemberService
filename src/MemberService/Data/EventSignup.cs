@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MemberService.Data
 {
@@ -25,5 +26,10 @@ namespace MemberService.Data
         public int Priority { get; set; }
 
         public Status Status { get; set; }
+
+        public string PaymentId { get; set; }
+
+        [ForeignKey(nameof(PaymentId))]
+        public Payment Payment { get; set; }
     }
 }

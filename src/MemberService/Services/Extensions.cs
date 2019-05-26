@@ -1,4 +1,4 @@
-using NodaTime;
+﻿using NodaTime;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
@@ -29,5 +29,8 @@ namespace MemberService.Services
                 .GetMember(enumValue.ToString())
                 .Single()
                 .GetCustomAttribute<TAttribute>();
+
+        public static Guid? ToGuid(this string value)
+            => Guid.TryParse(value, out var result) ? result : default;
     }
 }

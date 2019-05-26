@@ -51,7 +51,8 @@ namespace MemberService.Services
             string cancelUrl,
             bool includesMembership = false,
             bool includesTraining = false,
-            bool includesClasses = false)
+            bool includesClasses = false,
+            Guid? eventSignupId = null)
         {
             var existingCustomers = await _customerService.ListAsync(new CustomerListOptions
             {
@@ -81,7 +82,8 @@ namespace MemberService.Services
                         ["short_desc"] = title,
                         ["inc_membership"] = includesMembership ? "yes" : "no",
                         ["inc_training"] = includesTraining ? "yes" : "no",
-                        ["inc_classes"] = includesClasses ? "yes" : "no"
+                        ["inc_classes"] = includesClasses ? "yes" : "no",
+                        ["event_signup"] = eventSignupId?.ToString()
                     }
                 },
                 PaymentMethodTypes = new List<string>
@@ -132,11 +134,13 @@ namespace MemberService.Services
         {
             var email = charge.Customer?.Email ?? charge.Metadata.GetValueOrDefault("email");
             var name = charge.Customer?.Name ?? charge.Metadata.GetValueOrDefault("name");
+            var eventSignupId = charge.Metadata.GetValueOrDefault("event_signup");
 
             if (email is null) return false;
 
             var user = await _memberContext.Users
                 .Include(u => u.Payments)
+                .Include(u => u.EventSignups)
                 .FirstOrDefaultAsync(u => u.NormalizedEmail == email.ToUpperInvariant());
 
             if (user == null)
@@ -157,10 +161,11 @@ namespace MemberService.Services
                 if (user.Payments.FirstOrDefault(p => p.StripeChargeId == charge.Id) is Payment existingPayment)
                 {
                     existingPayment.Refunded = charge.Refunded;
+                    existingPayment.EventSignup = user.EventSignups.FirstOrDefault(e => e.Id == charge.Metadata.GetValueOrDefault("event_signup")?.ToGuid());
                 }
                 else
                 {
-                    user.Payments.Add(CreatePayment(charge));
+                    user.Payments.Add(CreatePayment(charge, user.EventSignups));
                 }
             }
 
@@ -168,7 +173,7 @@ namespace MemberService.Services
             return true;
         }
 
-        private static Payment CreatePayment(Charge charge)
+        private static Payment CreatePayment(Charge charge, ICollection<EventSignup> eventSignups = null)
         {
             var (includesMembership, includesTraining, includesClasses) = GetIncludedFees(charge.Description);
 
@@ -181,7 +186,8 @@ namespace MemberService.Services
                 IncludesMembership = charge.Metadata.TryGetValue("inc_membership", out var m) && m == "yes" || includesMembership,
                 IncludesTraining = charge.Metadata.TryGetValue("inc_training", out var t) && t == "yes" || includesTraining,
                 IncludesClasses = charge.Metadata.TryGetValue("inc_classes", out var c) && c == "yes" || includesClasses,
-                Refunded = charge.Refunded
+                Refunded = charge.Refunded,
+                EventSignup = eventSignups?.FirstOrDefault(e => e.Id == charge.Metadata.GetValueOrDefault("event_signup")?.ToGuid())
             };
         }
 

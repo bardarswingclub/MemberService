@@ -208,7 +208,8 @@ namespace MemberService.Pages.Signup
                 model.Description,
                 amount,
                 Url.Action(nameof(Success), "Signup", new { id = model.Id }, Request.Scheme, Request.Host.Value),
-                Request.GetDisplayUrl());
+                Request.GetDisplayUrl(),
+                eventSignupId: model.UserEventSignup.Id);
 
             TempData["StripeSessionId"] = sessionId;
 

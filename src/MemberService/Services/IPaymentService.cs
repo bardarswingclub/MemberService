@@ -1,4 +1,5 @@
 ﻿using Stripe;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -16,7 +17,8 @@ namespace MemberService.Services
             string cancelUrl,
             bool includesMembership = false,
             bool includesTraining = false,
-            bool includesClasses = false);
+            bool includesClasses = false,
+            Guid? eventSignupId = null);
 
         Task<int> SavePayments(IEnumerable<Charge> charges);
 

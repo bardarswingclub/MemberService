@@ -44,7 +44,7 @@ namespace MemberService.Data
                 payment.HasIndex(p => p.PayedAtUtc);
             });
 
-            builder.Entity<EventSignupOptions>(options => 
+            builder.Entity<EventSignupOptions>(options =>
             {
                 options.HasIndex(o => o.SignupOpensAt);
                 options.HasIndex(o => o.SignupClosesAt);
