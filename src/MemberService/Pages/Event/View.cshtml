@@ -129,7 +129,7 @@
                         <partial name="_Participants" for="@solos">
                     </table>
                 }
-                <div class="input-group w-25">
+                <div class="input-group w-50">
                     <select name="Status" class="custom-select">
                         <option selected="selected" value="">Velg en handling</option>
                         <option value="2">Anbefall plass</option>
@@ -138,6 +138,10 @@
                         <option value="7">Frata plass</option>
                     </select>
                     <div class="input-group-append">
+                        <label class="input-group-text">
+                            <input type="checkbox" name="SendEmail" value="true" />
+                            <span class="ml-1">Informer via epost</span>
+                        </label>
                         <button type="submit" class="btn btn-success">Lagre</button>
                     </div>
                 </div>

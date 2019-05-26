@@ -1,3 +1,5 @@
+ï»¿using System;
+using System.Collections.Generic;
 using System.Net.Mail;
 using System.Threading.Tasks;
 using MemberService.Configs;
@@ -5,9 +7,10 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace MemberService.Auth
 {
-    public class EmailSender : IEmailSender
+    public class EmailSender : IEmailSender, IDisposable
     {
         private readonly EmailConfig _config;
+        private SmtpClient _client;
 
         public EmailSender(Config config)
         {
@@ -16,20 +19,22 @@ namespace MemberService.Auth
 
         public async Task SendEmailAsync(string email, string subject, string message)
         {
-            var mail = new MailMessage
+            await SmtpClient.SendMailAsync(new MailMessage
             {
-                Sender = new MailAddress(_config.From, "Bårdar Swing Club"),
-                From = new MailAddress(_config.From, "Bårdar Swing Club"),
+                Sender = new MailAddress(_config.From, "BÃ¥rdar Swing Club"),
+                From = new MailAddress(_config.From, "BÃ¥rdar Swing Club"),
                 To = {
                     new MailAddress(email)
                 },
                 Subject = subject,
                 Body = message,
                 IsBodyHtml = true
-            };
-
-            await CreateClient(_config).SendMailAsync(mail);
+            });
         }
+
+        public void Dispose() => _client?.Dispose();
+
+        private SmtpClient SmtpClient => _client ?? (_client = CreateClient(_config));
 
         private static SmtpClient CreateClient(EmailConfig config)
             => new SmtpClient(config.Host, config.Port)

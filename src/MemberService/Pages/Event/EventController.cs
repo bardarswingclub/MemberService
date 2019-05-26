@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using System.Threading.Tasks;
 using Clave.Expressionify;
 using Clave.ExtensionMethods;
 using MemberService.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
@@ -16,15 +19,18 @@ namespace MemberService.Pages.Event
     [Authorize(Roles = Roles.COORDINATOR_OR_ADMIN)]
     public class EventController : Controller
     {
-        private MemberContext _database;
-        private UserManager<MemberUser> _userManager;
+        private readonly MemberContext _database;
+        private readonly UserManager<MemberUser> _userManager;
+        private readonly IEmailSender _emailSender;
 
         public EventController(
             MemberContext database,
-            UserManager<MemberUser> userManager)
+            UserManager<MemberUser> userManager,
+            IEmailSender emailSender)
         {
             _database = database;
             _userManager = userManager;
+            _emailSender = emailSender;
         }
 
         public async Task<IActionResult> Index(bool archived = false)
@@ -129,11 +135,28 @@ namespace MemberService.Pages.Event
             {
                 var eventEntry = await _database.Events
                     .Include(e => e.Signups)
+                        .ThenInclude(s => s.User)
                     .SingleOrDefaultAsync(e => e.Id == id);
 
                 foreach (var signup in selected)
                 {
-                    eventEntry.Signups.Single(s => s.Id == signup).Status = input.Status;
+                    var eventSignup = eventEntry.Signups.Single(s => s.Id == signup);
+                    eventSignup.Status = input.Status;
+
+                    if (input.SendEmail)
+                    {
+                        try
+                        {
+                            await _emailSender.SendEmailAsync(
+                                eventSignup.User.Email,
+                                GetSubject(input.Status, eventEntry.Title),
+                                GetMessage(input.Status, eventSignup));
+                        }
+                        catch
+                        {
+                            // Mail sending might fail, but that should't stop us
+                        }
+                    }
                 }
 
                 await _database.SaveChangesAsync();
@@ -272,5 +295,70 @@ namespace MemberService.Pages.Event
         private async Task<MemberUser> GetCurrentUser()
             => await _database.Users
                 .SingleUser(_userManager.GetUserId(User));
+
+        private static string GetSubject(Status status, string title)
+        {
+            switch (status)
+            {
+                case Status.Approved:
+                    return $"Du har fått plass på {title}";
+                case Status.WaitingList:
+                    return $"Du er på ventelisten til {title}";
+                case Status.Denied:
+                    return $"Du har mistet plassen din til {title}";
+                default:
+                    throw new Exception($"Unknown status {status}");
+            }
+        }
+
+        private string GetMessage(Status status, EventSignup model)
+        {
+            switch (status)
+            {
+                case Status.Approved:
+                    return $@"<h2>Hei {model.User.FullName}</h2>
+
+                        <p>
+                            Du har fått plass på {model.Event.Title}!
+                        </p>
+
+                        <p>
+                            Du må trykke <a href='{Url.Action("Signup", "Signup", new { id = model.EventId })}'>her for å bekrefte at du ønsker plassen</a>.
+                            Hvis du ikke gjør det kan plassen din bli gitt til noen andre.
+                        </p>
+
+                        <i>Hilsen</i><br>
+                        <i>Bårdar Swing Club</i>";
+                case Status.WaitingList:
+                    return $@"<h2>Hei {model.User.FullName}</h2>
+
+                        <p>
+                            Du har på ventelisten til {model.Event.Title}.
+                        </p>
+
+                        <p>
+                            Det er mange som ønsker å delta på {model.Event.Title} og akkurat nå er det ikke plass til alle, så du er på ventelisten.
+                            Du vil få beskjed om det blir ledig plass til deg eller om det blir fullt. <a href='{Url.Action("Signup", "Signup", new { id = model.EventId })}'>Her kan du se påmeldingsstatusen din</a>.
+                        </p>
+
+                        <i>Hilsen</i><br>
+                        <i>Bårdar Swing Club</i>";
+                case Status.Denied:
+                    return $@"<h2>Hei {model.User.FullName}</h2>
+
+                        <p>
+                            Du har ikke lenger plass på {model.Event.Title}.
+                        </p>
+
+                        <p>
+                            Du har mistet plassen din til arrangementet. Hvis du lurer på hvorfor kan du svar på denne mailen.
+                        </p>
+
+                        <i>Hilsen</i><br>
+                        <i>Bårdar Swing Club</i>";
+                default:
+                    throw new Exception($"Unknown status {status}");
+            }
+        }
     }
 }

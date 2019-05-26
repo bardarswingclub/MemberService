@@ -14,6 +14,8 @@ namespace MemberService.Pages.Event
 
         public List<Item> Solos { get; set; } = new List<Item>();
 
+        public bool SendEmail { get; set; }
+
         public class Item
         {
             public Guid Id { get; set; }
