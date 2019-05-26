@@ -9,17 +9,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <DotNetCliToolReference Include="dotnet-expressionify" Version="0.3.2" />
+    <DotNetCliToolReference Include="dotnet-expressionify" Version="0.4.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Clave.Expressionify" Version="0.3.2" />
-    <PackageReference Include="Clave.Expressionify.Tasks" Version="0.3.2">
+    <PackageReference Include="Clave.Expressionify" Version="0.4.1" />
+    <PackageReference Include="Clave.Expressionify.Tasks" Version="0.4.1">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Clave.ExtensionMethods" Version="0.1.8" />
     <PackageReference Include="Clave.NamespaceViewLocationExpander" Version="0.2.5" />
+    <PackageReference Include="MailKit" Version="2.1.5.1" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.5.1" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />

@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using MemberService.Data;
 using Microsoft.AspNetCore.Authorization;
@@ -30,11 +31,11 @@ namespace MemberService.Areas.Identity.Pages.Account
         {
             [Required]
             [EmailAddress]
-            [Display(Name = "E-post")]
+            [DisplayName("E-post")]
             public string Email { get; set; }
 
             [Required]
-            [Display(Name = "Kode")]
+            [DisplayName("Kode")]
             public string Code { get; set; }
 
             public string ReturnUrl { get; set; }

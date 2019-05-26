@@ -1,0 +1,70 @@
+﻿@using MemberService.Pages.Signup
+@model AcceptModel
+@inject Config Config
+
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "~/Pages/Shared/_CoverLayout.cshtml";
+}
+
+<div class="card shadow">
+    <h3 class="card-header">
+        @ViewData["Title"]
+    </h3>
+    <div class="card-body">
+        <p class="lead">@Model.Description</p>
+
+        <div class="alert alert-success" role="alert">
+            <h3 class="alert-heading">Gratulerer, du har fått plass!</h3>
+
+            @if (Model.MustPayClassesFee)
+            {
+                <p>Betal kursavgiften for dette semesteret for å godta plassen.</p>
+            }
+            else if (Model.MustPayTrainingFee)
+            {
+                <p>Betal treningsavgiften for dette semesteret for å godta plassen.</p>
+            }
+            else if (Model.MustPayMembershipFee)
+            {
+                <p>Du må være medlem for å delta på dette arrangementet. Betal medlemsavgiften for i år for å godta plassen.</p>
+            }
+            else if (Model.MustPayAmount > 0)
+            {
+                <p>Du må betale @Model.MustPayAmount.FormatMoney() for å godta plassen</p>
+            }
+            else
+            {
+                <p>Trykk på knappen under for å godta plassen.</p>
+            }
+        </div>
+    </div>
+    <div class="card-footer d-flex">
+        @if (Model.SessionId != null)
+        {
+            <script src="https://js.stripe.com/v3/"></script>
+            <script>
+                    function payWithStripe() {
+                        var stripe = Stripe('@Config.Stripe.PublicKey');
+                        stripe.redirectToCheckout({
+                            sessionId: '@Model.SessionId',
+                        }).then(function (result) {
+                            console.log(result.error.message);
+                            // If `redirectToCheckout` fails due to a browser or network
+                            // error, display the localized error message to your customer
+                            // using `result.error.message`.
+                        });
+                    }
+            </script>
+
+            <button type="submit" class="btn btn-success btn-block" onclick="payWithStripe()">Betal @Model.MustPayAmount.FormatMoney()</button>
+        }
+        else
+        {
+            <form asp-action="acceptOrReject" asp-route-id="@Model.Id" method="POST">
+                <button type="submit" name="accept" value="true" class="btn btn-success flex-fill mr-1">Godta plass</button>
+                <button type="submit" name="accept" value="false" class="btn btn-light">Nei takk, jeg vil heller gi plassen min til noen andre</button>
+            </form>
+        }
+    </div>
+</div>

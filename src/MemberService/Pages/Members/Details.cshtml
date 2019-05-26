@@ -44,53 +44,7 @@
 </h5>
 <hr>
 
-<div class="card-deck">
-    <div class="card shadow-sm">
-        <h3 class="card-header">
-            Betalinger
-        </h3>
-        <table class="table card-body">
-            <thead>
-                <tr>
-                    <th>Dato</th>
-                    <th>Beskrivelse</th>
-                    <th>Beløp</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var payment in Model.Payments)
-                {
-                    <tr class="@(payment.Refunded ? "line-through" : "")">
-                        <td>
-                            @if (User.IsInRole(Roles.ADMIN) && payment.StripeChargeId != null)
-                            {
-                                <a href="https://dashboard.stripe.com/payments/@payment.StripeChargeId" target="_blank">
-                                    <abbr title="@payment.PayedAtUtc.ToOsloDateTime()">@payment.PayedAtUtc.ToOsloDate()</abbr>
-                                </a>
-                            }
-                            else
-                            {
-                                <abbr title="@payment.PayedAtUtc.ToOsloDateTime()">@payment.PayedAtUtc.ToOsloDate()</abbr>
-                            }
-                        </td>
-                        <td>@payment.Description</td>
-                        <td>@payment.Amount.FormatMoney()</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-        @if (User.IsInRole(Roles.ADMIN))
-        {
-            <div class="card-footer">
-                <button class="btn btn-link" data-toggle="collapse" data-target="#addManualPayment" aria-expanded="false" aria-controls="addManualPayment">
-                    Legg til manuell betaling
-                </button>
-                <form class="collapse" id="addManualPayment" method="post" asp-action="AddManualPayment" asp-route-id="@Model.Id">
-                    <partial name="_ManualPaymentForm" model="new ManualPaymentModel()" />
-                </form>
-            </div>
-        }
-    </div>
+<div class="card-columns card-columns-2">
     <div class="card">
         <h3 class="card-header">
             Rettigheter
@@ -119,6 +73,85 @@
                 @Checkmark(Model.ExemptFromClassesFee) @: Fritatt fra kursavgift
             }
         </div>
+    </div>
+
+
+    <div class="card shadow-sm">
+        <h3 class="card-header">
+            Påmeldinger
+        </h3>
+        <table class="table card-body">
+            <thead>
+                <tr>
+                    <th>Dato</th>
+                    <th>Arrangement</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var signup in Model.EventSignups)
+                {
+                    <tr>
+                        <td>
+                            <abbr title="@signup.SignedUpAt.ToOsloDateTime()">@signup.SignedUpAt.ToOsloDate()</abbr>
+                        </td>
+                        <td>
+                            <a asp-controller="Signup" asp-action="Index" asp-route-id="@signup.EventId">@signup.Event.Title</a>
+                        </td>
+                        <td>@signup.Status.DisplayName()</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card shadow-sm">
+        <h3 class="card-header">
+            Betalinger
+        </h3>
+        <table class="table card-body">
+            <thead>
+                <tr>
+                    <th>Dato</th>
+                    <th>Beskrivelse</th>
+                    <th>Beløp</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var payment in Model.Payments.OrderByDescending(p => p.PayedAtUtc))
+                {
+                    <tr class="@(payment.Refunded ? "line-through" : "")">
+                        <td>
+                            <abbr title="@payment.PayedAtUtc.ToOsloDateTime()">@payment.PayedAtUtc.ToOsloDate()</abbr>
+                        </td>
+                        <td>
+                            @if (User.IsInRole(Roles.ADMIN) && payment.StripeChargeId != null)
+                            {
+                                <a href="https://dashboard.stripe.com/payments/@payment.StripeChargeId" target="_blank">
+                                    @payment.Description
+                                </a>
+                            }
+                            else
+                            {
+                                @payment.Description
+                            }
+                        </td>
+                        <td>@payment.Amount.FormatMoney()</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (User.IsInRole(Roles.ADMIN))
+        {
+            <div class="card-footer">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#addManualPayment" aria-expanded="false" aria-controls="addManualPayment">
+                    Legg til manuell betaling
+                </button>
+                <form class="collapse" id="addManualPayment" method="post" asp-action="AddManualPayment" asp-route-id="@Model.Id">
+                    <partial name="_ManualPaymentForm" model="new ManualPaymentModel()" />
+                </form>
+            </div>
+        }
     </div>
 </div>
 

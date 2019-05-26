@@ -8,9 +8,11 @@ namespace MemberService.Data
         [PersonalData]
         public string FullName { get; set; }
 
-        public ICollection<Payment> Payments { get; set; }
+        public ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
-        public ICollection<MemberUserRole> UserRoles { get; set; }
+        public ICollection<MemberUserRole> UserRoles { get; set; } = new List<MemberUserRole>();
+
+        public ICollection<EventSignup> EventSignups { get; set; } = new List<EventSignup>();
 
         public bool ExemptFromTrainingFee { get; set; }
 

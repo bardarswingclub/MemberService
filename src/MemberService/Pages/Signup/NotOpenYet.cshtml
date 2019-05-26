@@ -1,0 +1,16 @@
+@using MemberService.Pages.Signup
+@model SignupModel
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="jumbotron">
+    <h2>@ViewData["Title"]</h2>
+
+    <p class="lead">@Model.Description</p>
+</div>
+
+<div class="alert alert-primary" role="alert">
+    Påmeldinge til dette arrangementet har ikke åpnet ennå.
+</div>

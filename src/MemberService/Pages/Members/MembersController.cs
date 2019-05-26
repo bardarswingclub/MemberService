@@ -64,7 +64,9 @@ namespace MemberService.Pages.Members
             var user = await _memberContext.Users
                 .Include(u => u.Payments)
                 .Include(u => u.UserRoles)
-                .ThenInclude(r => r.Role)
+                    .ThenInclude(r => r.Role)
+                .Include(u => u.EventSignups)
+                    .ThenInclude(s => s.Event)
                 .AsNoTracking()
                 .SingleOrDefaultAsync(u => u.Id == id);
 

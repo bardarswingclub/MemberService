@@ -1,0 +1,28 @@
+@using MemberService.Pages.Event
+@model IReadOnlyList<EventSignupModel>
+
+<tbody>
+    @if(Model.NotAny())
+    {
+        <tr>
+            <td colspan="3" class="text-center text-uppercase text-muted">Ingen</td>
+        </tr>
+    }
+
+    @for(var i = 0; i < Model.Count; i++)
+    {
+        var signup = Model[i];
+        <tr>
+            <td>
+                <input type="hidden" asp-for="@Model[i].Id" />
+                <input type="checkbox" asp-for="@Model[i].Selected" />
+            </td>
+            <td>
+                <a asp-controller="Members" asp-action="Details" asp-route-id="@signup.UserId" class="text-muted" target="_blank">@signup.FullName</a>
+            </td>
+            <td>
+                <abbr title="@signup.SignedUpAt.ToOsloDateTime()">@signup.SignedUpAt.ToOsloDate()</abbr>
+            </td>
+        </tr>
+    }
+</tbody>

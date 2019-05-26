@@ -1,0 +1,171 @@
+@using MemberService.Pages.Event
+@model EventModel
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<h2>
+    <a asp-controller="Signup" asp-action="Index" asp-route-id="@Model.Id">@ViewData["Title"]</a>
+    <a asp-controller="Event" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary float-right">Rediger</a>
+</h2>
+
+<h4>@Model.Description</h4>
+
+<form class="alert @AlertClass(Model)" asp-action="SetStatus" asp-route-id="@Model.Id" method="POST">
+    @if (Model.Archived) {
+        <h4 class="alert-heading">Arrangementet er arkivert</h4>
+        <p>Dette arrangementet er arkivert og ikke lenger åpent for redigering</p>
+    }
+    else if (Model.Options.IsOpen())
+    {
+        <h4 class="alert-heading">
+            Påmeldingen er åpen!
+            <button type="submit" name="status" value="close" class="btn btn-outline-danger float-right">Steng påmeldingen nå</button>
+        </h4>
+        @if (Model.Options.SignupOpensAt.HasValue)
+        {
+            <p>Påmeldingen åpnet @Model.Options.SignupOpensAt</p>
+        }
+        @if (Model.Options.SignupClosesAt.HasValue)
+        {
+            <p>Påmeldingen stenger @Model.Options.SignupClosesAt</p>
+        }
+    }
+    else if (Model.Options.HasClosed())
+    {
+        <h4 class="alert-heading">
+            Påmeldingen har stengt!
+            <button type="submit" name="status" value="open" class="btn btn-outline-success float-right">Gjennåpne påmeldingen nå</button>
+        </h4>
+        @if (Model.Options.SignupOpensAt.HasValue)
+        {
+            <p>Påmeldingen åpnet @Model.Options.SignupOpensAt</p>
+        }
+        <p>Påmeldingen stengte @Model.Options.SignupClosesAt</p>
+    }
+    else
+    {
+        <h4 class="alert-heading">
+            Påmeldingen har ikke åpnet ennå!
+            <button type="submit" name="status" value="open" class="btn btn-outline-success float-right">Åpne påmeldingen nå</button>
+        </h4>
+        <p>Påmeldingen åpner @Model.Options.SignupOpensAt</p>
+        @if (Model.Options.SignupClosesAt.HasValue)
+        {
+            <p>Påmeldingen stenger @Model.Options.SignupClosesAt</p>
+        }
+    }
+</form>
+
+<div class="card">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
+            @foreach (var signups in Model.Signups)
+            {
+                <li class="nav-item">
+                    <a class="nav-link text-dark @(signups.Active ? "active" : "")" id="tab-@signups.Key" data-toggle="tab" href="#@signups.Key" role="tab" aria-controls="@signups.Key" aria-selected="@signups.Active">
+                        @signups.Display
+                        <small class="text-muted">(@signups.Signups.Count)</small>
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+    <div class="tab-content card-body">
+        @foreach (var signups in Model.Signups)
+        {
+            <form method="post" class="tab-pane @(signups.Active ? "active" : "")" id="@signups.Key" role="tabpanel" aria-labelledby="@signups.Key-tab" disabled="@Model.Archived">
+                @if (Model.Options.RoleSignup)
+                {
+                    var leads = signups.Leads;
+                    var follows = signups.Follows;
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4>Førere</h4>
+
+                            <table class="table">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th></th>
+                                        <th>Navn</th>
+                                        <th>Dato</th>
+                                    </tr>
+                                </thead>
+                                <partial name="_Participants" for="@leads">
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>Følgere</h4>
+
+                            <table class="table">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th></th>
+                                        <th>Navn</th>
+                                        <th>Dato</th>
+                                    </tr>
+                                </thead>
+                                <partial name="_Participants" for="@follows">
+                            </table>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    var solos = signups.Solos;
+
+                    <h4>Solo</h4>
+
+                    <table class="table">
+                        <thead class="thead-light">
+                            <tr>
+                                <th></th>
+                                <th>Navn</th>
+                                <th>Dato</th>
+                            </tr>
+                        </thead>
+                        <partial name="_Participants" for="@solos">
+                    </table>
+                }
+                <div class="input-group w-50">
+                    <select name="Status" class="custom-select">
+                        <option selected="selected" value="">Velg en handling</option>
+                        <option value="2">Anbefall plass</option>
+                        <option value="4">Gi plass</option>
+                        <option value="3">Sett på venteliste</option>
+                        <option value="7">Frata plass</option>
+                    </select>
+                    <div class="input-group-append">
+                        <label class="input-group-text">
+                            <input type="checkbox" name="SendEmail" value="true" />
+                            <span class="ml-1">Informer via epost</span>
+                        </label>
+                        <button type="submit" class="btn btn-success">Lagre</button>
+                    </div>
+                </div>
+            </form>
+        }
+    </div>
+</div>
+
+@functions{
+    string AlertClass(EventModel model)
+    {
+        if (model.Archived)
+        {
+            return "alert-warning";
+        }
+        else if (model.Options.IsOpen())
+        {
+            return "alert-success";
+        }
+        else
+        {
+            return model.Options.SignupOpensAt.HasValue
+                ? "alert-warning"
+                : "alert-danger";
+        }
+    }
+}

@@ -19,6 +19,96 @@ namespace MemberService.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("MemberService.Data.Event", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("Archived");
+
+                    b.Property<DateTime>("CreatedAt");
+
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<string>("Description");
+
+                    b.Property<string>("Title")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.ToTable("Events");
+                });
+
+            modelBuilder.Entity("MemberService.Data.EventSignup", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<Guid>("EventId");
+
+                    b.Property<string>("PartnerEmail");
+
+                    b.Property<string>("PaymentId");
+
+                    b.Property<int>("Priority");
+
+                    b.Property<string>("Role")
+                        .IsRequired();
+
+                    b.Property<DateTime>("SignedUpAt");
+
+                    b.Property<string>("Status")
+                        .IsRequired();
+
+                    b.Property<string>("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("PaymentId")
+                        .IsUnique()
+                        .HasFilter("[PaymentId] IS NOT NULL");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("EventSignup");
+                });
+
+            modelBuilder.Entity("MemberService.Data.EventSignupOptions", b =>
+                {
+                    b.Property<Guid>("Id");
+
+                    b.Property<bool>("AllowPartnerSignup");
+
+                    b.Property<decimal>("PriceForMembers");
+
+                    b.Property<decimal>("PriceForNonMembers");
+
+                    b.Property<bool>("RequiresClassesFee");
+
+                    b.Property<bool>("RequiresMembershipFee");
+
+                    b.Property<bool>("RequiresTrainingFee");
+
+                    b.Property<bool>("RoleSignup");
+
+                    b.Property<DateTime?>("SignupClosesAt");
+
+                    b.Property<DateTime?>("SignupOpensAt");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SignupClosesAt");
+
+                    b.HasIndex("SignupOpensAt");
+
+                    b.ToTable("EventSignupOptions");
+                });
+
             modelBuilder.Entity("MemberService.Data.MemberRole", b =>
                 {
                     b.Property<string>("Id")
@@ -220,6 +310,37 @@ namespace MemberService.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
+                });
+
+            modelBuilder.Entity("MemberService.Data.Event", b =>
+                {
+                    b.HasOne("MemberService.Data.MemberUser", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy");
+                });
+
+            modelBuilder.Entity("MemberService.Data.EventSignup", b =>
+                {
+                    b.HasOne("MemberService.Data.Event", "Event")
+                        .WithMany("Signups")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("MemberService.Data.Payment", "Payment")
+                        .WithOne("EventSignup")
+                        .HasForeignKey("MemberService.Data.EventSignup", "PaymentId");
+
+                    b.HasOne("MemberService.Data.MemberUser", "User")
+                        .WithMany("EventSignups")
+                        .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("MemberService.Data.EventSignupOptions", b =>
+                {
+                    b.HasOne("MemberService.Data.Event", "Event")
+                        .WithOne("SignupOptions")
+                        .HasForeignKey("MemberService.Data.EventSignupOptions", "Id")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("MemberService.Data.MemberUserRole", b =>

@@ -41,6 +41,7 @@ namespace MemberService
                 .AddScoped(typeof(IEmailSender), IsDevelopment ? typeof(DummyConsoleEmailSender) : typeof(EmailSender))
                 .AddScoped<ChargeService>()
                 .AddScoped<SessionService>()
+                .AddScoped<CustomerService>()
                 .AddScoped<IPaymentService, PaymentService>();
 
             services.Configure<CookiePolicyOptions>(options =>

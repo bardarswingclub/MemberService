@@ -1,6 +1,9 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Clave.Expressionify;
+using MemberService.Pages.Event;
 using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Data
@@ -20,6 +23,25 @@ namespace MemberService.Data
         public static bool HasPayedClassesFeeThisSemester(this MemberUser user)
             => user.Payments.Any(p => p.PayedAtUtc > Constants.ThisSemesterUtc && p.IncludesClasses && !p.Refunded)
             || user.ExemptFromClassesFee && user.HasPayedTrainingFeeThisSemester();
+
+        [Expressionify]
+        public static bool HasOpened(this EventSignupOptions x)
+            => x.SignupOpensAt == null || x.SignupOpensAt < DateTime.UtcNow;
+
+        [Expressionify]
+        public static bool HasClosed(this EventSignupOptions x)
+            => x.SignupClosesAt != null && x.SignupClosesAt < DateTime.UtcNow;
+
+        [Expressionify]
+        public static bool IsOpen(this EventSignupOptions x)
+            => x.HasOpened() && !x.HasClosed();
+
+        [Expressionify]
+        public static List<EventSignupModel> GetSignups(this Event e, DanceRole role)
+            => e.Signups
+                .Where(s => s.Role == role)
+                .Select(s => EventSignupModel.Create(s))
+                .ToList();
 
         public static async Task<MemberUser> SingleUser(this IQueryable<MemberUser> users, string id)
             => await users.SingleOrDefaultAsync(user => user.Id == id);

@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MemberService.Data
 {
@@ -30,5 +31,8 @@ namespace MemberService.Data
         public bool IncludesClasses { get; set; }
 
         public bool Refunded { get; set; }
+
+        [InverseProperty(nameof(Data.EventSignup.Payment))]
+        public EventSignup EventSignup { get; set; }
     }
 }

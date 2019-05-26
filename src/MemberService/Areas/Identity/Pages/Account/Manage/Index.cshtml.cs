@@ -1,4 +1,5 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,10 +27,12 @@ namespace MemberService.Areas.Identity.Pages.Account.Manage
             _signInManager = signInManager;
         }
 
-        [Display(Name = "E-post")]
+        [DisplayName("E-post")]
         public string Email { get; set; }
 
         public IReadOnlyCollection<Payment> Payments { get; private set; }
+
+        public IReadOnlyCollection<EventSignup> EventSignups { get; private set; }
 
         [TempData]
         public string StatusMessage { get; set; }
@@ -39,7 +42,7 @@ namespace MemberService.Areas.Identity.Pages.Account.Manage
 
         public class InputModel
         {
-            [Display(Name = "Fullt navn")]
+            [DisplayName("Fullt navn")]
             public string FullName { get; set; }
         }
 
@@ -49,6 +52,8 @@ namespace MemberService.Areas.Identity.Pages.Account.Manage
 
             var user = await _memberContext.Users
                 .Include(x => x.Payments)
+                .Include(x => x.EventSignups)
+                    .ThenInclude(s => s.Event)
                 .SingleUser(userId);
 
             if (user == null)
@@ -60,6 +65,10 @@ namespace MemberService.Areas.Identity.Pages.Account.Manage
 
             Payments = user.Payments
                 .OrderByDescending(p => p.PayedAtUtc)
+                .ToList();
+
+            EventSignups = user.EventSignups
+                .OrderByDescending(s => s.SignedUpAt)
                 .ToList();
 
             Input = new InputModel

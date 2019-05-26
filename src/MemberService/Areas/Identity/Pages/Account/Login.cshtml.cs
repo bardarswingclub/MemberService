@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using MemberService.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using System.Text.Encodings.Web;
+using System.ComponentModel;
 
 namespace MemberService.Areas.Identity.Pages.Account
 {
@@ -44,7 +45,7 @@ namespace MemberService.Areas.Identity.Pages.Account
         {
             [Required]
             [EmailAddress]
-            [Display(Name = "E-post")]
+            [DisplayName("E-post")]
             public string Email { get; set; }
 
             public string ReturnUrl { get; set; }

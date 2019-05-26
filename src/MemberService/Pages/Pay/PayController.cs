@@ -56,45 +56,20 @@ namespace MemberService.Pages.Pay
                 }
             }
 
-            var session = await _sessionService.CreateAsync(new SessionCreateOptions
-            {
-                CustomerEmail = email,
-                PaymentIntentData = new SessionPaymentIntentDataOptions
-                {
-                    Description = $"{title} ({description})",
-                    Metadata = new Dictionary<string, string>
-                    {
-                        ["name"] = name,
-                        ["email"] = email,
-                        ["amount_owed"] = amount.ToString(),
-                        ["long_desc"] = description,
-                        ["short_desc"] = title
-                    }
-                },
-                PaymentMethodTypes = new List<string>
-                {
-                    "card",
-                },
-                LineItems = new List<SessionLineItemOptions>
-                {
-                    new SessionLineItemOptions
-                    {
-                        Name = title,
-                        Description = description,
-                        Amount = (long) amount*100L,
-                        Currency = "nok",
-                        Quantity = 1
-                    }
-                },
-                SuccessUrl = Url.Action(nameof(Success), "Pay", new { title, description }, Request.Scheme, Request.Host.Value),
-                CancelUrl = Request.GetDisplayUrl(),
-            });
+            var sessionId = await _paymentService.CreatePayment(
+                name: name,
+                email: email,
+                title: title,
+                description: description,
+                amount: amount,
+                successUrl:  Url.Action(nameof(Success), "Pay", new { title, description }, Request.Scheme, Request.Host.Value),
+                cancelUrl: Request.GetDisplayUrl());
 
-            TempData["StripeSessionId"] = session.Id;
+            TempData["StripeSessionId"] = sessionId;
 
             return View(new PayModel
             {
-                Id = session.Id,
+                Id = sessionId,
                 Name = title,
                 Description = description,
                 Amount = amount
@@ -103,15 +78,9 @@ namespace MemberService.Pages.Pay
 
         public async Task<IActionResult> Success(string name, string description)
         {
-            if (TempData["StripeSessionId"] is string sessionId) {
-                var session = await _sessionService.GetAsync(sessionId);
-
-                var charges = await _chargeService.ListAsync(new ChargeListOptions
-                {
-                    PaymentIntentId = session.PaymentIntentId
-                });
-
-                await _paymentService.SavePayments(charges);
+            if (TempData["StripeSessionId"] is string sessionId)
+            {
+                await _paymentService.SavePayment(sessionId);
             }
 
             return View(new PayModel

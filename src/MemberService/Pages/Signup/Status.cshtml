@@ -1,0 +1,54 @@
+@using MemberService.Pages.Signup
+@model SignupModel
+
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "~/Pages/Shared/_CoverLayout.cshtml";
+    var options = Model.Options;
+    var user = Model.User;
+}
+
+<div class="card shadow">
+    <h3 class="card-header">
+        @ViewData["Title"]
+    </h3>
+    <div class="card-body">
+        <p class="lead">@Model.Description</p>
+
+        @if (Model.UserEventSignup.Status == Status.WaitingList)
+        {
+            <div class="alert alert-info" role="alert">
+                <h3 class="alert-heading">Du er på ventelisten</h3>
+                <p>Det er veldig mange som ønsker å delta, og arrangementet er desverre fullt. Du er på ventelisten, så hvis noen gir fra seg plassen så kan du kanskje få plass likevel. Kryss fingrene!</p>
+            </div>
+        }
+        else if (Model.UserEventSignup.Status == Status.AcceptedAndPayed)
+        {
+            <div class="alert alert-success" role="alert">
+                <h3 class="alert-heading">Du har fått plass</h3>
+                <p>Du har plass godtatt plassen og betalt alt som trengs for å delta, så nå er det ingenting mer å gjøre, bare å glede seg!</p>
+            </div>
+        }
+        else if (Model.UserEventSignup.Status == Status.RejectedOrNotPayed)
+        {
+            <div class="alert alert-warning" role="alert">
+                <h3 class="alert-heading">Du har takket nei til denne plassen</h3>
+                <p>Du har takket nei til denne plassen.</p>
+            </div>
+        }
+        else if (Model.UserEventSignup.Status == Status.Denied)
+        {
+            <div class="alert alert-warning" role="alert">
+                <h3 class="alert-heading">Du har mistet plassen din</h3>
+                <p>Du har ikke lenger plass på dette arrangementet.</p>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info" role="alert">
+                <h3 class="alert-heading">Du er påmeldt</h3>
+                <p>Du vil få beskjed når vi har tildelt plassene.</p>
+            </div>
+        }
+    </div>
+</div>
