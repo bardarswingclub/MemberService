@@ -58,22 +58,24 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var payment in Model.Payments)
+                @foreach (var payment in Model.Payments.OrderByDescending(p => p.PayedAtUtc))
                 {
                     <tr class="@(payment.Refunded ? "line-through" : "")">
+                        <td>
+                            <abbr title="@payment.PayedAtUtc.ToOsloDateTime()">@payment.PayedAtUtc.ToOsloDate()</abbr>
+                        </td>
                         <td>
                             @if (User.IsInRole(Roles.ADMIN) && payment.StripeChargeId != null)
                             {
                                 <a href="https://dashboard.stripe.com/payments/@payment.StripeChargeId" target="_blank">
-                                    <abbr title="@payment.PayedAtUtc.ToOsloDateTime()">@payment.PayedAtUtc.ToOsloDate()</abbr>
+                                    @payment.Description
                                 </a>
                             }
                             else
                             {
-                                <abbr title="@payment.PayedAtUtc.ToOsloDateTime()">@payment.PayedAtUtc.ToOsloDate()</abbr>
+                                @payment.Description
                             }
                         </td>
-                        <td>@payment.Description</td>
                         <td>@payment.Amount.FormatMoney()</td>
                     </tr>
                 }
