@@ -15,7 +15,7 @@
         <p class="lead">@Model.Description</p>
 
         <div class="alert alert-success" role="alert">
-            <h3 class="alert-heading">Gratulerer, du har fått plass på kurs!</h3>
+            <h3 class="alert-heading">Gratulerer, du har fått plass!</h3>
 
             @if (Model.MustPayClassesFee)
             {
@@ -31,11 +31,11 @@
             }
             else if (Model.MustPayAmount > 0)
             {
-                <p>Du må betale @Model.MustPayAmount.FormatMoney() for å få plassen</p>
+                <p>Du må betale @Model.MustPayAmount.FormatMoney() for å godta plassen</p>
             }
             else
             {
-                <p>Trykk på knappen under for å få plassen. Hvis du ikke vil ha plassen kan du takke nei til plassen, så kan noen andre få den.</p>
+                <p>Trykk på knappen under for å godta plassen.</p>
             }
         </div>
     </div>

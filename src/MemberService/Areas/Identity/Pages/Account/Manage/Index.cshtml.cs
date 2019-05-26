@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -32,6 +32,8 @@ namespace MemberService.Areas.Identity.Pages.Account.Manage
 
         public IReadOnlyCollection<Payment> Payments { get; private set; }
 
+        public IReadOnlyCollection<EventSignup> EventSignups { get; private set; }
+
         [TempData]
         public string StatusMessage { get; set; }
 
@@ -50,6 +52,8 @@ namespace MemberService.Areas.Identity.Pages.Account.Manage
 
             var user = await _memberContext.Users
                 .Include(x => x.Payments)
+                .Include(x => x.EventSignups)
+                    .ThenInclude(s => s.Event)
                 .SingleUser(userId);
 
             if (user == null)
@@ -61,6 +65,10 @@ namespace MemberService.Areas.Identity.Pages.Account.Manage
 
             Payments = user.Payments
                 .OrderByDescending(p => p.PayedAtUtc)
+                .ToList();
+
+            EventSignups = user.EventSignups
+                .OrderByDescending(s => s.SignedUpAt)
                 .ToList();
 
             Input = new InputModel

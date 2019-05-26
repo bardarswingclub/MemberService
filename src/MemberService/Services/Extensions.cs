@@ -1,5 +1,6 @@
 ﻿using NodaTime;
 using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -29,6 +30,9 @@ namespace MemberService.Services
                 .GetMember(enumValue.ToString())
                 .Single()
                 .GetCustomAttribute<TAttribute>();
+
+        public static string DisplayName(this Enum enumValue)
+            => enumValue.GetAttribute<DisplayNameAttribute>().DisplayName;
 
         public static Guid? ToGuid(this string value)
             => Guid.TryParse(value, out var result) ? result : default;

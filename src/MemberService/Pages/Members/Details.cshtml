@@ -44,7 +44,67 @@
 </h5>
 <hr>
 
-<div class="card-deck">
+<div class="card-columns card-columns-2">
+    <div class="card">
+        <h3 class="card-header">
+            Rettigheter
+        </h3>
+        <div class="card-body">
+            @if (User.IsInRole(Roles.ADMIN))
+            {
+                <partial name="_Role" model="(Model, Roles.ADMIN)" />
+                <partial name="_Role" model="(Model, Roles.COORDINATOR)" />
+                <hr />
+                <form asp-controller="Members" asp-action="SetExemptions" asp-route-id="@Model.Id" method="post" class="form">
+                    <div class="form-check">
+                        <input class="form-check-input" asp-for="ExemptFromTrainingFee" onchange="form.submit()" />
+                        <label class="form-check-label" asp-for="ExemptFromTrainingFee">Fritatt fra treningsavgift</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" asp-for="ExemptFromClassesFee" onchange="form.submit()" />
+                        <label class="form-check-label" asp-for="ExemptFromClassesFee">Fritatt fra kursavgift</label>
+                    </div>
+                </form>
+            }
+            else
+            {
+                @Checkmark(Model.ExemptFromTrainingFee) @: Fritatt fra treningsavgift
+                <br />
+                @Checkmark(Model.ExemptFromClassesFee) @: Fritatt fra kursavgift
+            }
+        </div>
+    </div>
+
+
+    <div class="card shadow-sm">
+        <h3 class="card-header">
+            Påmeldinger
+        </h3>
+        <table class="table card-body">
+            <thead>
+                <tr>
+                    <th>Dato</th>
+                    <th>Arrangement</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var signup in Model.EventSignups)
+                {
+                    <tr>
+                        <td>
+                            <abbr title="@signup.SignedUpAt.ToOsloDateTime()">@signup.SignedUpAt.ToOsloDate()</abbr>
+                        </td>
+                        <td>
+                            <a asp-controller="Signup" asp-action="Index" asp-route-id="@signup.EventId">@signup.Event.Title</a>
+                        </td>
+                        <td>@signup.Status.DisplayName()</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
     <div class="card shadow-sm">
         <h3 class="card-header">
             Betalinger
@@ -92,35 +152,6 @@
                 </form>
             </div>
         }
-    </div>
-    <div class="card">
-        <h3 class="card-header">
-            Rettigheter
-        </h3>
-        <div class="card-body">
-            @if (User.IsInRole(Roles.ADMIN))
-            {
-                <partial name="_Role" model="(Model, Roles.ADMIN)" />
-                <partial name="_Role" model="(Model, Roles.COORDINATOR)" />
-                <hr />
-                <form asp-controller="Members" asp-action="SetExemptions" asp-route-id="@Model.Id" method="post" class="form">
-                    <div class="form-check">
-                        <input class="form-check-input" asp-for="ExemptFromTrainingFee" onchange="form.submit()" />
-                        <label class="form-check-label" asp-for="ExemptFromTrainingFee">Fritatt fra treningsavgift</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" asp-for="ExemptFromClassesFee" onchange="form.submit()" />
-                        <label class="form-check-label" asp-for="ExemptFromClassesFee">Fritatt fra kursavgift</label>
-                    </div>
-                </form>
-            }
-            else
-            {
-                @Checkmark(Model.ExemptFromTrainingFee) @: Fritatt fra treningsavgift
-                <br />
-                @Checkmark(Model.ExemptFromClassesFee) @: Fritatt fra kursavgift
-            }
-        </div>
     </div>
 </div>
 

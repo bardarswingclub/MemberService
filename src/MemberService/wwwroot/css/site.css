@@ -82,3 +82,7 @@ h1, h2, h3, h4, h5, h6 {
 .line-through {
     text-decoration: line-through;
 }
+
+.card-columns.card-columns-2 {
+    column-count: 2;
+}
