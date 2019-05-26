@@ -8,6 +8,8 @@ namespace MemberService.Pages.Event
     {
         public Guid Id { get; set; }
 
+        public string UserId { get; set; }
+
         public string FullName { get; set; }
 
         public DateTime SignedUpAt { get; set; }
@@ -23,6 +25,7 @@ namespace MemberService.Pages.Event
             => new EventSignupModel
             {
                 Id = s.Id,
+                UserId = s.UserId,
                 FullName = s.User.FullName,
                 SignedUpAt = s.SignedUpAt,
                 Status = s.Status,

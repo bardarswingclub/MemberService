@@ -18,7 +18,7 @@
                 <input type="checkbox" asp-for="@Model[i].Selected" />
             </td>
             <td>
-                <label asp-for="@Model[i].Selected">@signup.FullName</label>
+                <a asp-controller="Members" asp-action="Details" asp-route-id="@signup.UserId" class="text-muted" target="_blank">@signup.FullName</a>
             </td>
             <td>
                 <abbr title="@signup.SignedUpAt.ToOsloDateTime()">@signup.SignedUpAt.ToOsloDate()</abbr>
