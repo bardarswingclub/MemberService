@@ -18,10 +18,10 @@
                 <input type="checkbox" asp-for="@Model[i].Selected" />
             </td>
             <td>
-                @signup.FullName
+                <label asp-for="@Model[i].Selected">@signup.FullName</label>
             </td>
             <td>
-                @signup.SignedUpAt
+                <abbr title="@signup.SignedUpAt.ToOsloDateTime()">@signup.SignedUpAt.ToOsloDate()</abbr>
             </td>
         </tr>
     }

@@ -5,11 +5,10 @@
     ViewData["Title"] = Model.Title;
 }
 
-<h2>@ViewData["Title"]</h2>
-
-<a asp-controller="Signup" asp-action="Index" asp-route-id="@Model.Id">Delbar link til påmelding</a>
-|
-<a asp-controller="Event" asp-action="Edit" asp-route-id="@Model.Id">Rediger</a>
+<h2>
+    <a asp-controller="Signup" asp-action="Index" asp-route-id="@Model.Id">@ViewData["Title"]</a>
+    <a asp-controller="Event" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary float-right">Rediger</a>
+</h2>
 
 <form class="alert alert-info" asp-action="SetStatus" asp-route-id="@Model.Id" method="POST">
     @if (Model.Options.IsOpen())
@@ -103,6 +102,8 @@
                 }
                 else
                 {
+                    var solos = signups.Solos;
+
                     <h4>Solo</h4>
 
                     <table class="table">
@@ -113,10 +114,10 @@
                                 <th>Dato</th>
                             </tr>
                         </thead>
-                        <partial name="_Participants" model="@signups.Solos">
+                        <partial name="_Participants" for="@solos">
                     </table>
                 }
-                <div class="input-group">
+                <div class="input-group w-25">
                     <select name="Status" class="custom-select">
                         <option selected="selected" value="">Velg en handling</option>
                         <option value="2">Anbefall plass</option>

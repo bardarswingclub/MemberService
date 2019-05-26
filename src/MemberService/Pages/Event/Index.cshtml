@@ -3,15 +3,19 @@
 @{
     ViewData["Title"] = "Eventer";
 }
-<h2>@ViewData["Title"]</h2>
+<h2>
+    @ViewData["Title"]
+    <a class="btn btn-primary float-right" asp-action="Create">Opprett ny event</a>
+</h2>
 
-<a asp-action="Create">Opprett ny event</a>
 
 <table class="table">
 <thead>
     <tr>
         <th>Navn</th>
         <th>Påmeldte</th>
+        <th>Deltakere</th>
+        <th>Dato</th>
     </tr>
 </thead>
 <tbody>
@@ -20,6 +24,8 @@
         <tr>
             <td><a asp-action="View" asp-route-id="@eventEntry.Id">@eventEntry.Title</a></td>
             <td>@eventEntry.Signups.Count</td>
+            <td>@eventEntry.Signups.Count(s => s.Status == Status.AcceptedAndPayed)</td>
+            <td><abbr title="@eventEntry.CreatedAt.ToOsloDateTime()">@eventEntry.CreatedAt.ToOsloDate()</abbr></td>
         </tr>
     }
 </tbody>
