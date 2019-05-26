@@ -9,12 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <DotNetCliToolReference Include="dotnet-expressionify" Version="0.4.1" />
+    <DotNetCliToolReference Include="dotnet-expressionify" Version="0.4.4" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Clave.Expressionify" Version="0.4.1" />
-    <PackageReference Include="Clave.Expressionify.Tasks" Version="0.4.1">
+    <PackageReference Include="Clave.Expressionify" Version="0.4.4" />
+    <PackageReference Include="Clave.Expressionify.Tasks" Version="0.4.4">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
