@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Policy;
 using System.Threading.Tasks;
@@ -289,7 +290,7 @@ namespace MemberService.Pages.Event
             var instant = Instant.FromDateTimeUtc(DateTime.SpecifyKind(utc.Value, DateTimeKind.Utc));
             var result = instant.InZone(Constants.TimeZoneOslo);
 
-            return (result.Date.ToString("yyyy-MM-dd", null), result.TimeOfDay.ToString("HH:mm", null));
+            return (result.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), result.TimeOfDay.ToString("HH:mm", CultureInfo.InvariantCulture));
         }
 
         private async Task<MemberUser> GetCurrentUser()
