@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Clave.Expressionify;
 using Clave.ExtensionMethods;
 using MemberService.Data;
+using MemberService.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -287,8 +288,7 @@ namespace MemberService.Pages.Event
         {
             if (!utc.HasValue) return (null, null);
 
-            var instant = Instant.FromDateTimeUtc(DateTime.SpecifyKind(utc.Value, DateTimeKind.Utc));
-            var result = instant.InZone(Constants.TimeZoneOslo);
+            var result = utc.Value.ToOsloZone();
 
             return (result.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), result.TimeOfDay.ToString("HH:mm", CultureInfo.InvariantCulture));
         }

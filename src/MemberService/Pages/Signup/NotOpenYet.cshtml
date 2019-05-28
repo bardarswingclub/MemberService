@@ -4,6 +4,8 @@
 @{
     ViewData["Title"] = Model.Title;
     Layout = "~/Pages/Shared/_CoverLayout.cshtml";
+    var date = Model.Options.SignupOpensAt.Value.ToOsloDate();
+    var time = Model.Options.SignupOpensAt.Value.ToOsloTime();
 }
 
 <div class="card shadow">
@@ -14,7 +16,7 @@
         <p class="lead">@Model.Description</p>
 
         <div class="alert alert-primary">
-            Påmeldinge har ikke åpnet ennå.
+            Påmeldinge åpner @date klokken @time
         </div>
     </div>
 </div>

@@ -13,7 +13,8 @@
 <h4>@Model.Description</h4>
 
 <form class="alert @AlertClass(Model)" asp-action="SetStatus" asp-route-id="@Model.Id" method="POST">
-    @if (Model.Archived) {
+    @if (Model.Archived)
+    {
         <h4 class="alert-heading">Arrangementet er arkivert</h4>
         <p>Dette arrangementet er arkivert og ikke lenger åpent for redigering</p>
     }
@@ -25,11 +26,11 @@
         </h4>
         @if (Model.Options.SignupOpensAt.HasValue)
         {
-            <p>Påmeldingen åpnet @Model.Options.SignupOpensAt</p>
+            <p>Påmeldingen åpnet @Model.Options.SignupOpensAt.Value.ToOsloDate() klokken @Model.Options.SignupOpensAt.Value.ToOsloTime()</p>
         }
         @if (Model.Options.SignupClosesAt.HasValue)
         {
-            <p>Påmeldingen stenger @Model.Options.SignupClosesAt</p>
+            <p>Påmeldingen stenger @Model.Options.SignupClosesAt.Value.ToOsloDate() klokken @Model.Options.SignupClosesAt.Value.ToOsloTime()</p>
         }
     }
     else if (Model.Options.HasClosed())
@@ -40,9 +41,9 @@
         </h4>
         @if (Model.Options.SignupOpensAt.HasValue)
         {
-            <p>Påmeldingen åpnet @Model.Options.SignupOpensAt</p>
+            <p>Påmeldingen åpnet @Model.Options.SignupOpensAt.Value.ToOsloDate() klokken @Model.Options.SignupOpensAt.Value.ToOsloTime()</p>
         }
-        <p>Påmeldingen stengte @Model.Options.SignupClosesAt</p>
+        <p>Påmeldingen stengte @Model.Options.SignupClosesAt.Value.ToOsloDate() klokken @Model.Options.SignupClosesAt.Value.ToOsloTime()</p>
     }
     else
     {
@@ -50,10 +51,10 @@
             Påmeldingen har ikke åpnet ennå!
             <button type="submit" name="status" value="open" class="btn btn-outline-success float-right">Åpne påmeldingen nå</button>
         </h4>
-        <p>Påmeldingen åpner @Model.Options.SignupOpensAt</p>
+        <p>Påmeldingen åpner @Model.Options.SignupOpensAt.Value.ToOsloDate() klokken @Model.Options.SignupOpensAt.Value.ToOsloTime()</p>
         @if (Model.Options.SignupClosesAt.HasValue)
         {
-            <p>Påmeldingen stenger @Model.Options.SignupClosesAt</p>
+            <p>Påmeldingen stenger @Model.Options.SignupClosesAt.Value.ToOsloDate() klokken @Model.Options.SignupClosesAt.Value.ToOsloTime()</p>
         }
     }
 </form>

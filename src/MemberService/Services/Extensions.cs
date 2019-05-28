@@ -1,6 +1,7 @@
 ﻿using NodaTime;
 using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -13,10 +14,16 @@ namespace MemberService.Services
             => string.Format("kr {0:0},-", amount);
 
         public static string ToOsloDate(this DateTime utc)
-            => Instant.FromDateTimeUtc(utc.WithKind(DateTimeKind.Utc)).InZone(Constants.TimeZoneOslo).Date.ToString();
+            => utc.ToOsloZone().Date.ToString();
 
         public static string ToOsloDateTime(this DateTime utc)
-            => Instant.FromDateTimeUtc(utc.WithKind(DateTimeKind.Utc)).InZone(Constants.TimeZoneOslo).ToString();
+            => utc.ToOsloZone().ToString();
+
+        public static string ToOsloTime(this DateTime utc)
+            => utc.ToOsloZone().TimeOfDay.ToString("HH:mm", CultureInfo.InvariantCulture);
+
+        public static ZonedDateTime ToOsloZone(this DateTime utc)
+            => Instant.FromDateTimeUtc(utc.WithKind(DateTimeKind.Utc)).InZone(Constants.TimeZoneOslo);
 
         public static Expression<Func<T, bool>> Not<T>(this Expression<Func<T, bool>> predicate)
             => Expression.Lambda<Func<T, bool>>(Expression.Not(predicate.Body), predicate.Parameters);
