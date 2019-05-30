@@ -1,4 +1,5 @@
 @using MemberService.Pages.Signup
+@using Markdig
 @model SignupModel
 
 @{
@@ -63,6 +64,8 @@
             }
         }
 
+        <p>@Html.Raw(Markdown.ToHtml(Model.Options.SignupHelp))</p>
+
         @if (Model.Options.RoleSignup)
         {
             <div class="form-group">
@@ -78,7 +81,7 @@
                 <div class="form-group">
                     <label asp-for="Input.PartnerEmail"></label>
                     <input type="text" class="form-control" asp-for="Input.PartnerEmail" placeholder="epost@eksempel.no">
-                    <small class="form-text text-muted">Fyll inn e-post til partner hvis dere to som ønsker å gå kurs sammen. Begge to må melde seg på og skrive opp hverandres e-post.</small>
+                    <small class="form-text text-muted">Fyll inn e-post til partner hvis dere er to som ønsker å gå kurs sammen. Begge to må melde seg på og skrive opp hverandres e-post.</small>
                     <span asp-validation-for="Input.PartnerEmail" class="text-danger"></span>
                 </div>
             }

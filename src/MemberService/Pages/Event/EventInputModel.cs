@@ -46,10 +46,13 @@ namespace MemberService.Pages.Event
         [DisplayName("Pris for ikke-medlemmer")]
         public decimal PriceForNonMembers { get; set; }
 
-        [DisplayName("La par melde seg på sammen")]
-        public bool AllowPartnerSignup { get; set; }
+        [DisplayName("Hjelpetekst")]
+        public string SignupHelp { get; set; }
 
         [DisplayName("Fører og følger")]
         public bool RoleSignup { get; set; }
+
+        [DisplayName("La par melde seg på sammen")]
+        public bool AllowPartnerSignup { get; set; }
     }
 }

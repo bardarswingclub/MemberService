@@ -115,6 +115,11 @@
                 <label class="form-check-label" asp-for="AllowPartnerSignup"></label>
                 <span asp-validation-for="AllowPartnerSignup" class="text-danger"></span>
             </div>
+            <div class="form-group row">
+                <label asp-for="SignupHelp"></label>
+                <textarea class="form-control" rows="3" asp-for="SignupHelp"></textarea>
+                <span class="form-text text-muted"><a href="https://www.markdownguide.org/basic-syntax/" target="_blank">Markdown</a>: **<b>bold</b>**, _<i>italics</i>_, [Link](https://bardarswingclub.no)</span>
+            </div>
         </div>
     </div>
 </div>

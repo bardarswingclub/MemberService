@@ -78,7 +78,8 @@ namespace MemberService.Pages.Event
                     SignupOpensAt = GetUtc(model.EnableSignupOpensAt, model.SignupOpensAtDate, model.SignupOpensAtTime),
                     SignupClosesAt = GetUtc(model.EnableSignupClosesAt, model.SignupClosesAtDate, model.SignupClosesAtTime),
                     AllowPartnerSignup = model.AllowPartnerSignup,
-                    RoleSignup = model.RoleSignup
+                    RoleSignup = model.RoleSignup,
+                    SignupHelp = model.SignupHelp
                 }
             };
 
@@ -201,6 +202,7 @@ namespace MemberService.Pages.Event
                 RequiresMembershipFee = model.SignupOptions.RequiresMembershipFee,
                 RequiresTrainingFee = model.SignupOptions.RequiresTrainingFee,
                 RequiresClassesFee = model.SignupOptions.RequiresClassesFee,
+                SignupHelp = model.SignupOptions.SignupHelp
             });
         }
 
@@ -233,6 +235,7 @@ namespace MemberService.Pages.Event
             entity.SignupOptions.SignupClosesAt = GetUtc(model.EnableSignupClosesAt, model.SignupClosesAtDate, model.SignupClosesAtTime);
             entity.SignupOptions.AllowPartnerSignup = model.AllowPartnerSignup;
             entity.SignupOptions.RoleSignup = model.RoleSignup;
+            entity.SignupOptions.SignupHelp = model.SignupHelp;
 
             await _database.SaveChangesAsync();
 

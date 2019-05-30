@@ -27,5 +27,7 @@ namespace MemberService.Data
         public bool AllowPartnerSignup { get; set; }
 
         public bool RoleSignup { get; set; }
+
+        public string SignupHelp { get; set; }
     }
 }
