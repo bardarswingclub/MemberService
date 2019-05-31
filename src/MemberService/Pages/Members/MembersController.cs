@@ -38,11 +38,12 @@ namespace MemberService.Pages.Members
                 .Include(u => u.Payments)
                 .AsNoTracking()
                 .Expressionify()
-                .Where(Filter(memberFilter, user => user.HasPayedMembershipThisYear()))
-                .Where(Filter(trainingFilter, user => user.HasPayedTrainingFeeThisSemester()))
-                .Where(Filter(classesFilter, user => user.HasPayedClassesFeeThisSemester()))
-                .Where(Filter(exemptTrainingFilter, user => user.ExemptFromTrainingFee))
-                .Where(Filter(exemptClassesFilter, user => user.ExemptFromClassesFee))
+                .Where(u => u.EmailConfirmed)
+                .Where(Filter(memberFilter, u => u.HasPayedMembershipThisYear()))
+                .Where(Filter(trainingFilter, u => u.HasPayedTrainingFeeThisSemester()))
+                .Where(Filter(classesFilter, u => u.HasPayedClassesFeeThisSemester()))
+                .Where(Filter(exemptTrainingFilter, u => u.ExemptFromTrainingFee))
+                .Where(Filter(exemptClassesFilter, u => u.ExemptFromClassesFee))
                 .OrderBy(u => u.FullName)
                 .ToListAsync();
 
