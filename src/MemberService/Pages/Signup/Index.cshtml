@@ -1,98 +1,44 @@
 @using MemberService.Pages.Signup
-@using Markdig
-@model SignupModel
+@model EventsModel
 
 @{
-    ViewData["Title"] = Model.Title;
+    ViewData["Title"] = "Arrangementer";
     Layout = "~/Pages/Shared/_CoverLayout.cshtml";
 }
 
-<form method="POST" class="card shadow">
-    <h3 class="card-header">
-        @ViewData["Title"]
-    </h3>
-    <div class="card-body">
-        <p class="lead">@Model.Description</p>
-
-        @if (Model.Options.RequiresClassesFee && !Model.User.HasPayedClassesFeeThisSemester())
-        {
-            <div class="alert alert-warning" role="alert">
-                For å delta på dette arrangementet må du ha betalt kursavgift. Du kan melde deg på nå, men hvis du får tildelt plass så må du betale kursavgiften for å godta plassen.
-            </div>
-        }
-        else if (Model.Options.RequiresTrainingFee && !Model.User.HasPayedTrainingFeeThisSemester())
-        {
-            <div class="alert alert-warning" role="alert">
-                For å delta på dette arrangementet må du ha betalt treningsavgift. Du kan melde deg på nå, men hvis du får tildelt plass så må du betale treningsavgiften for å godta plassen.
-            </div>
-        }
-        else if (Model.Options.RequiresMembershipFee && !Model.User.HasPayedMembershipThisYear())
-        {
-            <div class="alert alert-warning" role="alert">
-                For å delta på dette arrangementet må du ha betalt medlemsavgift for i år. Du kan melde deg på nå, men hvis du får tildelt plass så må du betale medlemsavgiften for å godta plassen.
-            </div>
-        }
-
-        @if (Model.User.HasPayedMembershipThisYear())
-        {
-            if (Model.Options.PriceForMembers > 0)
+@if (Model.OpenEvents.Any())
+{
+    <div class="card shadow mb-5">
+        <h3 class="card-header">
+            Åpne påmeldinger
+        </h3>
+        <div class="list-group list-group-flush">
+            @foreach (var signup in Model.OpenEvents)
             {
-                <div class="alert alert-info" role="alert">
-                    Det koster @Model.Options.PriceForMembers.FormatMoney() for medlemmer å delta på dette arrangementet. Du kan melde deg på nå og betale først når du har fått plass.
-                </div>
+                <a class="list-group-item list-group-item-action" asp-controller="Signup" asp-action="Event" asp-route-id="@signup.Id" asp-route-slug="@signup.Title.Slugify()">
+                    <h5 class="card-title">@signup.Title</h5>
+                    <p class="card-text">@signup.Description</p>
+                </a>
             }
-        }
-        else
-        {
-            if (Model.Options.PriceForNonMembers > 0)
-            {
-                <div class="alert alert-info" role="alert">
-                    Det koster kr @Model.Options.PriceForNonMembers for ikke-medlemmer å delta på dette arrangementet. Du kan melde deg på nå og betale først når du har fått plass.
-
-                    @if (Model.Options.PriceForMembers < Model.Options.PriceForMembers)
-                    {
-                        if (Model.Options.PriceForMembers == 0)
-                        {
-                            @: Dette arrangementet er gratis for medlemmer som har betalt medlemsavgiften i år.
-                        }
-                        else
-                        {
-                            @: Dette arrangementet koster bare kr @Model.Options.PriceForMembers for medlemmer som har betalt medlemsavgiften i år.
-                        }
-                    }
-                </div>
-            }
-        }
-
-        <p>@Html.Markdown(Model.Options.SignupHelp)</p>
-
-        @if (Model.Options.RoleSignup)
-        {
-            <div class="form-group mt-4">
-                <label asp-for="Input.Role"></label>
-                <select class="form-control" asp-for="Input.Role">
-                    <option value="@DanceRole.Lead">Fører</option>
-                    <option value="@DanceRole.Follow">Følger</option>
-                </select>
-                <small class="form-text text-muted">
-                    @Html.Markdown(Model.Options.RoleSignupHelp)
-                </small>
-                <span asp-validation-for="Input.Role" class="text-danger"></span>
-            </div>
-            @if (Model.Options.AllowPartnerSignup)
-            {
-                <div class="form-group mt-4">
-                    <label asp-for="Input.PartnerEmail"></label>
-                    <input type="text" class="form-control" asp-for="Input.PartnerEmail" placeholder="epost@eksempel.no">
-                    <small class="form-text text-muted">
-                        @Html.Markdown(Model.Options.AllowPartnerSignupHelp ?? "Fyll inn e-post til partner hvis dere er to som ønsker å gå kurs sammen. Begge to må melde seg på og skrive opp hverandres e-post.")
-                    </small>
-                    <span asp-validation-for="Input.PartnerEmail" class="text-danger"></span>
-                </div>
-            }
-        }
+        </div>
     </div>
-    <div class="card-footer">
-        <button type="submit" class="btn btn-success btn-block">Meld deg på</button>
+}
+
+@if (Model.FutureEvents.Any())
+{
+    <div class="card shadow">
+        <h3 class="card-header">
+            Kommende påmeldinger
+        </h3>
+        <div class="list-group list-group-flush">
+            @foreach (var signup in Model.FutureEvents)
+            {
+                <a class="list-group-item list-group-item-action" asp-controller="Signup" asp-action="Event" asp-route-id="@signup.Id" asp-route-slug="@signup.Title.Slugify()">
+                    <h5 class="card-title">@signup.Title</h5>
+                    <p class="card-text">@signup.Description</p>
+                    <small class="text-muted float-right">Åpner @signup.SignupOptions.SignupOpensAt.Value.ToOsloDate() klokken @signup.SignupOptions.SignupOpensAt.Value.ToOsloTime()</small>
+                </a>
+            }
+        </div>
     </div>
-</form>
+}

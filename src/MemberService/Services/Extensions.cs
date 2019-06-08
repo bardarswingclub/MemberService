@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace MemberService.Services
 {
@@ -48,5 +49,23 @@ namespace MemberService.Services
 
         public static IHtmlContent Markdown<T>(this IHtmlHelper<T> html, string value)
             => html.Raw(Markdig.Markdown.ToHtml(value));
+        public static string Slugify(this string phrase, int max = 45)
+        {
+            string str = phrase.RemoveAccent().ToLower();
+            // invalid chars
+            str = Regex.Replace(str, @"[^a-z0-9\s-]", "");
+            // convert multiple spaces into one space
+            str = Regex.Replace(str, @"\s+", " ").Trim();
+            // cut and trim
+            str = str.Substring(0, str.Length <= max ? str.Length : max).Trim();
+            str = Regex.Replace(str, @"\s", "-"); // hyphens
+            return str;
+        }
+
+        public static string RemoveAccent(this string txt)
+        {
+            byte[] bytes = System.Text.Encoding.GetEncoding("Cyrillic").GetBytes(txt);
+            return System.Text.Encoding.ASCII.GetString(bytes);
+        }
     }
 }

@@ -29,7 +29,35 @@ namespace MemberService.Pages.Signup
             _paymentService = paymentService;
         }
 
-        public async Task<IActionResult> Index(Guid id)
+        [AllowAnonymous]
+        public async Task<IActionResult> Index()
+        {
+            var openEvents = await _database.Events
+                .Include(e => e.SignupOptions)
+                .AsNoTracking()
+                .Expressionify()
+                .Where(e => e.Archived == false)
+                .Where(e => e.SignupOptions.IsOpen())
+                .ToListAsync();
+
+            var futureEvents = await _database.Events
+                .Include(e => e.SignupOptions)
+                .AsNoTracking()
+                .Expressionify()
+                .Where(e => e.Archived == false)
+                .Where(e => !e.SignupOptions.HasOpened() && !e.SignupOptions.HasClosed())
+                .OrderBy(e => e.SignupOptions.SignupOpensAt)
+                .ToListAsync();
+
+            return View(new EventsModel
+            {
+                OpenEvents = openEvents,
+                FutureEvents = futureEvents
+            });
+        }
+
+        [Route("Signup/Event/{id}/{slug?}")]
+        public async Task<IActionResult> Event(Guid id)
         {
             var model = await _database.Events
                 .Include(e => e.SignupOptions)
@@ -109,7 +137,7 @@ namespace MemberService.Pages.Signup
 
             if (model.Options.IsOpen())
             {
-                return View(model);
+                return View("Signup", model);
             }
 
             if (model.Options.HasClosed())
@@ -125,7 +153,7 @@ namespace MemberService.Pages.Signup
         {
             if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index), new { id });
+                return RedirectToAction(nameof(Event), new { id });
             }
 
             var user = await _database.Users
@@ -175,7 +203,7 @@ namespace MemberService.Pages.Signup
                 await _database.SaveChangesAsync();
             }
 
-            return RedirectToAction(nameof(Index), new { id });
+            return RedirectToAction(nameof(Event), new { id });
         }
 
         [HttpGet]
@@ -196,7 +224,7 @@ namespace MemberService.Pages.Signup
                 }
             }
 
-            return RedirectToAction(nameof(Index), new { id });
+            return RedirectToAction(nameof(Event), new { id });
         }
 
         private async Task<string> CreatePayment(SignupModel model, decimal amount)

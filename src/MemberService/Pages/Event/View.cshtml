@@ -6,7 +6,7 @@
 }
 
 <h2>
-    <a asp-controller="Signup" asp-action="Index" asp-route-id="@Model.Id">@ViewData["Title"]</a>
+    <a asp-controller="Signup" asp-action="Event" asp-route-id="@Model.Id" asp-route-slug="@Model.Title.Slugify()">@ViewData["Title"]</a>
     <a asp-controller="Event" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary float-right">Rediger</a>
 </h2>
 
@@ -67,7 +67,10 @@
                 <li class="nav-item">
                     <a class="nav-link text-dark @(signups.Active ? "active" : "")" id="tab-@signups.Key" data-toggle="tab" href="#@signups.Key" role="tab" aria-controls="@signups.Key" aria-selected="@signups.Active">
                         @signups.Display
-                        <small class="text-muted">(@signups.Signups.Count)</small>
+                        @if (signups.Signups.Any())
+                        {
+                                <span class="ml-1 badge badge-pill badge-secondary">@signups.Signups.Count</span>
+                        }
                     </a>
                 </li>
             }
