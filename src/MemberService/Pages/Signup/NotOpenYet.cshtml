@@ -15,6 +15,8 @@
     <div class="card-body">
         <p class="lead">@Model.Description</p>
 
+        <p>@Html.Markdown(Model.Options.SignupHelp)</p>
+
         <div class="alert alert-primary">
             Påmeldinge åpner @date klokken @time
         </div>

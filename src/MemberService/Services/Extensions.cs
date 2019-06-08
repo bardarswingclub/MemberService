@@ -48,7 +48,7 @@ namespace MemberService.Services
             => Guid.TryParse(value, out var result) ? result : default;
 
         public static IHtmlContent Markdown<T>(this IHtmlHelper<T> html, string value)
-            => html.Raw(Markdig.Markdown.ToHtml(value));
+            => html.Raw(Markdig.Markdown.ToHtml(value ?? string.Empty));
         public static string Slugify(this string phrase, int max = 45)
         {
             string str = phrase.RemoveAccent().ToLower();
