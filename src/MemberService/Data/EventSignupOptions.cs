@@ -24,10 +24,14 @@ namespace MemberService.Data
 
         public decimal PriceForNonMembers { get; set; }
 
-        public bool AllowPartnerSignup { get; set; }
+        public string SignupHelp { get; set; }
 
         public bool RoleSignup { get; set; }
 
-        public string SignupHelp { get; set; }
+        public string RoleSignupHelp { get; set; }
+
+        public bool AllowPartnerSignup { get; set; }
+
+        public string AllowPartnerSignupHelp { get; set; }
     }
 }

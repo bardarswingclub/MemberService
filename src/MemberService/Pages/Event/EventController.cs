@@ -77,9 +77,11 @@ namespace MemberService.Pages.Event
                     PriceForNonMembers = model.PriceForNonMembers,
                     SignupOpensAt = GetUtc(model.EnableSignupOpensAt, model.SignupOpensAtDate, model.SignupOpensAtTime),
                     SignupClosesAt = GetUtc(model.EnableSignupClosesAt, model.SignupClosesAtDate, model.SignupClosesAtTime),
-                    AllowPartnerSignup = model.AllowPartnerSignup,
+                    SignupHelp = model.SignupHelp,
                     RoleSignup = model.RoleSignup,
-                    SignupHelp = model.SignupHelp
+                    RoleSignupHelp = model.RoleSignupHelp,
+                    AllowPartnerSignup = model.AllowPartnerSignup,
+                    AllowPartnerSignupHelp = model.AllowPartnerSignupHelp
                 }
             };
 
@@ -189,8 +191,6 @@ namespace MemberService.Pages.Event
                 Id = model.Id,
                 Title = model.Title,
                 Description = model.Description,
-                RoleSignup = model.SignupOptions.RoleSignup,
-                AllowPartnerSignup = model.SignupOptions.AllowPartnerSignup,
                 EnableSignupOpensAt = model.SignupOptions.SignupOpensAt.HasValue,
                 SignupOpensAtDate = signupOpensAtDate,
                 SignupOpensAtTime = signupOpensAtTime,
@@ -202,7 +202,11 @@ namespace MemberService.Pages.Event
                 RequiresMembershipFee = model.SignupOptions.RequiresMembershipFee,
                 RequiresTrainingFee = model.SignupOptions.RequiresTrainingFee,
                 RequiresClassesFee = model.SignupOptions.RequiresClassesFee,
-                SignupHelp = model.SignupOptions.SignupHelp
+                SignupHelp = model.SignupOptions.SignupHelp,
+                RoleSignup = model.SignupOptions.RoleSignup,
+                RoleSignupHelp = model.SignupOptions.RoleSignupHelp,
+                AllowPartnerSignup = model.SignupOptions.AllowPartnerSignup,
+                AllowPartnerSignupHelp = model.SignupOptions.AllowPartnerSignupHelp
             });
         }
 
@@ -233,9 +237,11 @@ namespace MemberService.Pages.Event
             entity.SignupOptions.PriceForNonMembers = model.PriceForNonMembers;
             entity.SignupOptions.SignupOpensAt = GetUtc(model.EnableSignupOpensAt, model.SignupOpensAtDate, model.SignupOpensAtTime);
             entity.SignupOptions.SignupClosesAt = GetUtc(model.EnableSignupClosesAt, model.SignupClosesAtDate, model.SignupClosesAtTime);
-            entity.SignupOptions.AllowPartnerSignup = model.AllowPartnerSignup;
-            entity.SignupOptions.RoleSignup = model.RoleSignup;
             entity.SignupOptions.SignupHelp = model.SignupHelp;
+            entity.SignupOptions.RoleSignup = model.RoleSignup;
+            entity.SignupOptions.RoleSignupHelp = model.RoleSignupHelp;
+            entity.SignupOptions.AllowPartnerSignup = model.AllowPartnerSignup;
+            entity.SignupOptions.AllowPartnerSignupHelp = model.AllowPartnerSignupHelp;
 
             await _database.SaveChangesAsync();
 

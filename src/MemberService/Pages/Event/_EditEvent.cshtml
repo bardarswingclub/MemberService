@@ -54,24 +54,26 @@
     <div class="card mb-2">
         <div class="card-header">
             <div class="form-check">
-                <input class="form-check-input @(Model.EnableSignupOpensAt ? "" : "collapsed")" type="checkbox" asp-for="EnableSignupOpensAt" data-toggle="collapse" data-target=".opens-at" aria-expanded="@(Model.EnableSignupOpensAt ? "true" : "false")">
+                <input class="form-check-input @(Model.EnableSignupOpensAt ? "" : "collapsed")" type="checkbox" asp-for="EnableSignupOpensAt" data-toggle="collapse" data-target="#opens-at" aria-expanded="@(Model.EnableSignupOpensAt ? "true" : "false")">
                 <label class="form-check-label" asp-for="EnableSignupOpensAt">
                     Påmelding åpner
                 </label>
             </div>
         </div>
-        <div class="card-body opens-at collapse @(Model.EnableSignupOpensAt ? "show" : "")">
+        <div id="opens-at" class="card-body collapse @(Model.EnableSignupOpensAt ? "show" : "")">
             <div class="form-group row">
                 <label asp-for="SignupOpensAtDate" class="col-6 col-form-label">Dato</label>
                 <div class="col-6">
                     <input type="date" class="form-control" asp-for="SignupOpensAtDate" placeholder="@DateTime.UtcNow.ToString("yyy-MM-dd")">
                 </div>
+                <span asp-validation-for="SignupOpensAtDate" class="text-danger col-12"></span>
             </div>
             <div class="form-group row">
                 <label for="SignupOpensAtTime" class="col-6 col-form-label">Tid</label>
                 <div class="col-6">
                     <input type="text" pattern="\d\d:\d\d" class="form-control" asp-for="SignupOpensAtTime" placeholder="f.eks 00:00">
                 </div>
+                <span asp-validation-for="SignupOpensAtTime" class="text-danger col-12"></span>
             </div>
         </div>
     </div>
@@ -79,47 +81,58 @@
     <div class="card mb-2">
         <div class="card-header">
             <div class="form-check">
-                <input class="form-check-input @(Model.EnableSignupClosesAt ? "" : "collapsed")" type="checkbox" asp-for="EnableSignupClosesAt" data-toggle="collapse" data-target=".closes-at" aria-expanded="@(Model.EnableSignupClosesAt ? "true" : "false")">
+                <input class="form-check-input @(Model.EnableSignupClosesAt ? "" : "collapsed")" type="checkbox" asp-for="EnableSignupClosesAt" data-toggle="collapse" data-target="#closes-at" aria-expanded="@(Model.EnableSignupClosesAt ? "true" : "false")">
                 <label class="form-check-label" asp-for="EnableSignupClosesAt">
                     Påmelding stenger
                 </label>
             </div>
         </div>
-        <div class="card-body closes-at collapse @(Model.EnableSignupClosesAt ? "show" : "")">
+        <div id="closes-at" class="card-body collapse @(Model.EnableSignupClosesAt ? "show" : "")">
             <div class="form-group row">
                 <label asp-for="SignupClosesAtDate" class="col-6 col-form-label">Dato</label>
                 <div class="col-6">
                     <input type="date" class="form-control" asp-for="SignupClosesAtDate" placeholder="@DateTime.UtcNow.ToString("yyy-MM-dd")">
                 </div>
+                <span asp-validation-for="SignupClosesAtDate" class="text-danger col-12"></span>
             </div>
             <div class="form-group row">
                 <label for="SignupClosesAtTime" class="col-6 col-form-label">Tid</label>
                 <div class="col-6">
                     <input type="text" pattern="\d\d:\d\d" class="form-control" asp-for="SignupClosesAtTime" placeholder="f.eks 00:00">
                 </div>
+                <span asp-validation-for="SignupClosesAtTime" class="text-danger col-12"></span>
             </div>
         </div>
     </div>
     <div class="card mb-2">
         <div class="card-header">
-            Annet
+            Påmeldingsskjema
         </div>
         <div class="card-body">
+            <div class="form-group">
+                <label asp-for="SignupHelp"></label>
+                <textarea class="form-control" rows="3" asp-for="SignupHelp"></textarea>
+            </div>
             <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" asp-for="RoleSignup">
+                <input type="checkbox" class="form-check-input" asp-for="RoleSignup" data-toggle="collapse" data-target="#role-signup-help" aria-expanded="@(Model.RoleSignup ? "true" : "false")">
                 <label class="form-check-label" asp-for="RoleSignup"></label>
                 <span asp-validation-for="RoleSignup" class="text-danger"></span>
             </div>
+            <div id="role-signup-help" class="form-group collapse @(Model.RoleSignup ? "show" : "")">
+                <input type="text" class="form-control" asp-for="RoleSignupHelp">
+                <small class="form-text text-muted">Hjelpetekst for valg av rolle</small>
+            </div>
             <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" asp-for="AllowPartnerSignup">
+                <input type="checkbox" class="form-check-input" asp-for="AllowPartnerSignup" data-toggle="collapse" data-target="#allow-partner-signup-help" aria-expanded="@(Model.AllowPartnerSignup ? "true" : "false")">
                 <label class="form-check-label" asp-for="AllowPartnerSignup"></label>
                 <span asp-validation-for="AllowPartnerSignup" class="text-danger"></span>
             </div>
-            <div class="form-group row">
-                <label asp-for="SignupHelp"></label>
-                <textarea class="form-control" rows="3" asp-for="SignupHelp"></textarea>
-                <span class="form-text text-muted"><a href="https://www.markdownguide.org/basic-syntax/" target="_blank">Markdown</a>: **<b>bold</b>**, _<i>italics</i>_, [Link](https://bardarswingclub.no)</span>
+            <div id="allow-partner-signup-help" class="form-group collapse @(Model.AllowPartnerSignup ? "show" : "")">
+                <input type="text" class="form-control" asp-for="AllowPartnerSignupHelp">
+                <small class="form-text text-muted">Hjelpetekst for partner påmelding</small>
             </div>
+            <hr />
+            <small class="text-muted">Du kan bruke <a href="https://www.markdownguide.org/basic-syntax/" target="_blank">Markdown</a>, f.eks <code>**<b>bold</b>**</code>, <code>_<i>italics</i>_</code> og <code>[link](https://bardarswingclub.no)</code></small>
         </div>
     </div>
 </div>

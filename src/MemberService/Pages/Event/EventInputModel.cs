@@ -52,7 +52,13 @@ namespace MemberService.Pages.Event
         [DisplayName("Fører og følger")]
         public bool RoleSignup { get; set; }
 
+        [DisplayName("Hjelpetekst")]
+        public string RoleSignupHelp { get; set; }
+
         [DisplayName("La par melde seg på sammen")]
         public bool AllowPartnerSignup { get; set; }
+
+        [DisplayName("Hjelpetekst")]
+        public string AllowPartnerSignupHelp { get; set; }
     }
 }

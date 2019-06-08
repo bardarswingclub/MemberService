@@ -1,4 +1,6 @@
-﻿using NodaTime;
+﻿using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using NodaTime;
 using System;
 using System.ComponentModel;
 using System.Globalization;
@@ -43,5 +45,8 @@ namespace MemberService.Services
 
         public static Guid? ToGuid(this string value)
             => Guid.TryParse(value, out var result) ? result : default;
+
+        public static IHtmlContent Markdown<T>(this IHtmlHelper<T> html, string value)
+            => html.Raw(Markdig.Markdown.ToHtml(value));
     }
 }
