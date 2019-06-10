@@ -56,6 +56,7 @@ namespace MemberService.Pages.Signup
             });
         }
 
+        [HttpGet]
         [Route("Signup/Event/{id}/{slug?}")]
         public async Task<IActionResult> Event(Guid id)
         {
@@ -149,7 +150,8 @@ namespace MemberService.Pages.Signup
         }
 
         [HttpPost]
-        public async Task<IActionResult> Index(Guid id, [FromForm] SignupInputModel input)
+        [Route("Signup/Event/{id}/{slug?}")]
+        public async Task<IActionResult> Event(Guid id, [FromForm] SignupInputModel input)
         {
             if (!ModelState.IsValid)
             {
