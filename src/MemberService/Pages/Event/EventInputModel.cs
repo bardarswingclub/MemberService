@@ -60,5 +60,8 @@ namespace MemberService.Pages.Event
 
         [DisplayName("Hjelpetekst")]
         public string AllowPartnerSignupHelp { get; set; }
+
+        [DisplayName("Automatisk tildelte plasser")]
+        public int AutoAcceptedSignups { get; set; }
     }
 }

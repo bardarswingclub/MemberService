@@ -158,9 +158,31 @@ namespace MemberService.Pages.Signup
                 return RedirectToAction(nameof(Event), new { id });
             }
 
+            var ev = await _database.Events
+                .Include(e => e.Signups)
+                .Include(e => e.SignupOptions)
+                .SingleOrDefaultAsync(e => e.Id == id);
+
+            if(ev == null)
+            {
+                return NotFound();
+            }
+
+            if (!ev.SignupOptions.IsOpen())
+            {
+                return RedirectToAction(nameof(Event), new { id });
+            }
+
             var user = await _database.Users
                 .Include(u => u.EventSignups)
                 .SingleUser(_userManager.GetUserId(User));
+
+            if(user.EventSignups.FirstOrDefault(e => e.EventId == id) != null)
+            {
+                return RedirectToAction(nameof(Event), new { id });
+            }
+
+            var autoAccept = ev.SignupOptions.AutoAcceptedSignups > ev.Signups.Count(s => s.Role == input.Role);
 
             user.EventSignups.Add(new EventSignup
             {
@@ -168,13 +190,20 @@ namespace MemberService.Pages.Signup
                 Priority = 1,
                 Role = input.Role,
                 PartnerEmail = input.PartnerEmail,
-                Status = Status.Pending,
+                Status = autoAccept ? Status.Approved : Status.Pending,
                 SignedUpAt = DateTime.UtcNow
             });
 
             await _database.SaveChangesAsync();
 
-            return RedirectToAction(nameof(ThankYou), new { id });
+            if (autoAccept)
+            {
+                return RedirectToAction(nameof(Event), new { id });
+            }
+            else
+            {
+                return RedirectToAction(nameof(ThankYou), new { id });
+            }
         }
 
         [HttpGet]

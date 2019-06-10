@@ -33,5 +33,7 @@ namespace MemberService.Data
         public bool AllowPartnerSignup { get; set; }
 
         public string AllowPartnerSignupHelp { get; set; }
+
+        public int AutoAcceptedSignups { get; set; }
     }
 }

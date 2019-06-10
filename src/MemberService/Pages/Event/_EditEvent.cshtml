@@ -6,14 +6,63 @@
     <input type="text" class="form-control" asp-for="Title">
     <span asp-validation-for="Title" class="text-danger"></span>
 </div>
+
 <div class="form-group col-12">
     <label asp-for="Description"></label>
     <input type="text" class="form-control" asp-for="Description">
     <span asp-validation-for="Description" class="text-danger"></span>
     <spall class="form-text text-muted">Beskrivelsen burde inneholde dato og sted for arrangementet</spall>
 </div>
+
 <div class="col-md-6">
-    <div class="card">
+    <div class="card mb-2">
+        <div class="card-header">
+            Påmeldingsskjema
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label asp-for="SignupHelp"></label>
+                <textarea class="form-control" rows="3" asp-for="SignupHelp"></textarea>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" asp-for="RoleSignup" data-toggle="collapse" data-target="#role-signup-help" aria-expanded="@(Model.RoleSignup ? "true" : "false")">
+                <label class="form-check-label" asp-for="RoleSignup"></label>
+                <span asp-validation-for="RoleSignup" class="text-danger"></span>
+            </div>
+            <div id="role-signup-help" class="form-group collapse @(Model.RoleSignup ? "show" : "")">
+                <input type="text" class="form-control" asp-for="RoleSignupHelp">
+                <small class="form-text text-muted">Hjelpetekst for valg av rolle</small>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" asp-for="AllowPartnerSignup" data-toggle="collapse" data-target="#allow-partner-signup-help" aria-expanded="@(Model.AllowPartnerSignup ? "true" : "false")">
+                <label class="form-check-label" asp-for="AllowPartnerSignup"></label>
+                <span asp-validation-for="AllowPartnerSignup" class="text-danger"></span>
+            </div>
+            <div id="allow-partner-signup-help" class="form-group collapse @(Model.AllowPartnerSignup ? "show" : "")">
+                <input type="text" class="form-control" asp-for="AllowPartnerSignupHelp">
+                <small class="form-text text-muted">Hjelpetekst for partner påmelding</small>
+            </div>
+            <hr />
+            <small class="text-muted">Du kan bruke <a href="https://www.markdownguide.org/basic-syntax/" target="_blank">Markdown</a>, f.eks <code>**<b>bold</b>**</code>, <code>_<i>italics</i>_</code> og <code>[link](https://bardarswingclub.no)</code></small>
+        </div>
+    </div>
+
+    <div class="card mb-2">
+        <div class="card-header">
+            Annet
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label asp-for="AutoAcceptedSignups"></label>
+                <input class="form-control" asp-for="AutoAcceptedSignups">
+                <small class="form-text text-muted">Gi plass til de første n som melder seg på. Ved påmelding med roller så gjelder dette per rolle</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-6">
+    <div class="card mb-2">
         <div class="card-header">
             Betaling
         </div>
@@ -49,8 +98,7 @@
             </div>
         </div>
     </div>
-</div>
-<div class="col-md-6">
+
     <div class="card mb-2">
         <div class="card-header">
             <div class="form-check">
@@ -102,37 +150,6 @@
                 </div>
                 <span asp-validation-for="SignupClosesAtTime" class="text-danger col-12"></span>
             </div>
-        </div>
-    </div>
-    <div class="card mb-2">
-        <div class="card-header">
-            Påmeldingsskjema
-        </div>
-        <div class="card-body">
-            <div class="form-group">
-                <label asp-for="SignupHelp"></label>
-                <textarea class="form-control" rows="3" asp-for="SignupHelp"></textarea>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" asp-for="RoleSignup" data-toggle="collapse" data-target="#role-signup-help" aria-expanded="@(Model.RoleSignup ? "true" : "false")">
-                <label class="form-check-label" asp-for="RoleSignup"></label>
-                <span asp-validation-for="RoleSignup" class="text-danger"></span>
-            </div>
-            <div id="role-signup-help" class="form-group collapse @(Model.RoleSignup ? "show" : "")">
-                <input type="text" class="form-control" asp-for="RoleSignupHelp">
-                <small class="form-text text-muted">Hjelpetekst for valg av rolle</small>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" asp-for="AllowPartnerSignup" data-toggle="collapse" data-target="#allow-partner-signup-help" aria-expanded="@(Model.AllowPartnerSignup ? "true" : "false")">
-                <label class="form-check-label" asp-for="AllowPartnerSignup"></label>
-                <span asp-validation-for="AllowPartnerSignup" class="text-danger"></span>
-            </div>
-            <div id="allow-partner-signup-help" class="form-group collapse @(Model.AllowPartnerSignup ? "show" : "")">
-                <input type="text" class="form-control" asp-for="AllowPartnerSignupHelp">
-                <small class="form-text text-muted">Hjelpetekst for partner påmelding</small>
-            </div>
-            <hr />
-            <small class="text-muted">Du kan bruke <a href="https://www.markdownguide.org/basic-syntax/" target="_blank">Markdown</a>, f.eks <code>**<b>bold</b>**</code>, <code>_<i>italics</i>_</code> og <code>[link](https://bardarswingclub.no)</code></small>
         </div>
     </div>
 </div>

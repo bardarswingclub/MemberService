@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Security.Policy;
 using System.Threading.Tasks;
-using Clave.Expressionify;
 using Clave.ExtensionMethods;
 using MemberService.Data;
 using MemberService.Services;
@@ -13,7 +10,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using NodaTime;
 using NodaTime.Text;
 
 namespace MemberService.Pages.Event
@@ -81,7 +77,8 @@ namespace MemberService.Pages.Event
                     RoleSignup = model.RoleSignup,
                     RoleSignupHelp = model.RoleSignupHelp,
                     AllowPartnerSignup = model.AllowPartnerSignup,
-                    AllowPartnerSignupHelp = model.AllowPartnerSignupHelp
+                    AllowPartnerSignupHelp = model.AllowPartnerSignupHelp,
+                    AutoAcceptedSignups = model.AutoAcceptedSignups
                 }
             };
 
@@ -206,7 +203,8 @@ namespace MemberService.Pages.Event
                 RoleSignup = model.SignupOptions.RoleSignup,
                 RoleSignupHelp = model.SignupOptions.RoleSignupHelp,
                 AllowPartnerSignup = model.SignupOptions.AllowPartnerSignup,
-                AllowPartnerSignupHelp = model.SignupOptions.AllowPartnerSignupHelp
+                AllowPartnerSignupHelp = model.SignupOptions.AllowPartnerSignupHelp,
+                AutoAcceptedSignups = model.SignupOptions.AutoAcceptedSignups
             });
         }
 
@@ -242,6 +240,7 @@ namespace MemberService.Pages.Event
             entity.SignupOptions.RoleSignupHelp = model.RoleSignupHelp;
             entity.SignupOptions.AllowPartnerSignup = model.AllowPartnerSignup;
             entity.SignupOptions.AllowPartnerSignupHelp = model.AllowPartnerSignupHelp;
+            entity.SignupOptions.AutoAcceptedSignups = model.AutoAcceptedSignups;
 
             await _database.SaveChangesAsync();
 
