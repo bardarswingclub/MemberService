@@ -49,6 +49,40 @@
                 <h3 class="alert-heading">Du er påmeldt</h3>
                 <p>Du vil få beskjed når vi har tildelt plassene.</p>
             </div>
+            @if (Model.Options.RoleSignup)
+            {
+                <p>
+                    Du er påmeldt som <strong>@Role(Model.UserEventSignup.Role)</strong>
+                    @if (Model.Options.AllowPartnerSignup)
+                    {
+                        if (string.IsNullOrWhiteSpace(Model.UserEventSignup.PartnerEmail))
+                        {
+                            @:uten partner.
+                        }
+                        else
+                        {
+                            @:sammen med <strong>@Model.UserEventSignup.PartnerEmail</strong>.
+                        }
+                    }
+                </p>
+
+                <a asp-controller="Signup" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-secondary">Rediger påmelding</a>
+            }
         }
     </div>
 </div>
+
+@functions{
+    string Role(DanceRole role)
+    {
+        switch (role)
+        {
+            case DanceRole.Follow:
+                return "følger";
+            case DanceRole.Lead:
+                return "fører";
+            default:
+                return "ingenting";
+        }
+    }
+}

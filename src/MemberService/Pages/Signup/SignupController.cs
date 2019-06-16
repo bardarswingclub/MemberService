@@ -207,6 +207,75 @@ namespace MemberService.Pages.Signup
         }
 
         [HttpGet]
+        public async Task<IActionResult> Edit(Guid id)
+        {
+            var model = await _database.Events
+                .Include(e => e.SignupOptions)
+                .AsNoTracking()
+                .Expressionify()
+                .Select(e => SignupModel.Create(e))
+                .SingleOrDefaultAsync(e => e.Id == id);
+
+            if (model == null)
+            {
+                return NotFound();
+            }
+
+            model.User = await _database.Users
+                .Include(u => u.Payments)
+                .Include(u => u.EventSignups)
+                .AsNoTracking()
+                .SingleUser(_userManager.GetUserId(User));
+
+            if (model.User.EventSignups.Where(CanEdit).FirstOrDefault(e => e.EventId == id) is EventSignup eventSignup)
+            {
+                model.UserEventSignup = eventSignup;
+                model.Input = new SignupInputModel
+                {
+                    Role = eventSignup.Role,
+                    PartnerEmail = eventSignup.PartnerEmail
+                };
+
+                return View("Edit", model);
+            }
+
+            return RedirectToAction(nameof(Event), new { id, slug = model.Title.Slugify() });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(Guid id, [FromForm] SignupInputModel input)
+        {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Edit), new { id });
+            }
+
+            var ev = await _database.Events
+                .Include(e => e.Signups)
+                .Include(e => e.SignupOptions)
+                .SingleOrDefaultAsync(e => e.Id == id);
+
+            if (ev == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _database.Users
+                .Include(u => u.EventSignups)
+                .SingleUser(_userManager.GetUserId(User));
+
+            if (user.EventSignups.Where(CanEdit).FirstOrDefault(e => e.EventId == id) is EventSignup eventSignup)
+            {
+                eventSignup.Role = input.Role;
+                eventSignup.PartnerEmail = input.PartnerEmail;
+
+                await _database.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Event), new { id });
+        }
+
+        [HttpGet]
         public async Task<IActionResult> ThankYou(Guid id)
         {
             var model = await _database.Events
@@ -293,5 +362,7 @@ namespace MemberService.Pages.Signup
 
             return sessionId;
         }
+
+        private static bool CanEdit(EventSignup e) => e.Status == Status.Pending || e.Status == Status.Recommended;
     }
 }
