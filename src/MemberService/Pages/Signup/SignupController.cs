@@ -266,7 +266,7 @@ namespace MemberService.Pages.Signup
                 model.Title,
                 model.Description,
                 amount,
-                Url.Action(nameof(Success), "Signup", new { id = model.Id }, Request.Scheme, Request.Host.Value),
+                Url.ActionLink(nameof(Success), "Signup", new { id = model.Id }),
                 Request.GetDisplayUrl(),
                 eventSignupId: model.UserEventSignup.Id);
 
@@ -283,7 +283,7 @@ namespace MemberService.Pages.Signup
                 fee.Description,
                 fee.Description,
                 fee.Amount,
-                Url.Action(nameof(Success), "Signup", new { id = model.Id }, Request.Scheme, Request.Host.Value),
+                Url.ActionLink(nameof(Success), "Signup", new { id = model.Id }),
                 Request.GetDisplayUrl(),
                 fee.IncludesMembership,
                 fee.IncludesTraining,

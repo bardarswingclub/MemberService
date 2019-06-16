@@ -12,6 +12,7 @@ using MemberService.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using System.ComponentModel;
 using System.Web;
+using MemberService.Services;
 
 namespace MemberService.Areas.Identity.Pages.Account
 {
@@ -123,11 +124,14 @@ namespace MemberService.Areas.Identity.Pages.Account
         {
             var token = await _userManager.GenerateUserTokenAsync(user, "LongToken", "passwordless-auth");
 
-            var url = Url.Page(
+            var url = Url.PageLink(
                 "/Account/LoginCallback",
-                pageHandler: null,
-                values: new { userId = user.Id, token, returnUrl = Input.ReturnUrl },
-                protocol: Request.Scheme);
+                new
+                {
+                    userId = user.Id,
+                    token,
+                    returnUrl = Input.ReturnUrl
+                });
 
             return HttpUtility.HtmlAttributeEncode(url);
         }

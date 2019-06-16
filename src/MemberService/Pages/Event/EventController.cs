@@ -372,15 +372,13 @@ namespace MemberService.Pages.Event
             }
         }
 
-        private string EventLink(Data.Event e) => HttpUtility.HtmlAttributeEncode(Url.Action(
+        private string EventLink(Data.Event e) => HttpUtility.HtmlAttributeEncode(Url.ActionLink(
             nameof(SignupController.Event),
             "Signup",
             new
             {
                 id = e.Id,
                 slug = e.Title.Slugify()
-            },
-            Request.Scheme,
-            Request.Host.Value));
+            }));
     }
 }

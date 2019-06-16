@@ -62,7 +62,7 @@ namespace MemberService.Pages.Pay
                 title: title,
                 description: description,
                 amount: amount,
-                successUrl:  Url.Action(nameof(Success), "Pay", new { title, description }, Request.Scheme, Request.Host.Value),
+                successUrl:  Url.ActionLink(nameof(Success), "Pay", new { title, description }),
                 cancelUrl: Request.GetDisplayUrl());
 
             TempData["StripeSessionId"] = sessionId;

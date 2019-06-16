@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using NodaTime;
 using System;
@@ -64,8 +65,24 @@ namespace MemberService.Services
 
         public static string RemoveAccent(this string txt)
         {
-            byte[] bytes = System.Text.Encoding.GetEncoding("Cyrillic").GetBytes(txt);
+            var bytes = System.Text.Encoding.GetEncoding("Cyrillic").GetBytes(txt);
             return System.Text.Encoding.ASCII.GetString(bytes);
         }
+
+        public static string ActionLink(this IUrlHelper url, string action, string controller, object values)
+            => url.Action(
+            action,
+            controller,
+            values,
+            url.ActionContext.HttpContext.Request.Scheme,
+            url.ActionContext.HttpContext.Request.Host.Value);
+
+        public static string PageLink(this IUrlHelper url, string pageName, object values)
+            => url.Page(
+            pageName,
+            null,
+            values,
+            url.ActionContext.HttpContext.Request.Scheme,
+            url.ActionContext.HttpContext.Request.Host.Value);
     }
 }
