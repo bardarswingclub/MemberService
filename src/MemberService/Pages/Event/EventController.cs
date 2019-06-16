@@ -2,8 +2,10 @@
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using Clave.ExtensionMethods;
 using MemberService.Data;
+using MemberService.Pages.Signup;
 using MemberService.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -332,7 +334,7 @@ namespace MemberService.Pages.Event
                         </p>
 
                         <p>
-                            Du må trykke <a href='{Url.Action("Signup", "Signup", new { id = model.EventId })}'>her for å bekrefte at du ønsker plassen</a>.
+                            Du må trykke <a href='{EventLink(model.Event)}'>her for å bekrefte at du ønsker plassen</a>.
                             Hvis du ikke gjør det kan plassen din bli gitt til noen andre.
                         </p>
 
@@ -342,12 +344,12 @@ namespace MemberService.Pages.Event
                     return $@"<h2>Hei {model.User.FullName}</h2>
 
                         <p>
-                            Du har på ventelisten til {model.Event.Title}.
+                            Du er på ventelisten til {model.Event.Title}.
                         </p>
 
                         <p>
                             Det er mange som ønsker å delta på {model.Event.Title} og akkurat nå er det ikke plass til alle, så du er på ventelisten.
-                            Du vil få beskjed om det blir ledig plass til deg eller om det blir fullt. <a href='{Url.Action("Signup", "Signup", new { id = model.EventId })}'>Her kan du se påmeldingsstatusen din</a>.
+                            Du vil få beskjed om det blir ledig plass til deg eller om det blir fullt. <a href='{EventLink(model.Event)}'>Her kan du se påmeldingsstatusen din</a>.
                         </p>
 
                         <i>Hilsen</i><br>
@@ -369,5 +371,16 @@ namespace MemberService.Pages.Event
                     throw new Exception($"Unknown status {status}");
             }
         }
+
+        private string EventLink(Data.Event e) => HttpUtility.HtmlAttributeEncode(Url.Action(
+            nameof(SignupController.Event),
+            "Signup",
+            new
+            {
+                id = e.Id,
+                slug = e.Title.Slugify()
+            },
+            Request.Scheme,
+            Request.Host.Value));
     }
 }

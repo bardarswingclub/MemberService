@@ -10,8 +10,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using MemberService.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using System.Text.Encodings.Web;
 using System.ComponentModel;
+using System.Web;
 
 namespace MemberService.Areas.Identity.Pages.Account
 {
@@ -129,7 +129,7 @@ namespace MemberService.Areas.Identity.Pages.Account
                 values: new { userId = user.Id, token, returnUrl = Input.ReturnUrl },
                 protocol: Request.Scheme);
 
-            return HtmlEncoder.Default.Encode(url);
+            return HttpUtility.HtmlAttributeEncode(url);
         }
 
         private async Task<MemberUser> GetOrCreateUser()
