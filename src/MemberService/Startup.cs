@@ -113,6 +113,9 @@ namespace MemberService
                 app.UseHsts();
             }
 
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+
             var supportedCultures = new[]
             {
                 new CultureInfo("nb-NO")
@@ -128,9 +131,6 @@ namespace MemberService
             });
 
             app.UseStatusCodePagesWithReExecute("/Home/StatusCode/{0}");
-
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
 
             app.UseAuthentication();
 
