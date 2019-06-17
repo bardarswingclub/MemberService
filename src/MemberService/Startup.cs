@@ -9,7 +9,6 @@ using MemberService.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Runtime.InteropServices;
-using Stripe;
 using MemberService.Configs;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using MemberService.Auth;
@@ -18,7 +17,8 @@ using MemberService.Auth.Development;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using MemberService.Services;
-using Stripe.Checkout;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace MemberService
 {
@@ -39,10 +39,11 @@ namespace MemberService
         {
             services
                 .AddScoped(typeof(IEmailSender), IsDevelopment ? typeof(DummyConsoleEmailSender) : typeof(EmailSender))
-                .AddScoped<ChargeService>()
-                .AddScoped<SessionService>()
-                .AddScoped<CustomerService>()
-                .AddScoped<IPaymentService, PaymentService>();
+                .AddScoped<Stripe.ChargeService>()
+                .AddScoped<Stripe.Checkout.SessionService>()
+                .AddScoped<Stripe.CustomerService>()
+                .AddScoped<IPaymentService, PaymentService>()
+                .AddScoped<ILoginService, LoginService>();
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -50,6 +51,12 @@ namespace MemberService
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+
+            services
+                .AddSingleton<IActionContextAccessor, ActionContextAccessor>()
+                .AddScoped<IUrlHelper>(x => x
+                    .GetRequiredService<IUrlHelperFactory>()
+                    .GetUrlHelper(x.GetRequiredService<IActionContextAccessor>().ActionContext));
 
             services.AddSingleton(Configuration.Get<Config>());
 
@@ -90,7 +97,7 @@ namespace MemberService
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, Config config)
         {
-            StripeConfiguration.SetApiKey(config.Stripe.SecretKey);
+            Stripe.StripeConfiguration.SetApiKey(config.Stripe.SecretKey);
 
             if (IsDevelopment)
             {

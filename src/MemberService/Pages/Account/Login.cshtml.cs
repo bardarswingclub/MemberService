@@ -19,21 +19,21 @@ namespace MemberService.Pages.Account
     [AllowAnonymous]
     public class LoginModel : PageModel
     {
+        private readonly ILoginService _loginService;
         private readonly SignInManager<MemberUser> _signInManager;
         private readonly UserManager<MemberUser> _userManager;
         private readonly IEmailSender _emailSender;
-        private readonly ILogger<LoginModel> _logger;
 
         public LoginModel(
+            ILoginService loginService,
             SignInManager<MemberUser> signInManager,
             UserManager<MemberUser> userManager,
-            IEmailSender emailSender,
-            ILogger<LoginModel> logger)
+            IEmailSender emailSender)
         {
+            _loginService = loginService;
             _signInManager = signInManager;
             _userManager = userManager;
             _emailSender = emailSender;
-            _logger = logger;
         }
 
         [BindProperty]
@@ -83,7 +83,7 @@ namespace MemberService.Pages.Account
                 return Page();
             }
 
-            var user = await GetOrCreateUser();
+            var user = await _loginService.GetOrCreateUser(Input.Email);
 
             var code = await _userManager.GenerateUserTokenAsync(user, "ShortToken", "passwordless-auth");
 
@@ -97,7 +97,7 @@ namespace MemberService.Pages.Account
 
         private async Task<string> CreateBody(MemberUser user, string code)
         {
-            string callbackUrl = await GetCallbackUrl(user);
+            string callbackUrl = await _loginService.LoginLink(user, Input.ReturnUrl);
 
             return $@"<h2>{Greeting(user)}</h2>
 
@@ -108,7 +108,7 @@ namespace MemberService.Pages.Account
             <h1>{code}</h1>
 
             <p>
-                Eller <a href='{callbackUrl}'>trykk her</a>.
+                Eller <a href='{HttpUtility.HtmlAttributeEncode(callbackUrl)}'>trykk her</a>.
             </p>
 
             <i>Hilsen</i><br>
@@ -119,43 +119,5 @@ namespace MemberService.Pages.Account
             => string.IsNullOrEmpty(user.FullName)
                 ? "Hei!"
                 : $"Hei {user.FullName}!";
-
-        private async Task<string> GetCallbackUrl(MemberUser user)
-        {
-            var token = await _userManager.GenerateUserTokenAsync(user, "LongToken", "passwordless-auth");
-
-            var url = Url.ActionLink(
-                "Index",
-                "LoginCallback",
-                new
-                {
-                    userId = user.Id,
-                    token,
-                    returnUrl = Input.ReturnUrl
-                });
-
-            return HttpUtility.HtmlAttributeEncode(url);
-        }
-
-        private async Task<MemberUser> GetOrCreateUser()
-        {
-            if (await _userManager.FindByEmailAsync(Input.Email) is MemberUser user)
-            {
-                return user;
-            }
-            else
-            {
-                var newUser = new MemberUser { UserName = Input.Email, Email = Input.Email };
-                var result = await _userManager.CreateAsync(newUser);
-                if (result.Succeeded)
-                {
-                    return newUser;
-                }
-                else
-                {
-                    throw new Exception($"Couldn't create user, {result.Errors.Select(e => $"{e.Code}: {e.Description}").FirstOrDefault()}");
-                }
-            }
-        }
     }
 }

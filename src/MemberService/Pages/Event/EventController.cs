@@ -22,15 +22,18 @@ namespace MemberService.Pages.Event
         private readonly MemberContext _database;
         private readonly UserManager<MemberUser> _userManager;
         private readonly IEmailSender _emailSender;
+        private readonly ILoginService _linker;
 
         public EventController(
             MemberContext database,
             UserManager<MemberUser> userManager,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            ILoginService linker)
         {
             _database = database;
             _userManager = userManager;
             _emailSender = emailSender;
+            _linker = linker;
         }
 
         public async Task<IActionResult> Index(bool archived = false)
@@ -154,7 +157,7 @@ namespace MemberService.Pages.Event
                             await _emailSender.SendEmailAsync(
                                 eventSignup.User.Email,
                                 GetSubject(input.Status, eventEntry.Title),
-                                GetMessage(input.Status, eventSignup));
+                                await GetMessage(input.Status, eventSignup));
                         }
                         catch
                         {
@@ -322,7 +325,7 @@ namespace MemberService.Pages.Event
             }
         }
 
-        private string GetMessage(Status status, EventSignup model)
+        private async Task<string> GetMessage(Status status, EventSignup model)
         {
             switch (status)
             {
@@ -334,7 +337,7 @@ namespace MemberService.Pages.Event
                         </p>
 
                         <p>
-                            Du må trykke <a href='{EventLink(model.Event)}'>her for å bekrefte at du ønsker plassen</a>.
+                            Du må <a href='{await SignupLink(model.User, model.Event)}'>bekrefte at du ønsker plassen</a>.
                             Hvis du ikke gjør det kan plassen din bli gitt til noen andre.
                         </p>
 
@@ -349,7 +352,7 @@ namespace MemberService.Pages.Event
 
                         <p>
                             Det er mange som ønsker å delta på {model.Event.Title} og akkurat nå er det ikke plass til alle, så du er på ventelisten.
-                            Du vil få beskjed om det blir ledig plass til deg eller om det blir fullt. <a href='{EventLink(model.Event)}'>Her kan du se påmeldingsstatusen din</a>.
+                            Du vil få beskjed om det blir ledig plass til deg eller om det blir fullt. <a href='{await SignupLink(model.User, model.Event)}'>Her kan du se påmeldingsstatusen din</a>.
                         </p>
 
                         <i>Hilsen</i><br>
@@ -372,13 +375,22 @@ namespace MemberService.Pages.Event
             }
         }
 
-        private string EventLink(Data.Event e) => HttpUtility.HtmlAttributeEncode(Url.ActionLink(
+        private async Task<string> SignupLink(MemberUser user, Data.Event e)
+        {
+            var targetLink = SignupLink(e.Id, e.Title);
+
+            var loginLink = await _linker.LoginLink(user, targetLink);
+
+            return HttpUtility.HtmlAttributeEncode(loginLink);
+        }
+
+        private string SignupLink(Guid id, string title) => Url.Action(
             nameof(SignupController.Event),
             "Signup",
             new
             {
-                id = e.Id,
-                slug = e.Title.Slugify()
-            }));
+                id,
+                slug = title.Slugify()
+            });
     }
 }
