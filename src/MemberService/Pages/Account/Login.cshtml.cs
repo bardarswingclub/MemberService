@@ -14,7 +14,7 @@ using System.ComponentModel;
 using System.Web;
 using MemberService.Services;
 
-namespace MemberService.Areas.Identity.Pages.Account
+namespace MemberService.Pages.Account
 {
     [AllowAnonymous]
     public class LoginModel : PageModel
@@ -52,7 +52,7 @@ namespace MemberService.Areas.Identity.Pages.Account
             public string ReturnUrl { get; set; }
         }
 
-        public async Task<IActionResult> OnGetAsync(string returnUrl, string email=null)
+        public async Task<IActionResult> OnGetAsync(string returnUrl, string email = null)
         {
             if (_signInManager.IsSignedIn(User))
             {
@@ -124,8 +124,9 @@ namespace MemberService.Areas.Identity.Pages.Account
         {
             var token = await _userManager.GenerateUserTokenAsync(user, "LongToken", "passwordless-auth");
 
-            var url = Url.PageLink(
-                "/Account/LoginCallback",
+            var url = Url.ActionLink(
+                "Index",
+                "LoginCallback",
                 new
                 {
                     userId = user.Id,

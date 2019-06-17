@@ -81,9 +81,9 @@ namespace MemberService
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.ConfigureApplicationCookie(options =>
             {
-                options.LoginPath = $"/identity/account/login";
-                options.LogoutPath = $"/identity/account/logout";
-                options.AccessDeniedPath = $"/identity/account/accessDenied";
+                options.LoginPath = $"/account/login";
+                options.LogoutPath = $"/account/logout";
+                options.AccessDeniedPath = $"/account/accessDenied";
             });
         }
 

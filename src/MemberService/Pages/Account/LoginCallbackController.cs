@@ -5,34 +5,16 @@ using MemberService.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace MemberService.Areas.Identity.Pages.Account
+namespace MemberService.Pages.Account
 {
     [AllowAnonymous]
-    public class LoginCallbackModel : PageModel
+    public class LoginCallbackController : Controller
     {
         private readonly UserManager<MemberUser> _userManager;
         private readonly SignInManager<MemberUser> _signInManager;
 
-        [BindProperty]
-        public InputModel Input { get; set; }
-
-        public class InputModel
-        {
-            [Required]
-            [EmailAddress]
-            [DisplayName("E-post")]
-            public string Email { get; set; }
-
-            [Required]
-            [DisplayName("Kode")]
-            public string Code { get; set; }
-
-            public string ReturnUrl { get; set; }
-        }
-
-        public LoginCallbackModel(
+        public LoginCallbackController(
             UserManager<MemberUser> userManager,
             SignInManager<MemberUser> signInManager)
         {
@@ -40,7 +22,8 @@ namespace MemberService.Areas.Identity.Pages.Account
             _signInManager = signInManager;
         }
 
-        public async Task<IActionResult> OnGetAsync(string userId, string token, string returnUrl)
+        [HttpGet]
+        public async Task<IActionResult> Index(string userId, string token, string returnUrl)
         {
             if (_signInManager.IsSignedIn(User) || userId == null || token == null)
             {
@@ -58,7 +41,8 @@ namespace MemberService.Areas.Identity.Pages.Account
             return await SignIn(user, isValid, returnUrl);
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        [HttpPost]
+        public async Task<IActionResult> Index(InputModel Input)
         {
             if (_signInManager.IsSignedIn(User) || !ModelState.IsValid)
             {
@@ -80,7 +64,7 @@ namespace MemberService.Areas.Identity.Pages.Account
         {
             if (!isValid)
             {
-                return RedirectToPage("LoginConfirmation", new { user.Email, returnUrl, showError = true });
+                return RedirectToPage("/Account/LoginConfirmation", new { user.Email, returnUrl, showError = true });
             }
 
             await _userManager.UpdateSecurityStampAsync(user);
@@ -100,7 +84,21 @@ namespace MemberService.Areas.Identity.Pages.Account
 
             await _signInManager.SignInAsync(user, true, IdentityConstants.ApplicationScheme);
 
-            return RedirectToPage("Register", new { returnUrl });
+            return RedirectToPage("/Account/Register", new { returnUrl });
+        }
+
+        public class InputModel
+        {
+            [Required]
+            [EmailAddress]
+            [DisplayName("E-post")]
+            public string Email { get; set; }
+
+            [Required]
+            [DisplayName("Kode")]
+            public string Code { get; set; }
+
+            public string ReturnUrl { get; set; }
         }
     }
 }
