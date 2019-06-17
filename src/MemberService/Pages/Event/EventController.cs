@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Clave.ExtensionMethods;
 using MemberService.Data;
+using MemberService.Emails.Event;
 using MemberService.Pages.Signup;
 using MemberService.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -21,18 +22,18 @@ namespace MemberService.Pages.Event
     {
         private readonly MemberContext _database;
         private readonly UserManager<MemberUser> _userManager;
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailService _emailService;
         private readonly ILoginService _linker;
 
         public EventController(
             MemberContext database,
             UserManager<MemberUser> userManager,
-            IEmailSender emailSender,
+            IEmailService emailService,
             ILoginService linker)
         {
             _database = database;
             _userManager = userManager;
-            _emailSender = emailSender;
+            _emailService = emailService;
             _linker = linker;
         }
 
@@ -154,10 +155,15 @@ namespace MemberService.Pages.Event
                     {
                         try
                         {
-                            await _emailSender.SendEmailAsync(
+                            await _emailService.SendEventStatusEmail(
                                 eventSignup.User.Email,
-                                GetSubject(input.Status, eventEntry.Title),
-                                await GetMessage(input.Status, eventSignup));
+                                input.Status,
+                                new EventStatusModel
+                                {
+                                    Name = eventSignup.User.FullName,
+                                    Title = eventEntry.Title,
+                                    Link = await SignupLink(eventSignup.User, eventEntry)
+                                });
                         }
                         catch
                         {
@@ -310,78 +316,11 @@ namespace MemberService.Pages.Event
             => await _database.Users
                 .SingleUser(_userManager.GetUserId(User));
 
-        private static string GetSubject(Status status, string title)
-        {
-            switch (status)
-            {
-                case Status.Approved:
-                    return $"Du har fått plass på {title}";
-                case Status.WaitingList:
-                    return $"Du er på ventelisten til {title}";
-                case Status.Denied:
-                    return $"Du har mistet plassen din til {title}";
-                default:
-                    throw new Exception($"Unknown status {status}");
-            }
-        }
-
-        private async Task<string> GetMessage(Status status, EventSignup model)
-        {
-            switch (status)
-            {
-                case Status.Approved:
-                    return $@"<h2>Hei {model.User.FullName}</h2>
-
-                        <p>
-                            Du har fått plass på {model.Event.Title}!
-                        </p>
-
-                        <p>
-                            Du må <a href='{await SignupLink(model.User, model.Event)}'>bekrefte at du ønsker plassen</a>.
-                            Hvis du ikke gjør det kan plassen din bli gitt til noen andre.
-                        </p>
-
-                        <i>Hilsen</i><br>
-                        <i>Bårdar Swing Club</i>";
-                case Status.WaitingList:
-                    return $@"<h2>Hei {model.User.FullName}</h2>
-
-                        <p>
-                            Du er på ventelisten til {model.Event.Title}.
-                        </p>
-
-                        <p>
-                            Det er mange som ønsker å delta på {model.Event.Title} og akkurat nå er det ikke plass til alle, så du er på ventelisten.
-                            Du vil få beskjed om det blir ledig plass til deg eller om det blir fullt. <a href='{await SignupLink(model.User, model.Event)}'>Her kan du se påmeldingsstatusen din</a>.
-                        </p>
-
-                        <i>Hilsen</i><br>
-                        <i>Bårdar Swing Club</i>";
-                case Status.Denied:
-                    return $@"<h2>Hei {model.User.FullName}</h2>
-
-                        <p>
-                            Du har ikke lenger plass på {model.Event.Title}.
-                        </p>
-
-                        <p>
-                            Du har mistet plassen din til arrangementet. Hvis du lurer på hvorfor kan du svar på denne mailen.
-                        </p>
-
-                        <i>Hilsen</i><br>
-                        <i>Bårdar Swing Club</i>";
-                default:
-                    throw new Exception($"Unknown status {status}");
-            }
-        }
-
         private async Task<string> SignupLink(MemberUser user, Data.Event e)
         {
             var targetLink = SignupLink(e.Id, e.Title);
 
-            var loginLink = await _linker.LoginLink(user, targetLink);
-
-            return HttpUtility.HtmlAttributeEncode(loginLink);
+            return await _linker.LoginLink(user, targetLink);
         }
 
         private string SignupLink(Guid id, string title) => Url.Action(

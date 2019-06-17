@@ -43,7 +43,9 @@ namespace MemberService
                 .AddScoped<Stripe.Checkout.SessionService>()
                 .AddScoped<Stripe.CustomerService>()
                 .AddScoped<IPaymentService, PaymentService>()
-                .AddScoped<ILoginService, LoginService>();
+                .AddScoped<ILoginService, LoginService>()
+                .AddScoped<IPartialRenderer, PartialRenderer>()
+                .AddScoped<IEmailService, EmailService>();
 
             services.Configure<CookiePolicyOptions>(options =>
             {

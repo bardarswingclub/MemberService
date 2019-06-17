@@ -20,20 +20,14 @@ namespace MemberService.Pages.Account
     public class LoginModel : PageModel
     {
         private readonly ILoginService _loginService;
-        private readonly SignInManager<MemberUser> _signInManager;
-        private readonly UserManager<MemberUser> _userManager;
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailService _emailService;
 
         public LoginModel(
             ILoginService loginService,
-            SignInManager<MemberUser> signInManager,
-            UserManager<MemberUser> userManager,
-            IEmailSender emailSender)
+            IEmailService emailService)
         {
             _loginService = loginService;
-            _signInManager = signInManager;
-            _userManager = userManager;
-            _emailSender = emailSender;
+            _emailService = emailService;
         }
 
         [BindProperty]
@@ -54,7 +48,7 @@ namespace MemberService.Pages.Account
 
         public async Task<IActionResult> OnGetAsync(string returnUrl, string email = null)
         {
-            if (_signInManager.IsSignedIn(User))
+            if (_loginService.IsLoggedIn(User))
             {
                 return RedirectToAction("Index", "Home");
             }
@@ -85,39 +79,14 @@ namespace MemberService.Pages.Account
 
             var user = await _loginService.GetOrCreateUser(Input.Email);
 
-            var code = await _userManager.GenerateUserTokenAsync(user, "ShortToken", "passwordless-auth");
-
-            await _emailSender.SendEmailAsync(
-                Input.Email,
-                $"Logg inn - {code} - Bårdar Swing Club",
-                await CreateBody(user, code));
+            await _emailService.SendLoginEmail(Input.Email, new Emails.Account.LoginModel
+            {
+                Name = user.FullName,
+                CallbackUrl = await _loginService.LoginLink(user, Input.ReturnUrl),
+                Code = await _loginService.LoginCode(user)
+            });
 
             return RedirectToPage("/Account/LoginConfirmation", null, new { email = Input.Email, returnUrl = Input.ReturnUrl });
         }
-
-        private async Task<string> CreateBody(MemberUser user, string code)
-        {
-            string callbackUrl = await _loginService.LoginLink(user, Input.ReturnUrl);
-
-            return $@"<h2>{Greeting(user)}</h2>
-
-            <p>
-                Bruk denne koden for å logge inn på siden
-            </p>
-
-            <h1>{code}</h1>
-
-            <p>
-                Eller <a href='{HttpUtility.HtmlAttributeEncode(callbackUrl)}'>trykk her</a>.
-            </p>
-
-            <i>Hilsen</i><br>
-            <i>Bårdar Swing Club</i>";
-        }
-
-        private static string Greeting(MemberUser user)
-            => string.IsNullOrEmpty(user.FullName)
-                ? "Hei!"
-                : $"Hei {user.FullName}!";
     }
 }

@@ -3,21 +3,30 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace MemberService.Services
 {
     public class LoginService : ILoginService
     {
+        private readonly SignInManager<MemberUser> _signInManager;
         private readonly UserManager<MemberUser> _userManager;
         private readonly IUrlHelper _urlHelper;
 
         public LoginService(
+            SignInManager<MemberUser> signInManager,
             UserManager<MemberUser> userManager,
             IUrlHelper urlHelper)
         {
+            _signInManager = signInManager;
             _userManager = userManager;
             _urlHelper = urlHelper;
+        }
+
+        public bool IsLoggedIn(ClaimsPrincipal user)
+        {
+            return _signInManager.IsSignedIn(user);
         }
 
         public async Task<MemberUser> GetOrCreateUser(string email)
@@ -39,6 +48,11 @@ namespace MemberService.Services
                     throw new Exception($"Couldn't create user, {result.Errors.Select(e => $"{e.Code}: {e.Description}").FirstOrDefault()}");
                 }
             }
+        }
+
+        public async Task<string> LoginCode(MemberUser user)
+        {
+            return await _userManager.GenerateUserTokenAsync(user, "ShortToken", "passwordless-auth");
         }
 
         public async Task<string> LoginLink(MemberUser user, string returnUrl)

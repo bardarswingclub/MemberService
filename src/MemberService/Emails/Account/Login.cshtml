@@ -1,0 +1,23 @@
+﻿@model Emails.Account.LoginModel
+
+@if (string.IsNullOrEmpty(Model.Name))
+{
+    <h2>Hei!</h2>
+}
+else
+{
+    <h2>Hei @Model.Name!</h2>
+}
+
+<p>
+    Bruk denne koden for å logge inn på siden
+</p>
+
+<h1>@Model.Code</h1>
+
+<p>
+    Eller <a href="@Model.CallbackUrl">trykk her</a>.
+</p>
+
+<i>Hilsen</i><br>
+<i>Bårdar Swing Club</i>
