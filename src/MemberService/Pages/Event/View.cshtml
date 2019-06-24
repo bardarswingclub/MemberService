@@ -69,7 +69,12 @@
                         @signups.Display
                         @if (signups.Signups.Any())
                         {
-                                <span class="ml-1 badge badge-pill badge-secondary">@signups.Signups.Count</span>
+                            var roleCount = signups.Signups
+                                .OrderBy(s => s.Role)
+                                .GroupBy(s => s.Role)
+                                .Select(s => s.Count().ToString())
+                                .Join("+");
+                            <span class="ml-1 badge badge-pill badge-secondary">@roleCount</span>
                         }
                     </a>
                 </li>
