@@ -84,8 +84,8 @@ namespace MemberService.Services
         public static string RolesCount(this Event model, Status? status = null)
             => !model.SignupOptions.RoleSignup
                 ? model.Signups.Count(s => status == null || s.Status == status).ToString()
-                : model.Signups.Count(s => s.Role == DanceRole.Lead && status == null || s.Status == status)
-                    .And(model.Signups.Count(s => s.Role == DanceRole.Follow && status == null || s.Status == status))
+                : model.Signups.Count(s => s.Role == DanceRole.Lead && (status == null || s.Status == status))
+                    .And(model.Signups.Count(s => s.Role == DanceRole.Follow && (status == null || s.Status == status)))
                     .Join("+");
     }
 }
