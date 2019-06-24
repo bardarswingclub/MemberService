@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Html;
+﻿using Clave.ExtensionMethods;
+using MemberService.Data;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using NodaTime;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
@@ -50,6 +53,7 @@ namespace MemberService.Services
 
         public static IHtmlContent Markdown<T>(this IHtmlHelper<T> html, string value)
             => html.Raw(Markdig.Markdown.ToHtml(value ?? string.Empty));
+
         public static string Slugify(this string phrase, int max = 45)
         {
             string str = phrase.RemoveAccent().ToLower();
@@ -77,12 +81,11 @@ namespace MemberService.Services
             url.ActionContext.HttpContext.Request.Scheme,
             url.ActionContext.HttpContext.Request.Host.Value);
 
-        public static string PageLink(this IUrlHelper url, string pageName, object values)
-            => url.Page(
-            pageName,
-            null,
-            values,
-            url.ActionContext.HttpContext.Request.Scheme,
-            url.ActionContext.HttpContext.Request.Host.Value);
+        public static string RolesCount(this Event model, Status? status = null)
+            => !model.SignupOptions.RoleSignup
+                ? model.Signups.Count(s => status == null || s.Status == status).ToString()
+                : model.Signups.Count(s => s.Role == DanceRole.Lead && status == null || s.Status == status)
+                    .And(model.Signups.Count(s => s.Role == DanceRole.Follow && status == null || s.Status == status))
+                    .Join("+");
     }
 }

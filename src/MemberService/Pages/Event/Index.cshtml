@@ -1,4 +1,4 @@
-@model List<Event>
+@model IReadOnlyList<Event>
 
 @{
     ViewData["Title"] = "Arrangementer";
@@ -23,8 +23,8 @@
         {
             <tr>
                 <td><a asp-action="View" asp-route-id="@eventEntry.Id">@eventEntry.Title</a></td>
-                <td>@eventEntry.Signups.Count</td>
-                <td>@eventEntry.Signups.Count(s => s.Status == Status.AcceptedAndPayed)</td>
+                <td>@eventEntry.RolesCount()</td>
+                <td>@eventEntry.RolesCount(Status.AcceptedAndPayed)</td>
                 <td>@EventStatus(eventEntry)</td>
             </tr>
         }

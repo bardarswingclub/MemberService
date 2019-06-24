@@ -67,14 +67,13 @@
                 <li class="nav-item">
                     <a class="nav-link text-dark @(signups.Active ? "active" : "")" id="tab-@signups.Key" data-toggle="tab" href="#@signups.Key" role="tab" aria-controls="@signups.Key" aria-selected="@signups.Active">
                         @signups.Display
-                        @if (signups.Signups.Any())
+                        @if (Model.Options.RoleSignup && signups.Signups.Any())
                         {
-                            var roleCount = signups.Signups
-                                .OrderBy(s => s.Role)
-                                .GroupBy(s => s.Role)
-                                .Select(s => s.Count().ToString())
-                                .Join("+");
-                            <span class="ml-1 badge badge-pill badge-secondary">@roleCount</span>
+                            <span class="ml-1 badge badge-pill badge-secondary">@(signups.Leads.Count)+@signups.Follows.Count</span>
+                        }
+                        else if (!Model.Options.RoleSignup && signups.Solos.Any())
+                        {
+                            <span class="ml-1 badge badge-pill badge-secondary">@signups.Solos.Count</span>
                         }
                     </a>
                 </li>
