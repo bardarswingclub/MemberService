@@ -58,6 +58,7 @@ namespace MemberService.Pages.Signup
 
         [HttpGet]
         [Route("Signup/Event/{id}/{slug?}")]
+        [AllowAnonymous]
         public async Task<IActionResult> Event(Guid id)
         {
             var model = await _database.Events
@@ -70,6 +71,11 @@ namespace MemberService.Pages.Signup
             if (model == null)
             {
                 return NotFound();
+            }
+
+            if (!User.Identity.IsAuthenticated)
+            {
+                return View("Anonymous", model);
             }
 
             model.User = await _database.Users

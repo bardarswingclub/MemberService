@@ -5,18 +5,15 @@
     Layout = "~/Pages/_CoverLayout.cshtml";
 }
 
-@section AboveCover
-{
-    <div class="alert alert-info shadow-sm mb-5" role="alert">
-        Hei og velkommen til Bårdar Swing Club!
-    </div>
-}
-
 <form method="post" class="card shadow">
     <h3 class="card-header">
         Opprett bruker
     </h3>
     <div class="card-body">
+        <div class="alert alert-info" role="alert">
+            <h5 class="alert-heading">Hei og velkommen til Bårdar Swing Club!</h5>
+            Hva heter du? Fyll inn navn under og trykk på fullfør for å gå videre
+        </div>
         <input type="hidden" asp-for="Input.ReturnUrl" />
         <span asp-validation-summary="All" class="text-danger"></span>
         <div class="form-group">
