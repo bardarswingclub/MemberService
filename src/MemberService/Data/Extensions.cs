@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Clave.Expressionify;
-using MemberService.Pages.Event;
 using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Data

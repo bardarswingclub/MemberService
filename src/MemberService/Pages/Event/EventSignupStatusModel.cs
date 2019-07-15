@@ -1,6 +1,5 @@
 ﻿using Clave.ExtensionMethods;
 using MemberService.Data;
-using MemberService.Services;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
