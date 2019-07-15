@@ -100,7 +100,10 @@ namespace MemberService.Pages.Event
             var model = await _database.Events
                 .Include(e => e.SignupOptions)
                 .Include(e => e.Signups)
-                .ThenInclude(s => s.User)
+                    .ThenInclude(s => s.User)
+                .Include(e => e.Signups)
+                    .ThenInclude(s => s.AuditLog)
+                        .ThenInclude(l => l.User)
                 .AsNoTracking()
                 .SingleOrDefaultAsync(e => e.Id == id);
 
@@ -133,6 +136,8 @@ namespace MemberService.Pages.Event
         [HttpPost]
         public async Task<IActionResult> View(Guid id, [FromForm] EventSaveModel input)
         {
+            var currentUser = await GetCurrentUser();
+
             var selected = input.Leads
                 .Concat(input.Follows)
                 .Concat(input.Solos)
@@ -144,6 +149,8 @@ namespace MemberService.Pages.Event
                 var eventEntry = await _database.Events
                     .Include(e => e.Signups)
                         .ThenInclude(s => s.User)
+                    .Include(e => e.Signups)
+                        .ThenInclude(s => s.AuditLog)
                     .SingleOrDefaultAsync(e => e.Id == id);
 
                 foreach (var signup in selected)
@@ -155,7 +162,7 @@ namespace MemberService.Pages.Event
                     {
                         try
                         {
-                            await _emailService.SendEventStatusEmail(
+                            var sent = await _emailService.SendEventStatusEmail(
                                 eventSignup.User.Email,
                                 input.Status,
                                 new EventStatusModel
@@ -164,11 +171,26 @@ namespace MemberService.Pages.Event
                                     Title = eventEntry.Title,
                                     Link = await SignupLink(eventSignup.User, eventEntry)
                                 });
+
+                            if (sent)
+                            {
+                                eventSignup.AuditLog.Add($"Moved to {input.Status} and sent email", currentUser);
+                            }
+                            else
+                            {
+                                eventSignup.AuditLog.Add($"Moved to {input.Status} ", currentUser);
+                            }
                         }
-                        catch
+                        catch (Exception e)
                         {
                             // Mail sending might fail, but that should't stop us
+                            eventSignup.AuditLog.Add($"Tried to send email, but failed with message {e.Message}", currentUser);
+
                         }
+                    }
+                    else
+                    {
+                        eventSignup.AuditLog.Add($"Moved to {input.Status} ", currentUser);
                     }
                 }
 

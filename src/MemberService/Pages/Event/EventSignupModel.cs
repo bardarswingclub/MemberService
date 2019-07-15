@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using Clave.Expressionify;
+using Clave.ExtensionMethods;
 using MemberService.Data;
 
 namespace MemberService.Pages.Event
@@ -20,7 +22,8 @@ namespace MemberService.Pages.Event
 
         public bool Selected { get; set; }
 
-        [Expressionify]
+        public IReadOnlyCollection<EventSignupAuditEntry> AuditLog { get; set; }
+
         public static EventSignupModel Create(EventSignup s)
             => new EventSignupModel
             {
@@ -29,7 +32,8 @@ namespace MemberService.Pages.Event
                 FullName = s.User.FullName,
                 SignedUpAt = s.SignedUpAt,
                 Status = s.Status,
-                Role = s.Role
+                Role = s.Role,
+                AuditLog = s.AuditLog.ToReadOnlyCollection()
             };
     }
 }

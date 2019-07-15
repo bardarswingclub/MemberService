@@ -32,12 +32,12 @@ namespace MemberService.Services
                 body);
         }
 
-        public async Task SendEventStatusEmail(string email, Status status, EventStatusModel model)
+        public async Task<bool> SendEventStatusEmail(string email, Status status, EventStatusModel model)
         {
             var subject = GetEventStatusSubject(status, model.Title);
 
             if (subject == null)
-                return;
+                return false;
 
             var body = await _partialRenderer.RenderPartial(GetEventStatusPartial(status, model), model);
 
@@ -45,6 +45,8 @@ namespace MemberService.Services
                 email,
                 subject,
                 body);
+
+            return true;
         }
 
         private static string GetEventStatusSubject(Status status, string title)

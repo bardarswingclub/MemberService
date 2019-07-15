@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Clave.Expressionify;
@@ -93,12 +94,12 @@ namespace MemberService.Pages.Signup
                     return View("Status", model);
                 }
 
-                var mustPayClassesFee = model.Options.RequiresClassesFee && !model.User.HasPayedClassesFeeThisSemester();
-                var mustPayTrainingFee = model.Options.RequiresTrainingFee && !model.User.HasPayedTrainingFeeThisSemester();
-                var mustPayMembershipFee = model.Options.RequiresMembershipFee && !model.User.HasPayedMembershipThisYear();
+                var mustPayClassesFee = MustPayClassesFee(model.Options, model.User);
+                var mustPayTrainingFee = MustPayTrainingFee(model.Options, model.User);
+                var mustPayMembershipFee = MustPayMembershipFee(model.Options, model.User);
 
-                var mustPayMembersPrice = model.Options.PriceForMembers > 0 && model.User.HasPayedMembershipThisYear();
-                var mustPayNonMembersPrice = model.Options.PriceForNonMembers > 0 && !model.User.HasPayedMembershipThisYear();
+                var mustPayMembersPrice = MustPayMembersPrice(model.Options, model.User);
+                var mustPayNonMembersPrice = MustPayNonMembersPrice(model.Options, model.User);
 
                 var acceptModel = new AcceptModel
                 {
@@ -189,6 +190,7 @@ namespace MemberService.Pages.Signup
             }
 
             var autoAccept = ev.SignupOptions.AutoAcceptedSignups > ev.Signups.Count(s => s.Role == input.Role);
+            var status = autoAccept ? Status.Approved : Status.Pending;
 
             user.EventSignups.Add(new EventSignup
             {
@@ -196,8 +198,12 @@ namespace MemberService.Pages.Signup
                 Priority = 1,
                 Role = input.Role,
                 PartnerEmail = input.PartnerEmail,
-                Status = autoAccept ? Status.Approved : Status.Pending,
-                SignedUpAt = DateTime.UtcNow
+                Status = status,
+                SignedUpAt = DateTime.UtcNow,
+                AuditLog =
+                {
+                    { $"Signed up as {input.Role}{(input.PartnerEmail is string partnerEmail ? $" with partner {partnerEmail}" : "")}, status is {status}", user }
+                }
             });
 
             await _database.SaveChangesAsync();
@@ -272,6 +278,8 @@ namespace MemberService.Pages.Signup
 
             if (user.EventSignups.Where(CanEdit).FirstOrDefault(e => e.EventId == id) is EventSignup eventSignup)
             {
+                eventSignup.AuditLog.Add($"Changed signup ({eventSignup.Role} => {input.Role} and '{eventSignup.PartnerEmail}' => '{input.PartnerEmail}')", user);
+
                 eventSignup.Role = input.Role;
                 eventSignup.PartnerEmail = input.PartnerEmail;
 
@@ -299,13 +307,31 @@ namespace MemberService.Pages.Signup
         {
             var user = await _database.Users
                 .Include(u => u.EventSignups)
+                    .ThenInclude(s => s.Event)
+                        .ThenInclude(e => e.SignupOptions)
                 .SingleUser(_userManager.GetUserId(User));
 
             var signup = user.EventSignups.FirstOrDefault(s => s.EventId == id);
 
+            if (MustPayClassesFee(signup.Event.SignupOptions, user)) return Forbid();
+            if (MustPayTrainingFee(signup.Event.SignupOptions, user)) return Forbid();
+            if (MustPayMembershipFee(signup.Event.SignupOptions, user)) return Forbid();
+            if (MustPayMembersPrice(signup.Event.SignupOptions, user)) return Forbid();
+            if (MustPayNonMembersPrice(signup.Event.SignupOptions, user)) return Forbid();
+
             if (signup?.Status == Status.Approved)
             {
-                signup.Status = accept ? Status.AcceptedAndPayed : Status.RejectedOrNotPayed;
+                if (accept)
+                {
+                    signup.Status = Status.AcceptedAndPayed;
+                    signup.AuditLog.Add("Accepted", user);
+                }
+                else
+                {
+                    signup.Status = Status.RejectedOrNotPayed;
+                    signup.AuditLog.Add("Rejected", user);
+                }
+
                 await _database.SaveChangesAsync();
             }
 
@@ -326,6 +352,8 @@ namespace MemberService.Pages.Signup
                 if (signup?.Status == Status.Approved && await _paymentService.SavePayment(sessionId) > 0)
                 {
                     signup.Status = Status.AcceptedAndPayed;
+                    signup.AuditLog.Add("Payed", user);
+
                     await _database.SaveChangesAsync();
                 }
             }
@@ -370,5 +398,15 @@ namespace MemberService.Pages.Signup
         }
 
         private static bool CanEdit(EventSignup e) => e.Status == Status.Pending || e.Status == Status.Recommended;
+
+        private static bool MustPayNonMembersPrice(EventSignupOptions options, MemberUser user) => options.PriceForNonMembers > 0 && !user.HasPayedMembershipThisYear();
+
+        private static bool MustPayMembersPrice(EventSignupOptions options, MemberUser user) => options.PriceForMembers > 0 && user.HasPayedMembershipThisYear();
+
+        private static bool MustPayMembershipFee(EventSignupOptions options, MemberUser user) => options.RequiresMembershipFee && !user.HasPayedMembershipThisYear();
+
+        private static bool MustPayTrainingFee(EventSignupOptions options, MemberUser user) => options.RequiresTrainingFee && !user.HasPayedTrainingFeeThisSemester();
+
+        private static bool MustPayClassesFee(EventSignupOptions options, MemberUser user) => options.RequiresClassesFee && !user.HasPayedClassesFeeThisSemester();
     }
 }

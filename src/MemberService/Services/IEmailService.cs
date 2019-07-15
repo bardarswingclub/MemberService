@@ -7,6 +7,6 @@ namespace MemberService.Services
     {
         Task SendLoginEmail(string email, Emails.Account.LoginModel model);
 
-        Task SendEventStatusEmail(string email, Status status, Emails.Event.EventStatusModel model);
+        Task<bool> SendEventStatusEmail(string email, Status status, Emails.Event.EventStatusModel model);
     }
 }

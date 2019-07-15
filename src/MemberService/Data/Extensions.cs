@@ -36,13 +36,6 @@ namespace MemberService.Data
         public static bool IsOpen(this EventSignupOptions x)
             => x.HasOpened() && !x.HasClosed();
 
-        [Expressionify]
-        public static List<EventSignupModel> GetSignups(this Event e, DanceRole role)
-            => e.Signups
-                .Where(s => s.Role == role)
-                .Select(s => EventSignupModel.Create(s))
-                .ToList();
-
         public static async Task<MemberUser> SingleUser(this IQueryable<MemberUser> users, string id)
             => await users.SingleOrDefaultAsync(user => user.Id == id);
     }

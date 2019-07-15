@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using NodaTime;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
@@ -87,5 +88,13 @@ namespace MemberService.Services
                 : model.Signups.Count(s => s.Role == DanceRole.Lead && (status == null || s.Status == status))
                     .And(model.Signups.Count(s => s.Role == DanceRole.Follow && (status == null || s.Status == status)))
                     .Join("+");
+
+        public static void Add(this ICollection<EventSignupAuditEntry> collection, string message, MemberUser user)
+            => collection.Add(new EventSignupAuditEntry
+            {
+                User = user,
+                Message = message,
+                OccuredAtUtc = DateTime.UtcNow
+            });
     }
 }

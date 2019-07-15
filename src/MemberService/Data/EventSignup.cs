@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -31,5 +32,7 @@ namespace MemberService.Data
 
         [ForeignKey(nameof(PaymentId))]
         public Payment Payment { get; set; }
+
+        public ICollection<EventSignupAuditEntry> AuditLog { get; set; } = new List<EventSignupAuditEntry>();
     }
 }
