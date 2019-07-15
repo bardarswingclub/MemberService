@@ -1,17 +1,11 @@
-using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
-using MemberService.Data;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using System.ComponentModel;
-using System.Web;
 using MemberService.Services;
 
 namespace MemberService.Pages.Account

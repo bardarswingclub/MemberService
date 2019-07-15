@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Clave.Expressionify;
 using Clave.ExtensionMethods;
 using MemberService.Data;
 
