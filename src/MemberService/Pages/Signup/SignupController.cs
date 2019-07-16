@@ -278,7 +278,7 @@ namespace MemberService.Pages.Signup
 
             if (user.EventSignups.Where(CanEdit).FirstOrDefault(e => e.EventId == id) is EventSignup eventSignup)
             {
-                eventSignup.AuditLog.Add($"Changed signup ({eventSignup.Role} => {input.Role} and '{eventSignup.PartnerEmail}' => '{input.PartnerEmail}')", user);
+                eventSignup.AuditLog.Add($"Changed signup ({eventSignup.Role}->{input.Role} and '{eventSignup.PartnerEmail}'->'{input.PartnerEmail}')", user);
 
                 eventSignup.Role = input.Role;
                 eventSignup.PartnerEmail = input.PartnerEmail;
@@ -352,7 +352,7 @@ namespace MemberService.Pages.Signup
                 if (signup?.Status == Status.Approved && await _paymentService.SavePayment(sessionId) > 0)
                 {
                     signup.Status = Status.AcceptedAndPayed;
-                    signup.AuditLog.Add("Payed", user);
+                    signup.AuditLog.Add("Paid", user);
 
                     await _database.SaveChangesAsync();
                 }
