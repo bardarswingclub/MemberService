@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using MemberService.Data;
 
 namespace MemberService.Pages.Event
 {
     public class EventSaveModel
     {
+        [Required]
         public Status Status { get; set; }
 
         public List<Item> Leads { get; set; } = new List<Item>();
@@ -15,6 +17,14 @@ namespace MemberService.Pages.Event
         public List<Item> Solos { get; set; } = new List<Item>();
 
         public bool SendEmail { get; set; }
+
+        public bool SendCustomEmail { get; set; }
+
+        [Required]
+        public string Subject { get; set; }
+
+        [Required]
+        public string Message { get; set; }
 
         public class Item
         {

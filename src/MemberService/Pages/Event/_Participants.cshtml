@@ -45,7 +45,7 @@
                                     {
                                         <tr>
                                             <td>
-                                                @entry.Message
+                                                @Html.Markdown(entry.Message)
                                             </td>
                                             <td>
                                                 <a asp-controller="Members" asp-action="Details" asp-route-id="@entry.UserId" target="_blank">@entry.User.FullName</a>
@@ -88,7 +88,7 @@
                             else
                             {
                                 <span class="badge @(partner.Status == Status.AcceptedAndPayed ? "badge-success" : "badge-primary")">
-                                    (@partner.Status.DisplayName() som @partner.Role.DisplayName())
+                                    @partner.Status.DisplayName() som @partner.Role.DisplayName()
                                 </span>
                             }
                             break;

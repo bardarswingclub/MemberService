@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Clave.Expressionify;
@@ -278,7 +277,7 @@ namespace MemberService.Pages.Signup
 
             if (user.EventSignups.Where(CanEdit).FirstOrDefault(e => e.EventId == id) is EventSignup eventSignup)
             {
-                eventSignup.AuditLog.Add($"Changed signup ({eventSignup.Role}->{input.Role} and '{eventSignup.PartnerEmail}'->'{input.PartnerEmail}')", user);
+                eventSignup.AuditLog.Add($"Changed signup\n\n{eventSignup.Role} -> {input.Role}\n\n{eventSignup.PartnerEmail} -> {input.PartnerEmail}", user);
 
                 eventSignup.Role = input.Role;
                 eventSignup.PartnerEmail = input.PartnerEmail?.Normalize().ToUpperInvariant();

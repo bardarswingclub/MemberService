@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 using Clave.ExtensionMethods;
 using MemberService.Data;
 using MemberService.Emails.Event;
@@ -10,9 +9,9 @@ using MemberService.Pages.Signup;
 using MemberService.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using NodaTime.Text;
 
 namespace MemberService.Pages.Event
@@ -25,16 +24,20 @@ namespace MemberService.Pages.Event
         private readonly IEmailService _emailService;
         private readonly ILoginService _linker;
 
+        private readonly ILogger<EventController> _logger;
+
         public EventController(
             MemberContext database,
             UserManager<MemberUser> userManager,
             IEmailService emailService,
-            ILoginService linker)
+            ILoginService linker,
+            ILogger<EventController> logger)
         {
             _database = database;
             _userManager = userManager;
             _emailService = emailService;
             _linker = linker;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index(bool archived = false)
@@ -157,23 +160,50 @@ namespace MemberService.Pages.Event
                 .Where(l => l.Selected)
                 .Select(l => l.Id);
 
-            if (input.Status != Status.Unknown)
+            var eventEntry = await _database.Events
+                .Include(e => e.Signups)
+                    .ThenInclude(s => s.User)
+                .Include(e => e.Signups)
+                    .ThenInclude(s => s.AuditLog)
+                .SingleOrDefaultAsync(e => e.Id == id);
+
+            foreach (var signup in selected)
             {
-                var eventEntry = await _database.Events
-                    .Include(e => e.Signups)
-                        .ThenInclude(s => s.User)
-                    .Include(e => e.Signups)
-                        .ThenInclude(s => s.AuditLog)
-                    .SingleOrDefaultAsync(e => e.Id == id);
+                var eventSignup = eventEntry.Signups.Single(s => s.Id == signup);
 
-                foreach (var signup in selected)
+                bool statusChanged = input.Status != Status.Unknown;
+                if (statusChanged)
                 {
-                    var eventSignup = eventEntry.Signups.Single(s => s.Id == signup);
                     eventSignup.Status = input.Status;
+                }
 
-                    if (input.SendEmail)
+                if (input.SendEmail)
+                {
+                    try
                     {
-                        try
+                        if (input.SendCustomEmail)
+                        {
+                            await _emailService.SendCustomEmail(
+                                eventSignup.User.Email,
+                                input.Subject,
+                                input.Message,
+                                new EventStatusModel
+                                {
+                                    Name = eventSignup.User.FullName,
+                                    Title = eventEntry.Title,
+                                    Link = await SignupLink(eventSignup.User, eventEntry)
+                                });
+
+                            if (statusChanged)
+                            {
+                                eventSignup.AuditLog.Add($"Moved to {input.Status} and sent custom email\n\n---\n\n> {input.Subject}\n\n{input.Message}", currentUser);
+                            }
+                            else
+                            {
+                                eventSignup.AuditLog.Add($"Sent custom email\n\n---\n\n> {input.Subject}\n\n{input.Message}", currentUser);
+                            }
+                        }
+                        else if (statusChanged)
                         {
                             var sent = await _emailService.SendEventStatusEmail(
                                 eventSignup.User.Email,
@@ -194,21 +224,21 @@ namespace MemberService.Pages.Event
                                 eventSignup.AuditLog.Add($"Moved to {input.Status} ", currentUser);
                             }
                         }
-                        catch (Exception e)
-                        {
-                            // Mail sending might fail, but that should't stop us
-                            eventSignup.AuditLog.Add($"Tried to send email, but failed with message {e.Message}", currentUser);
-
-                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        eventSignup.AuditLog.Add($"Moved to {input.Status} ", currentUser);
+                        // Mail sending might fail, but that should't stop us
+                        eventSignup.AuditLog.Add($"Tried to send email, but failed with message {e.Message}", currentUser);
+                        _logger.LogError(e, "Failed to send email");
                     }
                 }
-
-                await _database.SaveChangesAsync();
+                else if (statusChanged)
+                {
+                    eventSignup.AuditLog.Add($"Moved to {input.Status} ", currentUser);
+                }
             }
+
+            await _database.SaveChangesAsync();
 
             return RedirectToAction(nameof(View), new { id });
         }
