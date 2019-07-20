@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using NodaTime;
+using SlugGenerator;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -54,24 +55,8 @@ namespace MemberService
         public static IHtmlContent Markdown<T>(this IHtmlHelper<T> html, string value)
             => html.Raw(Markdig.Markdown.ToHtml(value ?? string.Empty));
 
-        public static string Slugify(this string phrase, int max = 45)
-        {
-            string str = phrase.RemoveAccent().ToLower();
-            // invalid chars
-            str = Regex.Replace(str, @"[^a-z0-9\s-]", "");
-            // convert multiple spaces into one space
-            str = Regex.Replace(str, @"\s+", " ").Trim();
-            // cut and trim
-            str = str.Substring(0, str.Length <= max ? str.Length : max).Trim();
-            str = Regex.Replace(str, @"\s", "-"); // hyphens
-            return str;
-        }
-
-        public static string RemoveAccent(this string txt)
-        {
-            var bytes = System.Text.Encoding.GetEncoding("Cyrillic").GetBytes(txt);
-            return System.Text.Encoding.ASCII.GetString(bytes);
-        }
+        public static string Slugify(this string phrase)
+            => phrase.GenerateSlug();
 
         public static string ActionLink(this IUrlHelper url, string action, string controller, object values)
             => url.Action(

@@ -6,13 +6,13 @@ namespace MemberService.Data
     {
         Unknown = 0,
 
-        [DisplayName("Påmeldt")]
+        [DisplayName("PÃ¥meldt")]
         Pending = 1,
 
         [DisplayName("Anbefalt plass")]
         Recommended = 2,
 
-        [DisplayName("På venteliste")]
+        [DisplayName("PÃ¥ venteliste")]
         WaitingList = 3,
 
         [DisplayName("Gitt plass")]
