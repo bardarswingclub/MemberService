@@ -9,9 +9,9 @@ variables:
 
 steps:
 - task: DotNetCoreInstaller@0
-  displayName: 'Use .NET Core sdk 2.2.202'
+  displayName: 'Use .NET Core sdk 2.2.301'
   inputs:
-    version: 2.2.202
+    version: 2.2.301
 
 - task: DotNetCoreCLI@2
   displayName: Restore

@@ -3,16 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28803.156
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MemberService", "MemberService\MemberService.csproj", "{743BC08B-3943-43F6-97A6-EE4E43AF35D0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MemberService", "src\MemberService\MemberService.csproj", "{743BC08B-3943-43F6-97A6-EE4E43AF35D0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MemberService.Tests", "MemberService.Tests\MemberService.Tests.csproj", "{1A64F64C-EE33-4EFF-BB6F-46040B65555E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MemberService.Tests", "tests\MemberService.Tests\MemberService.Tests.csproj", "{1A64F64C-EE33-4EFF-BB6F-46040B65555E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2CFE0730-0C5B-4D24-8763-8E36B6E24BC8}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		..\azure-pipelines.yml = ..\azure-pipelines.yml
-		..\global.json = ..\global.json
-		..\Readme.md = ..\Readme.md
+		azure-pipelines.yml = azure-pipelines.yml
+		global.json = global.json
+		Readme.md = Readme.md
 	EndProjectSection
 EndProject
 Global
