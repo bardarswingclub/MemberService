@@ -61,6 +61,12 @@ namespace MemberService.Data
                     .HasConversion(
                         v => v.ToString(),
                         v => (Status)Enum.Parse(typeof(Status), v));
+
+                signup
+                    .HasOne(s => s.Partner)
+                    .WithMany()
+                    .HasForeignKey(s => s.PartnerEmail)
+                    .HasPrincipalKey(s => s.NormalizedEmail);
             });
         }
     }

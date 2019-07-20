@@ -1,24 +1,24 @@
 ﻿@using MemberService.Pages.Event
-@model IReadOnlyList<EventSignupModel>
+@model ParticipantsModel
 
 <tbody>
-    @if (Model.NotAny())
+    @if (Model.Signups.NotAny())
     {
         <tr>
-            <td colspan="3" class="text-center text-uppercase text-muted">Ingen</td>
+            <td colspan="@(Model.Options.AllowPartnerSignup ? 4 : 3)" class="text-center text-uppercase text-muted">Ingen</td>
         </tr>
     }
 
-    @for (var i = 0; i < Model.Count; i++)
+    @for (var i = 0; i < Model.Signups.Count; i++)
     {
-        var signup = Model[i];
+        var signup = Model.Signups[i];
         <tr>
             <td>
                 <input type="hidden" asp-for="@Model[i].Id" />
                 <input type="checkbox" asp-for="@Model[i].Selected" />
             </td>
             <td>
-                <a asp-controller="Members" asp-action="Details" asp-route-id="@signup.UserId" class="text-muted" target="_blank">@signup.FullName</a>
+                <a asp-controller="Members" asp-action="Details" asp-route-id="@signup.UserId" target="_blank">@signup.FullName</a>
             </td>
             <td>
                 <button type="button" class="btn btn-link" data-toggle="modal" data-target="#modal-@signup.Id">
@@ -62,6 +62,42 @@
                 </div>
 
             </td>
+
+            @if(Model.Options.AllowPartnerSignup)
+            {
+                <td>
+                    @switch(signup.Partner)
+                    {
+                        case SignedUpPartnerSignupModel partner:
+                            <a asp-controller="Members" asp-action="Details" asp-route-id="@partner.Id" target="_blank">
+                                @partner.Name
+                            </a>
+                            <span class="text-muted">
+                                (@partner.Role.DisplayName() @partner.Status.DisplayName())
+                            </span>
+                            break;
+                        case KnownPartnerSignupModel knownPartner:
+                            <a asp-controller="Members" asp-action="Details" asp-route-id="@knownPartner.Id" target="_blank">
+                                @knownPartner.Name
+                            </a>
+                            <span class="text-muted">
+                                (Ikke påmeldt)
+                            </span>
+                            break;
+                        case PartnerSignupModel unknownPartner:
+                            @unknownPartner.Email
+                            <span class="text-muted">
+                                (Ikke medlem)
+                            </span>
+                            break;
+                        default:
+                            <span class="text-muted">
+                                Ingen partner
+                            </span>
+                            break;
+                    }
+                </td>
+            }
         </tr>
     }
 </tbody>

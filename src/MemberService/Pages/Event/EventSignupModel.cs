@@ -24,6 +24,8 @@ namespace MemberService.Pages.Event
 
         public IReadOnlyCollection<EventSignupAuditEntry> AuditLog { get; set; }
 
+        public PartnerSignupModel Partner { get; set; }
+
         public static EventSignupModel Create(EventSignup s)
             => new EventSignupModel
             {
@@ -32,8 +34,10 @@ namespace MemberService.Pages.Event
                 FullName = s.User.FullName,
                 SignedUpAt = s.SignedUpAt,
                 Status = s.Status,
+                Partner = PartnerSignupModel.Create(s.PartnerEmail, s.Partner),
                 Role = s.Role,
-                AuditLog = s.AuditLog.ToReadOnlyCollection()
+                AuditLog = s.AuditLog
+                    .ToReadOnlyCollection()
             };
     }
 }

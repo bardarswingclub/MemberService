@@ -170,7 +170,7 @@ namespace MemberService.Pages.Signup
                 .Include(e => e.SignupOptions)
                 .SingleOrDefaultAsync(e => e.Id == id);
 
-            if(ev == null)
+            if (ev == null)
             {
                 return NotFound();
             }
@@ -184,7 +184,7 @@ namespace MemberService.Pages.Signup
                 .Include(u => u.EventSignups)
                 .SingleUser(_userManager.GetUserId(User));
 
-            if(user.EventSignups.FirstOrDefault(e => e.EventId == id) != null)
+            if (user.EventSignups.FirstOrDefault(e => e.EventId == id) != null)
             {
                 return RedirectToAction(nameof(Event), new { id });
             }
@@ -197,7 +197,7 @@ namespace MemberService.Pages.Signup
                 EventId = id,
                 Priority = 1,
                 Role = input.Role,
-                PartnerEmail = input.PartnerEmail,
+                PartnerEmail = input.PartnerEmail?.Normalize().ToUpperInvariant(),
                 Status = status,
                 SignedUpAt = DateTime.UtcNow,
                 AuditLog =
@@ -281,7 +281,7 @@ namespace MemberService.Pages.Signup
                 eventSignup.AuditLog.Add($"Changed signup ({eventSignup.Role}->{input.Role} and '{eventSignup.PartnerEmail}'->'{input.PartnerEmail}')", user);
 
                 eventSignup.Role = input.Role;
-                eventSignup.PartnerEmail = input.PartnerEmail;
+                eventSignup.PartnerEmail = input.PartnerEmail?.Normalize().ToUpperInvariant();
 
                 await _database.SaveChangesAsync();
             }

@@ -104,6 +104,8 @@ namespace MemberService.Pages.Event
                 .Include(e => e.Signups)
                     .ThenInclude(s => s.AuditLog)
                         .ThenInclude(l => l.User)
+                .Include(e => e.Signups)
+                    .ThenInclude(s => s.Partner)
                 .AsNoTracking()
                 .SingleOrDefaultAsync(e => e.Id == id);
 
@@ -122,13 +124,24 @@ namespace MemberService.Pages.Event
                 Status.Denied,
             };
 
+            foreach (var (partner, signup) in model.Signups
+                .Select(s => s.Partner)
+                .WhereNotNull()
+                .Join(model.Signups, p => p.Id, s => s.UserId))
+            {
+                partner.EventSignups.Add(signup);
+            }
+
             return View(new EventModel
             {
                 Id = model.Id,
                 Title = model.Title,
                 Description = model.Description,
                 Options = model.SignupOptions,
-                Signups = statuses.Select(s => EventSignupStatusModel.Create(s, model.Signups.Where(x => x.Status == s))).ToReadOnlyCollection(),
+                Signups = statuses
+                    .Select(s => (s, model.Signups.Where(x => x.Status == s)))
+                    .Select(EventSignupStatusModel.Create)
+                    .ToReadOnlyCollection(),
                 Archived = model.Archived
             });
         }
@@ -303,7 +316,7 @@ namespace MemberService.Pages.Event
             {
                 model.SignupClosesAt = DateTime.UtcNow;
             }
-            else if(status == "archive")
+            else if (status == "archive")
             {
                 model.SignupClosesAt = model.SignupClosesAt ?? DateTime.UtcNow;
                 model.Event.Archived = true;

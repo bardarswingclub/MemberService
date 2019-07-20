@@ -18,7 +18,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Clave.ExtensionMethods" Version="0.1.13" />
+    <PackageReference Include="Clave.ExtensionMethods" Version="0.1.16" />
     <PackageReference Include="Clave.NamespaceViewLocationExpander" Version="0.2.5" />
     <PackageReference Include="MailKit" Version="2.1.5.1" />
     <PackageReference Include="Markdig" Version="0.17.0" />

@@ -86,8 +86,8 @@
             <form method="post" class="tab-pane @(signups.Active ? "active" : "")" id="@signups.Key" role="tabpanel" aria-labelledby="@signups.Key-tab" disabled="@Model.Archived">
                 @if (Model.Options.RoleSignup)
                 {
-                    var leads = signups.Leads;
-                    var follows = signups.Follows;
+                    var leads = new ParticipantsModel(Model.Options, signups.Leads);
+                    var follows = new ParticipantsModel(Model.Options, signups.Follows);
 
                     <div class="row">
                         <div class="col-md-6">
@@ -98,7 +98,11 @@
                                     <tr>
                                         <th></th>
                                         <th>Navn</th>
-                                        <th>Dato</th>
+                                        <th>Påmeldt</th>
+                                        @if (Model.Options.AllowPartnerSignup)
+                                        {
+                                            <th>Partner</th>
+                                        }
                                     </tr>
                                 </thead>
                                 <partial name="_Participants" for="@leads">
@@ -112,7 +116,11 @@
                                     <tr>
                                         <th></th>
                                         <th>Navn</th>
-                                        <th>Dato</th>
+                                        <th>Påmeldt</th>
+                                        @if (Model.Options.AllowPartnerSignup)
+                                        {
+                                            <th>Partner</th>
+                                        }
                                     </tr>
                                 </thead>
                                 <partial name="_Participants" for="@follows">
@@ -122,7 +130,7 @@
                 }
                 else
                 {
-                    var solos = signups.Solos;
+                    var solos = new ParticipantsModel(Model.Options, signups.Solos);
 
                     <h4>Solo</h4>
 
@@ -131,7 +139,7 @@
                             <tr>
                                 <th></th>
                                 <th>Navn</th>
-                                <th>Dato</th>
+                                <th>Påmeldt</th>
                             </tr>
                         </thead>
                         <partial name="_Participants" for="@solos">
