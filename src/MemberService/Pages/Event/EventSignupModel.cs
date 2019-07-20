@@ -8,23 +8,25 @@ namespace MemberService.Pages.Event
 {
     public class EventSignupModel
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; private set; }
 
-        public string UserId { get; set; }
+        public string UserId { get; private set; }
 
-        public string FullName { get; set; }
+        public string FullName { get; private set; }
 
-        public DateTime SignedUpAt { get; set; }
+        public string Email { get; private set; }
 
-        public Status Status { get; set; }
+        public DateTime SignedUpAt { get; private set; }
 
-        public DanceRole Role { get; set; }
+        public Status Status { get; private set; }
 
-        public bool Selected { get; set; }
+        public DanceRole Role { get; private set; }
 
-        public IReadOnlyCollection<EventSignupAuditEntry> AuditLog { get; set; }
+        public bool Selected { get; private set; }
 
-        public PartnerSignupModel Partner { get; set; }
+        public IReadOnlyCollection<EventSignupAuditEntry> AuditLog { get; private set; }
+
+        public PartnerSignupModel Partner { get; private set; }
 
         public static EventSignupModel Create(EventSignup s)
             => new EventSignupModel
@@ -32,6 +34,7 @@ namespace MemberService.Pages.Event
                 Id = s.Id,
                 UserId = s.UserId,
                 FullName = s.User.FullName,
+                Email = s.User.NormalizedEmail,
                 SignedUpAt = s.SignedUpAt,
                 Status = s.Status,
                 Partner = PartnerSignupModel.Create(s.PartnerEmail, s.Partner),

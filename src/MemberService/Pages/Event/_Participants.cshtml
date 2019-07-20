@@ -21,9 +21,9 @@
                 <a asp-controller="Members" asp-action="Details" asp-route-id="@signup.UserId" target="_blank">@signup.FullName</a>
             </td>
             <td>
-                <button type="button" class="btn btn-link" data-toggle="modal" data-target="#modal-@signup.Id">
+                <a href="#" class="" data-toggle="modal" data-target="#modal-@signup.Id">
                     @signup.SignedUpAt.ToOsloDate()
-                </button>
+                </a>
 
                 <div class="modal fade" id="modal-@signup.Id" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
@@ -72,27 +72,45 @@
                             <a asp-controller="Members" asp-action="Details" asp-route-id="@partner.Id" target="_blank">
                                 @partner.Name
                             </a>
-                            <span class="text-muted">
-                                (@partner.Role.DisplayName() @partner.Status.DisplayName())
-                            </span>
+                            <br>
+                            @if(partner.PartnerEmail != signup.Email)
+                            {
+                                <span class="badge badge-warning">
+                                    @partner.Status.DisplayName() som @partner.Role.DisplayName() med en annen partner!
+                                </span>
+                            }
+                            else if(partner.Role == signup.Role)
+                            {
+                                <span class="badge badge-warning">
+                                    @partner.Status.DisplayName() med samme rolle!
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge @(partner.Status == Status.AcceptedAndPayed ? "badge-success" : "badge-primary")">
+                                    (@partner.Status.DisplayName() som @partner.Role.DisplayName())
+                                </span>
+                            }
                             break;
                         case KnownPartnerSignupModel knownPartner:
                             <a asp-controller="Members" asp-action="Details" asp-route-id="@knownPartner.Id" target="_blank">
                                 @knownPartner.Name
                             </a>
-                            <span class="text-muted">
-                                (Ikke påmeldt)
+                            <br>
+                            <span class="badge badge-warning">
+                                Ikke påmeldt
                             </span>
                             break;
                         case PartnerSignupModel unknownPartner:
                             @unknownPartner.Email
-                            <span class="text-muted">
-                                (Ikke medlem)
+                            <br>
+                            <span class="badge badge-warning">
+                                Ikke medlem
                             </span>
                             break;
                         default:
                             <span class="text-muted">
-                                Ingen partner
+                                (Uten partner)
                             </span>
                             break;
                     }
