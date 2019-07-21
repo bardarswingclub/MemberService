@@ -11,26 +11,28 @@ namespace MemberService.Pages.Event
     {
         public Status Status { get; set; }
 
-        public IReadOnlyCollection<EventSignupModel> Signups { get; set; }
+        public IReadOnlyList<EventSignupModel> Signups { get; set; }
 
         public string Key => Status.ToString();
 
-        public string Display => Status.GetAttribute<DisplayNameAttribute>().DisplayName;
+        public string Display => Status.DisplayName();
 
         public bool Active => Status == Status.Pending;
 
-        public IReadOnlyCollection<EventSignupModel> Leads => Signups.Where(s => s.Role == DanceRole.Lead).ToReadOnlyCollection();
+        public IReadOnlyList<EventSignupModel> Leads => Signups.Where(s => s.Role == DanceRole.Lead).ToReadOnlyList();
 
-        public IReadOnlyCollection<EventSignupModel> Follows => Signups.Where(s => s.Role == DanceRole.Follow).ToReadOnlyCollection();
+        public IReadOnlyList<EventSignupModel> Follows => Signups.Where(s => s.Role == DanceRole.Follow).ToReadOnlyList();
 
-        public IReadOnlyCollection<EventSignupModel> Solos => Signups.Where(s => s.Role == DanceRole.None).ToReadOnlyCollection();
+        public IReadOnlyList<EventSignupModel> Solos => Signups.Where(s => s.Role == DanceRole.None).ToReadOnlyList();
 
         public static EventSignupStatusModel Create(Status status, IEnumerable<EventSignup> signups)
         {
             return new EventSignupStatusModel
             {
                 Status = status,
-                Signups = signups.Select(EventSignupModel.Create).ToReadOnlyCollection()
+                Signups = signups
+                    .Select(EventSignupModel.Create)
+                    .ToReadOnlyList()
             };
         }
     }

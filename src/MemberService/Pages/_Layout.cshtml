@@ -61,7 +61,7 @@
         </nav>
     </header>
 
-    <div class="container pb-5 pt-3">
+    <div class="@(ViewData["ContainerClass"] ?? "container") pb-5 pt-3">
         <main role="main" class="">
             @RenderBody()
         </main>

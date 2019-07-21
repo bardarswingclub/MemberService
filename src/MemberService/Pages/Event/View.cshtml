@@ -3,11 +3,16 @@
 
 @{
     ViewData["Title"] = Model.Title;
+    ViewData["ContainerClass"] = "container-fluid";
 }
 
 <h2>
-    <a asp-controller="Signup" asp-action="Event" asp-route-id="@Model.Id" asp-route-slug="@Model.Title.Slugify()">@ViewData["Title"]</a>
-    <a asp-controller="Event" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary float-right">Rediger</a>
+    <a asp-controller="Signup" asp-action="Event" asp-route-id="@Model.Id" asp-route-slug="@Model.Title.Slugify()" target="_blank">
+        @ViewData["Title"]
+    </a>
+    <a asp-controller="Event" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary float-right">
+        Rediger
+    </a>
 </h2>
 
 <h4>@Model.Description</h4>
@@ -84,13 +89,13 @@
         @foreach (var signups in Model.Signups)
         {
             <form method="post" class="tab-pane @(signups.Active ? "active" : "")" id="@signups.Key" role="tabpanel" aria-labelledby="@signups.Key-tab" disabled="@Model.Archived">
-                @if (Model.Options.RoleSignup)
-                {
-                    var leads = signups.Leads;
-                    var follows = signups.Follows;
+                <div class="row">
+                    @if (Model.Options.RoleSignup)
+                    {
+                        var leads = new ParticipantsModel(Model.Options, signups.Leads);
+                        var follows = new ParticipantsModel(Model.Options, signups.Follows);
 
-                    <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-xl-4 col-lg-6">
                             <h4>Førere</h4>
 
                             <table class="table">
@@ -98,13 +103,17 @@
                                     <tr>
                                         <th></th>
                                         <th>Navn</th>
-                                        <th>Dato</th>
+                                        <th>Påmeldt</th>
+                                        @if (Model.Options.AllowPartnerSignup)
+                                        {
+                                            <th>Partner</th>
+                                        }
                                     </tr>
                                 </thead>
                                 <partial name="_Participants" for="@leads">
                             </table>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-xl-4 col-lg-6">
                             <h4>Følgere</h4>
 
                             <table class="table">
@@ -112,45 +121,99 @@
                                     <tr>
                                         <th></th>
                                         <th>Navn</th>
-                                        <th>Dato</th>
+                                        <th>Påmeldt</th>
+                                        @if (Model.Options.AllowPartnerSignup)
+                                        {
+                                            <th>Partner</th>
+                                        }
                                     </tr>
                                 </thead>
                                 <partial name="_Participants" for="@follows">
                             </table>
                         </div>
-                    </div>
-                }
-                else
-                {
-                    var solos = signups.Solos;
+                    }
+                    else
+                    {
+                        var solos = new ParticipantsModel(Model.Options, signups.Solos);
 
-                    <h4>Solo</h4>
+                        <div class="col-lg-8">
+                            <h4>Solo</h4>
 
-                    <table class="table">
-                        <thead class="thead-light">
-                            <tr>
-                                <th></th>
-                                <th>Navn</th>
-                                <th>Dato</th>
-                            </tr>
-                        </thead>
-                        <partial name="_Participants" for="@solos">
-                    </table>
-                }
-                <div class="input-group w-50">
-                    <select name="Status" class="custom-select">
-                        <option selected="selected" value="">Velg en handling</option>
-                        <option value="2">Anbefall plass</option>
-                        <option value="4">Gi plass</option>
-                        <option value="3">Sett på venteliste</option>
-                        <option value="7">Frata plass</option>
-                    </select>
-                    <div class="input-group-append">
-                        <label class="input-group-text">
-                            <input type="checkbox" name="SendEmail" value="true" />
-                            <span class="ml-1">Informer via epost</span>
-                        </label>
-                        <button type="submit" class="btn btn-success">Lagre</button>
+                            <table class="table">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th></th>
+                                        <th>Navn</th>
+                                        <th>Påmeldt</th>
+                                    </tr>
+                                </thead>
+                                <partial name="_Participants" for="@solos">
+                            </table>
+                        </div>
+                    }
+
+                    <div class="col-xl-4 col-lg-6 offset-lg-3 offset-xl-0">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <select name="Status" class="custom-select">
+                                        <option selected="selected" value="">- Velg en handling -</option>
+                                        @if(signups.Status != Status.AcceptedAndPayed)
+                                        {
+                                            <option value="2">Anbefall plass</option>
+                                            <option value="4">Gi plass</option>
+                                            <option value="3">Sett på venteliste</option>
+                                        }
+                                        <option value="7">Frata plass</option>
+                                    </select>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input collapsed" id="SendEmail-@signups.Key" data-toggle="collapse" data-target="#custom-email-checkbox-@signups.Key" aria-expanded="false" name="SendEmail" value="true" />
+                                    <label class="form-check-label" for="SendEmail-@signups.Key">
+                                        Informer via epost
+                                    </label>
+                                </div>
+                                <div class="form-check collapse" id="custom-email-checkbox-@signups.Key">
+                                    <input type="checkbox" class="form-check-input collapsed" id="SendCustomEmail-@signups.Key" name="SendCustomEmail" value="true" data-toggle="collapse" data-target="#custom-email-@signups.Key" aria-expanded="false" />
+                                    <label class="form-check-label" for="SendCustomEmail-@signups.Key">
+                                        Skriv egen e-post
+                                    </label>
+                                </div>
+                                <div class="collapse pt-3" id="custom-email-@signups.Key">
+                                    <div class="form-group">
+                                        <label for="custom-email-subject">Emne</label>
+                                        <input type="text" class="form-control" id="custom-email-subject" name="Subject" value="Info om {EVENT}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="custom-email-message">Melding</label>
+                                        <textarea class="form-control" id="custom-email-message" name="Message" rows="8">
+Hei {NAME}
+
+Du har meldt deg på {TITLE}.
+
+Trykk [her]({LINK}) for å betale
+
+_Hilsen Bårdar Swing Club_
+                                        </textarea>
+                                        <hr />
+                                        <small class="text-muted">
+                                            Du kan bruke <a href="https://www.markdownguide.org/basic-syntax/" target="_blank">Markdown</a>, f.eks <code>**<b>bold</b>**</code>, <code>_<i>italics</i>_</code> og <code>[link](https://bardarswingclub.no)</code>
+                                            <br>
+                                            Du kan flette inn
+                                            <br>
+                                            <code>{NAME}</code>: Personens navn
+                                            <br>
+                                            <code>{TITLE}</code>: Navnet på arrangementet
+                                            <br>
+                                            <code>[skriv noe her]({LINK})</code>: Link til arrangementet
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <button type="submit" class="btn btn-success btn-block">Lagre</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </form>

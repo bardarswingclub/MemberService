@@ -2,7 +2,6 @@
 using MemberService.Emails.Account;
 using MemberService.Emails.Event;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using System;
 using System.Threading.Tasks;
 
 namespace MemberService.Services
@@ -49,6 +48,14 @@ namespace MemberService.Services
             return true;
         }
 
+        public async Task SendCustomEmail(string email, string subject, string message, EventStatusModel eventStatusModel)
+        {
+            await _emailSender.SendEmailAsync(
+                email,
+                Replace(subject, eventStatusModel),
+                Markdig.Markdown.ToHtml(Replace(message, eventStatusModel)));
+        }
+
         private static string GetEventStatusSubject(Status status, string title)
         {
             switch (status)
@@ -78,5 +85,12 @@ namespace MemberService.Services
                     return null;
             }
         }
+
+        private static string Replace(string value, EventStatusModel model)
+            => value
+                .Replace("{TITLE}", model.Title)
+                .Replace("{NAME}", model.Name)
+                .Replace("{LINK}", model.Link);
+
     }
 }

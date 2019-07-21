@@ -1,29 +1,29 @@
 ﻿@using MemberService.Pages.Event
-@model IReadOnlyList<EventSignupModel>
+@model ParticipantsModel
 
 <tbody>
-    @if (Model.NotAny())
+    @if (Model.Signups.NotAny())
     {
         <tr>
-            <td colspan="3" class="text-center text-uppercase text-muted">Ingen</td>
+            <td colspan="@(Model.Options.AllowPartnerSignup ? 4 : 3)" class="text-center text-uppercase text-muted">Ingen</td>
         </tr>
     }
 
-    @for (var i = 0; i < Model.Count; i++)
+    @for (var i = 0; i < Model.Signups.Count; i++)
     {
-        var signup = Model[i];
+        var signup = Model.Signups[i];
         <tr>
             <td>
                 <input type="hidden" asp-for="@Model[i].Id" />
                 <input type="checkbox" asp-for="@Model[i].Selected" />
             </td>
             <td>
-                <a asp-controller="Members" asp-action="Details" asp-route-id="@signup.UserId" class="text-muted" target="_blank">@signup.FullName</a>
+                <a asp-controller="Members" asp-action="Details" asp-route-id="@signup.UserId" target="_blank">@signup.FullName</a>
             </td>
             <td>
-                <button type="button" class="btn btn-link" data-toggle="modal" data-target="#modal-@signup.Id">
+                <a href="#" class="" data-toggle="modal" data-target="#modal-@signup.Id">
                     @signup.SignedUpAt.ToOsloDate()
-                </button>
+                </a>
 
                 <div class="modal fade" id="modal-@signup.Id" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
@@ -45,7 +45,7 @@
                                     {
                                         <tr>
                                             <td>
-                                                @entry.Message
+                                                @Html.Markdown(entry.Message)
                                             </td>
                                             <td>
                                                 <a asp-controller="Members" asp-action="Details" asp-route-id="@entry.UserId" target="_blank">@entry.User.FullName</a>
@@ -62,6 +62,60 @@
                 </div>
 
             </td>
+
+            @if(Model.Options.AllowPartnerSignup)
+            {
+                <td>
+                    @switch(signup.Partner)
+                    {
+                        case SignedUpPartnerSignupModel partner:
+                            <a asp-controller="Members" asp-action="Details" asp-route-id="@partner.Id" target="_blank">
+                                @partner.Name
+                            </a>
+                            <br>
+                            @if(partner.PartnerEmail != signup.Email)
+                            {
+                                <span class="badge badge-warning">
+                                    @partner.Status.DisplayName() som @partner.Role.DisplayName() med en annen partner!
+                                </span>
+                            }
+                            else if(partner.Role == signup.Role)
+                            {
+                                <span class="badge badge-warning">
+                                    @partner.Status.DisplayName() med samme rolle!
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge @(partner.Status == Status.AcceptedAndPayed ? "badge-success" : "badge-primary")">
+                                    @partner.Status.DisplayName() som @partner.Role.DisplayName()
+                                </span>
+                            }
+                            break;
+                        case KnownPartnerSignupModel knownPartner:
+                            <a asp-controller="Members" asp-action="Details" asp-route-id="@knownPartner.Id" target="_blank">
+                                @knownPartner.Name
+                            </a>
+                            <br>
+                            <span class="badge badge-warning">
+                                Ikke påmeldt
+                            </span>
+                            break;
+                        case PartnerSignupModel unknownPartner:
+                            @unknownPartner.Email
+                            <br>
+                            <span class="badge badge-warning">
+                                Ikke medlem
+                            </span>
+                            break;
+                        default:
+                            <span class="text-muted">
+                                (Uten partner)
+                            </span>
+                            break;
+                    }
+                </td>
+            }
         </tr>
     }
 </tbody>
