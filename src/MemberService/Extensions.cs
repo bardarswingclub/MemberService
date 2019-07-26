@@ -8,6 +8,7 @@ using SlugGenerator;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -48,6 +49,9 @@ namespace MemberService
 
         public static string DisplayName(this Enum enumValue)
             => enumValue.GetAttribute<DisplayNameAttribute>().DisplayName;
+
+        public static string DisplayDescription(this Enum enumValue)
+            => enumValue.GetAttribute<DisplayAttribute>().Description;
 
         public static Guid? ToGuid(this string value)
             => Guid.TryParse(value, out var result) ? result : default;

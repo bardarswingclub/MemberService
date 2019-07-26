@@ -5,7 +5,16 @@
 }
 <h2>
     <a asp-controller="Signup" asp-action="Index">@ViewData["Title"]</a>
-    <a class="btn btn-success float-right" asp-action="Create">Opprett nytt arrangement</a>
+    <div class="btn-group float-right">
+        <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Opprett nytt arrangement
+        </button>
+        <div class="dropdown-menu dropdown-menu-right">
+            <a class="dropdown-item" asp-action="Create" asp-route-type="@EventType.Class">@EventType.Class.DisplayDescription()</a>
+            <a class="dropdown-item" asp-action="Create" asp-route-type="@EventType.Workshop">@EventType.Workshop.DisplayDescription()</a>
+            <a class="dropdown-item" asp-action="Create" asp-route-type="@EventType.Party">@EventType.Party.DisplayDescription()</a>
+        </div>
+    </div>
 </h2>
 
 
@@ -22,7 +31,7 @@
         @foreach(var eventEntry in Model)
         {
             <tr>
-                <td><a asp-action="View" asp-route-id="@eventEntry.Id">@eventEntry.Title</a></td>
+                <td><a asp-action="View" asp-route-id="@eventEntry.Id">@eventEntry.Title</a> <span class="text-muted">(@eventEntry.Type.DisplayName())</span></td>
                 <td>@eventEntry.RolesCount()</td>
                 <td>@eventEntry.RolesCount(Status.AcceptedAndPayed)</td>
                 <td>@EventStatus(eventEntry)</td>

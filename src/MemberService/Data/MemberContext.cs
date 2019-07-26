@@ -52,21 +52,24 @@ namespace MemberService.Data
             {
                 signup
                     .Property(s => s.Role)
-                    .HasConversion(
-                        v => v.ToString(),
-                        v => (DanceRole)Enum.Parse(typeof(DanceRole), v));
+                    .HasEnumStringConversion();
 
                 signup
                     .Property(s => s.Status)
-                    .HasConversion(
-                        v => v.ToString(),
-                        v => (Status)Enum.Parse(typeof(Status), v));
+                    .HasEnumStringConversion();
 
                 signup
                     .HasOne(s => s.Partner)
                     .WithMany()
                     .HasForeignKey(s => s.PartnerEmail)
                     .HasPrincipalKey(s => s.NormalizedEmail);
+            });
+
+            builder.Entity<Event>(@event =>
+            {
+                @event
+                    .Property(e => e.Type)
+                    .HasEnumStringConversion();
             });
         }
     }

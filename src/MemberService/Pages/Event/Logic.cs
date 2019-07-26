@@ -37,6 +37,7 @@ namespace MemberService.Pages.Event
             {
                 Title = model.Title,
                 Description = model.Description,
+                Type = model.Type,
                 CreatedAt = DateTime.UtcNow,
                 CreatedByUser = user,
                 SignupOptions = new EventSignupOptions
@@ -102,6 +103,7 @@ namespace MemberService.Pages.Event
                 Id = model.Id,
                 Title = model.Title,
                 Description = model.Description,
+                Type = model.Type,
                 EnableSignupOpensAt = model.SignupOptions.SignupOpensAt.HasValue,
                 SignupOpensAtDate = signupOpensAtDate,
                 SignupOpensAtTime = signupOpensAtTime,
@@ -126,6 +128,7 @@ namespace MemberService.Pages.Event
         {
             entity.Title = model.Title;
             entity.Description = model.Description;
+            entity.Type = model.Type;
             entity.SignupOptions.RequiresMembershipFee = model.RequiresMembershipFee;
             entity.SignupOptions.RequiresTrainingFee = model.RequiresTrainingFee;
             entity.SignupOptions.RequiresClassesFee = model.RequiresClassesFee;

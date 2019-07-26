@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Clave.Expressionify;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MemberService.Data
 {
@@ -40,5 +41,11 @@ namespace MemberService.Data
 
         public static async Task<MemberUser> SingleUser(this IQueryable<MemberUser> users, string id)
             => await users.SingleOrDefaultAsync(user => user.Id == id);
+
+        public static void HasEnumStringConversion<TEnum>(this PropertyBuilder<TEnum> property)
+            where TEnum : struct
+            => property.HasConversion(
+                    v => v.ToString(),
+                    v => Enum.Parse<TEnum>(v));
     }
 }

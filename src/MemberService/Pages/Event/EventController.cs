@@ -48,9 +48,12 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public IActionResult Create(EventType type = EventType.Class)
         {
-            return View(new EventInputModel());
+            return View(new EventInputModel
+            {
+                Type = type
+            });
         }
 
         [HttpPost]
