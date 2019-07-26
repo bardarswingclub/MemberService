@@ -20,6 +20,10 @@ namespace MemberService.Pages.Signup
 
         public EventSignup UserEventSignup { get; set; }
 
+        public bool HasClosed { get; set; }
+
+        public bool IsOpen { get; set; }
+
         [Expressionify]
         public static SignupModel Create(Data.Event e)
             => new SignupModel
@@ -27,7 +31,9 @@ namespace MemberService.Pages.Signup
                 Id = e.Id,
                 Title = e.Title,
                 Description = e.Description,
-                Options = e.SignupOptions
+                Options = e.SignupOptions,
+                IsOpen = e.IsOpen(),
+                HasClosed = e.HasClosed()
             };
     }
 }

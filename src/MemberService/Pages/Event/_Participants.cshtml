@@ -5,7 +5,7 @@
     @if (Model.Signups.NotAny())
     {
         <tr>
-            <td colspan="@(Model.Options.AllowPartnerSignup ? 4 : 3)" class="text-center text-uppercase text-muted">Ingen</td>
+            <td colspan="@(Model.AllowPartnerSignup ? 4 : 3)" class="text-center text-uppercase text-muted">Ingen</td>
         </tr>
     }
 
@@ -63,7 +63,7 @@
 
             </td>
 
-            @if(Model.Options.AllowPartnerSignup)
+            @if(Model.AllowPartnerSignup)
             {
                 <td>
                     @switch(signup.Partner)

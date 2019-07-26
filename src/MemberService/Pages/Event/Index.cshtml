@@ -40,7 +40,7 @@
         {
             return "Arkivert";
         }
-        else if (@event.SignupOptions.IsOpen())
+        else if (@event.IsOpen())
         {
             if (@event.SignupOptions.SignupOpensAt.HasValue)
             {

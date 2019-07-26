@@ -1,23 +1,21 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Clave.Expressionify;
 using MemberService.Data;
 using MemberService.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Signup
 {
     [Authorize]
     public class SignupController : Controller
     {
-        private MemberContext _database;
-        private UserManager<MemberUser> _userManager;
-        private IPaymentService _paymentService;
+        private readonly MemberContext _database;
+        private readonly UserManager<MemberUser> _userManager;
+        private readonly IPaymentService _paymentService;
 
         public SignupController(
             MemberContext database,
@@ -32,26 +30,11 @@ namespace MemberService.Pages.Signup
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            var userId = _userManager.GetUserId(User);
+            var userId = GetUserId();
 
-            var openEvents = await _database.Events
-                .Include(e => e.SignupOptions)
-                .AsNoTracking()
-                .Expressionify()
-                .Where(e => e.Archived == false)
-                .Where(e => e.SignupOptions.IsOpen())
-                .Select(e => EventModel.Create(e, userId))
-                .ToListAsync();
+            var openEvents = await _database.GetEvents(userId, e => e.IsOpen());
 
-            var futureEvents = await _database.Events
-                .Include(e => e.SignupOptions)
-                .AsNoTracking()
-                .Expressionify()
-                .Where(e => e.Archived == false)
-                .Where(e => !e.SignupOptions.HasOpened() && !e.SignupOptions.HasClosed())
-                .OrderBy(e => e.SignupOptions.SignupOpensAt)
-                .Select(e => EventModel.Create(e, userId))
-                .ToListAsync();
+            var futureEvents = await _database.GetEvents(userId, e => !e.HasOpened() && !e.HasClosed());
 
             return View(new EventsModel
             {
@@ -65,12 +48,7 @@ namespace MemberService.Pages.Signup
         [AllowAnonymous]
         public async Task<IActionResult> Event(Guid id)
         {
-            var model = await _database.Events
-                .Include(e => e.SignupOptions)
-                .AsNoTracking()
-                .Expressionify()
-                .Select(e => SignupModel.Create(e))
-                .SingleOrDefaultAsync(e => e.Id == id);
+            var model = await _database.GetSignupModel(id);
 
             if (model == null)
             {
@@ -82,11 +60,7 @@ namespace MemberService.Pages.Signup
                 return View("Anonymous", model);
             }
 
-            model.User = await _database.Users
-                .Include(u => u.Payments)
-                .Include(u => u.EventSignups)
-                .AsNoTracking()
-                .SingleUser(_userManager.GetUserId(User));
+            model.User = await _database.GetUser(GetUserId());
 
             if (model.User.EventSignups.FirstOrDefault(e => e.EventId == id) is EventSignup eventSignup)
             {
@@ -97,61 +71,17 @@ namespace MemberService.Pages.Signup
                     return View("Status", model);
                 }
 
-                var mustPayClassesFee = MustPayClassesFee(model.Options, model.User);
-                var mustPayTrainingFee = MustPayTrainingFee(model.Options, model.User);
-                var mustPayMembershipFee = MustPayMembershipFee(model.Options, model.User);
-
-                var mustPayMembersPrice = MustPayMembersPrice(model.Options, model.User);
-                var mustPayNonMembersPrice = MustPayNonMembersPrice(model.Options, model.User);
-
-                var acceptModel = new AcceptModel
-                {
-                    Id = id,
-                    Title = model.Title,
-                    Description = model.Description,
-                    MustPayClassesFee = mustPayClassesFee,
-                    MustPayTrainingFee = mustPayTrainingFee,
-                    MustPayMembershipFee = mustPayMembershipFee
-                };
-
-                if (mustPayClassesFee)
-                {
-                    var classesFee = model.User.GetClassesFee().Fee;
-                    acceptModel.MustPayAmount = classesFee.Amount;
-                    acceptModel.SessionId = await CreatePayment(model, classesFee);
-                }
-                else if (mustPayTrainingFee)
-                {
-                    var trainingFee = model.User.GetTrainingFee().Fee;
-                    acceptModel.MustPayAmount = trainingFee.Amount;
-                    acceptModel.SessionId = await CreatePayment(model, trainingFee);
-                }
-                else if (mustPayMembershipFee)
-                {
-                    var membershipFee = model.User.GetMembershipFee().Fee;
-                    acceptModel.MustPayAmount = membershipFee.Amount;
-                    acceptModel.SessionId = await CreatePayment(model, membershipFee);
-                }
-                else if (mustPayMembersPrice)
-                {
-                    acceptModel.MustPayAmount = model.Options.PriceForMembers;
-                    acceptModel.SessionId = await CreatePayment(model, model.Options.PriceForMembers);
-                }
-                else if (mustPayNonMembersPrice)
-                {
-                    acceptModel.MustPayAmount = model.Options.PriceForNonMembers;
-                    acceptModel.SessionId = await CreatePayment(model, model.Options.PriceForNonMembers);
-                }
+                var acceptModel = await CreateAcceptModel(model);
 
                 return base.View("Accept", acceptModel);
             }
 
-            if (model.Options.IsOpen())
+            if (model.IsOpen)
             {
                 return View("Signup", model);
             }
 
-            if (model.Options.HasClosed())
+            if (model.HasClosed)
             {
                 return View("ClosedAlready", model);
             }
@@ -168,46 +98,28 @@ namespace MemberService.Pages.Signup
                 return RedirectToAction(nameof(Event), new { id });
             }
 
-            var ev = await _database.Events
-                .Include(e => e.Signups)
-                .Include(e => e.SignupOptions)
-                .SingleOrDefaultAsync(e => e.Id == id);
+            var model = await _database.GetEditableEvent(id);
 
-            if (ev == null)
+            if (model == null)
             {
                 return NotFound();
             }
 
-            if (!ev.SignupOptions.IsOpen())
+            if (!model.IsOpen())
             {
                 return RedirectToAction(nameof(Event), new { id });
             }
 
-            var user = await _database.Users
-                .Include(u => u.EventSignups)
-                .SingleUser(_userManager.GetUserId(User));
+            var user = await _database.GetEditableUser(GetUserId());
 
-            if (user.EventSignups.FirstOrDefault(e => e.EventId == id) != null)
+            if (user.IsSignedUpFor(id))
             {
                 return RedirectToAction(nameof(Event), new { id });
             }
 
-            var autoAccept = ev.SignupOptions.AutoAcceptedSignups > ev.Signups.Count(s => s.Role == input.Role);
-            var status = autoAccept ? Status.Approved : Status.Pending;
+            var autoAccept = model.ShouldAutoAccept(input.Role);
 
-            user.EventSignups.Add(new EventSignup
-            {
-                EventId = id,
-                Priority = 1,
-                Role = input.Role,
-                PartnerEmail = input.PartnerEmail?.Normalize().ToUpperInvariant(),
-                Status = status,
-                SignedUpAt = DateTime.UtcNow,
-                AuditLog =
-                {
-                    { $"Signed up as {input.Role}{(input.PartnerEmail is string partnerEmail ? $" with partner {partnerEmail}" : "")}, status is {status}", user }
-                }
-            });
+            user.AddEventSignup(id, input, autoAccept);
 
             await _database.SaveChangesAsync();
 
@@ -224,25 +136,16 @@ namespace MemberService.Pages.Signup
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var model = await _database.Events
-                .Include(e => e.SignupOptions)
-                .AsNoTracking()
-                .Expressionify()
-                .Select(e => SignupModel.Create(e))
-                .SingleOrDefaultAsync(e => e.Id == id);
+            var model = await _database.GetSignupModel(id);
 
             if (model == null)
             {
                 return NotFound();
             }
 
-            model.User = await _database.Users
-                .Include(u => u.Payments)
-                .Include(u => u.EventSignups)
-                .AsNoTracking()
-                .SingleUser(_userManager.GetUserId(User));
+            model.User = await _database.GetUser(GetUserId());
 
-            if (model.User.EventSignups.Where(CanEdit).FirstOrDefault(e => e.EventId == id) is EventSignup eventSignup)
+            if (model.User.GetEditableEvent(id) is EventSignup eventSignup)
             {
                 model.UserEventSignup = eventSignup;
                 model.Input = new SignupInputModel
@@ -265,21 +168,14 @@ namespace MemberService.Pages.Signup
                 return RedirectToAction(nameof(Edit), new { id });
             }
 
-            var ev = await _database.Events
-                .Include(e => e.Signups)
-                .Include(e => e.SignupOptions)
-                .SingleOrDefaultAsync(e => e.Id == id);
-
-            if (ev == null)
+            if (await _database.GetEditableEvent(id) == null)
             {
                 return NotFound();
             }
 
-            var user = await _database.Users
-                .Include(u => u.EventSignups)
-                .SingleUser(_userManager.GetUserId(User));
+            var user = await _database.GetEditableUser(GetUserId());
 
-            if (user.EventSignups.Where(CanEdit).FirstOrDefault(e => e.EventId == id) is EventSignup eventSignup)
+            if (user.GetEditableEvent(id) is EventSignup eventSignup)
             {
                 eventSignup.AuditLog.Add($"Changed signup\n\n{eventSignup.Role} -> {input.Role}\n\n{eventSignup.PartnerEmail} -> {input.PartnerEmail}", user);
 
@@ -295,12 +191,7 @@ namespace MemberService.Pages.Signup
         [HttpGet]
         public async Task<IActionResult> ThankYou(Guid id)
         {
-            var model = await _database.Events
-                .Expressionify()
-                .Include(e => e.SignupOptions)
-                .AsNoTracking()
-                .Select(e => SignupModel.Create(e))
-                .SingleOrDefaultAsync(e => e.Id == id);
+            var model = await _database.GetSignupModel(id);
 
             return View(model);
         }
@@ -308,19 +199,17 @@ namespace MemberService.Pages.Signup
         [HttpPost]
         public async Task<IActionResult> AcceptOrReject(Guid id, [FromForm] bool accept)
         {
-            var user = await _database.Users
-                .Include(u => u.EventSignups)
-                    .ThenInclude(s => s.Event)
-                        .ThenInclude(e => e.SignupOptions)
-                .SingleUser(_userManager.GetUserId(User));
+            var user = await _database.GetEditableUser(GetUserId());
+
+            var signupModel = await _database.GetSignupModel(id);
+
+            if (user.MustPayClassesFee(signupModel.Options)) return Forbid();
+            if (user.MustPayTrainingFee(signupModel.Options)) return Forbid();
+            if (user.MustPayMembershipFee(signupModel.Options)) return Forbid();
+            if (user.MustPayMembersPrice(signupModel.Options)) return Forbid();
+            if (user.MustPayNonMembersPrice(signupModel.Options)) return Forbid();
 
             var signup = user.EventSignups.FirstOrDefault(s => s.EventId == id);
-
-            if (MustPayClassesFee(signup.Event.SignupOptions, user)) return Forbid();
-            if (MustPayTrainingFee(signup.Event.SignupOptions, user)) return Forbid();
-            if (MustPayMembershipFee(signup.Event.SignupOptions, user)) return Forbid();
-            if (MustPayMembersPrice(signup.Event.SignupOptions, user)) return Forbid();
-            if (MustPayNonMembersPrice(signup.Event.SignupOptions, user)) return Forbid();
 
             if (signup?.Status == Status.Approved)
             {
@@ -344,15 +233,64 @@ namespace MemberService.Pages.Signup
         [HttpGet]
         public async Task<IActionResult> Success(Guid id, string sessionId)
         {
-            var user = await _database.Users
-            .Include(u => u.EventSignups)
-            .SingleUser(_userManager.GetUserId(User));
+            var user = await _database.GetEditableUser(GetUserId());
 
             var signup = user.EventSignups.FirstOrDefault(s => s.EventId == id);
 
             await _paymentService.SavePayment(sessionId);
 
             return RedirectToAction(nameof(Event), new { id });
+        }
+
+        private async Task<AcceptModel> CreateAcceptModel(SignupModel model)
+        {
+            var mustPayClassesFee = model.User.MustPayClassesFee(model.Options);
+            var mustPayTrainingFee = model.User.MustPayTrainingFee(model.Options);
+            var mustPayMembershipFee = model.User.MustPayMembershipFee(model.Options);
+
+            var mustPayMembersPrice = model.User.MustPayMembersPrice(model.Options);
+            var mustPayNonMembersPrice = model.User.MustPayNonMembersPrice(model.Options);
+
+            var acceptModel = new AcceptModel
+            {
+                Id = model.Id,
+                Title = model.Title,
+                Description = model.Description,
+                MustPayClassesFee = mustPayClassesFee,
+                MustPayTrainingFee = mustPayTrainingFee,
+                MustPayMembershipFee = mustPayMembershipFee
+            };
+
+            if (mustPayClassesFee)
+            {
+                var classesFee = model.User.GetClassesFee().Fee;
+                acceptModel.MustPayAmount = classesFee.Amount;
+                acceptModel.SessionId = await CreatePayment(model, classesFee);
+            }
+            else if (mustPayTrainingFee)
+            {
+                var trainingFee = model.User.GetTrainingFee().Fee;
+                acceptModel.MustPayAmount = trainingFee.Amount;
+                acceptModel.SessionId = await CreatePayment(model, trainingFee);
+            }
+            else if (mustPayMembershipFee)
+            {
+                var membershipFee = model.User.GetMembershipFee().Fee;
+                acceptModel.MustPayAmount = membershipFee.Amount;
+                acceptModel.SessionId = await CreatePayment(model, membershipFee);
+            }
+            else if (mustPayMembersPrice)
+            {
+                acceptModel.MustPayAmount = model.Options.PriceForMembers;
+                acceptModel.SessionId = await CreatePayment(model, model.Options.PriceForMembers);
+            }
+            else if (mustPayNonMembersPrice)
+            {
+                acceptModel.MustPayAmount = model.Options.PriceForNonMembers;
+                acceptModel.SessionId = await CreatePayment(model, model.Options.PriceForNonMembers);
+            }
+
+            return acceptModel;
         }
 
         private async Task<string> CreatePayment(SignupModel model, decimal amount)
@@ -396,17 +334,6 @@ namespace MemberService.Pages.Signup
                     id,
                     sessionId = "{CHECKOUT_SESSION_ID}"
                 });
-
-        private static bool CanEdit(EventSignup e) => e.Status == Status.Pending || e.Status == Status.Recommended;
-
-        private static bool MustPayNonMembersPrice(EventSignupOptions options, MemberUser user) => options.PriceForNonMembers > 0 && !user.HasPayedMembershipThisYear();
-
-        private static bool MustPayMembersPrice(EventSignupOptions options, MemberUser user) => options.PriceForMembers > 0 && user.HasPayedMembershipThisYear();
-
-        private static bool MustPayMembershipFee(EventSignupOptions options, MemberUser user) => options.RequiresMembershipFee && !user.HasPayedMembershipThisYear();
-
-        private static bool MustPayTrainingFee(EventSignupOptions options, MemberUser user) => options.RequiresTrainingFee && !user.HasPayedTrainingFeeThisSemester();
-
-        private static bool MustPayClassesFee(EventSignupOptions options, MemberUser user) => options.RequiresClassesFee && !user.HasPayedClassesFeeThisSemester();
+        private string GetUserId() => _userManager.GetUserId(User);
     }
 }

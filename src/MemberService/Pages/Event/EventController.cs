@@ -117,36 +117,7 @@ namespace MemberService.Pages.Event
                 return NotFound();
             }
 
-            var statuses = new[] {
-                Status.AcceptedAndPayed,
-                Status.Approved,
-                Status.WaitingList,
-                Status.Recommended,
-                Status.Pending,
-                Status.RejectedOrNotPayed,
-                Status.Denied,
-            };
-
-            foreach (var (partner, signup) in model.Signups
-                .Select(s => s.Partner)
-                .WhereNotNull()
-                .Join(model.Signups, p => p.Id, s => s.UserId))
-            {
-                partner.EventSignups.Add(signup);
-            }
-
-            return View(new EventModel
-            {
-                Id = model.Id,
-                Title = model.Title,
-                Description = model.Description,
-                Options = model.SignupOptions,
-                Signups = statuses
-                    .Select(s => (s, model.Signups.Where(x => x.Status == s)))
-                    .Select(EventSignupStatusModel.Create)
-                    .ToReadOnlyCollection(),
-                Archived = model.Archived
-            });
+            return View(EventModel.Create(model));
         }
 
         [HttpPost]

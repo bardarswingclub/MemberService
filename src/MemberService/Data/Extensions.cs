@@ -23,16 +23,20 @@ namespace MemberService.Data
             || user.ExemptFromClassesFee && user.HasPayedTrainingFeeThisSemester();
 
         [Expressionify]
-        public static bool HasOpened(this EventSignupOptions x)
-            => x.SignupOpensAt == null || x.SignupOpensAt < DateTime.UtcNow;
+        public static bool HasOpened(this Event e)
+            => e.SignupOptions.SignupOpensAt == null || e.SignupOptions.SignupOpensAt < DateTime.UtcNow;
 
         [Expressionify]
-        public static bool HasClosed(this EventSignupOptions x)
-            => x.SignupClosesAt != null && x.SignupClosesAt < DateTime.UtcNow;
+        public static bool HasClosed(this Event e)
+            => e.SignupOptions.SignupClosesAt != null && e.SignupOptions.SignupClosesAt < DateTime.UtcNow;
 
         [Expressionify]
-        public static bool IsOpen(this EventSignupOptions x)
-            => x.HasOpened() && !x.HasClosed();
+        public static bool IsOpen(this Event e)
+            => e.HasOpened() && !e.HasClosed();
+
+        [Expressionify]
+        public static bool IsSignedUpFor(this MemberUser user, Guid id)
+            => user.EventSignups.Any(e => e.EventId == id);
 
         public static async Task<MemberUser> SingleUser(this IQueryable<MemberUser> users, string id)
             => await users.SingleOrDefaultAsync(user => user.Id == id);
