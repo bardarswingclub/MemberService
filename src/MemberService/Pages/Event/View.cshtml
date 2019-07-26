@@ -23,32 +23,32 @@
         <h4 class="alert-heading">Arrangementet er arkivert</h4>
         <p>Dette arrangementet er arkivert og ikke lenger åpent for redigering</p>
     }
-    else if (Model.Options.IsOpen())
+    else if (Model.IsOpen)
     {
         <h4 class="alert-heading">
             Påmeldingen er åpen!
             <button type="submit" name="status" value="close" class="btn btn-outline-danger float-right">Steng påmeldingen nå</button>
         </h4>
-        @if (Model.Options.SignupOpensAt.HasValue)
+        @if (Model.SignupOpensAt.HasValue)
         {
-            <p>Påmeldingen åpnet @Model.Options.SignupOpensAt.Value.ToOsloDate() klokken @Model.Options.SignupOpensAt.Value.ToOsloTime()</p>
+            <p>Påmeldingen åpnet @Model.SignupOpensAt.Value.ToOsloDate() klokken @Model.SignupOpensAt.Value.ToOsloTime()</p>
         }
-        @if (Model.Options.SignupClosesAt.HasValue)
+        @if (Model.SignupClosesAt.HasValue)
         {
-            <p>Påmeldingen stenger @Model.Options.SignupClosesAt.Value.ToOsloDate() klokken @Model.Options.SignupClosesAt.Value.ToOsloTime()</p>
+            <p>Påmeldingen stenger @Model.SignupClosesAt.Value.ToOsloDate() klokken @Model.SignupClosesAt.Value.ToOsloTime()</p>
         }
     }
-    else if (Model.Options.HasClosed())
+    else if (Model.HasClosed)
     {
         <h4 class="alert-heading">
             Påmeldingen har stengt!
             <button type="submit" name="status" value="open" class="btn btn-outline-success float-right">Gjennåpne påmeldingen nå</button>
         </h4>
-        @if (Model.Options.SignupOpensAt.HasValue)
+        @if (Model.SignupOpensAt.HasValue)
         {
-            <p>Påmeldingen åpnet @Model.Options.SignupOpensAt.Value.ToOsloDate() klokken @Model.Options.SignupOpensAt.Value.ToOsloTime()</p>
+            <p>Påmeldingen åpnet @Model.SignupOpensAt.Value.ToOsloDate() klokken @Model.SignupOpensAt.Value.ToOsloTime()</p>
         }
-        <p>Påmeldingen stengte @Model.Options.SignupClosesAt.Value.ToOsloDate() klokken @Model.Options.SignupClosesAt.Value.ToOsloTime()</p>
+        <p>Påmeldingen stengte @Model.SignupClosesAt.Value.ToOsloDate() klokken @Model.SignupClosesAt.Value.ToOsloTime()</p>
     }
     else
     {
@@ -56,10 +56,10 @@
             Påmeldingen har ikke åpnet ennå!
             <button type="submit" name="status" value="open" class="btn btn-outline-success float-right">Åpne påmeldingen nå</button>
         </h4>
-        <p>Påmeldingen åpner @Model.Options.SignupOpensAt.Value.ToOsloDate() klokken @Model.Options.SignupOpensAt.Value.ToOsloTime()</p>
-        @if (Model.Options.SignupClosesAt.HasValue)
+        <p>Påmeldingen åpner @Model.SignupOpensAt.Value.ToOsloDate() klokken @Model.SignupOpensAt.Value.ToOsloTime()</p>
+        @if (Model.SignupClosesAt.HasValue)
         {
-            <p>Påmeldingen stenger @Model.Options.SignupClosesAt.Value.ToOsloDate() klokken @Model.Options.SignupClosesAt.Value.ToOsloTime()</p>
+            <p>Påmeldingen stenger @Model.SignupClosesAt.Value.ToOsloDate() klokken @Model.SignupClosesAt.Value.ToOsloTime()</p>
         }
     }
 </form>
@@ -72,11 +72,11 @@
                 <li class="nav-item">
                     <a class="nav-link text-dark @(signups.Active ? "active" : "")" id="tab-@signups.Key" data-toggle="tab" href="#@signups.Key" role="tab" aria-controls="@signups.Key" aria-selected="@signups.Active">
                         @signups.Display
-                        @if (Model.Options.RoleSignup && signups.Signups.Any())
+                        @if (Model.RoleSignup && signups.Signups.Any())
                         {
                             <span class="ml-1 badge badge-pill badge-secondary">@(signups.Leads.Count)+@signups.Follows.Count</span>
                         }
-                        else if (!Model.Options.RoleSignup && signups.Solos.Any())
+                        else if (!Model.RoleSignup && signups.Solos.Any())
                         {
                             <span class="ml-1 badge badge-pill badge-secondary">@signups.Solos.Count</span>
                         }
@@ -90,10 +90,10 @@
         {
             <form method="post" class="tab-pane @(signups.Active ? "active" : "")" id="@signups.Key" role="tabpanel" aria-labelledby="@signups.Key-tab" disabled="@Model.Archived">
                 <div class="row">
-                    @if (Model.Options.RoleSignup)
+                    @if (Model.RoleSignup)
                     {
-                        var leads = new ParticipantsModel(Model.Options, signups.Leads);
-                        var follows = new ParticipantsModel(Model.Options, signups.Follows);
+                        var leads = new ParticipantsModel(signups.Leads, Model.AllowPartnerSignup);
+                        var follows = new ParticipantsModel(signups.Follows, Model.AllowPartnerSignup);
 
                         <div class="col-xl-4 col-lg-6">
                             <h4>Førere</h4>
@@ -104,7 +104,7 @@
                                         <th></th>
                                         <th>Navn</th>
                                         <th>Påmeldt</th>
-                                        @if (Model.Options.AllowPartnerSignup)
+                                        @if (Model.AllowPartnerSignup)
                                         {
                                             <th>Partner</th>
                                         }
@@ -122,7 +122,7 @@
                                         <th></th>
                                         <th>Navn</th>
                                         <th>Påmeldt</th>
-                                        @if (Model.Options.AllowPartnerSignup)
+                                        @if (Model.AllowPartnerSignup)
                                         {
                                             <th>Partner</th>
                                         }
@@ -134,7 +134,7 @@
                     }
                     else
                     {
-                        var solos = new ParticipantsModel(Model.Options, signups.Solos);
+                        var solos = new ParticipantsModel(signups.Solos, Model.AllowPartnerSignup);
 
                         <div class="col-lg-8">
                             <h4>Solo</h4>
@@ -228,13 +228,13 @@ _Hilsen Bårdar Swing Club_
         {
             return "alert-warning";
         }
-        else if (model.Options.IsOpen())
+        else if (model.IsOpen)
         {
             return "alert-success";
         }
         else
         {
-            return model.Options.SignupOpensAt.HasValue
+            return model.SignupOpensAt.HasValue
                 ? "alert-warning"
                 : "alert-danger";
         }
