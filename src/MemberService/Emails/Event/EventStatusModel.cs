@@ -2,10 +2,17 @@
 {
     public class EventStatusModel
     {
-        public string Name { get; set; }
+        public EventStatusModel(string name, string title, string link)
+        {
+            Name = name;
+            Title = title;
+            Link = link;
+        }
 
-        public string Title { get; set; }
+        public string Name { get; }
 
-        public string Link { get; set; }
+        public string Title { get; }
+
+        public string Link { get; }
     }
 }
