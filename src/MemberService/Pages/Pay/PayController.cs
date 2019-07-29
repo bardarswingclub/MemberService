@@ -31,14 +31,14 @@ namespace MemberService.Pages.Pay
             _chargeService = chargeService;
         }
 
-        public async Task<IActionResult> Index(string title, string description, decimal amount, string email=null, string name=null)
+        public async Task<IActionResult> Index(string title, string description, decimal amount, string email = null, string name = null)
         {
-            if(title == null || description == null || amount <= 0)
+            if (title == null || description == null || amount <= 0)
             {
                 return NotFound();
             }
 
-            if(email != null && await _userManager.FindByEmailAsync(email) is MemberUser user)
+            if (email != null && await _userManager.FindByEmailAsync(email) is MemberUser user)
             {
                 name = user.FullName;
                 if (User.Identity.IsAuthenticated)
@@ -61,10 +61,8 @@ namespace MemberService.Pages.Pay
                 title: title,
                 description: description,
                 amount: amount,
-                successUrl:  Url.ActionLink(nameof(Success), "Pay", new { title, description }),
+                successUrl: Url.ActionLink(nameof(Success), "Pay", new { title, description, sessionId = "{CHECKOUT_SESSION_ID}" }),
                 cancelUrl: Request.GetDisplayUrl());
-
-            TempData["StripeSessionId"] = sessionId;
 
             return View(new PayModel
             {
@@ -75,12 +73,9 @@ namespace MemberService.Pages.Pay
             });
         }
 
-        public async Task<IActionResult> Success(string name, string description)
+        public async Task<IActionResult> Success(string name, string description, string sessionId)
         {
-            if (TempData["StripeSessionId"] is string sessionId)
-            {
-                await _paymentService.SavePayment(sessionId);
-            }
+            await _paymentService.SavePayment(sessionId);
 
             return View(new PayModel
             {

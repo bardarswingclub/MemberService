@@ -338,23 +338,20 @@ namespace MemberService.Pages.Signup
         }
 
         [HttpGet]
-        public async Task<IActionResult> Success(Guid id)
+        public async Task<IActionResult> Success(Guid id, string sessionId)
         {
-            if (TempData["StripeSessionId"] is string sessionId)
+            var user = await _database.Users
+            .Include(u => u.EventSignups)
+            .SingleUser(_userManager.GetUserId(User));
+
+            var signup = user.EventSignups.FirstOrDefault(s => s.EventId == id);
+
+            if (signup?.Status == Status.Approved && await _paymentService.SavePayment(sessionId) > 0)
             {
-                var user = await _database.Users
-                .Include(u => u.EventSignups)
-                .SingleUser(_userManager.GetUserId(User));
+                signup.Status = Status.AcceptedAndPayed;
+                signup.AuditLog.Add("Paid", user);
 
-                var signup = user.EventSignups.FirstOrDefault(s => s.EventId == id);
-
-                if (signup?.Status == Status.Approved && await _paymentService.SavePayment(sessionId) > 0)
-                {
-                    signup.Status = Status.AcceptedAndPayed;
-                    signup.AuditLog.Add("Paid", user);
-
-                    await _database.SaveChangesAsync();
-                }
+                await _database.SaveChangesAsync();
             }
 
             return RedirectToAction(nameof(Event), new { id });
@@ -368,11 +365,9 @@ namespace MemberService.Pages.Signup
                 model.Title,
                 model.Description,
                 amount,
-                Url.ActionLink(nameof(Success), "Signup", new { id = model.Id }),
+                SignupSuccessLink(model.Id),
                 Request.GetDisplayUrl(),
                 eventSignupId: model.UserEventSignup.Id);
-
-            TempData["StripeSessionId"] = sessionId;
 
             return sessionId;
         }
@@ -385,16 +380,24 @@ namespace MemberService.Pages.Signup
                 fee.Description,
                 fee.Description,
                 fee.Amount,
-                Url.ActionLink(nameof(Success), "Signup", new { id = model.Id }),
+                SignupSuccessLink(model.Id),
                 Request.GetDisplayUrl(),
                 fee.IncludesMembership,
                 fee.IncludesTraining,
                 fee.IncludesClasses);
 
-            TempData["StripeSessionId"] = sessionId;
-
             return sessionId;
         }
+
+        private string SignupSuccessLink(Guid id)
+            => Url.ActionLink(
+                nameof(Success),
+                "Signup",
+                new
+                {
+                    id,
+                    sessionId = "{CHECKOUT_SESSION_ID}"
+                });
 
         private static bool CanEdit(EventSignup e) => e.Status == Status.Pending || e.Status == Status.Recommended;
 
