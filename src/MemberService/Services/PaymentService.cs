@@ -72,7 +72,7 @@ namespace MemberService.Services
                 CustomerId = customer.Id,
                 PaymentIntentData = new SessionPaymentIntentDataOptions
                 {
-                    Description = $"{title} ({description})",
+                    Description = title,
                     Metadata = new Dictionary<string, string>
                     {
                         ["name"] = name,
@@ -101,14 +101,14 @@ namespace MemberService.Services
                         Quantity = 1
                     }
                 },
-                SuccessUrl = successUrl,
+                SuccessUrl = successUrl.Replace("%7BCHECKOUT_SESSION_ID%7D", "{CHECKOUT_SESSION_ID}"),
                 CancelUrl = cancelUrl,
             });
 
             return session.Id;
         }
 
-        public async Task<int> SavePayment(string sessionId)
+        public async Task<(int users, int payments, int updates)> SavePayment(string sessionId)
         {
             var session = await _sessionService.GetAsync(sessionId);
 
@@ -120,30 +120,35 @@ namespace MemberService.Services
             return await SavePayments(charges);
         }
 
-        public async Task<int> SavePayments(IEnumerable<Charge> charges)
+        public async Task<(int users, int payments, int updates)> SavePayments(IEnumerable<Charge> charges)
         {
-            var count = 0;
-            foreach(var charge in charges)
+            var userCreatedCount = 0;
+            var paymentCreatedCount = 0;
+            var paymentUpdatedCount = 0;
+            foreach (var charge in charges)
             {
-                count += await SavePayment(charge) ? 1 : 0;
+                var result = await SavePayment(charge);
+                userCreatedCount += result == Status.CreatedUser ? 1 : 0;
+                paymentCreatedCount += result == Status.CreatedPayment ? 1 : 0;
+                paymentUpdatedCount += result == Status.UpdatedPayment ? 1 : 0;
             }
-            return count;
+            return (userCreatedCount, paymentCreatedCount, paymentUpdatedCount);
         }
 
-        private async Task<bool> SavePayment(Charge charge)
+        private async Task<Status> SavePayment(Charge charge)
         {
             var email = charge.Customer?.Email ?? charge.Metadata.GetValueOrDefault("email");
             var name = charge.Customer?.Name ?? charge.Metadata.GetValueOrDefault("name");
-            var eventSignupId = charge.Metadata.GetValueOrDefault("event_signup");
 
-            if (email is null) return false;
+            if (email is null) return Status.Nothing;
 
             var user = await _memberContext.Users
                 .Include(u => u.Payments)
                 .Include(u => u.EventSignups)
+                    .ThenInclude(s => s.AuditLog)
                 .FirstOrDefaultAsync(u => u.NormalizedEmail == email.ToUpperInvariant());
 
-            if (user == null)
+            if (user is null)
             {
                 await _userManager.CreateAsync(new MemberUser
                 {
@@ -155,22 +160,42 @@ namespace MemberService.Services
                         CreatePayment(charge)
                     }
                 });
-            }
-            else
-            {
-                if (user.Payments.FirstOrDefault(p => p.StripeChargeId == charge.Id) is Payment existingPayment)
-                {
-                    existingPayment.Refunded = charge.Refunded;
-                    existingPayment.EventSignup = user.EventSignups.FirstOrDefault(e => e.Id == charge.Metadata.GetValueOrDefault("event_signup")?.ToGuid());
-                }
-                else
-                {
-                    user.Payments.Add(CreatePayment(charge, user.EventSignups));
-                }
+
+                await _memberContext.SaveChangesAsync();
+
+                return Status.CreatedUser;
             }
 
+            if (user.Payments.FirstOrDefault(p => p.StripeChargeId == charge.Id) is Payment payment)
+            {
+                payment.Refunded = charge.Refunded || charge.Status == "failed";
+                payment.EventSignup = GetEventSignup(charge, user.EventSignups);
+
+                SetEventSignupStatus(payment, user);
+
+                var changes = await _memberContext.SaveChangesAsync();
+
+                return changes == 0
+                    ? Status.Nothing
+                    : Status.UpdatedPayment;
+            }
+
+            payment = CreatePayment(charge, user.EventSignups);
+            SetEventSignupStatus(payment, user);
+            user.Payments.Add(payment);
+
             await _memberContext.SaveChangesAsync();
-            return true;
+
+            return Status.CreatedPayment;
+        }
+
+        private static void SetEventSignupStatus(Payment payment, MemberUser user)
+        {
+            if (payment.EventSignup?.Status == Data.Status.Approved && !payment.Refunded)
+            {
+                payment.EventSignup.Status = Data.Status.AcceptedAndPayed;
+                payment.EventSignup.AuditLog.Add("Paid", user, payment.PayedAtUtc);
+            }
         }
 
         private static Payment CreatePayment(Charge charge, ICollection<EventSignup> eventSignups = null)
@@ -186,8 +211,8 @@ namespace MemberService.Services
                 IncludesMembership = charge.Metadata.TryGetValue("inc_membership", out var m) && m == "yes" || includesMembership,
                 IncludesTraining = charge.Metadata.TryGetValue("inc_training", out var t) && t == "yes" || includesTraining,
                 IncludesClasses = charge.Metadata.TryGetValue("inc_classes", out var c) && c == "yes" || includesClasses,
-                Refunded = charge.Refunded,
-                EventSignup = eventSignups?.FirstOrDefault(e => e.Id == charge.Metadata.GetValueOrDefault("event_signup")?.ToGuid())
+                Refunded = charge.Refunded || charge.Status == "failed",
+                EventSignup = GetEventSignup(charge, eventSignups)
             };
         }
 
@@ -207,6 +232,24 @@ namespace MemberService.Services
             }
 
             return (membership, training, classes);
+        }
+
+        private static EventSignup GetEventSignup(Charge charge, ICollection<EventSignup> eventSignups)
+        {
+            var id = charge.Metadata.GetValueOrDefault("event_signup")?.ToGuid();
+
+            if (id == null)
+                return null;
+
+            return eventSignups?.FirstOrDefault(e => e.Id == id);
+        }
+
+        private enum Status
+        {
+            Nothing,
+            CreatedUser,
+            CreatedPayment,
+            UpdatedPayment
         }
     }
 }

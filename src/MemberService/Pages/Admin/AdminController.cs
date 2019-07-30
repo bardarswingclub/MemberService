@@ -51,6 +51,8 @@ namespace MemberService.Pages.Admin
         {
             string lastCharge = null;
             var importedCount = 0;
+            var userCount = 0;
+            var paymentCount = 0;
             var updatedCount = 0;
             while (true)
             {
@@ -65,14 +67,17 @@ namespace MemberService.Pages.Admin
                 });
 
                 importedCount += charges.Count();
-                updatedCount += await _paymentService.SavePayments(charges);
+                var (users, payments, updates) = await _paymentService.SavePayments(charges);
+                userCount += users;
+                paymentCount += payments;
+                updatedCount += updates;
 
                 if (!charges.HasMore) break;
 
                 lastCharge = charges.Data.Last().Id;
             }
 
-            TempData["message"] = $"Imported {importedCount} payments and saved {updatedCount} payments";
+            TempData["message"] = $"Found {importedCount} payments, created {userCount} new users, saved {paymentCount} new payments and updated {updatedCount} existing payments";
             return RedirectToAction(nameof(Index));
         }
     }

@@ -84,12 +84,12 @@ namespace MemberService
             return statuses.Count(s => s.Role == DanceRole.None).ToString();
         }
 
-        public static void Add(this ICollection<EventSignupAuditEntry> collection, string message, MemberUser user)
+        public static void Add(this ICollection<EventSignupAuditEntry> collection, string message, MemberUser user, DateTime? occuredAtUtc = null)
             => collection.Add(new EventSignupAuditEntry
             {
                 User = user,
                 Message = message,
-                OccuredAtUtc = DateTime.UtcNow
+                OccuredAtUtc = occuredAtUtc ?? DateTime.UtcNow
             });
     }
 }

@@ -46,19 +46,7 @@
             if (Model.Options.PriceForNonMembers > 0)
             {
                 <div class="alert alert-info" role="alert">
-                    Det koster kr @Model.Options.PriceForNonMembers for ikke-medlemmer å delta på dette arrangementet. Du kan melde deg på nå og betale først når du har fått plass.
-
-                    @if (Model.Options.PriceForMembers < Model.Options.PriceForMembers)
-                    {
-                        if (Model.Options.PriceForMembers == 0)
-                        {
-                            @: Dette arrangementet er gratis for medlemmer som har betalt medlemsavgiften i år.
-                        }
-                        else
-                        {
-                            @: Dette arrangementet koster bare kr @Model.Options.PriceForMembers for medlemmer som har betalt medlemsavgiften i år.
-                        }
-                    }
+                    Det koster @Model.Options.PriceForNonMembers.FormatMoney() for ikke-medlemmer å delta på dette arrangementet. Du kan melde deg på nå og betale først når du har fått plass.
                 </div>
             }
         }

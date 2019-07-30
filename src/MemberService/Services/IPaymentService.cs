@@ -20,8 +20,8 @@ namespace MemberService.Services
             bool includesClasses = false,
             Guid? eventSignupId = null);
 
-        Task<int> SavePayments(IEnumerable<Charge> charges);
+        Task<(int users, int payments, int updates)> SavePayments(IEnumerable<Charge> charges);
 
-        Task<int> SavePayment(string sessionId);
+        Task<(int users, int payments, int updates)> SavePayment(string sessionId);
     }
 }

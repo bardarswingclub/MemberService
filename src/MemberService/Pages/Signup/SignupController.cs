@@ -346,13 +346,7 @@ namespace MemberService.Pages.Signup
 
             var signup = user.EventSignups.FirstOrDefault(s => s.EventId == id);
 
-            if (signup?.Status == Status.Approved && await _paymentService.SavePayment(sessionId) > 0)
-            {
-                signup.Status = Status.AcceptedAndPayed;
-                signup.AuditLog.Add("Paid", user);
-
-                await _database.SaveChangesAsync();
-            }
+            await _paymentService.SavePayment(sessionId);
 
             return RedirectToAction(nameof(Event), new { id });
         }
