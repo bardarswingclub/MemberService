@@ -108,6 +108,34 @@ namespace MemberService.Services
             return session.Id;
         }
 
+        public async Task<(int payments, int updates)> ImportPayments(string email)
+        {
+            var existingCustomers = await _customerService.ListAsync(new CustomerListOptions
+            {
+                Email = email
+            });
+
+            var paymentCreatedCount = 0;
+            var paymentUpdatedCount = 0;
+            foreach (var customer in existingCustomers)
+            {
+                var charges = await _chargeService.ListAsync(new ChargeListOptions
+                {
+                    CustomerId = customer.Id,
+                    CreatedRange = new DateRangeOptions
+                    {
+                        GreaterThan = new DateTime(2019, 1, 1)
+                    },
+                });
+
+                var (_, payments, updates) = await SavePayments(charges);
+                paymentCreatedCount += payments;
+                paymentUpdatedCount += updates;
+            }
+
+            return (paymentCreatedCount, paymentUpdatedCount);
+        }
+
         public async Task<(int users, int payments, int updates)> SavePayment(string sessionId)
         {
             var session = await _sessionService.GetAsync(sessionId);

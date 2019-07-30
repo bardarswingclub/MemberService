@@ -18,13 +18,16 @@ namespace MemberService.Pages.Members
     {
         private readonly MemberContext _memberContext;
         private readonly UserManager<MemberUser> _userManager;
+        private readonly IPaymentService _paymentService;
 
         public MembersController(
             MemberContext memberContext,
-            UserManager<MemberUser> userManager)
+            UserManager<MemberUser> userManager,
+            IPaymentService paymentService)
         {
             _memberContext = memberContext;
             _userManager = userManager;
+            _paymentService = paymentService;
         }
 
         public async Task<IActionResult> Index(
@@ -139,6 +142,21 @@ namespace MemberService.Pages.Members
                 });
 
                 await _memberContext.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            return NotFound();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdatePayments(string id)
+        {
+            if (await _memberContext.FindAsync<MemberUser>(id) is MemberUser user)
+            {
+                var (payments, updates) = await _paymentService.ImportPayments(user.NormalizedEmail);
+
+                TempData["SuccessMessage"] = $"Fant {payments} nye betalinger, oppdaterte {updates} eksisterende betalinger";
 
                 return RedirectToAction(nameof(Details), new { id });
             }

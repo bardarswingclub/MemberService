@@ -62,6 +62,8 @@
     </header>
 
     <div class="@(ViewData["ContainerClass"] ?? "container") pb-5 pt-3">
+        <partial name="_StatusMessage" model="@TempData["SuccessMessage"]" />
+
         <main role="main" class="">
             @RenderBody()
         </main>

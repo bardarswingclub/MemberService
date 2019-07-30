@@ -34,7 +34,7 @@ namespace MemberService.Pages.Manage
         public IReadOnlyCollection<EventSignup> EventSignups { get; private set; }
 
         [TempData]
-        public string StatusMessage { get; set; }
+        public string SuccessMessage { get; set; }
 
         [BindProperty]
         public InputModel Input { get; set; }
@@ -99,7 +99,7 @@ namespace MemberService.Pages.Manage
             await _userManager.UpdateAsync(user);
             await _signInManager.RefreshSignInAsync(user);
 
-            StatusMessage = "Navnet ditt har blitt lagret :)";
+            SuccessMessage = "Navnet ditt har blitt lagret :)";
             return RedirectToPage();
         }
     }

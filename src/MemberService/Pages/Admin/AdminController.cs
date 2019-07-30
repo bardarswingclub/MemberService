@@ -77,7 +77,7 @@ namespace MemberService.Pages.Admin
                 lastCharge = charges.Data.Last().Id;
             }
 
-            TempData["message"] = $"Found {importedCount} payments, created {userCount} new users, saved {paymentCount} new payments and updated {updatedCount} existing payments";
+            TempData["SuccessMessage"] = $"Found {importedCount} payments, created {userCount} new users, saved {paymentCount} new payments and updated {updatedCount} existing payments";
             return RedirectToAction(nameof(Index));
         }
     }

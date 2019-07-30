@@ -23,5 +23,7 @@ namespace MemberService.Services
         Task<(int users, int payments, int updates)> SavePayments(IEnumerable<Charge> charges);
 
         Task<(int users, int payments, int updates)> SavePayment(string sessionId);
+
+        Task<(int payments, int updates)> ImportPayments(string email);
     }
 }
