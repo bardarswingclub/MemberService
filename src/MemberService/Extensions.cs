@@ -67,11 +67,22 @@ namespace MemberService
             url.ActionContext.HttpContext.Request.Host.Value);
 
         public static string RolesCount(this Event model, Status? status = null)
-            => !model.SignupOptions.RoleSignup
-                ? model.Signups.Count(s => status == null || s.Status == status).ToString()
-                : model.Signups.Count(s => s.Role == DanceRole.Lead && (status == null || s.Status == status))
-                    .And(model.Signups.Count(s => s.Role == DanceRole.Follow && (status == null || s.Status == status)))
-                    .Join("+");
+        {
+            var statuses = model.Signups
+                .Where(s => status != null
+                    ? s.Status == status
+                    : s.Status != Status.RejectedOrNotPayed && s.Status != Status.Denied)
+                .ToReadOnlyCollection();
+
+            if (model.SignupOptions.RoleSignup)
+            {
+                var leads = statuses.Count(s => s.Role == DanceRole.Lead);
+                var follows = statuses.Count(s => s.Role == DanceRole.Follow);
+                return $"{leads}+{follows}";
+            }
+
+            return statuses.Count(s => s.Role == DanceRole.None).ToString();
+        }
 
         public static void Add(this ICollection<EventSignupAuditEntry> collection, string message, MemberUser user)
             => collection.Add(new EventSignupAuditEntry
