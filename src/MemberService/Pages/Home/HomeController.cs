@@ -27,7 +27,12 @@ namespace MemberService.Pages.Home
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> Fees()
         {
             var user = await GetCurrentUser();
 

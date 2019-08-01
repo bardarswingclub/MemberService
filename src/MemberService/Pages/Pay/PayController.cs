@@ -90,7 +90,7 @@ namespace MemberService.Pages.Pay
 
             if (feeStatus != FeeStatus.Unpaid)
             {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
+                return RedirectToAction(nameof(HomeController.Fees), "Home");
             }
 
             var sessionId = await _paymentService.CreatePayment(
@@ -132,7 +132,7 @@ namespace MemberService.Pages.Pay
 
             TempData["SuccessMessage"] = $"{fee.Description} betalt";
 
-            return RedirectToAction(nameof(HomeController.Index), "Home");
+            return RedirectToAction(nameof(HomeController.Fees), "Home");
         }
 
         private async Task<MemberUser> GetCurrentUser()
