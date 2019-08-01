@@ -16,6 +16,10 @@
             @foreach (var signup in Model.OpenEvents)
             {
                 <a class="list-group-item list-group-item-action" asp-controller="Signup" asp-action="Event" asp-route-id="@signup.Id" asp-route-slug="@signup.Title.Slugify()">
+                    @if(signup.UserSignup is EventSignup userSignup)
+                    {
+                        <span class="float-right badge @BadgeColor(userSignup.Status)">@userSignup.Status.DisplayName()</span>
+                    }
                     <h5 class="card-title">@signup.Title</h5>
                     <p class="card-text">@signup.Description</p>
                 </a>
@@ -34,11 +38,30 @@
             @foreach (var signup in Model.FutureEvents)
             {
                 <a class="list-group-item list-group-item-action" asp-controller="Signup" asp-action="Event" asp-route-id="@signup.Id" asp-route-slug="@signup.Title.Slugify()">
+                    <small class="badge badge-info float-right">@signup.OpensAt.Value.ToOsloDate() klokken @signup.OpensAt.Value.ToOsloTime()</small>
                     <h5 class="card-title">@signup.Title</h5>
                     <p class="card-text">@signup.Description</p>
-                    <small class="text-muted float-right">Åpner @signup.SignupOptions.SignupOpensAt.Value.ToOsloDate() klokken @signup.SignupOptions.SignupOpensAt.Value.ToOsloTime()</small>
                 </a>
             }
         </div>
     </div>
+}
+
+
+@functions
+{
+    string BadgeColor(Status status)
+    {
+        switch(status)
+        {
+            case Status.Approved:
+            case Status.AcceptedAndPayed:
+                return "badge-success";
+            case Status.Denied:
+            case Status.RejectedOrNotPayed:
+                return "badge-danger";
+            default:
+                return "badge-info";
+        }
+    }
 }

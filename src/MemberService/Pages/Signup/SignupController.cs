@@ -32,12 +32,15 @@ namespace MemberService.Pages.Signup
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
+            var userId = _userManager.GetUserId(User);
+
             var openEvents = await _database.Events
                 .Include(e => e.SignupOptions)
                 .AsNoTracking()
                 .Expressionify()
                 .Where(e => e.Archived == false)
                 .Where(e => e.SignupOptions.IsOpen())
+                .Select(e => EventModel.Create(e, userId))
                 .ToListAsync();
 
             var futureEvents = await _database.Events
@@ -47,6 +50,7 @@ namespace MemberService.Pages.Signup
                 .Where(e => e.Archived == false)
                 .Where(e => !e.SignupOptions.HasOpened() && !e.SignupOptions.HasClosed())
                 .OrderBy(e => e.SignupOptions.SignupOpensAt)
+                .Select(e => EventModel.Create(e, userId))
                 .ToListAsync();
 
             return View(new EventsModel

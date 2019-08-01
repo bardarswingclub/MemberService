@@ -4,8 +4,8 @@ namespace MemberService.Pages.Signup
 {
     public class EventsModel
     {
-        public IReadOnlyCollection<Data.Event> OpenEvents { get; set; }
+        public IReadOnlyCollection<EventModel> OpenEvents { get; set; }
 
-        public IReadOnlyCollection<Data.Event> FutureEvents { get; set; }
+        public IReadOnlyCollection<EventModel> FutureEvents { get; set; }
     }
 }
