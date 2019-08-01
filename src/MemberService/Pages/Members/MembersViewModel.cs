@@ -7,6 +7,8 @@ namespace MemberService.Pages.Members
     {
         public IReadOnlyCollection<(char Letter, IReadOnlyCollection<MemberUser> Users)> Users { get; set; }
 
+        public string Query { get; set; }
+
         public string MemberFilter { get; set; }
 
         public string TrainingFilter { get; set; }

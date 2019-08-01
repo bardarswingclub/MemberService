@@ -35,7 +35,8 @@ namespace MemberService.Pages.Members
             string trainingFilter,
             string classesFilter,
             string exemptTrainingFilter,
-            string exemptClassesFilter)
+            string exemptClassesFilter,
+            string query)
         {
             var users = await _memberContext.Users
                 .Include(u => u.Payments)
@@ -47,6 +48,7 @@ namespace MemberService.Pages.Members
                 .Where(Filter(classesFilter, u => u.HasPayedClassesFeeThisSemester()))
                 .Where(Filter(exemptTrainingFilter, u => u.ExemptFromTrainingFee))
                 .Where(Filter(exemptClassesFilter, u => u.ExemptFromClassesFee))
+                .Where(Search(query))
                 .OrderBy(u => u.FullName)
                 .ToListAsync();
 
@@ -59,7 +61,8 @@ namespace MemberService.Pages.Members
                 TrainingFilter = trainingFilter,
                 ClassesFilter = classesFilter,
                 ExemptTrainingFilter = exemptTrainingFilter,
-                ExemptClassesFilter = exemptClassesFilter
+                ExemptClassesFilter = exemptClassesFilter,
+                Query = query
             });
         }
 
@@ -175,6 +178,17 @@ namespace MemberService.Pages.Members
                 default:
                     return user => true;
             }
+        }
+
+        private static Expression<Func<MemberUser, bool>> Search(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return u => true;
+            }
+
+            var like = $"%{query.Trim()}%";
+            return u => EF.Functions.Like(u.FullName, like) || EF.Functions.Like(u.Email, like);
         }
     }
 }

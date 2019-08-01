@@ -6,8 +6,19 @@
 }
 <h2>@ViewData["Title"] <span class="text-muted">(@Model.Users.Sum(p => p.Users.Count))</span></h2>
 <hr>
-<form class="form mb-3 d-print-none" asp-action="Index" method="GET">
-    <div class="form-row align-items-center">
+<form class="form d-print-none" asp-action="Index" method="GET">
+    <div class="form-group row mb-3">
+        <div class="col input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text">&#x1F50E;</span>
+            </div>
+            <input class="form-control" asp-for="Query" type="search" placeholder="f.eks Noens Navn eller eksempel@epost.no">
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-primary">Søk</button>
+            </div>
+        </div>
+    </div>
+    <div class="form-row mb-3 align-items-center">
         <div class="col">
             <select class="custom-select" asp-for="MemberFilter" onchange="this.form.submit()">
                 <option value="All">Alle</option>
