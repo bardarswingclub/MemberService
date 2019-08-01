@@ -108,12 +108,15 @@
     <div class="card shadow-sm">
         <h3 class="card-header">
             Betalinger
-            <form asp-action="UpdatePayments" asp-route-id="@Model.Id" method="POST" class="float-right">
+            @if (User.IsInRole(Roles.ADMIN))
+            {
+                <form asp-action="UpdatePayments" asp-route-id="@Model.Id" method="POST" class="float-right">
 
-                <button class="btn btn-primary">
-                    &#8635;
-                </button>
-            </form>
+                    <button class="btn btn-primary">
+                        &#8635;
+                    </button>
+                </form>
+            }
         </h3>
         <table class="table card-body">
             <thead>
