@@ -17,7 +17,6 @@ namespace MemberService.Pages.Home
     {
         private readonly MemberContext _memberContext;
         private readonly UserManager<MemberUser> _userManager;
-        private readonly ChargeService _stripeChargeService;
 
         public HomeController(
             MemberContext memberContext,
@@ -26,7 +25,6 @@ namespace MemberService.Pages.Home
         {
             _memberContext = memberContext;
             _userManager = userManager;
-            _stripeChargeService = stripeChargeService;
         }
 
         public async Task<IActionResult> Index()
@@ -40,63 +38,6 @@ namespace MemberService.Pages.Home
                 TrainingFee = user.GetTrainingFee(),
                 ClassesFee = user.GetClassesFee()
             });
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Pay([FromForm] StripePayment payment)
-        {
-            var user = await GetCurrentUser();
-
-            if (payment.stripeEmail != user.Email)
-            {
-                throw new Exception("Who is this email for???");
-            }
-
-            var (status, fee) = user.GetFee(payment.Fee);
-
-            if (status != FeeStatus.Unpaid)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            var options = new ChargeCreateOptions
-            {
-                Amount = fee.AmountInCents,
-                Currency = "nok",
-                Description = fee.Description,
-                SourceId = payment.stripeToken,
-                ReceiptEmail = payment.stripeEmail,
-                Metadata = new Dictionary<string, string>
-                {
-                    ["name"] = user.FullName,
-                    ["email"] = user.Email,
-                    ["amount_owed"] = fee.Amount.ToString(),
-                    ["long_desc"] = fee.Description,
-                    ["short_desc"] = fee.Description,
-                    ["inc_membership"] = fee.IncludesMembership ? "yes" : "no",
-                    ["inc_training"] = fee.IncludesTraining ? "yes" : "no",
-                    ["inc_classes"] = fee.IncludesClasses ? "yes" : "no"
-                }
-            };
-
-            var charge = await _stripeChargeService.CreateAsync(options);
-
-            _memberContext.Payments.Add(new Payment
-            {
-                User = user,
-                PayedAtUtc = DateTime.UtcNow,
-                StripeChargeId = charge.Id,
-                Amount = charge.Amount/100m,
-                Description = charge.Description,
-                IncludesMembership = fee.IncludesMembership,
-                IncludesTraining = fee.IncludesTraining,
-                IncludesClasses = fee.IncludesClasses
-            });
-
-            await _memberContext.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Index));
         }
 
         [AllowAnonymous]

@@ -33,22 +33,9 @@
         </div>
         @if(Model.MembershipFee.Fee is Fee membershipFee)
         {
-            <form class="card-footer" asp-controller="Home" asp-action="Pay" method="post">
-                <input type="hidden" name="Fee" value="@Fee.Membership" />
-                <script
-                    src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-                    data-key="@Config.Stripe.PublicKey"
-                    data-amount="@membershipFee.AmountInCents"
-                    data-name="Bårdar Swing Club"
-                    data-description="@membershipFee.Description"
-                    data-image="/img/logo.png"
-                    data-locale="no"
-                    data-zip-code="false"
-                    data-currency="nok"
-                    data-email="@Model.Email"
-                    data-label="Bli medlem"
-                    data-allowRememberMe="false">
-                </script>
+            <form class="card-footer" asp-controller="Pay" asp-action="Fee" method="post">
+                <input type="hidden" name="type" value="@Fee.Membership" />
+                <button class="btn btn-success">Bli medlem</button>
             </form>
         }
     </div>
@@ -81,22 +68,9 @@
         </div>
         @if(Model.TrainingFee.Fee is Fee trainingFee)
         {
-            <form class="card-footer" asp-controller="Home" asp-action="Pay" method="post">
-                <input type="hidden" name="Fee" value="@Fee.Training" />
-                <script
-                    src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-                    data-key="@Config.Stripe.PublicKey"
-                    data-amount="@trainingFee.AmountInCents"
-                    data-name="Bårdar Swing Club"
-                    data-description="@trainingFee.Description"
-                    data-image="/img/logo.png"
-                    data-locale="no"
-                    data-zip-code="false"
-                    data-currency="nok"
-                    data-email="@Model.Email"
-                    data-label="Betal treningsavgift"
-                    data-allowRememberMe="false">
-                </script>
+            <form class="card-footer" asp-controller="Pay" asp-action="Fee" method="post">
+                <input type="hidden" name="type" value="@Fee.Training" />
+                <button class="btn btn-success">Betal treningsavgift</button>
             </form>
         }
     </div>
@@ -141,22 +115,9 @@
         </div>
         @if(Model.ClassesFee.Fee is Fee classesFee)
         {
-            <form class="card-footer" asp-controller="Home" asp-action="Pay" method="post">
-                <input type="hidden" name="Fee" value="@Fee.Training" />
-                <script
-                    src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-                    data-key="@Config.Stripe.PublicKey"
-                    data-amount="@classesFee.AmountInCents"
-                    data-name="Bårdar Swing Club"
-                    data-description="@classesFee.Description"
-                    data-image="/img/logo.png"
-                    data-locale="no"
-                    data-zip-code="false"
-                    data-currency="nok"
-                    data-email="@Model.Email"
-                    data-label="Betal kursavgift"
-                    data-allowRememberMe="false">
-                </script>
+            <form class="card-footer" asp-controller="Pay" asp-action="Fee" method="post">
+                <input type="hidden" name="type" value="@Fee.Classes" />
+                <button class="btn btn-success">Betal kursavgift</button>
             </form>
         }
     </div>
