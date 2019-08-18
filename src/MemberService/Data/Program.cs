@@ -1,18 +1,31 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MemberService.Data
 {
-    public class Event
+    public class Program
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
 
         [Required]
         public string Title { get; set; }
 
         public string Description { get; set; }
+
+        [Required]
+        public ProgramType Type { get; set; }
+
+        public DateTime? SignupOpensAt { get; set; }
+
+        public DateTime? SignupClosesAt { get; set; }
+
+        public ICollection<Event> Events { get; set; } = new List<Event>();
 
         [Required]
         public DateTime CreatedAt { get; set; }
@@ -22,15 +35,6 @@ namespace MemberService.Data
         [ForeignKey(nameof(CreatedBy))]
         public MemberUser CreatedByUser { get; set; }
 
-        public EventSignupOptions SignupOptions { get; set; }
-
-        public ICollection<EventSignup> Signups { get; set; } = new List<EventSignup>();
-
         public bool Archived { get; set; }
-
-        public int ProgramId { get; set; }
-
-        [ForeignKey(nameof(ProgramId))]
-        public Program Program { get; set; }
     }
 }

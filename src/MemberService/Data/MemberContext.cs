@@ -18,6 +18,8 @@ namespace MemberService.Data
 
         public DbSet<Event> Events { get; set; }
 
+        public DbSet<Program> Programs { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -52,21 +54,24 @@ namespace MemberService.Data
             {
                 signup
                     .Property(s => s.Role)
-                    .HasConversion(
-                        v => v.ToString(),
-                        v => (DanceRole)Enum.Parse(typeof(DanceRole), v));
+                    .HasEnumStringConversion();
 
                 signup
                     .Property(s => s.Status)
-                    .HasConversion(
-                        v => v.ToString(),
-                        v => (Status)Enum.Parse(typeof(Status), v));
+                    .HasEnumStringConversion();
 
                 signup
                     .HasOne(s => s.Partner)
                     .WithMany()
                     .HasForeignKey(s => s.PartnerEmail)
                     .HasPrincipalKey(s => s.NormalizedEmail);
+            });
+
+            builder.Entity<Program>(program =>
+            {
+                program
+                    .Property(p => p.Type)
+                    .HasEnumStringConversion();
             });
         }
     }
