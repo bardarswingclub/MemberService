@@ -9,7 +9,7 @@ using MemberService.Data;
 using Microsoft.EntityFrameworkCore;
 using NodaTime.Text;
 
-namespace MemberService.Pages.Event
+namespace MemberService.Pages.Program.Event
 {
     public static class Logic
     {

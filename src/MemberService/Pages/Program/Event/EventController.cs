@@ -10,9 +10,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace MemberService.Pages.Event
+namespace MemberService.Pages.Program.Event
 {
     [Authorize(Roles = Roles.COORDINATOR_OR_ADMIN)]
+    [Route("Program/{program}/Event/{action=index}/{id?}")]
     public class EventController : Controller
     {
         private readonly MemberContext _database;
@@ -40,7 +41,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(bool archived = false)
+        public async Task<IActionResult> Index(int program, bool archived = false)
         {
             var model = await _database.GetEvents(archived);
 
@@ -48,13 +49,13 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public IActionResult Create(int program)
         {
             return View(new EventInputModel());
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromForm] EventInputModel model)
+        public async Task<IActionResult> Create(int program, [FromForm] EventInputModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -66,11 +67,11 @@ namespace MemberService.Pages.Event
             await _database.AddAsync(entity);
             await _database.SaveChangesAsync();
 
-            return RedirectToAction(nameof(View), new { id = entity.Id });
+            return RedirectToAction(nameof(View), new { program, id = entity.Id });
         }
 
         [HttpGet]
-        public async Task<IActionResult> View(Guid id)
+        public async Task<IActionResult> View(int program, Guid id)
         {
             var model = await _database.GetEventModel(id);
 
@@ -83,7 +84,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
-        public async Task<IActionResult> View(Guid id, [FromForm] EventSaveModel input)
+        public async Task<IActionResult> View(int program, Guid id, [FromForm] EventSaveModel input)
         {
             var currentUser = await GetCurrentUser();
 
@@ -104,12 +105,12 @@ namespace MemberService.Pages.Event
 
                     if (input.SendEmail)
                     {
-                            var model = new EventStatusModel(
-                                eventSignup.User.FullName,
-                                eventEntry.Title,
-                                await SignupLink(eventSignup.User, eventEntry));
+                        var model = new EventStatusModel(
+                            eventSignup.User.FullName,
+                            eventEntry.Title,
+                            await SignupLink(eventSignup.User, eventEntry));
 
-                            await SendEmail(input, model, currentUser, statusChanged, eventSignup);
+                        await SendEmail(input, model, currentUser, statusChanged, eventSignup);
                     }
                     else if (statusChanged)
                     {
@@ -118,7 +119,7 @@ namespace MemberService.Pages.Event
                 }
             });
 
-            return RedirectToAction(nameof(View), new { id });
+            return RedirectToAction(nameof(View), new { program, id });
         }
 
         private async Task SendEmail(EventSaveModel input, EventStatusModel model, MemberUser currentUser, bool statusChanged, EventSignup eventSignup)
@@ -168,7 +169,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(Guid id)
+        public async Task<IActionResult> Edit(int program, Guid id)
         {
             var model = await _database.GetEventInputModel(id);
 
@@ -181,7 +182,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Guid id, [FromForm] EventInputModel model)
+        public async Task<IActionResult> Edit(int program, Guid id, [FromForm] EventInputModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -190,19 +191,19 @@ namespace MemberService.Pages.Event
 
             await _database.EditEvent(id, e => e.UpdateEvent(model));
 
-            return RedirectToAction(nameof(View), new { id });
+            return RedirectToAction(nameof(View), new { program, id });
         }
 
         [HttpPost]
-        public async Task<IActionResult> SetStatus(Guid id, [FromForm] string status)
+        public async Task<IActionResult> SetStatus(int program, Guid id, [FromForm] string status)
         {
             await _database.EditEvent(id, e => e.SetEventStatus(status));
 
-            return RedirectToAction(nameof(View), new { id });
+            return RedirectToAction(nameof(View), new { program, id });
         }
 
         private async Task<MemberUser> GetCurrentUser()
-            => await _database.Users.SingleUser(_userManager.GetUserId(User));
+            => await _userManager.GetUserAsync(User);
 
         private async Task<string> SignupLink(MemberUser user, Data.Event e)
         {

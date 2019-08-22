@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using MemberService.Data;
 
-namespace MemberService.Pages.Event
+namespace MemberService.Pages.Program.Event
 {
     public class EventSaveModel
     {

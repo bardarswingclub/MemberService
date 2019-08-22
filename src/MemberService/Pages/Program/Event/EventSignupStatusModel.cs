@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 
-namespace MemberService.Pages.Event
+namespace MemberService.Pages.Program.Event
 {
     public class EventSignupStatusModel
     {

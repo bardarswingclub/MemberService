@@ -1,4 +1,3 @@
-@using MemberService.Pages.Event
 @model EventInputModel
 
 @{
@@ -7,13 +6,13 @@
 <h2>
     @ViewData["Title"]
 
-    <form method="POST" asp-action="SetStatus" asp-route-id="@Model.Id" class="d-inline float-right">
+    <form method="POST" asp-action="SetStatus" asp-route-id="@Model.Id" asp-route-program="0" class="d-inline float-right">
         <input type="hidden" name="status" value="archive" />
         <button class="btn btn-outline-danger">Arkiver</button>
     </form>
 </h2>
 
-<form method="POST" asp-action="Edit" asp-route-id="@Model.Id" class="form-row justify-content-between">
+<form method="POST" asp-action="Edit" asp-route-id="@Model.Id" asp-route-program="0" class="form-row justify-content-between">
     <partial name="_EditEvent" model="@Model" />
     <div class="col-md-12 mt-2">
         <button type="submit" class="btn btn-success">Lagre</button>

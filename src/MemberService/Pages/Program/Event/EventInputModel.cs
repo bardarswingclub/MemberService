@@ -2,16 +2,18 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace MemberService.Pages.Event
+namespace MemberService.Pages.Program.Event
 {
     public class EventInputModel
     {
         public Guid Id { get; set; }
 
         [DisplayName("Navn")]
+        [Required]
         public string Title { get; set; }
 
         [DisplayName("Beskrivelse")]
+        [Required]
         public string Description { get; set; }
 
         public bool EnableSignupOpensAt { get; set; }

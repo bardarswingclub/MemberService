@@ -1,4 +1,3 @@
-@using MemberService.Pages.Event
 @model EventModel
 
 @{
@@ -10,14 +9,14 @@
     <a asp-controller="Signup" asp-action="Event" asp-route-id="@Model.Id" asp-route-slug="@Model.Title.Slugify()" target="_blank">
         @ViewData["Title"]
     </a>
-    <a asp-controller="Event" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary float-right">
+    <a asp-controller="Event" asp-action="Edit" asp-route-id="@Model.Id" asp-route-program="0" class="btn btn-primary float-right">
         Rediger
     </a>
 </h2>
 
 <h4>@Model.Description</h4>
 
-<form class="alert @AlertClass(Model)" asp-action="SetStatus" asp-route-id="@Model.Id" method="POST">
+<form class="alert @AlertClass(Model)" asp-action="SetStatus" asp-route-id="@Model.Id" asp-route-program="0" method="POST">
     @if (Model.Archived)
     {
         <h4 class="alert-heading">Arrangementet er arkivert</h4>

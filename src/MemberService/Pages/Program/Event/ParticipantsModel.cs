@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace MemberService.Pages.Event
+namespace MemberService.Pages.Program.Event
 {
     public class ParticipantsModel
     {

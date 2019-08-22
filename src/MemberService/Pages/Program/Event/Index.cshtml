@@ -5,7 +5,7 @@
 }
 <h2>
     <a asp-controller="Signup" asp-action="Index">@ViewData["Title"]</a>
-    <a class="btn btn-success float-right" asp-action="Create">Opprett nytt arrangement</a>
+    <a class="btn btn-success float-right" asp-action="Create" asp-route-program="0">Opprett nytt arrangement</a>
 </h2>
 
 
@@ -22,7 +22,7 @@
         @foreach(var eventEntry in Model)
         {
             <tr>
-                <td><a asp-action="View" asp-route-id="@eventEntry.Id">@eventEntry.Title</a></td>
+                <td><a asp-action="View" asp-route-id="@eventEntry.Id" asp-route-program="0">@eventEntry.Title</a></td>
                 <td>@eventEntry.RolesCount()</td>
                 <td>@eventEntry.RolesCount(Status.AcceptedAndPayed)</td>
                 <td>@EventStatus(eventEntry)</td>
