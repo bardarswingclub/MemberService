@@ -94,8 +94,8 @@ namespace MemberService.Pages.Program.Event
 
             if (model == null) return null;
 
-            var (signupOpensAtDate, signupOpensAtTime) = GetLocal(model.SignupOptions.SignupOpensAt);
-            var (signupClosesAtDate, signupClosesAtTime) = GetLocal(model.SignupOptions.SignupClosesAt);
+            var (signupOpensAtDate, signupOpensAtTime) = model.SignupOptions.SignupOpensAt.GetLocalDateAndTime();
+            var (signupClosesAtDate, signupClosesAtTime) = model.SignupOptions.SignupClosesAt.GetLocalDateAndTime();
 
             return new EventInputModel
             {
@@ -196,27 +196,14 @@ namespace MemberService.Pages.Program.Event
                 .Select(EventSignupStatusModel.Create)
                 .ToReadOnlyList();
 
-        internal static DateTime? GetUtc(bool enable, string date, string time)
+        private static DateTime? GetUtc(bool enable, string date, string time)
         {
             if (!enable) return null;
 
-            var dateTime = $"{date}T{time}:00";
-
-            var localDateTime = LocalDateTimePattern.GeneralIso.Parse(dateTime).GetValueOrThrow();
-
-            return localDateTime.InZoneLeniently(Constants.TimeZoneOslo).ToDateTimeUtc();
-        }
-
-        internal static (string Date, string Time) GetLocal(DateTime? utc)
-        {
-            if (!utc.HasValue) return (null, null);
-
-            var result = utc.Value.ToOsloZone();
-
-            var date = result.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            var time = result.TimeOfDay.ToString("HH:mm", CultureInfo.InvariantCulture);
-
-            return (date, time);
+            return LocalDateTimePattern.GeneralIso.Parse($"{date}T{time}:00")
+                .GetValueOrThrow()
+                .InZoneLeniently(Constants.TimeZoneOslo)
+                .ToDateTimeUtc();
         }
     }
 }

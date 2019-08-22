@@ -33,6 +33,18 @@ namespace MemberService
         public static ZonedDateTime ToOsloZone(this DateTime utc)
             => Instant.FromDateTimeUtc(utc.WithKind(DateTimeKind.Utc)).InZone(Constants.TimeZoneOslo);
 
+        public static (string Date, string Time) GetLocalDateAndTime(this DateTime? utc)
+        {
+            if (!utc.HasValue) return (null, null);
+
+            var result = utc.Value.ToOsloZone();
+
+            var date = result.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            var time = result.TimeOfDay.ToString("HH:mm", CultureInfo.InvariantCulture);
+
+            return (date, time);
+        }
+
         public static Expression<Func<T, bool>> Not<T>(this Expression<Func<T, bool>> predicate)
             => Expression.Lambda<Func<T, bool>>(Expression.Not(predicate.Body), predicate.Parameters);
 

@@ -1,0 +1,28 @@
+﻿@model IReadOnlyList<ProgramModel>
+
+@{
+    ViewData["Title"] = "Arrangementer";
+}
+<h2>
+    <a asp-controller="Signup" asp-action="Index">@ViewData["Title"]</a>
+    <a class="btn btn-success float-right" asp-action="Create">Opprett nytt arrangement</a>
+</h2>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Navn</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var program in Model)
+        {
+            <tr>
+                <td><a asp-action="View" asp-route-id="@program.Id" asp-route-program="0">@program.Title</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="?archived=true">Se gamle arrangementer også</a>

@@ -1,0 +1,15 @@
+﻿@model ProgramModel
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<h2>
+    <a asp-controller="Signup" asp-action="Event" asp-route-id="@Model.Id" asp-route-slug="@Model.Title.Slugify()" target="_blank">
+        @ViewData["Title"]
+    </a>
+    <a asp-controller="Program" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary float-right">
+        Rediger
+    </a>
+</h2>
+
