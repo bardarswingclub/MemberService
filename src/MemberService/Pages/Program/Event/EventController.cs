@@ -43,7 +43,7 @@ namespace MemberService.Pages.Program.Event
         [HttpGet]
         public async Task<IActionResult> Index(int program, bool archived = false)
         {
-            var model = await _database.GetEvents(archived);
+            var model = await _database.GetEvents(program, archived);
 
             return View(model);
         }
@@ -51,7 +51,10 @@ namespace MemberService.Pages.Program.Event
         [HttpGet]
         public IActionResult Create(int program)
         {
-            return View(new EventInputModel());
+            return View(new EventInputModel
+            {
+                ProgramId = program
+            });
         }
 
         [HttpPost]

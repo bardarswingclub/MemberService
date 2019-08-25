@@ -6,7 +6,7 @@ using MemberService.Data;
 
 namespace MemberService.Pages.Program.Event
 {
-    public class EventModel
+    public class EventViewModel
     {
         private static readonly Status[] Statuses = {
             Status.AcceptedAndPayed,
@@ -19,6 +19,8 @@ namespace MemberService.Pages.Program.Event
         };
 
         public Guid Id { get; set; }
+
+        public int ProgramId { get; set; }
 
         public string Title { get; set; }
 
@@ -40,7 +42,7 @@ namespace MemberService.Pages.Program.Event
 
         public bool IsOpen { get; set; }
 
-        public static EventModel Create(Data.Event model)
+        public static EventViewModel Create(Data.Event model)
         {
             foreach (var (partner, signup) in model.Signups
                 .Select(s => s.Partner)
@@ -50,9 +52,10 @@ namespace MemberService.Pages.Program.Event
                 partner.EventSignups.Add(signup);
             }
 
-            return new EventModel
+            return new EventViewModel
             {
                 Id = model.Id,
+                ProgramId = model.ProgramId,
                 Title = model.Title,
                 Description = model.Description,
                 Signups = Statuses

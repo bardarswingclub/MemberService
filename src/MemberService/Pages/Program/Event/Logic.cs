@@ -23,11 +23,12 @@ namespace MemberService.Pages.Program.Event
             Status.Denied,
         };
 
-        public static Task<List<Data.Event>> GetEvents(this MemberContext context, bool archived)
+        public static Task<List<Data.Event>> GetEvents(this MemberContext context, int program, bool archived)
             => context.Events
                 .Include(e => e.SignupOptions)
                 .Include(e => e.Signups)
                 .AsNoTracking()
+                .Where(e => e.ProgramId == program)
                 .Where(e => archived || e.Archived == false)
                 .OrderByDescending(e => e.CreatedAt)
                 .ToListAsync();
@@ -35,6 +36,7 @@ namespace MemberService.Pages.Program.Event
         public static Data.Event ToEntity(this EventInputModel model, MemberUser user)
             => new Data.Event
             {
+                ProgramId = model.ProgramId,
                 Title = model.Title,
                 Description = model.Description,
                 CreatedAt = DateTime.UtcNow,
@@ -57,7 +59,7 @@ namespace MemberService.Pages.Program.Event
                 }
             };
 
-        public static async Task<EventModel> GetEventModel(this MemberContext context, Guid id)
+        public static async Task<EventViewModel> GetEventModel(this MemberContext context, Guid id)
         {
             var model = await context.Events
                 .Include(e => e.SignupOptions)
@@ -75,7 +77,7 @@ namespace MemberService.Pages.Program.Event
 
             model.ConnectPartner();
 
-            return EventModel.Create(model);
+            return EventViewModel.Create(model);
         }
 
         public static IEnumerable<Guid> GetSelected(this EventSaveModel input)

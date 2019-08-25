@@ -13,6 +13,7 @@ namespace MemberService.Pages.Program
     {
         public static async Task<IReadOnlyList<ProgramModel>> GetPrograms(this MemberContext database, bool archived = false)
             => await database.Programs
+                .Include(p => p.Events)
                 .Expressionify()
                 .Where(e => archived || e.Archived == false)
                 .OrderByDescending(e => e.CreatedAt)
@@ -20,7 +21,12 @@ namespace MemberService.Pages.Program
                 .ToListAsync();
 
         public static async Task<ProgramModel> GetProgram(this MemberContext database, int id)
-            => ProgramModel.Create(await database.FindAsync<Data.Program>(id));
+            => await database.Programs
+                .Include(p => p.Events)
+                .Expressionify()
+                .OrderByDescending(e => e.CreatedAt)
+                .Select(p => ProgramModel.Create(p))
+                .FirstOrDefaultAsync(p => p.Id == id);
 
         public static async Task<ProgramInputModel> GetProgramInputModel(this MemberContext database, int id)
         {

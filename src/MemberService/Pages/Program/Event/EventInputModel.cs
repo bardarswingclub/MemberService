@@ -8,6 +8,9 @@ namespace MemberService.Pages.Program.Event
     {
         public Guid Id { get; set; }
 
+        [Required]
+        public int ProgramId { get; set; }
+
         [DisplayName("Navn")]
         [Required]
         public string Title { get; set; }

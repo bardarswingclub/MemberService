@@ -19,7 +19,7 @@
         @foreach (var program in Model)
         {
             <tr>
-                <td><a asp-action="View" asp-route-id="@program.Id" asp-route-program="0">@program.Title</a></td>
+                <td><a asp-action="View" asp-route-id="@program.Id">@program.Title</a></td>
             </tr>
         }
     </tbody>

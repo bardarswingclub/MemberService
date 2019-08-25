@@ -13,3 +13,26 @@
     </a>
 </h2>
 
+<table class="table">
+    <thead>
+        <tr>
+            <th>Påmelding</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var ev in Model.Events)
+        {
+            <tr>
+                <td>
+                    <a asp-controller="Event" asp-action="View" asp-route-program="@Model.Id" asp-route-id="@ev.Id">@ev.Title</a>
+                </td>
+                <td>
+                    <a class="btn btn-outline-info" asp-controller="Event" asp-action="Edit" asp-route-program="@Model.Id" asp-route-id="@ev.Id">Endre</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a class="btn btn-success" asp-controller="Event" asp-action="Create" asp-route-program="@Model.Id">Legg til ny påmelding</a>
