@@ -1,7 +1,7 @@
-﻿using MemberService.Data;
+﻿using MemberService.Auth.Email;
+using MemberService.Data;
 using MemberService.Emails.Account;
 using MemberService.Emails.Event;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using System.Threading.Tasks;
 
 namespace MemberService.Services
@@ -9,14 +9,17 @@ namespace MemberService.Services
     public class EmailService : IEmailService
     {
         private readonly IPartialRenderer _partialRenderer;
-        private readonly IEmailSender _emailSender;
+        private readonly IFastEmailSender _fastEmailSender;
+        private readonly ISlowEmailSender _slowEmailSender;
 
         public EmailService(
             IPartialRenderer partialRenderer,
-            IEmailSender emailSender)
+            IFastEmailSender fastEmailSender,
+            ISlowEmailSender slowEmailSender)
         {
             _partialRenderer = partialRenderer;
-            _emailSender = emailSender;
+            _fastEmailSender = fastEmailSender;
+            _slowEmailSender = slowEmailSender;
         }
 
         public async Task SendLoginEmail(string email, LoginModel model)
@@ -25,7 +28,7 @@ namespace MemberService.Services
 
             var body = await _partialRenderer.RenderPartial("~/Emails/Account/Login.cshtml", model);
 
-            await _emailSender.SendEmailAsync(
+            await _fastEmailSender.SendEmailAsync(
                 email,
                 subject,
                 body);
@@ -40,7 +43,7 @@ namespace MemberService.Services
 
             var body = await _partialRenderer.RenderPartial(GetEventStatusPartial(status, model), model);
 
-            await _emailSender.SendEmailAsync(
+            await _slowEmailSender.SendEmailAsync(
                 email,
                 subject,
                 body);
@@ -50,7 +53,7 @@ namespace MemberService.Services
 
         public async Task SendCustomEmail(string email, string subject, string message, EventStatusModel eventStatusModel)
         {
-            await _emailSender.SendEmailAsync(
+            await _slowEmailSender.SendEmailAsync(
                 email,
                 Replace(subject, eventStatusModel),
                 Markdig.Markdown.ToHtml(Replace(message, eventStatusModel)));

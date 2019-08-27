@@ -2,16 +2,15 @@
 using System.Net.Mail;
 using System.Threading.Tasks;
 using MemberService.Configs;
-using Microsoft.AspNetCore.Identity.UI.Services;
 
-namespace MemberService.Auth
+namespace MemberService.Auth.Email
 {
-    public class EmailSender : IEmailSender, IDisposable
+    public class FastEmailSender : IFastEmailSender, IDisposable
     {
         private readonly EmailConfig _config;
         private SmtpClient _client;
 
-        public EmailSender(Config config)
+        public FastEmailSender(Config config)
         {
             _config = config.Email;
         }

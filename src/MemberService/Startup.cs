@@ -10,7 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Runtime.InteropServices;
 using MemberService.Configs;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using MemberService.Auth;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using MemberService.Auth.Development;
@@ -19,6 +18,7 @@ using Microsoft.AspNetCore.Localization;
 using MemberService.Services;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
+using MemberService.Auth.Email;
 
 namespace MemberService
 {
@@ -38,7 +38,8 @@ namespace MemberService
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddScoped(typeof(IEmailSender), IsDevelopment ? typeof(DummyConsoleEmailSender) : typeof(EmailSender))
+                .AddScoped(typeof(IFastEmailSender), IsDevelopment ? typeof(DummyFastConsoleEmailSender) : typeof(FastEmailSender))
+                .AddScoped(typeof(ISlowEmailSender), IsDevelopment ? typeof(DummySlowConsoleEmailSender) : typeof(SlowEmailSender))
                 .AddScoped<Stripe.ChargeService>()
                 .AddScoped<Stripe.Checkout.SessionService>()
                 .AddScoped<Stripe.CustomerService>()
@@ -56,7 +57,7 @@ namespace MemberService
 
             services
                 .AddSingleton<IActionContextAccessor, ActionContextAccessor>()
-                .AddScoped<IUrlHelper>(x => x
+                .AddScoped(x => x
                     .GetRequiredService<IUrlHelperFactory>()
                     .GetUrlHelper(x.GetRequiredService<IActionContextAccessor>().ActionContext));
 
