@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.Localization;
 using MemberService.Services;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
-using MemberService.Auth.Email;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using SendGrid;
 
 namespace MemberService
@@ -39,8 +39,7 @@ namespace MemberService
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddScoped(typeof(IFastEmailSender), IsDevelopment ? typeof(DummyFastConsoleEmailSender) : typeof(FastEmailSender))
-                .AddScoped(typeof(ISlowEmailSender), IsDevelopment ? typeof(DummySlowConsoleEmailSender) : typeof(SlowEmailSender))
+                .AddScoped(typeof(IEmailSender), IsDevelopment ? typeof(DummyConsoleEmailSender) : typeof(EmailSender))
                 .AddScoped(e => new SendGridClient(Configuration["Email:SendGridApiKey"]))
                 .AddScoped<Stripe.ChargeService>()
                 .AddScoped<Stripe.Checkout.SessionService>()

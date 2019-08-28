@@ -1,17 +1,18 @@
 using System;
+using System.Threading.Tasks;
 using MemberService.Configs;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using SendGrid;
 using SendGrid.Helpers.Mail;
-using System.Threading.Tasks;
 
-namespace MemberService.Auth.Email
+namespace MemberService.Auth
 {
-    public class SlowEmailSender : ISlowEmailSender
+    public class EmailSender : IEmailSender
     {
         private readonly EmailConfig _config;
         private readonly SendGridClient _client;
 
-        public SlowEmailSender(SendGridClient client, Config config)
+        public EmailSender(SendGridClient client, Config config)
         {
             _client = client;
             _config = config.Email;
