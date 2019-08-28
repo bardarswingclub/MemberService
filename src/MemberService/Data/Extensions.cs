@@ -36,6 +36,10 @@ namespace MemberService.Data
             => e.HasOpened() && !e.HasClosed();
 
         [Expressionify]
+        public static bool WillOpen(this Event e)
+            => !e.HasOpened() && !e.HasClosed();
+
+        [Expressionify]
         public static bool IsSignedUpFor(this MemberUser user, Guid id)
             => user.EventSignups.Any(e => e.EventId == id);
 

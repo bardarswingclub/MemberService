@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
+using Clave.ExtensionMethods;
 using MemberService.Data;
+using MemberService.Pages.Event;
+using MemberService.Pages.Signup;
 using MemberService.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Stripe;
 
 namespace MemberService.Pages.Home
 {
@@ -20,25 +21,39 @@ namespace MemberService.Pages.Home
 
         public HomeController(
             MemberContext memberContext,
-            UserManager<MemberUser> userManager,
-            ChargeService stripeChargeService)
+            UserManager<MemberUser> userManager)
         {
             _memberContext = memberContext;
             _userManager = userManager;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var userId = _userManager.GetUserId(User);
+
+            var openEvents = await _memberContext.GetEvents(userId, e => e.IsOpen() && e.Type == EventType.Class);
+
+            var futureEvents = await _memberContext.GetEvents(userId, e => e.WillOpen() && e.Type == EventType.Class);
+
+            var willOpenAt = futureEvents
+                .WhereNotNull(e => e.OpensAt)
+                .OrderBy(e => e.OpensAt)
+                .Select(e => e.OpensAt)
+                .FirstOrDefault();
+
+            return View(new HomeModel
+            {
+                Classes = openEvents,
+                OpensAt = willOpenAt
+            });
         }
 
         public async Task<IActionResult> Fees()
         {
             var user = await GetCurrentUser();
 
-            return View(new IndexViewModel
+            return View(new FeesViewModel
             {
-                Email = user.Email,
                 MembershipFee = user.GetMembershipFee(),
                 TrainingFee = user.GetTrainingFee(),
                 ClassesFee = user.GetClassesFee()

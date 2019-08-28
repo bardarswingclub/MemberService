@@ -1,7 +1,5 @@
 ﻿@using MemberService.Pages.Home
-@using MemberService.Services
-@model IndexViewModel
-@inject Config Config
+@model HomeModel
 
 @{
     ViewData["Title"] = "Home Page";
@@ -9,17 +7,43 @@
 }
 
 <div class="card shadow-sm mt-5">
-    <h1 class="card-header text-center">
-        Høstens kurs
-    </h1>
-    <div class="card-body text-center pt-5 pb-5">
-        <p style="font-size: 1.2em">
-            Påmeldingen åpner <strong>søndag 1. september</strong> klokken <strong>21:00</strong>
-        </p>
-        <p>
-            Lurer du på noe om kursene i høst? <a href="https://www.bardarswingclub.no/nyheter/2019/07/29/hostens-kurs/">Her finner du svar</a>.
-        </p>
-    </div>
+    <h2 class="card-header text-center">
+        Meld deg på kurs
+    </h2>
+    @if (Model.Classes.Any())
+    {
+        <div class="list-group list-group-flush">
+            @foreach(var item in Model.Classes)
+            {
+                <div class="list-group-item">
+                    <h4>@item.Title</h4>
+                </div>
+            }
+        </div>
+        <div class="card-body">
+            <button class="btn btn-success btn-block">Meld deg på</button>
+        </div>
+    }
+    else if (Model.OpensAt.HasValue)
+    {
+        <div class="card-body text-center pt-5 pb-5">
+            <p style="font-size: 1.2em">
+                Påmeldingen åpner <strong>@Model.OpensAt.Value.ToOsloDate()</strong> klokken <strong>@Model.OpensAt.Value.ToOsloTime()</strong>
+            </p>
+            <p>
+                Lurer du på noe om kursene i høst? <a href="https://www.bardarswingclub.no/nyheter/2019/07/29/hostens-kurs/">Her finner du svar</a>.
+            </p>
+        </div>
+    }else{
+        <div class="card-body text-center pt-5 pb-5">
+            <p style="font-size: 1.2em">
+                Påmeldingen til kurs er desverre stengt
+            </p>
+            <p>
+                Kurspåmelding åpner vanligvis tidlig i januar og september
+            </p>
+        </div>
+    }
     <div class="card-footer text-center">
         <a href="/Home/Fees">Jeg vil ikke gå kurs, jeg vil bare bli medlem</a>
     </div>

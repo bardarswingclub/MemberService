@@ -32,9 +32,9 @@ namespace MemberService.Pages.Signup
         {
             var userId = GetUserId();
 
-            var openEvents = await _database.GetEvents(userId, e => e.IsOpen());
+            var openEvents = await _database.GetEvents(userId, e => e.IsOpen() && e.Type != EventType.Class);
 
-            var futureEvents = await _database.GetEvents(userId, e => !e.HasOpened() && !e.HasClosed());
+            var futureEvents = await _database.GetEvents(userId, e => e.WillOpen() && e.Type != EventType.Class);
 
             return View(new EventsModel
             {
@@ -334,6 +334,7 @@ namespace MemberService.Pages.Signup
                     id,
                     sessionId = "{CHECKOUT_SESSION_ID}"
                 });
+
         private string GetUserId() => _userManager.GetUserId(User);
     }
 }
