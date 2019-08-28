@@ -1,3 +1,4 @@
+using System;
 using MemberService.Configs;
 using SendGrid;
 using SendGrid.Helpers.Mail;
@@ -10,10 +11,10 @@ namespace MemberService.Auth.Email
         private readonly EmailConfig _config;
         private readonly SendGridClient _client;
 
-        public SlowEmailSender(EmailConfig config)
+        public SlowEmailSender(SendGridClient client, Config config)
         {
-            _config = config;
-            _client = new SendGridClient(_config.SendGridApiKey);
+            _client = client;
+            _config = config.Email;
         }
 
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
@@ -25,7 +26,17 @@ namespace MemberService.Auth.Email
                 "Epostleseren din er ikke støttet, prøv en annen!",
                 htmlMessage);
 
-            await _client.SendEmailAsync(message);
+            var response =  await _client.SendEmailAsync(message);
+            ValidateResponse(response);
+        }
+
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
+        private void ValidateResponse(Response response)
+        {
+            if ((int)response.StatusCode < 200 || (int)response.StatusCode > 299)
+            {
+                throw new Exception("Utsending av epost feilet!");
+            }
         }
     }
 }
