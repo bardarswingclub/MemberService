@@ -58,7 +58,7 @@
             <div class="form-group mt-4">
                 <label asp-for="Input.Role"></label>
                 <select class="form-control" asp-for="Input.Role" data-val-required="Du må velge rolle">
-                    <option value="">Velg rolle</option>
+                    <option value="" selected disabled>Velg rolle</option>
                     <option value="@DanceRole.Lead">Fører</option>
                     <option value="@DanceRole.Follow">Følger</option>
                 </select>
