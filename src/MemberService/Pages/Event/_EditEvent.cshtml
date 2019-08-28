@@ -76,37 +76,51 @@
         <div class="card-header">
             Betaling
         </div>
-        <div class="card-body">
-            <div class="form-group row">
-                <label asp-for="PriceForMembers" class="col-6 col-form-label"></label>
-                <div class="col-6">
-                    <input type="number" placeholder="kr 0,-" class="form-control" asp-for="PriceForMembers" asp-format="{0:0}">
-                    <span asp-validation-for="PriceForMembers" class="text-danger"></span>
+        @if (Model.Type == EventType.Class)
+        {
+            <div class="card-body">
+                <p class="text-center mt-5 mb-5">Kurs krever betalt kursavgift</p>
+                <input type="hidden" asp-for="PriceForMembers" value="0" />
+                <input type="hidden" asp-for="PriceForNonMembers" value="0" />
+                <input type="hidden" asp-for="RequiresMembershipFee" value="true" />
+                <input type="hidden" asp-for="RequiresTrainingFee" value="true" />
+                <input type="hidden" asp-for="RequiresClassesFee" value="true" />
+            </div>
+        }
+        else
+        {
+            <div class="card-body">
+                <div class="form-group row">
+                    <label asp-for="PriceForMembers" class="col-6 col-form-label"></label>
+                    <div class="col-6">
+                        <input type="number" placeholder="kr 0,-" class="form-control" asp-for="PriceForMembers" asp-format="{0:0}">
+                        <span asp-validation-for="PriceForMembers" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label asp-for="PriceForNonMembers" class="col-6 col-form-label"></label>
+                    <div class="col-6">
+                        <input type="number" placeholder="kr 0,-" class="form-control" asp-for="PriceForNonMembers" asp-format="{0:0}">
+                        <span asp-validation-for="PriceForNonMembers" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" asp-for="RequiresMembershipFee">
+                    <label class="form-check-label" asp-for="RequiresMembershipFee"></label>
+                    <span asp-validation-for="RequiresMembershipFee" class="text-danger"></span>
+                </div>
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" asp-for="RequiresTrainingFee">
+                    <label class="form-check-label" asp-for="RequiresTrainingFee"></label>
+                    <span asp-validation-for="RequiresTrainingFee" class="text-danger"></span>
+                </div>
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" asp-for="RequiresClassesFee">
+                    <label class="form-check-label" asp-for="RequiresClassesFee"></label>
+                    <span asp-validation-for="RequiresClassesFee" class="text-danger"></span>
                 </div>
             </div>
-            <div class="form-group row">
-                <label asp-for="PriceForNonMembers" class="col-6 col-form-label"></label>
-                <div class="col-6">
-                    <input type="number" placeholder="kr 0,-" class="form-control" asp-for="PriceForNonMembers" asp-format="{0:0}">
-                    <span asp-validation-for="PriceForNonMembers" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" asp-for="RequiresMembershipFee">
-                <label class="form-check-label" asp-for="RequiresMembershipFee"></label>
-                <span asp-validation-for="RequiresMembershipFee" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" asp-for="RequiresTrainingFee">
-                <label class="form-check-label" asp-for="RequiresTrainingFee"></label>
-                <span asp-validation-for="RequiresTrainingFee" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" asp-for="RequiresClassesFee">
-                <label class="form-check-label" asp-for="RequiresClassesFee"></label>
-                <span asp-validation-for="RequiresClassesFee" class="text-danger"></span>
-            </div>
-        </div>
+        }
     </div>
 
     <div class="card mb-2">
