@@ -11,9 +11,8 @@ namespace MemberService.Auth.Development
 #if DEBUG
             await Console.Out.WriteLineAsync($"Email address: {email}");
             await Console.Out.WriteLineAsync($"Subject: {subject}");
-            await Console.Out.WriteLineAsync($"Email body:");
+            await Console.Out.WriteLineAsync("Email body:");
             await Console.Out.WriteLineAsync(htmlMessage);
-            await Console.Out.WriteLineAsync($"The type of sender is {GetType()}");
 #else
             throw new System.Exception("Dummy methods are only available in debug builds!");
 #endif
