@@ -6,22 +6,121 @@
     Layout = "~/Pages/_CoverLayout.cshtml";
 }
 
-<div class="card shadow-sm mt-5">
+<form id="missing">
+</form>
+
+<form asp-action="Signup" method="post" class="card shadow-sm mt-5" onkeydown="return event.key != 'Enter';">
     <h2 class="card-header text-center">
         Meld deg på kurs
     </h2>
     @if (Model.Classes.Any())
     {
-        <div class="list-group list-group-flush">
-            @foreach(var item in Model.Classes)
+        <div class="list-group list-group-flush priority-group reorderable">
+            @foreach (var item in Model.Classes)
             {
-                <div class="list-group-item">
-                    <h4>@item.Title</h4>
-                </div>
+                var signedUp = item.Signup != null;
+                <details class="list-group-item" data-id="@item.Id" @(item.Signup == null ? "data-hidden open" : "")>
+                    <summary class="d-block">
+                        <h4 class="d-inline-block priority">@item.Title</h4>
+                        @if (item.Signup is ClassSignupModel signup)
+                        {
+                    <span class="float-right">
+                        <svg height="20px" width="20px" fill="#999" viewBox="0 0 12.7 12.7" version="1.1" x="0px" y="0px">
+                            <g transform="translate(0,-284.29998)">
+                                <path style="" d="m 6.2051222,296.43433 a 0.12460938,0.12460938 0 0 0 0.1762023,0 l 1.675697,-1.67573 a 0.12460938,0.12460938 0 0 0 -0.088067,-0.21273 H 4.617492 a 0.12460938,0.12460938 0 0 0 -0.088136,0.21273 z" fill="#999" stroke="none" />
+                                <path style="" d="M 11.290459,292.79769 H 1.4095343 a 0.12460938,0.12460938 0 0 0 -0.1246058,0.1246 v 0.60987 a 0.12460938,0.12460938 0 0 0 0.1246058,0.12461 h 9.8809247 a 0.12460938,0.12460938 0 0 0 0.124608,-0.12461 v -0.60987 a 0.12460938,0.12460938 0 0 0 -0.124608,-0.1246 z" fill="#999" stroke="none" />
+                                <path style="" d="M 11.290459,291.07952 H 1.4095343 a 0.12460938,0.12460938 0 0 0 -0.1246058,0.12461 v 0.60987 a 0.12460938,0.12460938 0 0 0 0.1246058,0.12461 h 9.8809247 a 0.12460938,0.12460938 0 0 0 0.124608,-0.12461 v -0.60987 a 0.12460938,0.12460938 0 0 0 -0.124608,-0.12461 z" fill="#999" stroke="none" />
+                                <path style="" d="m 11.290459,290.22043 a 0.12460938,0.12460938 0 0 0 0.124608,-0.1246 v -0.60987 a 0.12460938,0.12460938 0 0 0 -0.124608,-0.12461 H 1.4095343 a 0.12460938,0.12460938 0 0 0 -0.1246058,0.12461 v 0.60987 a 0.12460938,0.12460938 0 0 0 0.1246058,0.1246 z" fill="#999" stroke="none" />
+                                <path style="" d="M 11.290459,287.64319 H 1.4095343 a 0.12460938,0.12460938 0 0 0 -0.1246058,0.12461 v 0.60986 a 0.12460938,0.12460938 0 0 0 0.1246058,0.12461 h 9.8809247 a 0.12460938,0.12460938 0 0 0 0.124608,-0.12461 v -0.60986 a 0.12460938,0.12460938 0 0 0 -0.124608,-0.12461 z" fill="#999" stroke="none" />
+                                <path style="" d="m 6.2051222,284.86563 -1.6757657,1.67573 a 0.12460938,0.12460938 0 0 0 0.088136,0.21272 h 3.3514627 a 0.12460938,0.12460938 0 0 0 0.088067,-0.21272 l -1.675697,-1.67573 a 0.12460938,0.12460938 0 0 0 -0.176203,0 z" fill="#999" stroke="none" />
+                            </g>
+                        </svg>
+                    </span>
+                            @if (item.RoleSignup)
+                            {
+                                <div class="text-muted non-open-summary">
+                                    @if (item.AllowPartnerSignup && !string.IsNullOrEmpty(signup.PartnerEmail))
+                                    {
+                                        @: Påmeldt som @signup.Role.DisplayName().ToLower() sammen med @signup.PartnerEmail.
+                                    }
+                                    else
+                                    {
+                                        @: Påmeldt som @signup.Role.DisplayName().ToLower() uten partner.
+                                    }
+                                </div>
+                            }
+                        }
+                    </summary>
+
+                    <input type="hidden" name="classes[]" value="@item.Id" @(signedUp ? "" : "disabled") />
+
+                    <p class="lead">@item.Description</p>
+
+                    <p>@Html.Markdown(item.SignupHelp)</p>
+
+                    @if (item.RoleSignup)
+                    {
+                        <div class="form-group mt-4">
+                            <label>Danserolle</label>
+                            <select class="form-control" name="roles[]" @(signedUp ? "" : "disabled") required>
+                                <option value="" disabled selected="@(!signedUp)">Velg rolle</option>
+                                <option value="@DanceRole.Lead" selected="@(item.Signup?.Role == DanceRole.Lead)">Fører</option>
+                                <option value="@DanceRole.Follow" selected="@(item.Signup?.Role == DanceRole.Follow)">Følger</option>
+                            </select>
+                            <small class="form-text text-muted">
+                                @Html.Markdown(item.RoleSignupHelp)
+                            </small>
+                        </div>
+                        @if (item.AllowPartnerSignup)
+                        {
+                            var show = item.Signup?.PartnerEmail != null;
+                            <div class="form-check">
+                                <input class="form-check-input @(show ? "" : "collapsed")" type="checkbox" checked="@show" id="partner-checkbox-@item.Id" data-toggle="collapse" data-target="#partner-@item.Id" aria-expanded="@(show ? "true" : "false")">
+                                <label class="form-check-label" for="partner-checkbox-@item.Id">
+                                    Meld deg på med partner
+                                </label>
+                            </div>
+                            <div class="form-group mt-4 collapse @(show ? "show" : "")" id="partner-@item.Id">
+                                <label>Partners e-post</label>
+                                <input type="text" class="form-control" value="@item.Signup?.PartnerEmail" placeholder="epost@eksempel.no" name="partners[]" @(signedUp ? "" : "disabled")>
+                                <small class="form-text text-muted">
+                                    @Html.Markdown(item.AllowPartnerSignupHelp ?? "Fyll inn e-post til partner hvis dere er to som ønsker å gå kurs sammen. Begge to må melde seg på og skrive opp hverandres e-post.")
+                                </small>
+                            </div>
+                        }
+                        else
+                        {
+                            <input type="hidden" name="partners[]" value="" />
+                        }
+                    }
+                    else
+                    {
+                        <input type="hidden" name="roles[]" value="" />
+
+                        <input type="hidden" name="partners[]" value="" />
+                    }
+
+                    <div class="text-right">
+                        <button type="button" class="btn btn-outline-danger" data-action="remove">Fjern</button>
+                    </div>
+                </details>
             }
         </div>
         <div class="card-body">
-            <button class="btn btn-success btn-block">Meld deg på</button>
+            <div class="input-group mb-3">
+                <select class="custom-select" id="class-select">
+                    <option value="" selected disabled>Velg kurs du har lyst til å delta på</option>
+                    @foreach (var item in Model.Classes)
+                    {
+                        <option value="@item.Id" disabled="@(item.Signup != null)">@item.Title</option>
+                    }
+                </select>
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-outline-success" id="add-class-button">Legg til</button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success btn-block">Lagre</button>
         </div>
     }
     else if (Model.OpensAt.HasValue)
@@ -34,7 +133,9 @@
                 Lurer du på noe om kursene i høst? <a href="https://www.bardarswingclub.no/nyheter/2019/07/29/hostens-kurs/">Her finner du svar</a>.
             </p>
         </div>
-    }else{
+    }
+    else
+    {
         <div class="card-body text-center pt-5 pb-5">
             <p style="font-size: 1.2em">
                 Påmeldingen til kurs er desverre stengt
@@ -47,4 +148,76 @@
     <div class="card-footer text-center">
         <a href="/Home/Fees">Jeg vil ikke gå kurs, jeg vil bare bli medlem</a>
     </div>
-</div>
+</form>
+
+@section Scripts {
+    <script src="~/js/sortable.js"></script>
+    <script>
+        $(function () {
+            sortable('.reorderable',{
+                forcePlaceholderSize: true,
+                placeholderClass: 'none'
+            });
+
+            $("#add-class-button").on('click', function (e) {
+                var select = $("#class-select");
+
+                // get the id of the selected class
+                var id = select.val();
+
+                // set the value back to nothing
+                select.val("");
+
+                // disable the selected class in the <select> so that we can't add it again
+                select.find("option[value=" + id + "]").prop("disabled", true);
+
+                // find the input group for the selected class
+                var group = $("[data-id=" + id + "]");
+
+                // move last
+                group.parent().append(group);
+
+                // make it visible
+                group.removeAttr("data-hidden");
+
+                // enable everything inside the group so they are submitted to the server
+                group.find("input, select").prop("disabled", false);
+            });
+
+            $("[data-action=remove]").on('click', function (e) {
+                // find the input group to remove
+                var group = $(this).parents("[data-id]");
+
+                // hide the group
+                group.attr("data-hidden", "");
+
+                // disable everything inside the group, so we don't submit it to the server
+                group.find("input, select").prop("disabled", true);
+
+                // get the id of the class
+                var id = group.attr("data-id");
+
+                // enable the select option again
+                $("option[value=" + id + "]").prop("disabled", false);
+            });
+        })
+    </script>
+}
+
+@functions
+{
+    string BadgeColor(Status status)
+    {
+        switch (status)
+        {
+            case Status.Approved:
+            case Status.AcceptedAndPayed:
+                return "badge-success";
+            case Status.Denied:
+            case Status.RejectedOrNotPayed:
+                return "badge-danger";
+            default:
+                return "badge-info";
+        }
+    }
+}

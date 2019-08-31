@@ -48,7 +48,7 @@
                             <td>
                                 <a asp-controller="Signup" asp-action="Event" asp-route-id="@signup.EventId">@signup.Event.Title</a>
                             </td>
-                            <td>@signup.Status.DisplayName()</td>
+                            <td>@signup.Status.DisplayDescription()</td>
                         </tr>
                     }
                 </tbody>

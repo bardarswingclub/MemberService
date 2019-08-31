@@ -92,3 +92,23 @@ h1, h2, h3, h4, h5, h6 {
         column-count: 2;
     }
 }
+
+[data-hidden] {
+    display: none;
+}
+
+.priority-group {
+    counter-reset: priority;
+}
+
+.priority:before {
+    counter-increment: priority;
+    content: counter(priority) ". ";
+    color: grey;
+    font-variant-numeric: lining-nums;
+}
+
+
+details[open] summary .non-open-summary {
+    display: none;
+}

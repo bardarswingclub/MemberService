@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Clave.ExtensionMethods;
@@ -31,11 +33,11 @@ namespace MemberService.Pages.Home
         {
             var userId = _userManager.GetUserId(User);
 
-            var openEvents = await _memberContext.GetEvents(userId, e => e.IsOpen() && e.Type == EventType.Class);
+            var openClasses = await _memberContext.GetClasses(userId, e => e.IsOpen());
 
-            var futureEvents = await _memberContext.GetEvents(userId, e => e.WillOpen() && e.Type == EventType.Class);
+            var futureClasses = await _memberContext.GetClasses(userId, e => e.WillOpen());
 
-            var willOpenAt = futureEvents
+            var willOpenAt = futureClasses
                 .WhereNotNull(e => e.OpensAt)
                 .OrderBy(e => e.OpensAt)
                 .Select(e => e.OpensAt)
@@ -43,9 +45,55 @@ namespace MemberService.Pages.Home
 
             return View(new HomeModel
             {
-                Classes = openEvents,
+                Classes = openClasses,
                 OpensAt = willOpenAt
             });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Signup([FromForm] IReadOnlyList<Guid> classes, [FromForm] IReadOnlyList<DanceRole> roles, [FromForm] IReadOnlyList<string> partners)
+        {
+            var items = classes.Zip(roles).Zip(partners, (p, partner) => new ClassSignup(p.Item1, p.Item2, partner));
+
+            var userId = _userManager.GetUserId(User);
+            var user = await _memberContext.GetEditableUser(userId);
+
+            var openClasses = await _memberContext.GetClasses(userId, e => e.IsOpen());
+
+            var classesNotSignedUpFor = openClasses
+                .Where(c => c.Signup == null)
+                .Select(c => c.Id)
+                .ToReadOnlyList();
+
+            var addedSignups = items
+                .Where(i => classesNotSignedUpFor.Contains(i.Id))
+                .ToReadOnlyList();
+
+            foreach (var signup in addedSignups)
+            {
+                user.AddEventSignup(signup.Id, new SignupInputModel { Role = signup.Role, PartnerEmail = signup.PartnerEmail }, false);
+            }
+
+            var changedSignups = openClasses
+                .WhereNotNull(c => c.Signup)
+                .Join(items, c => c.Id, c => c.Id)
+                .ToReadOnlyList();
+
+            foreach(var (_, signup) in changedSignups)
+            {
+                var eventSignup = user.EventSignups.FirstOrDefault(s => s.EventId == signup.Id);
+                eventSignup.Role = signup.Role;
+                eventSignup.PartnerEmail = signup.PartnerEmail;
+            }
+
+            var removedSignups = openClasses
+                .WhereNotNull(c => c.Signup)
+                .Where(c => items.NotAny(i => i.Id == c.Id))
+                .ToReadOnlyList();
+
+            await _memberContext.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Fees()
@@ -78,5 +126,21 @@ namespace MemberService.Pages.Home
             => await _memberContext.Users
                 .Include(x => x.Payments)
                 .SingleUser(_userManager.GetUserId(User));
+
+        private class ClassSignup
+        {
+            public ClassSignup(Guid id, DanceRole role, string partnerEmail)
+            {
+                Id = id;
+                Role = role;
+                PartnerEmail = partnerEmail;
+            }
+
+            public Guid Id { get; }
+
+            public DanceRole Role { get; }
+
+            public string PartnerEmail { get; }
+        }
     }
 }

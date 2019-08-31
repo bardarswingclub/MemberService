@@ -17,6 +17,7 @@ namespace MemberService.Pages.Signup
                 .Include(e => e.SignupOptions)
                 .AsNoTracking()
                 .Expressionify()
+                .Where(e => e.Type != EventType.Class)
                 .Where(e => e.Archived == false)
                 .Where(predicate)
                 .OrderBy(e => e.SignupOptions.SignupOpensAt)

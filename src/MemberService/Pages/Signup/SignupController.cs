@@ -32,9 +32,9 @@ namespace MemberService.Pages.Signup
         {
             var userId = GetUserId();
 
-            var openEvents = await _database.GetEvents(userId, e => e.IsOpen() && e.Type != EventType.Class);
+            var openEvents = await _database.GetEvents(userId, e => e.IsOpen());
 
-            var futureEvents = await _database.GetEvents(userId, e => e.WillOpen() && e.Type != EventType.Class);
+            var futureEvents = await _database.GetEvents(userId, e => e.WillOpen());
 
             return View(new EventsModel
             {
