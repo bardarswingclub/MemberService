@@ -1,30 +1,27 @@
 ﻿@using MemberService.Pages.Home
 @model ClassModel
 
-<div class="list-group-item non-sortable" data-id="@Model.Id">
+<div class="list-group-item" data-id="@Model.Id">
     <input type="hidden" name="classes[]" value="@Model.Id" />
     <input type="hidden" name="roles[]" value="@Model.Signup.Role" />
     <input type="hidden" name="partners[]" value="@Model.Signup.PartnerEmail" />
 
     <div class="d-block">
         <h4 class="d-inline-block priority">@Model.Title</h4>
+        <img src="~/img/reorder.svg" width="20" class="float-right sort-drag"/>
 
         @if (Model.RoleSignup)
         {
             <div class="text-muted">
                 @if (Model.AllowPartnerSignup && !string.IsNullOrEmpty(Model.Signup.PartnerEmail))
                 {
-                    <span style="color: #0a0">&#x2713;</span> @: Deltar på kurset som <strong>@Model.Signup.Role.DisplayName().ToLower()</strong> sammen med <strong>@Model.Signup.PartnerEmail</strong>.
+                    @: Påmeldt som <strong>@Model.Signup.Role.DisplayName().ToLower()</strong> sammen med <strong>@Model.Signup.PartnerEmail</strong>.
                 }
                 else
                 {
-                    <span style="color: #0a0">&#x2713;</span> @: Deltar på kurset som <strong>@Model.Signup.Role.DisplayName().ToLower()</strong>.
+                    @: Påmeldt som <strong>@Model.Signup.Role.DisplayName().ToLower()</strong>.
                 }
             </div>
-        }
-        else
-        {
-            <span style="color: #0a0">&#x2713;</span> @: Deltar på kurs på kurset
         }
     </div>
 </div>

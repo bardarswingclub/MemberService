@@ -30,7 +30,6 @@ namespace MemberService.Pages.Signup
                 .AsNoTracking()
                 .Expressionify()
                 .Where(e => e.Archived == false)
-                .Where(e => e.IsOpen())
                 .Select(e => SignupModel.Create(e))
                 .SingleOrDefaultAsync(e => e.Id == id);
 

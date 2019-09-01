@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Clave.Expressionify;
 using Clave.ExtensionMethods;
 using MemberService.Data;
 using MemberService.Pages.Event;
+using MemberService.Pages.Manage;
 using MemberService.Pages.Signup;
 using MemberService.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -33,7 +35,35 @@ namespace MemberService.Pages.Home
         {
             var userId = _userManager.GetUserId(User);
 
-            var openClasses = await _memberContext.GetClasses(userId, e => e.IsOpen());
+            var signups = await _memberContext.EventSignups
+                .Include(s => s.Event)
+                .Include(s => s.User)
+                .AsNoTracking()
+                .Expressionify()
+                .Where(s => s.UserId == userId)
+                .Where(s => s.Event.Type == EventType.Class)
+                .Where(s => !s.Event.Archived)
+                .OrderBy(s => s.Priority)
+                .Select(s => ClassSignupModel.Create(s))
+                .ToListAsync();
+
+            return View(new IndexModel
+            {
+                Signups = signups
+            });
+        }
+
+        public async Task<IActionResult> Signup()
+        {
+            var userId = _userManager.GetUserId(User);
+
+            var classes = await _memberContext.GetClasses(userId, e => e.HasOpened());
+
+            var openClasses = classes
+                .Where(c => c.IsOpen)
+                .Where(c => c.Signup == null)
+                .OrderBy(c => c.Title)
+                .ToReadOnlyList();
 
             var futureClasses = await _memberContext.GetClasses(userId, e => e.WillOpen());
 
@@ -43,10 +73,19 @@ namespace MemberService.Pages.Home
                 .Select(e => e.OpensAt)
                 .FirstOrDefault();
 
+            var sortable = classes
+                .Select(c => c.Signup)
+                .WhereNotNull()
+                .NotAny(c => c.Status != Status.Pending);
+
             return View(new HomeModel
             {
-                Classes = openClasses,
-                OpensAt = willOpenAt
+                Classes = classes
+                    .OrderBy(c => c.Signup?.Priority)
+                    .ToReadOnlyList(),
+                OpenClasses = openClasses,
+                OpensAt = willOpenAt,
+                Sortable = sortable
             });
         }
 
@@ -54,15 +93,8 @@ namespace MemberService.Pages.Home
         public async Task<IActionResult> Signup(
             [FromForm] IReadOnlyList<Guid> classes,
             [FromForm] IReadOnlyList<DanceRole> roles,
-            [FromForm] IReadOnlyList<string> partners,
-            [FromForm] Guid? accept=null,
-            [FromForm] Guid? reject=null)
+            [FromForm] IReadOnlyList<string> partners)
         {
-            if(accept is Guid id)
-            {
-
-            }
-
             var items = new List<ClassSignup>();
             for (int i = 0; i < classes.Count; i++)
             {
@@ -72,7 +104,7 @@ namespace MemberService.Pages.Home
             var userId = _userManager.GetUserId(User);
             var user = await _memberContext.GetEditableUser(userId);
 
-            var openClasses = await _memberContext.GetClasses(userId, e => e.IsOpen());
+            var openClasses = await _memberContext.GetClasses(userId, e => e.HasOpened());
 
             var classesNotSignedUpFor = openClasses
                 .Where(c => c.Signup == null)
@@ -106,7 +138,7 @@ namespace MemberService.Pages.Home
 
             await _memberContext.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Signup));
         }
 
         public async Task<IActionResult> Fees()

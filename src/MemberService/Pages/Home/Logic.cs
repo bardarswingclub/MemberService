@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 using Clave.Expressionify;
 using MemberService.Data;
-using MemberService.Pages.Event;
 using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Home

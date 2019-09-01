@@ -210,18 +210,18 @@ namespace MemberService.Pages.Signup
 
             var signupModel = await _database.GetSignupModel(id);
 
-            if (user.MustPayClassesFee(signupModel.Options)) return Forbid();
-            if (user.MustPayTrainingFee(signupModel.Options)) return Forbid();
-            if (user.MustPayMembershipFee(signupModel.Options)) return Forbid();
-            if (user.MustPayMembersPrice(signupModel.Options)) return Forbid();
-            if (user.MustPayNonMembersPrice(signupModel.Options)) return Forbid();
-
             var signup = user.EventSignups.FirstOrDefault(s => s.EventId == id);
 
             if (signup?.Status == Status.Approved)
             {
                 if (accept)
                 {
+                    if (user.MustPayClassesFee(signupModel.Options)) return Forbid();
+                    if (user.MustPayTrainingFee(signupModel.Options)) return Forbid();
+                    if (user.MustPayMembershipFee(signupModel.Options)) return Forbid();
+                    if (user.MustPayMembersPrice(signupModel.Options)) return Forbid();
+                    if (user.MustPayNonMembersPrice(signupModel.Options)) return Forbid();
+
                     signup.Status = Status.AcceptedAndPayed;
                     signup.AuditLog.Add("Accepted", user);
                 }
@@ -268,7 +268,7 @@ namespace MemberService.Pages.Signup
                 MustPayMembershipFee = mustPayMembershipFee
             };
 
-            if (mustPayClassesFee)
+            if (mustPayClassesFee && model.User.GetClassesFee().FeeStatus == FeeStatus.Unpaid)
             {
                 var classesFee = model.User.GetClassesFee().Fee;
                 acceptModel.MustPayAmount = classesFee.Amount;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Clave.Expressionify;
+using MemberService.Data;
 
 namespace MemberService.Pages.Home
 {
@@ -15,6 +16,8 @@ namespace MemberService.Pages.Home
         public string SignupHelp { get; set; }
 
         public DateTime? OpensAt { get; set; }
+
+        public bool IsOpen { get; set; }
 
         public bool RoleSignup { get; set; }
 
@@ -34,6 +37,7 @@ namespace MemberService.Pages.Home
             Description = e.Description,
             SignupHelp = e.SignupOptions.SignupHelp,
             OpensAt = e.SignupOptions.SignupOpensAt,
+            IsOpen = e.IsOpen(),
             RoleSignup = e.SignupOptions.RoleSignup,
             RoleSignupHelp = e.SignupOptions.RoleSignupHelp,
             AllowPartnerSignup = e.SignupOptions.AllowPartnerSignup,

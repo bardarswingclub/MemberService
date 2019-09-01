@@ -39,7 +39,7 @@
             }
         </div>
     </div>
-    <div class="card-footer d-flex">
+    <form asp-action="acceptOrReject" asp-route-id="@Model.Id" method="POST" class="card-footer">
         @if (Model.SessionId != null)
         {
             <script src="https://js.stripe.com/v3/"></script>
@@ -57,14 +57,13 @@
                     }
             </script>
 
-            <button type="submit" class="btn btn-success btn-block" onclick="payWithStripe()">Betal @Model.MustPayAmount.FormatMoney()</button>
+            <button type="button" class="btn btn-success btn-block" onclick="payWithStripe()">Betal @Model.MustPayAmount.FormatMoney()</button>
+            <button type="submit" name="accept" value="false" class="btn btn-light">Nei takk, jeg vil heller gi plassen min til noen andre</button>
         }
         else
         {
-            <form asp-action="acceptOrReject" asp-route-id="@Model.Id" method="POST">
-                <button type="submit" name="accept" value="true" class="btn btn-success flex-fill mr-1">Godta plass</button>
-                <button type="submit" name="accept" value="false" class="btn btn-light">Nei takk, jeg vil heller gi plassen min til noen andre</button>
-            </form>
+            <button type="submit" name="accept" value="true" class="btn btn-success flex-fill mr-1">Godta plass</button>
+            <button type="submit" name="accept" value="false" class="btn btn-light">Nei takk, jeg vil heller gi plassen min til noen andre</button>
         }
-    </div>
+    </form>
 </div>

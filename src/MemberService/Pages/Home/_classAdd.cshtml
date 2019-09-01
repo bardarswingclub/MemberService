@@ -1,14 +1,12 @@
 ﻿@using MemberService.Pages.Home
 @model ClassModel
 
-<details class="list-group-item" data-id="@Model.Id" data-hidden open>
+<div class="list-group-item" data-id="@Model.Id" data-hidden open>
     <input type="hidden" name="classes[]" value="@Model.Id" disabled />
 
-    <summary class="d-block">
-        <h4 class="d-inline-block priority">@Model.Title</h4>
+    <h4 class="d-inline-block priority">@Model.Title</h4>
 
-        <img src="~/img/reorder.svg" width="20" class="float-right sort-drag" />
-    </summary>
+    <img src="~/img/reorder.svg" width="20" class="float-right sort-drag" />
 
     <p class="lead">@Model.Description</p>
 
@@ -55,8 +53,8 @@
         <input type="hidden" name="partners[]" value="" />
     }
 
-    <div class="d-flex justify-content-between mt-3">
-        <button type="submit" class="btn btn-success" data-action="">OK</button>
+    <div class="btn-group mt-3" role="group">
+        <button type="submit" class="btn btn-success">Lagre</button>
         <button type="button" class="btn btn-outline-danger" data-action="remove">Fjern</button>
     </div>
-</details>
+</div>

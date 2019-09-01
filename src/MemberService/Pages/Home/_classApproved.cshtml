@@ -9,21 +9,27 @@
     <div class="d-block">
         <h4 class="d-inline-block priority">@Model.Title</h4>
 
-        @if (Model.RoleSignup)
-        {
-            <div class="text-muted">
-                @if (Model.AllowPartnerSignup && !string.IsNullOrEmpty(Model.Signup.PartnerEmail))
+        <div class="alert alert-success">
+            <h5>Gratulerer!</h5>
+            <p>
+                @if (Model.RoleSignup)
                 {
-                    @: Du har fått plass som @Model.Signup.Role.DisplayName().ToLower() sammen med @Model.Signup.PartnerEmail!
+                    @if (Model.AllowPartnerSignup && !string.IsNullOrEmpty(Model.Signup.PartnerEmail))
+                    {
+                        @: Du har fått plass som <strong>@Model.Signup.Role.DisplayName().ToLower()</strong> sammen med <strong>@Model.Signup.PartnerEmail</strong>!
+                    }
+                    else
+                    {
+                        @: Du har fått plass som <strong>@Model.Signup.Role.DisplayName().ToLower()</strong>!
+                    }
                 }
                 else
                 {
-                    @: Du har fått plass som @Model.Signup.Role.DisplayName().ToLower()!
+                    @: Du har fått plass!
                 }
-            </div>
-        }
+            </p>
 
-        <button type="submit" name="accept" value="@Model.Id" class="btn btn-success btn-block mt-3 mb-1">Godta plass</button>
-        <button type="submit" name="reject" value="@Model.Id" class="btn btn-link">Nei takk, jeg vil heller gi plassen min til noen andre</button>
+            <a asp-controller="Signup" asp-action="Event" asp-route-id="@Model.Id" class="btn btn-success btn-block mt-3 mb-1">Godta plass</a>
+        </div>
     </div>
 </div>

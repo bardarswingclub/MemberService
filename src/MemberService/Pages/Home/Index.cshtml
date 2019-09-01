@@ -1,182 +1,55 @@
 ﻿@using MemberService.Pages.Home
-@model HomeModel
+@model IndexModel
 
 @{
     ViewData["Title"] = "Home Page";
     Layout = "~/Pages/_CoverLayout.cshtml";
 }
 
-<form id="missing">
-</form>
-
-<form asp-action="Signup" method="post" class="card shadow-sm mt-5" onkeydown="return event.key != 'Enter';">
+<div class="card shadow-sm mt-5">
     <h2 class="card-header text-center">
-        @if(Model.Classes.WhereNotNull(c => c.Signup).Any())
-        {
-            @: Kurs du er påmeldt
-        }
-        else
-        {
-            @: Meld deg på kurs
-        }
+        Dine påmeldinger
     </h2>
-    @if (Model.Classes.Any())
+    @if (Model.Signups.Any())
     {
-        <div class="list-group list-group-flush priority-group sortable">
-            @foreach (var item in Model.Classes.OrderBy(c => c.Signup?.Priority))
+        <div class="list-group list-group-flush priority-group">
+            @foreach (var item in Model.Signups)
             {
-                @if (item.Signup is ClassSignupModel signup)
+                switch(item.Status)
                 {
-                    switch(signup.Status)
-                    {
-                        case Status.AcceptedAndPayed:
-                            <partial name="_classAccepted" model="item" />
-                            break;
-                        case Status.Approved:
-                            <partial name="_classApproved" model="item" />
-                            break;
-                        case Status.Denied:
-                        case Status.RejectedOrNotPayed:
-                            <partial name="_classRejected" model="item" />
-                            break;
-                        default:
-                            <partial name="_classEdit" model="item" />
-                            break;
-                    }
-                }
-                else
-                {
-                    <partial name="_classAdd" model="item" />
+                    case Status.AcceptedAndPayed:
+                        <partial name="_signupAccepted" model="item" />
+                        break;
+                    case Status.Approved:
+                        <partial name="_signupApproved" model="item" />
+                        break;
+                    case Status.Denied:
+                    case Status.RejectedOrNotPayed:
+                        <partial name="_signupRejected" model="item" />
+                        break;
+                    case Status.Pending:
+                        <partial name="_signupEdit" model="item" />
+                        break;
+                    default:
+                        <partial name="_signupInfo" model="item" />
+                        break;
                 }
             }
         </div>
-        <div class="card-body">
-            <div class="input-group">
-                <select class="custom-select" id="class-select">
-                    <option value="" selected disabled>Velg kurs du har lyst til å delta på</option>
-                    @foreach (var item in Model.Classes.Where(c => c.Signup == null).OrderBy(c => c.Title))
-                    {
-                        <option value="@item.Id" disabled="@(item.Signup != null)">@item.Title</option>
-                    }
-                </select>
-                <div class="input-group-append">
-                    <button type="button" class="btn btn-outline-success" id="add-class-button">Legg til</button>
-                </div>
-            </div>
-
-        </div>
-    }
-    else if (Model.OpensAt.HasValue)
-    {
-        <div class="card-body text-center pt-5 pb-5">
-            <p style="font-size: 1.2em">
-                Påmeldingen åpner <strong>@Model.OpensAt.Value.ToOsloDate()</strong> klokken <strong>@Model.OpensAt.Value.ToOsloTime()</strong>
-            </p>
-            <p>
-                Lurer du på noe om kursene i høst? <a href="https://www.bardarswingclub.no/nyheter/2019/07/29/hostens-kurs/">Her finner du svar</a>.
-            </p>
+        <div class="card-body text-center">
+            <a asp-action="Signup" class="btn btn-outline-primary">Meld deg på flere kurs</a>
         </div>
     }
     else
     {
         <div class="card-body text-center pt-5 pb-5">
             <p style="font-size: 1.2em">
-                Påmeldingen til kurs er desverre stengt
+                Du har ikke meldt deg på noen kurs ennå
             </p>
-            <p>
-                Kurspåmelding åpner vanligvis tidlig i januar og september
-            </p>
+            <a asp-action="Signup" class="btn btn-primary">Meld deg på kurs</a>
         </div>
     }
     <div class="card-footer text-center">
-        <a href="/Home/Fees">Jeg vil ikke gå kurs, jeg vil bare bli medlem</a>
+        <a asp-action="Fees">Jeg vil ikke gå kurs, jeg vil bare bli medlem</a>
     </div>
-</form>
-
-@section Scripts {
-    <script src="~/js/sortable.js"></script>
-    <script>
-        $(function () {
-            var sortableGroup = sortable('.sortable', {
-                items: ':not(.non-sortable)',
-                placeholder: '<div class="list-group-item bg-light pt-1 pb-1"><div class="lead text-center">Endre prioritet på kurset</div></div>',
-                handle: '.sort-drag'
-                //placeholderClass: 'none'
-            });
-
-            $(sortableGroup).on('sortupdate', function (e) {
-                var group = $(e.originalEvent.detail.item);
-
-                group.parents('form').submit();
-            });
-
-            $("#add-class-button").on('click', function (e) {
-                var select = $("#class-select");
-
-                // get the id of the selected class
-                var id = select.val();
-
-                // set the value back to nothing
-                select.val("");
-
-                // disable the selected class in the <select> so that we can't add it again
-                select.find("option[value=" + id + "]").prop("disabled", true);
-
-                // find the input group for the selected class
-                var group = $("[data-id=" + id + "]");
-
-                // move last
-                group.parent().append(group);
-
-                // make it visible
-                group.removeAttr("data-hidden");
-
-                // enable everything inside the group so they are submitted to the server
-                group.find("input, select").prop("disabled", false);
-            });
-
-            $("[data-action=save]").on('click', function (e) {
-                // find the input group to remove
-                var group = $(this).parents("details");
-
-                // hide the group
-                group.removeAttr("open");
-            });
-
-            $("[data-action=remove]").on('click', function (e) {
-                // find the input group to remove
-                var group = $(this).parents("[data-id]");
-
-                // hide the group
-                group.attr("data-hidden", "");
-
-                // disable everything inside the group, so we don't submit it to the server
-                group.find("input, select").prop("disabled", true);
-
-                // get the id of the class
-                var id = group.attr("data-id");
-
-                // enable the select option again
-                $("option[value=" + id + "]").prop("disabled", false);
-            });
-        })
-    </script>
-}
-
-@functions
-{
-    string BadgeColor(Status status)
-    {
-        switch (status)
-        {
-            case Status.Approved:
-            case Status.AcceptedAndPayed:
-                return "badge-success";
-            case Status.Denied:
-            case Status.RejectedOrNotPayed:
-                return "badge-danger";
-            default:
-                return "badge-info";
-        }
-    }
-}
+</div>
