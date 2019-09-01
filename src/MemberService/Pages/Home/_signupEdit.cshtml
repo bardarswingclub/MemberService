@@ -6,9 +6,9 @@
     <div class="d-block">
         <h4 class="d-inline-block priority">@Model.Title</h4>
 
-        @if (Model.RoleSignup)
-        {
-            <div class="text-muted">
+        <div class="text-muted">
+            @if (Model.RoleSignup)
+            {
                 @if (Model.AllowPartnerSignup && !string.IsNullOrEmpty(Model.PartnerEmail))
                 {
                     @: Påmeldt som <strong>@Model.Role.DisplayName().ToLower()</strong> sammen med <strong>@Model.PartnerEmail</strong>.
@@ -19,7 +19,11 @@
                 }
 
                 <a asp-controller="Signup" asp-action="edit" asp-route-id="@Model.EventId">Endre?</a>
-            </div>
-        }
+            }
+            else
+            {
+                @: Påmeldt.
+            }
+        </div>
     </div>
 </div>

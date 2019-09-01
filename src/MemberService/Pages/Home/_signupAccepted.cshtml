@@ -5,9 +5,9 @@
     <div class="d-block">
         <h4 class="d-inline-block priority">@Model.Title</h4>
 
-        @if (Model.RoleSignup)
-        {
-            <div class="text-muted">
+        <div class="text-muted">
+            @if (Model.RoleSignup)
+            {
                 @if (Model.AllowPartnerSignup && !string.IsNullOrEmpty(Model.PartnerEmail))
                 {
                     <span style="color: #0a0">&#x2713;</span> @: Deltar på kurset som <strong>@Model.Role.DisplayName().ToLower()</strong> sammen med <strong>@Model.PartnerEmail</strong>.
@@ -16,11 +16,11 @@
                 {
                     <span style="color: #0a0">&#x2713;</span> @: Deltar på kurset som <strong>@Model.Role.DisplayName().ToLower()</strong>.
                 }
-            </div>
-        }
-        else
-        {
-            <span style="color: #0a0">&#x2713;</span> @: Deltar på kurset
-        }
+            }
+            else
+            {
+                <span style="color: #0a0">&#x2713;</span> @: Deltar på kurset
+            }
+        </div>
     </div>
 </div>

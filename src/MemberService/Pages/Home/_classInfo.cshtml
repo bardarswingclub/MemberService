@@ -8,11 +8,11 @@
 
     <div class="d-block">
         <h4 class="d-inline-block priority">@Model.Title</h4>
-        <img src="~/img/reorder.svg" width="20" class="float-right sort-drag"/>
+        <img src="~/img/reorder.svg" width="20" class="float-right sort-drag" />
 
-        @if (Model.RoleSignup)
-        {
-            <div class="text-muted">
+        <div class="text-muted">
+            @if (Model.RoleSignup)
+            {
                 @if (Model.AllowPartnerSignup && !string.IsNullOrEmpty(Model.Signup.PartnerEmail))
                 {
                     @: Påmeldt som <strong>@Model.Signup.Role.DisplayName().ToLower()</strong> sammen med <strong>@Model.Signup.PartnerEmail</strong>.
@@ -21,7 +21,11 @@
                 {
                     @: Påmeldt som <strong>@Model.Signup.Role.DisplayName().ToLower()</strong>.
                 }
-            </div>
-        }
+            }
+            else
+            {
+                @: Påmeldt.
+            }
+        </div>
     </div>
 </div>
