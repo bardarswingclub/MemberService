@@ -8,7 +8,7 @@
     var user = Model.User;
 }
 
-<div class="card shadow">
+<div class="card shadow mt-5">
     <h3 class="card-header">
         @ViewData["Title"]
     </h3>
@@ -66,7 +66,9 @@
                     }
                 </p>
 
-                <a asp-controller="Signup" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-secondary">Rediger påmelding</a>
+                <div class="text-center">
+                    <a asp-controller="Signup" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">Rediger påmelding</a>
+                </div>
             }
         }
     </div>
