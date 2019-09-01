@@ -92,3 +92,49 @@ h1, h2, h3, h4, h5, h6 {
         column-count: 2;
     }
 }
+
+[data-hidden] {
+    display: none;
+}
+
+.priority-group {
+    counter-reset: priority;
+}
+
+.priority:before {
+    counter-increment: priority;
+    content: counter(priority) ". ";
+    color: grey;
+    font-variant-numeric: lining-nums;
+}
+
+.sort-drag {
+    display: none;
+}
+
+.sortable .sort-drag {
+    display: inline-block;
+    cursor: grab;
+}
+
+details[open] summary .non-open-summary {
+    display: none;
+}
+
+.link-unstyled, .link-unstyled:visited, .link-unstyled:hover, .link-unstyled:active, .link-unstyled:focus, .link-unstyled:active:hover {
+    font-style: inherit;
+    color: inherit;
+    background-color: transparent;
+    font-size: inherit;
+    text-decoration: none;
+    font-variant: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    font-family: inherit;
+    border-radius: inherit;
+    border: inherit;
+    outline: inherit;
+    box-shadow: inherit;
+    padding: inherit;
+    vertical-align: inherit;
+}

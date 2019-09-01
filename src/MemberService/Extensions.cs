@@ -51,7 +51,7 @@ namespace MemberService
             => enumValue.GetAttribute<DisplayNameAttribute>().DisplayName;
 
         public static string DisplayDescription(this Enum enumValue)
-            => enumValue.GetAttribute<DisplayAttribute>().Description;
+            => enumValue.GetAttribute<DisplayAttribute>()?.Description ?? enumValue.GetAttribute<DescriptionAttribute>().Description;
 
         public static Guid? ToGuid(this string value)
             => Guid.TryParse(value, out var result) ? result : default;

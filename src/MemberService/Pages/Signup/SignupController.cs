@@ -34,7 +34,7 @@ namespace MemberService.Pages.Signup
 
             var openEvents = await _database.GetEvents(userId, e => e.IsOpen());
 
-            var futureEvents = await _database.GetEvents(userId, e => !e.HasOpened() && !e.HasClosed());
+            var futureEvents = await _database.GetEvents(userId, e => e.WillOpen());
 
             return View(new EventsModel
             {
@@ -119,7 +119,7 @@ namespace MemberService.Pages.Signup
 
             var autoAccept = model.ShouldAutoAccept(input.Role);
 
-            user.AddEventSignup(id, input, autoAccept);
+            user.AddEventSignup(id, input.Role, input.PartnerEmail, autoAccept);
 
             await _database.SaveChangesAsync();
 
@@ -134,7 +134,7 @@ namespace MemberService.Pages.Signup
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(Guid id)
+        public async Task<IActionResult> Edit(Guid id, string redirectTo = null)
         {
             var model = await _database.GetSignupModel(id);
 
@@ -161,7 +161,7 @@ namespace MemberService.Pages.Signup
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Guid id, [FromForm] SignupInputModel input)
+        public async Task<IActionResult> Edit(Guid id, [FromForm] SignupInputModel input, string redirectTo = null)
         {
             if (!ModelState.IsValid)
             {
@@ -185,7 +185,14 @@ namespace MemberService.Pages.Signup
                 await _database.SaveChangesAsync();
             }
 
-            return RedirectToAction(nameof(Event), new { id });
+            if (redirectTo == null)
+            {
+                return RedirectToAction(nameof(Event), new { id });
+            }
+            else
+            {
+                return Redirect(redirectTo);
+            }
         }
 
         [HttpGet]
@@ -203,18 +210,18 @@ namespace MemberService.Pages.Signup
 
             var signupModel = await _database.GetSignupModel(id);
 
-            if (user.MustPayClassesFee(signupModel.Options)) return Forbid();
-            if (user.MustPayTrainingFee(signupModel.Options)) return Forbid();
-            if (user.MustPayMembershipFee(signupModel.Options)) return Forbid();
-            if (user.MustPayMembersPrice(signupModel.Options)) return Forbid();
-            if (user.MustPayNonMembersPrice(signupModel.Options)) return Forbid();
-
             var signup = user.EventSignups.FirstOrDefault(s => s.EventId == id);
 
             if (signup?.Status == Status.Approved)
             {
                 if (accept)
                 {
+                    if (user.MustPayClassesFee(signupModel.Options)) return Forbid();
+                    if (user.MustPayTrainingFee(signupModel.Options)) return Forbid();
+                    if (user.MustPayMembershipFee(signupModel.Options)) return Forbid();
+                    if (user.MustPayMembersPrice(signupModel.Options)) return Forbid();
+                    if (user.MustPayNonMembersPrice(signupModel.Options)) return Forbid();
+
                     signup.Status = Status.AcceptedAndPayed;
                     signup.AuditLog.Add("Accepted", user);
                 }
@@ -261,23 +268,23 @@ namespace MemberService.Pages.Signup
                 MustPayMembershipFee = mustPayMembershipFee
             };
 
-            if (mustPayClassesFee)
+            if (mustPayClassesFee && model.User.GetClassesFee().FeeStatus == FeeStatus.Unpaid)
             {
                 var classesFee = model.User.GetClassesFee().Fee;
                 acceptModel.MustPayAmount = classesFee.Amount;
-                acceptModel.SessionId = await CreatePayment(model, classesFee);
+                acceptModel.SessionId = await CreatePayment(model, classesFee, model.UserEventSignup.Id);
             }
             else if (mustPayTrainingFee)
             {
                 var trainingFee = model.User.GetTrainingFee().Fee;
                 acceptModel.MustPayAmount = trainingFee.Amount;
-                acceptModel.SessionId = await CreatePayment(model, trainingFee);
+                acceptModel.SessionId = await CreatePayment(model, trainingFee, model.UserEventSignup.Id);
             }
             else if (mustPayMembershipFee)
             {
                 var membershipFee = model.User.GetMembershipFee().Fee;
                 acceptModel.MustPayAmount = membershipFee.Amount;
-                acceptModel.SessionId = await CreatePayment(model, membershipFee);
+                acceptModel.SessionId = await CreatePayment(model, membershipFee, model.UserEventSignup.Id);
             }
             else if (mustPayMembersPrice)
             {
@@ -308,7 +315,7 @@ namespace MemberService.Pages.Signup
             return sessionId;
         }
 
-        private async Task<string> CreatePayment(SignupModel model, Fee fee)
+        private async Task<string> CreatePayment(SignupModel model, Fee fee, Guid eventSignupId)
         {
             var sessionId = await _paymentService.CreatePayment(
                 model.User.FullName,
@@ -320,7 +327,8 @@ namespace MemberService.Pages.Signup
                 Request.GetDisplayUrl(),
                 fee.IncludesMembership,
                 fee.IncludesTraining,
-                fee.IncludesClasses);
+                fee.IncludesClasses,
+                eventSignupId: eventSignupId);
 
             return sessionId;
         }
@@ -334,6 +342,7 @@ namespace MemberService.Pages.Signup
                     id,
                     sessionId = "{CHECKOUT_SESSION_ID}"
                 });
+
         private string GetUserId() => _userManager.GetUserId(User);
     }
 }

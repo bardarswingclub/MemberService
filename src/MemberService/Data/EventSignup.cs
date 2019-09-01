@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MemberService.Data
 {
+    [Table(nameof(EventSignup))]
     public class EventSignup
     {
         public Guid Id { get; set; }

@@ -1,0 +1,32 @@
+﻿@using MemberService.Pages.Home
+@model ClassSignupModel
+
+<div class="list-group-item">
+
+    <div class="d-block">
+        <h4 class="d-inline-block priority">@Model.Title</h4>
+
+        <div class="alert alert-success">
+            <h5>Gratulerer!</h5>
+            <p>
+                @if (Model.RoleSignup)
+                {
+                    @if (Model.AllowPartnerSignup && !string.IsNullOrEmpty(Model.PartnerEmail))
+                    {
+                        @: Du har fått plass som <strong>@Model.Role.DisplayName().ToLower()</strong> sammen med <strong>@Model.PartnerEmail</strong>!
+                    }
+                    else
+                    {
+                        @: Du har fått plass som <strong>@Model.Role.DisplayName().ToLower()</strong>!
+                    }
+                }
+                else
+                {
+                    @: Du har fått plass!
+                }
+            </p>
+
+            <a asp-controller="Signup" asp-action="Event" asp-route-id="@Model.EventId" class="btn btn-success btn-block mt-3 mb-1">Godta plass</a>
+        </div>
+    </div>
+</div>
