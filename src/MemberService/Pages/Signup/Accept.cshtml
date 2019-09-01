@@ -58,12 +58,11 @@
             </script>
 
             <button type="button" class="btn btn-success btn-block" onclick="payWithStripe()">Betal @Model.MustPayAmount.FormatMoney()</button>
-            <button type="submit" name="accept" value="false" class="btn btn-light">Nei takk, jeg vil heller gi plassen min til noen andre</button>
         }
         else
         {
-            <button type="submit" name="accept" value="true" class="btn btn-success flex-fill mr-1">Godta plass</button>
-            <button type="submit" name="accept" value="false" class="btn btn-light">Nei takk, jeg vil heller gi plassen min til noen andre</button>
+            <button type="submit" name="accept" value="true" class="btn btn-success btn-block">Godta plass</button>
         }
+        <button type="submit" name="accept" value="false" class="btn btn-light btn-block text-left">Nei takk, jeg vil heller gi plassen min til noen andre</button>
     </form>
 </div>
