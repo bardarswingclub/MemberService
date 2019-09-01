@@ -4,6 +4,7 @@ namespace MemberService.Data
 {
     public enum DanceRole
     {
+        [DisplayName("Solo")]
         None,
 
         [DisplayName("Fører")]
