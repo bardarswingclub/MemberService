@@ -15,6 +15,8 @@ namespace MemberService.Pages.Event
 
         public string Email { get; private set; }
 
+        public int Priority { get; private set; }
+
         public DateTime SignedUpAt { get; private set; }
 
         public Status Status { get; private set; }
@@ -34,6 +36,7 @@ namespace MemberService.Pages.Event
                 UserId = s.UserId,
                 FullName = s.User.FullName,
                 Email = s.User.NormalizedEmail,
+                Priority = s.Priority,
                 SignedUpAt = s.SignedUpAt,
                 Status = s.Status,
                 Partner = PartnerSignupModel.Create(s.PartnerEmail, s.Partner),

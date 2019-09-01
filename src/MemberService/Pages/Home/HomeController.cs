@@ -98,7 +98,7 @@ namespace MemberService.Pages.Home
             var items = new List<ClassSignup>();
             for (int i = 0; i < classes.Count; i++)
             {
-                items.Add(new ClassSignup(classes[i], roles[i], partners[i], i));
+                items.Add(new ClassSignup(classes[i], roles[i], partners[i], i + 1));
             }
 
             var userId = _userManager.GetUserId(User);

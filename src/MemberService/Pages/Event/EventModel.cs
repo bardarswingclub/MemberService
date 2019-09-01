@@ -32,6 +32,8 @@ namespace MemberService.Pages.Event
 
         public DateTime? SignupClosesAt { get; set; }
 
+        public EventType Type { get; set; }
+
         public bool RoleSignup { get; set; }
 
         public bool AllowPartnerSignup { get; set; }
@@ -62,6 +64,7 @@ namespace MemberService.Pages.Event
                 Archived = model.Archived,
                 SignupOpensAt = model.SignupOptions.SignupOpensAt,
                 SignupClosesAt = model.SignupOptions.SignupClosesAt,
+                Type = model.Type,
                 RoleSignup = model.SignupOptions.RoleSignup,
                 AllowPartnerSignup = model.SignupOptions.AllowPartnerSignup,
                 IsOpen = model.IsOpen(),
