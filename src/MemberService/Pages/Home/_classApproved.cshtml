@@ -1,0 +1,29 @@
+﻿@using MemberService.Pages.Home
+@model ClassModel
+
+<div class="list-group-item non-sortable" data-id="@Model.Id">
+    <input type="hidden" name="classes[]" value="@Model.Id" />
+    <input type="hidden" name="roles[]" value="@Model.Signup.Role" />
+    <input type="hidden" name="partners[]" value="@Model.Signup.PartnerEmail" />
+
+    <div class="d-block">
+        <h4 class="d-inline-block priority">@Model.Title</h4>
+
+        @if (Model.RoleSignup)
+        {
+            <div class="text-muted">
+                @if (Model.AllowPartnerSignup && !string.IsNullOrEmpty(Model.Signup.PartnerEmail))
+                {
+                    @: Du har fått plass som @Model.Signup.Role.DisplayName().ToLower() sammen med @Model.Signup.PartnerEmail!
+                }
+                else
+                {
+                    @: Du har fått plass som @Model.Signup.Role.DisplayName().ToLower()!
+                }
+            </div>
+        }
+
+        <button type="submit" name="accept" value="@Model.Id" class="btn btn-success btn-block mt-3 mb-1">Godta plass</button>
+        <button type="submit" name="reject" value="@Model.Id" class="btn btn-link">Nei takk, jeg vil heller gi plassen min til noen andre</button>
+    </div>
+</div>

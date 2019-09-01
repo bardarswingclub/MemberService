@@ -108,6 +108,14 @@ h1, h2, h3, h4, h5, h6 {
     font-variant-numeric: lining-nums;
 }
 
+.sort-drag {
+    display: none;
+}
+
+.sortable .sort-drag {
+    display: inline-block;
+    cursor: grab;
+}
 
 details[open] summary .non-open-summary {
     display: none;

@@ -1,0 +1,30 @@
+﻿@using MemberService.Pages.Home
+@model ClassModel
+
+<div class="list-group-item non-sortable" data-id="@Model.Id">
+    <input type="hidden" name="classes[]" value="@Model.Id" />
+    <input type="hidden" name="roles[]" value="@Model.Signup.Role" />
+    <input type="hidden" name="partners[]" value="@Model.Signup.PartnerEmail" />
+
+    <div class="d-block">
+        <h4 class="d-inline-block priority">@Model.Title</h4>
+
+        @if (Model.RoleSignup)
+        {
+            <div class="text-muted">
+                @if (Model.AllowPartnerSignup && !string.IsNullOrEmpty(Model.Signup.PartnerEmail))
+                {
+                    <span style="color: #0a0">&#x2713;</span> @: Godtatt og betalt for plass som @Model.Signup.Role.DisplayName().ToLower() sammen med @Model.Signup.PartnerEmail.
+                }
+                else
+                {
+                    <span style="color: #0a0">&#x2713;</span> @: Godtatt og betalt for plass som @Model.Signup.Role.DisplayName().ToLower() uten partner.
+                }
+            </div>
+        }
+        else
+        {
+            <span style="color: #0a0">&#x2713;</span> @: Godtatt og betalt for plass på kurset
+        }
+    </div>
+</div>

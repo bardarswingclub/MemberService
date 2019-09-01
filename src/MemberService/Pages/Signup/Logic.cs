@@ -61,21 +61,21 @@ namespace MemberService.Pages.Signup
         public static bool ShouldAutoAccept(this Data.Event model, DanceRole role)
             => model.SignupOptions.AutoAcceptedSignups > model.Signups.Count(s => s.Role == role);
 
-        public static void AddEventSignup(this MemberUser user, Guid id, SignupInputModel input, bool autoAccept)
+        public static void AddEventSignup(this MemberUser user, Guid id, DanceRole role, string partnerEmail, bool autoAccept, int priority = 1)
         {
             var status = autoAccept ? Status.Approved : Status.Pending;
             user.EventSignups.Add(new EventSignup
             {
                 EventId = id,
-                Priority = 1,
-                Role = input.Role,
-                PartnerEmail = input.PartnerEmail?.Normalize().ToUpperInvariant(),
+                Priority = priority,
+                Role = role,
+                PartnerEmail = partnerEmail?.Normalize().ToUpperInvariant(),
                 Status = status,
                 SignedUpAt = DateTime.UtcNow,
                 AuditLog =
                 {
                     {
-                        $"Signed up as {input.Role}{(input.PartnerEmail is string partnerEmail ? $" with partner {partnerEmail}" : "")}, status is {status}",
+                        $"Signed up as {role}{(partnerEmail is string ? $" with partner {partnerEmail}" : "")}, status is {status}",
                         user
                     }
                 }

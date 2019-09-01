@@ -1,0 +1,62 @@
+﻿@using MemberService.Pages.Home
+@model ClassModel
+
+<details class="list-group-item" data-id="@Model.Id" data-hidden open>
+    <input type="hidden" name="classes[]" value="@Model.Id" disabled />
+
+    <summary class="d-block">
+        <h4 class="d-inline-block priority">@Model.Title</h4>
+
+        <img src="~/img/reorder.svg" width="20" class="float-right sort-drag" />
+    </summary>
+
+    <p class="lead">@Model.Description</p>
+
+    <p>@Html.Markdown(Model.SignupHelp)</p>
+
+    @if (Model.RoleSignup)
+    {
+        <div class="form-group mt-4">
+            <label>Danserolle</label>
+            <select class="form-control" name="roles[]" disabled required>
+                <option value="" disabled selected>Velg rolle</option>
+                <option value="@DanceRole.Lead">Fører</option>
+                <option value="@DanceRole.Follow">Følger</option>
+            </select>
+            <small class="form-text text-muted">
+                @Html.Markdown(Model.RoleSignupHelp)
+            </small>
+        </div>
+        @if (Model.AllowPartnerSignup)
+        {
+            <div class="form-check">
+                <input class="form-check-input collapsed" type="checkbox" id="partner-checkbox-@Model.Id" data-toggle="collapse" data-target="#partner-@Model.Id" aria-expanded="false">
+                <label class="form-check-label" for="partner-checkbox-@Model.Id">
+                    Meld deg på med partner
+                </label>
+            </div>
+            <div class="form-group mt-4 collapse" id="partner-@Model.Id">
+                <label>Partners e-post</label>
+                <input type="text" class="form-control" value="@Model.Signup?.PartnerEmail" placeholder="epost@eksempel.no" name="partners[]" disabled>
+                <small class="form-text text-muted">
+                    @Html.Markdown(Model.AllowPartnerSignupHelp ?? "Fyll inn e-post til partner hvis dere er to som ønsker å gå kurs sammen. Begge to må melde seg på og skrive opp hverandres e-post.")
+                </small>
+            </div>
+        }
+        else
+        {
+            <input type="hidden" name="partners[]" value="" />
+        }
+    }
+    else
+    {
+        <input type="hidden" name="roles[]" value="" />
+
+        <input type="hidden" name="partners[]" value="" />
+    }
+
+    <div class="d-flex justify-content-between mt-3">
+        <button type="submit" class="btn btn-success" data-action="">OK</button>
+        <button type="button" class="btn btn-outline-danger" data-action="remove">Fjern</button>
+    </div>
+</details>

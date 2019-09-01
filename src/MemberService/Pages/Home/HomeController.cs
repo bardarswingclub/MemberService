@@ -51,9 +51,23 @@ namespace MemberService.Pages.Home
         }
 
         [HttpPost]
-        public async Task<IActionResult> Signup([FromForm] IReadOnlyList<Guid> classes, [FromForm] IReadOnlyList<DanceRole> roles, [FromForm] IReadOnlyList<string> partners)
+        public async Task<IActionResult> Signup(
+            [FromForm] IReadOnlyList<Guid> classes,
+            [FromForm] IReadOnlyList<DanceRole> roles,
+            [FromForm] IReadOnlyList<string> partners,
+            [FromForm] Guid? accept=null,
+            [FromForm] Guid? reject=null)
         {
-            var items = classes.Zip(roles).Zip(partners, (p, partner) => new ClassSignup(p.Item1, p.Item2, partner));
+            if(accept is Guid id)
+            {
+
+            }
+
+            var items = new List<ClassSignup>();
+            for (int i = 0; i < classes.Count; i++)
+            {
+                items.Add(new ClassSignup(classes[i], roles[i], partners[i], i));
+            }
 
             var userId = _userManager.GetUserId(User);
             var user = await _memberContext.GetEditableUser(userId);
@@ -71,7 +85,7 @@ namespace MemberService.Pages.Home
 
             foreach (var signup in addedSignups)
             {
-                user.AddEventSignup(signup.Id, new SignupInputModel { Role = signup.Role, PartnerEmail = signup.PartnerEmail }, false);
+                user.AddEventSignup(signup.Id, signup.Role, signup.PartnerEmail, false, signup.Priority);
             }
 
             var changedSignups = openClasses
@@ -82,8 +96,7 @@ namespace MemberService.Pages.Home
             foreach(var (_, signup) in changedSignups)
             {
                 var eventSignup = user.EventSignups.FirstOrDefault(s => s.EventId == signup.Id);
-                eventSignup.Role = signup.Role;
-                eventSignup.PartnerEmail = signup.PartnerEmail;
+                eventSignup.Priority = signup.Priority;
             }
 
             var removedSignups = openClasses
@@ -129,11 +142,12 @@ namespace MemberService.Pages.Home
 
         private class ClassSignup
         {
-            public ClassSignup(Guid id, DanceRole role, string partnerEmail)
+            public ClassSignup(Guid id, DanceRole role, string partnerEmail, int priority)
             {
                 Id = id;
                 Role = role;
                 PartnerEmail = partnerEmail;
+                Priority = priority;
             }
 
             public Guid Id { get; }
@@ -141,6 +155,8 @@ namespace MemberService.Pages.Home
             public DanceRole Role { get; }
 
             public string PartnerEmail { get; }
+
+            public int Priority { get; }
         }
     }
 }

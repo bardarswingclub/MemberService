@@ -11,106 +11,50 @@
 
 <form asp-action="Signup" method="post" class="card shadow-sm mt-5" onkeydown="return event.key != 'Enter';">
     <h2 class="card-header text-center">
-        Meld deg på kurs
+        @if(Model.Classes.WhereNotNull(c => c.Signup).Any())
+        {
+            @: Kurs du er påmeldt
+        }
+        else
+        {
+            @: Meld deg på kurs
+        }
     </h2>
     @if (Model.Classes.Any())
     {
-        <div class="list-group list-group-flush priority-group reorderable">
-            @foreach (var item in Model.Classes)
+        <div class="list-group list-group-flush priority-group sortable">
+            @foreach (var item in Model.Classes.OrderBy(c => c.Signup?.Priority))
             {
-                var signedUp = item.Signup != null;
-                <details class="list-group-item" data-id="@item.Id" @(item.Signup == null ? "data-hidden open" : "")>
-                    <summary class="d-block">
-                        <h4 class="d-inline-block priority">@item.Title</h4>
-                        @if (item.Signup is ClassSignupModel signup)
-                        {
-                    <span class="float-right">
-                        <svg height="20px" width="20px" fill="#999" viewBox="0 0 12.7 12.7" version="1.1" x="0px" y="0px">
-                            <g transform="translate(0,-284.29998)">
-                                <path style="" d="m 6.2051222,296.43433 a 0.12460938,0.12460938 0 0 0 0.1762023,0 l 1.675697,-1.67573 a 0.12460938,0.12460938 0 0 0 -0.088067,-0.21273 H 4.617492 a 0.12460938,0.12460938 0 0 0 -0.088136,0.21273 z" fill="#999" stroke="none" />
-                                <path style="" d="M 11.290459,292.79769 H 1.4095343 a 0.12460938,0.12460938 0 0 0 -0.1246058,0.1246 v 0.60987 a 0.12460938,0.12460938 0 0 0 0.1246058,0.12461 h 9.8809247 a 0.12460938,0.12460938 0 0 0 0.124608,-0.12461 v -0.60987 a 0.12460938,0.12460938 0 0 0 -0.124608,-0.1246 z" fill="#999" stroke="none" />
-                                <path style="" d="M 11.290459,291.07952 H 1.4095343 a 0.12460938,0.12460938 0 0 0 -0.1246058,0.12461 v 0.60987 a 0.12460938,0.12460938 0 0 0 0.1246058,0.12461 h 9.8809247 a 0.12460938,0.12460938 0 0 0 0.124608,-0.12461 v -0.60987 a 0.12460938,0.12460938 0 0 0 -0.124608,-0.12461 z" fill="#999" stroke="none" />
-                                <path style="" d="m 11.290459,290.22043 a 0.12460938,0.12460938 0 0 0 0.124608,-0.1246 v -0.60987 a 0.12460938,0.12460938 0 0 0 -0.124608,-0.12461 H 1.4095343 a 0.12460938,0.12460938 0 0 0 -0.1246058,0.12461 v 0.60987 a 0.12460938,0.12460938 0 0 0 0.1246058,0.1246 z" fill="#999" stroke="none" />
-                                <path style="" d="M 11.290459,287.64319 H 1.4095343 a 0.12460938,0.12460938 0 0 0 -0.1246058,0.12461 v 0.60986 a 0.12460938,0.12460938 0 0 0 0.1246058,0.12461 h 9.8809247 a 0.12460938,0.12460938 0 0 0 0.124608,-0.12461 v -0.60986 a 0.12460938,0.12460938 0 0 0 -0.124608,-0.12461 z" fill="#999" stroke="none" />
-                                <path style="" d="m 6.2051222,284.86563 -1.6757657,1.67573 a 0.12460938,0.12460938 0 0 0 0.088136,0.21272 h 3.3514627 a 0.12460938,0.12460938 0 0 0 0.088067,-0.21272 l -1.675697,-1.67573 a 0.12460938,0.12460938 0 0 0 -0.176203,0 z" fill="#999" stroke="none" />
-                            </g>
-                        </svg>
-                    </span>
-                            @if (item.RoleSignup)
-                            {
-                                <div class="text-muted non-open-summary">
-                                    @if (item.AllowPartnerSignup && !string.IsNullOrEmpty(signup.PartnerEmail))
-                                    {
-                                        @: Påmeldt som @signup.Role.DisplayName().ToLower() sammen med @signup.PartnerEmail.
-                                    }
-                                    else
-                                    {
-                                        @: Påmeldt som @signup.Role.DisplayName().ToLower() uten partner.
-                                    }
-                                </div>
-                            }
-                        }
-                    </summary>
-
-                    <input type="hidden" name="classes[]" value="@item.Id" @(signedUp ? "" : "disabled") />
-
-                    <p class="lead">@item.Description</p>
-
-                    <p>@Html.Markdown(item.SignupHelp)</p>
-
-                    @if (item.RoleSignup)
+                @if (item.Signup is ClassSignupModel signup)
+                {
+                    switch(signup.Status)
                     {
-                        <div class="form-group mt-4">
-                            <label>Danserolle</label>
-                            <select class="form-control" name="roles[]" @(signedUp ? "" : "disabled") required>
-                                <option value="" disabled selected="@(!signedUp)">Velg rolle</option>
-                                <option value="@DanceRole.Lead" selected="@(item.Signup?.Role == DanceRole.Lead)">Fører</option>
-                                <option value="@DanceRole.Follow" selected="@(item.Signup?.Role == DanceRole.Follow)">Følger</option>
-                            </select>
-                            <small class="form-text text-muted">
-                                @Html.Markdown(item.RoleSignupHelp)
-                            </small>
-                        </div>
-                        @if (item.AllowPartnerSignup)
-                        {
-                            var show = item.Signup?.PartnerEmail != null;
-                            <div class="form-check">
-                                <input class="form-check-input @(show ? "" : "collapsed")" type="checkbox" checked="@show" id="partner-checkbox-@item.Id" data-toggle="collapse" data-target="#partner-@item.Id" aria-expanded="@(show ? "true" : "false")">
-                                <label class="form-check-label" for="partner-checkbox-@item.Id">
-                                    Meld deg på med partner
-                                </label>
-                            </div>
-                            <div class="form-group mt-4 collapse @(show ? "show" : "")" id="partner-@item.Id">
-                                <label>Partners e-post</label>
-                                <input type="text" class="form-control" value="@item.Signup?.PartnerEmail" placeholder="epost@eksempel.no" name="partners[]" @(signedUp ? "" : "disabled")>
-                                <small class="form-text text-muted">
-                                    @Html.Markdown(item.AllowPartnerSignupHelp ?? "Fyll inn e-post til partner hvis dere er to som ønsker å gå kurs sammen. Begge to må melde seg på og skrive opp hverandres e-post.")
-                                </small>
-                            </div>
-                        }
-                        else
-                        {
-                            <input type="hidden" name="partners[]" value="" />
-                        }
+                        case Status.AcceptedAndPayed:
+                            <partial name="_classAccepted" model="item" />
+                            break;
+                        case Status.Approved:
+                            <partial name="_classApproved" model="item" />
+                            break;
+                        case Status.Denied:
+                        case Status.RejectedOrNotPayed:
+                            <partial name="_classRejected" model="item" />
+                            break;
+                        default:
+                            <partial name="_classEdit" model="item" />
+                            break;
                     }
-                    else
-                    {
-                        <input type="hidden" name="roles[]" value="" />
-
-                        <input type="hidden" name="partners[]" value="" />
-                    }
-
-                    <div class="text-right">
-                        <button type="button" class="btn btn-outline-danger" data-action="remove">Fjern</button>
-                    </div>
-                </details>
+                }
+                else
+                {
+                    <partial name="_classAdd" model="item" />
+                }
             }
         </div>
         <div class="card-body">
-            <div class="input-group mb-3">
+            <div class="input-group">
                 <select class="custom-select" id="class-select">
                     <option value="" selected disabled>Velg kurs du har lyst til å delta på</option>
-                    @foreach (var item in Model.Classes)
+                    @foreach (var item in Model.Classes.Where(c => c.Signup == null).OrderBy(c => c.Title))
                     {
                         <option value="@item.Id" disabled="@(item.Signup != null)">@item.Title</option>
                     }
@@ -120,7 +64,6 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-success btn-block">Lagre</button>
         </div>
     }
     else if (Model.OpensAt.HasValue)
@@ -154,9 +97,17 @@
     <script src="~/js/sortable.js"></script>
     <script>
         $(function () {
-            sortable('.reorderable',{
-                forcePlaceholderSize: true,
-                placeholderClass: 'none'
+            var sortableGroup = sortable('.sortable', {
+                items: ':not(.non-sortable)',
+                placeholder: '<div class="list-group-item bg-light pt-1 pb-1"><div class="lead text-center">Endre prioritet på kurset</div></div>',
+                handle: '.sort-drag'
+                //placeholderClass: 'none'
+            });
+
+            $(sortableGroup).on('sortupdate', function (e) {
+                var group = $(e.originalEvent.detail.item);
+
+                group.parents('form').submit();
             });
 
             $("#add-class-button").on('click', function (e) {
@@ -182,6 +133,14 @@
 
                 // enable everything inside the group so they are submitted to the server
                 group.find("input, select").prop("disabled", false);
+            });
+
+            $("[data-action=save]").on('click', function (e) {
+                // find the input group to remove
+                var group = $(this).parents("details");
+
+                // hide the group
+                group.removeAttr("open");
             });
 
             $("[data-action=remove]").on('click', function (e) {

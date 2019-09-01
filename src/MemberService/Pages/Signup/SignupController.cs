@@ -119,7 +119,7 @@ namespace MemberService.Pages.Signup
 
             var autoAccept = model.ShouldAutoAccept(input.Role);
 
-            user.AddEventSignup(id, input, autoAccept);
+            user.AddEventSignup(id, input.Role, input.PartnerEmail, autoAccept);
 
             await _database.SaveChangesAsync();
 
@@ -134,7 +134,7 @@ namespace MemberService.Pages.Signup
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(Guid id)
+        public async Task<IActionResult> Edit(Guid id, string redirectTo = null)
         {
             var model = await _database.GetSignupModel(id);
 
@@ -161,7 +161,7 @@ namespace MemberService.Pages.Signup
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Guid id, [FromForm] SignupInputModel input)
+        public async Task<IActionResult> Edit(Guid id, [FromForm] SignupInputModel input, string redirectTo = null)
         {
             if (!ModelState.IsValid)
             {
@@ -185,7 +185,14 @@ namespace MemberService.Pages.Signup
                 await _database.SaveChangesAsync();
             }
 
-            return RedirectToAction(nameof(Event), new { id });
+            if (redirectTo == null)
+            {
+                return RedirectToAction(nameof(Event), new { id });
+            }
+            else
+            {
+                return Redirect(redirectTo);
+            }
         }
 
         [HttpGet]

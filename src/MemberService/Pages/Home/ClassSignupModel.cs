@@ -5,6 +5,8 @@ namespace MemberService.Pages.Home
 {
     public class ClassSignupModel
     {
+        public int Priority { get; set; }
+
         public string UserId { get; set; }
 
         public Status Status { get; set; }
@@ -16,6 +18,7 @@ namespace MemberService.Pages.Home
         [Expressionify]
         public static ClassSignupModel Create(EventSignup s) => new ClassSignupModel
         {
+            Priority = s.Priority,
             UserId = s.UserId,
             Status = s.Status,
             Role = s.Role,
