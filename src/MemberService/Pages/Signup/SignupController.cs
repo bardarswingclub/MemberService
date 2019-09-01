@@ -272,19 +272,19 @@ namespace MemberService.Pages.Signup
             {
                 var classesFee = model.User.GetClassesFee().Fee;
                 acceptModel.MustPayAmount = classesFee.Amount;
-                acceptModel.SessionId = await CreatePayment(model, classesFee);
+                acceptModel.SessionId = await CreatePayment(model, classesFee, model.UserEventSignup.Id);
             }
             else if (mustPayTrainingFee)
             {
                 var trainingFee = model.User.GetTrainingFee().Fee;
                 acceptModel.MustPayAmount = trainingFee.Amount;
-                acceptModel.SessionId = await CreatePayment(model, trainingFee);
+                acceptModel.SessionId = await CreatePayment(model, trainingFee, model.UserEventSignup.Id);
             }
             else if (mustPayMembershipFee)
             {
                 var membershipFee = model.User.GetMembershipFee().Fee;
                 acceptModel.MustPayAmount = membershipFee.Amount;
-                acceptModel.SessionId = await CreatePayment(model, membershipFee);
+                acceptModel.SessionId = await CreatePayment(model, membershipFee, model.UserEventSignup.Id);
             }
             else if (mustPayMembersPrice)
             {
@@ -315,7 +315,7 @@ namespace MemberService.Pages.Signup
             return sessionId;
         }
 
-        private async Task<string> CreatePayment(SignupModel model, Fee fee)
+        private async Task<string> CreatePayment(SignupModel model, Fee fee, Guid eventSignupId)
         {
             var sessionId = await _paymentService.CreatePayment(
                 model.User.FullName,
@@ -327,7 +327,8 @@ namespace MemberService.Pages.Signup
                 Request.GetDisplayUrl(),
                 fee.IncludesMembership,
                 fee.IncludesTraining,
-                fee.IncludesClasses);
+                fee.IncludesClasses,
+                eventSignupId: eventSignupId);
 
             return sessionId;
         }
