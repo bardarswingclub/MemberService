@@ -158,13 +158,19 @@
                                 <div class="form-group">
                                     <select name="Status" class="custom-select">
                                         <option selected="selected" value="">- Velg en handling -</option>
-                                        @if(signups.Status != Status.AcceptedAndPayed)
+                                        @if (User.IsInRole(Roles.ADMIN) || signups.Status != Status.AcceptedAndPayed)
                                         {
                                             <option value="2">Anbefall plass</option>
                                             <option value="4">Gi plass</option>
                                             <option value="3">Sett på venteliste</option>
                                         }
                                         <option value="7">Frata plass</option>
+                                        @if (User.IsInRole(Roles.ADMIN))
+                                        {
+                                            <optgroup label="ADMIN"></optgroup>
+                                            <option value="1">Påmeldt</option>
+                                            <option value="5">Godtatt og betalt</option>
+                                        }
                                     </select>
                                 </div>
                                 <div class="form-check">
