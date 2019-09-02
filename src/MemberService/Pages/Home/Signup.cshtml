@@ -43,6 +43,10 @@
                 }
             }
         </div>
+    }
+
+    @if (Model.OpenClasses.Any())
+    {
         <div class="card-body">
             <div class="input-group">
                 <select class="custom-select" id="class-select">
@@ -56,7 +60,6 @@
                     <button type="button" class="btn btn-outline-success" id="add-class-button">Legg til</button>
                 </div>
             </div>
-
         </div>
     }
     else if (Model.OpensAt.HasValue)
