@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace MemberService.Pages.Home
 {
-    public class HomeModel
+    public class SignupModel
     {
         public IReadOnlyCollection<ClassModel> Classes { get; set; }
 

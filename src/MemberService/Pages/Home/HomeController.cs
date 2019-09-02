@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 using Clave.Expressionify;
 using Clave.ExtensionMethods;
 using MemberService.Data;
-using MemberService.Pages.Event;
-using MemberService.Pages.Manage;
 using MemberService.Pages.Signup;
 using MemberService.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -78,7 +76,7 @@ namespace MemberService.Pages.Home
                 .WhereNotNull()
                 .NotAny(c => c.Status != Status.Pending);
 
-            return View(new HomeModel
+            return View(new SignupModel
             {
                 Classes = classes
                     .OrderBy(c => c.Signup?.Priority)

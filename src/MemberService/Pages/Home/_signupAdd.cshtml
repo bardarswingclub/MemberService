@@ -1,7 +1,7 @@
 ﻿@using MemberService.Pages.Home
 @model ClassModel
 
-<div class="list-group-item" data-id="@Model.Id" data-hidden open>
+<div class="list-group-item" data-id="@Model.Id" data-hidden>
     <input type="hidden" name="classes[]" value="@Model.Id" disabled />
 
     <h4 class="d-inline-block priority">@Model.Title</h4>

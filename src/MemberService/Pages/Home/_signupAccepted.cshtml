@@ -1,26 +1,16 @@
 ﻿@using MemberService.Pages.Home
 @model ClassSignupModel
 
-<div class="list-group-item">
-    <div class="d-block">
-        <h4 class="d-inline-block priority">@Model.Title</h4>
+<div class="text-muted">
+    <span style="color: #0a0">&#x2713;</span> Deltar på kurset
 
-        <div class="text-muted">
-            @if (Model.RoleSignup)
-            {
-                @if (Model.AllowPartnerSignup && !string.IsNullOrEmpty(Model.PartnerEmail))
-                {
-                    <span style="color: #0a0">&#x2713;</span> @: Deltar på kurset som <strong>@Model.Role.DisplayName().ToLower()</strong> sammen med <strong>@Model.PartnerEmail</strong>.
-                }
-                else
-                {
-                    <span style="color: #0a0">&#x2713;</span> @: Deltar på kurset som <strong>@Model.Role.DisplayName().ToLower()</strong>.
-                }
-            }
-            else
-            {
-                <span style="color: #0a0">&#x2713;</span> @: Deltar på kurset
-            }
-        </div>
-    </div>
+    @if (Model.RoleSignup)
+    {
+        @: som <strong>@Model.Role.DisplayName().ToLower()</strong>
+
+        @if (Model.AllowPartnerSignup && !string.IsNullOrEmpty(Model.PartnerEmail))
+        {
+            @: sammen med <strong>@Model.PartnerEmail.ToLower()</strong>
+        }
+    }
 </div>

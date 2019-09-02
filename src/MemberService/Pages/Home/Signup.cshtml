@@ -1,5 +1,5 @@
 ﻿@using MemberService.Pages.Home
-@model HomeModel
+@model SignupModel
 
 @{
     ViewData["Title"] = "Home Page";
@@ -17,29 +17,41 @@
             {
                 @if (item.Signup is ClassSignupModel signup)
                 {
-                    switch(signup.Status)
-                    {
-                        case Status.AcceptedAndPayed:
-                            <partial name="_classAccepted" model="item" />
-                            break;
-                        case Status.Approved:
-                            <partial name="_classApproved" model="item" />
-                            break;
-                        case Status.Denied:
-                        case Status.RejectedOrNotPayed:
-                            <partial name="_classRejected" model="item" />
-                            break;
-                        case Status.Pending:
-                            <partial name="_classEdit" model="item" />
-                            break;
-                        default:
-                            <partial name="_classInfo" model="item" />
-                            break;
-                    }
+                    <div class="list-group-item" data-id="@item.Id">
+                        <input type="hidden" name="classes[]" value="@item.Id" />
+                        <input type="hidden" name="roles[]" value="@signup.Role" />
+                        <input type="hidden" name="partners[]" value="@signup.PartnerEmail" />
+
+                        <h4 class="d-inline-block priority">@item.Title</h4>
+                        <img src="~/img/reorder.svg" width="20" class="float-right sort-drag" />
+
+                        @switch(signup.Status)
+                        {
+                            case Status.AcceptedAndPayed:
+                                <partial name="_signupAccepted" model="signup" />
+                                break;
+                            case Status.Approved:
+                                <partial name="_signupApproved" model="signup" />
+                                break;
+                            case Status.Denied:
+                            case Status.RejectedOrNotPayed:
+                                <partial name="_signupRejected" model="signup" />
+                                break;
+                            case Status.Pending:
+                                <partial name="_signupEdit" model="signup" />
+                                break;
+                            case Status.WaitingList:
+                                <partial name="_signupWaiting" model="signup" />
+                                break;
+                            default:
+                                <partial name="_signupInfo" model="signup" />
+                                break;
+                        }
+                    </div>
                 }
                 else
                 {
-                    <partial name="_classAdd" model="item" />
+                    <partial name="_signupAdd" model="item" />
                 }
             }
         </div>

@@ -1,29 +1,27 @@
 ﻿@using MemberService.Pages.Home
 @model ClassSignupModel
 
-<div class="list-group-item">
+<div class="text-muted">
+    <p>
+        &#x1F91E; Påmeldt
 
-    <div class="d-block">
-        <h4 class="d-inline-block priority">@Model.Title</h4>
+        @if (Model.RoleSignup)
+        {
+            @: som <strong>@Model.Role.DisplayName().ToLower()</strong>
 
-        <div class="text-muted">
-            @if (Model.RoleSignup)
+            @if (Model.AllowPartnerSignup && !string.IsNullOrEmpty(Model.PartnerEmail))
             {
-                @if (Model.AllowPartnerSignup && !string.IsNullOrEmpty(Model.PartnerEmail))
-                {
-                    @: Påmeldt som <strong>@Model.Role.DisplayName().ToLower()</strong> sammen med <strong>@Model.PartnerEmail</strong>.
-                }
-                else
-                {
-                    @: Påmeldt som <strong>@Model.Role.DisplayName().ToLower()</strong> uten partner.
-                }
-
-                <a asp-controller="Signup" asp-action="edit" asp-route-id="@Model.EventId">Endre?</a>
+                @: sammen med <strong>@Model.PartnerEmail.ToLower()</strong>
             }
             else
             {
-                @: Påmeldt.
+                @: uten partner.
             }
-        </div>
-    </div>
+
+            <a asp-controller="Signup" asp-action="edit" asp-route-id="@Model.EventId">Endre?</a>
+        }
+
+    </p>
+
+    Du vil få tilbakemelding om du får plass på kurset
 </div>

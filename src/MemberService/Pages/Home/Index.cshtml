@@ -15,25 +15,32 @@
         <div class="list-group list-group-flush priority-group">
             @foreach (var item in Model.Signups)
             {
-                switch(item.Status)
-                {
-                    case Status.AcceptedAndPayed:
-                        <partial name="_signupAccepted" model="item" />
-                        break;
-                    case Status.Approved:
-                        <partial name="_signupApproved" model="item" />
-                        break;
-                    case Status.Denied:
-                    case Status.RejectedOrNotPayed:
-                        <partial name="_signupRejected" model="item" />
-                        break;
-                    case Status.Pending:
-                        <partial name="_signupEdit" model="item" />
-                        break;
-                    default:
-                        <partial name="_signupInfo" model="item" />
-                        break;
-                }
+                <div class="list-group-item">
+                    <h4 class="d-inline-block priority">@item.Title</h4>
+
+                    @switch(item.Status)
+                    {
+                        case Status.AcceptedAndPayed:
+                            <partial name="_signupAccepted" model="item" />
+                            break;
+                        case Status.Approved:
+                            <partial name="_signupApproved" model="item" />
+                            break;
+                        case Status.Denied:
+                        case Status.RejectedOrNotPayed:
+                            <partial name="_signupRejected" model="item" />
+                            break;
+                        case Status.Pending:
+                            <partial name="_signupEdit" model="item" />
+                            break;
+                        case Status.WaitingList:
+                            <partial name="_signupWaiting" model="item" />
+                            break;
+                        default:
+                            <partial name="_signupInfo" model="item" />
+                            break;
+                    }
+                </div>
             }
         </div>
         <div class="card-body text-center">
