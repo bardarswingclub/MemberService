@@ -96,7 +96,7 @@
                             <abbr title="@signup.SignedUpAt.ToOsloDateTime()">@signup.SignedUpAt.ToOsloDate()</abbr>
                         </td>
                         <td>
-                            <a asp-controller="Signup" asp-action="Index" asp-route-id="@signup.EventId">@signup.Event.Title</a>
+                            <a asp-controller="Event" asp-action="View" asp-route-id="@signup.EventId">@signup.Event.Title</a>
                             <span class="badge badge-primary badge-pill">@(signup.Priority). pri</span>
                         </td>
                         <td>@signup.Status.DisplayName()</td>
