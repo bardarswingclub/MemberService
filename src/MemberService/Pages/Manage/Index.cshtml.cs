@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Clave.ExtensionMethods;
 using MemberService.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +32,7 @@ namespace MemberService.Pages.Manage
 
         public IReadOnlyCollection<Payment> Payments { get; private set; }
 
-        public IReadOnlyCollection<EventSignup> EventSignups { get; private set; }
+        public IReadOnlyCollection<SignupModel> EventSignups { get; private set; }
 
         [TempData]
         public string SuccessMessage { get; set; }
@@ -53,6 +54,7 @@ namespace MemberService.Pages.Manage
                 .Include(x => x.Payments)
                 .Include(x => x.EventSignups)
                     .ThenInclude(s => s.Event)
+                        .ThenInclude(e => e.SignupOptions)
                 .SingleUser(userId);
 
             if (user == null)
@@ -68,7 +70,8 @@ namespace MemberService.Pages.Manage
 
             EventSignups = user.EventSignups
                 .OrderByDescending(s => s.SignedUpAt)
-                .ToList();
+                .Select(SignupModel.Create)
+                .ToReadOnlyCollection();
 
             Input = new InputModel
             {

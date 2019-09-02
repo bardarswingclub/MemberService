@@ -46,9 +46,15 @@
                                 <abbr title="@signup.SignedUpAt.ToOsloDateTime()">@signup.SignedUpAt.ToOsloDate()</abbr>
                             </td>
                             <td>
-                                <a asp-controller="Signup" asp-action="Event" asp-route-id="@signup.EventId">@signup.Event.Title</a>
+                                <a asp-controller="Signup" asp-action="Event" asp-route-id="@signup.EventId">@signup.Title</a>
+                                @if (signup.Role is DanceRole role)
+                                {
+                                    @: som @role.DisplayName().ToLower()
+                                }
                             </td>
-                            <td>@signup.Status.DisplayDescription()</td>
+                            <td>
+                                @signup.Status.DisplayDescription()
+                            </td>
                         </tr>
                     }
                 </tbody>
