@@ -30,8 +30,8 @@ namespace MemberService.Data
         [Description("Takket nei")]
         RejectedOrNotPayed = 6,
 
-        [DisplayName("Fratatt plass")]
-        [Description("Mistet plass")]
+        [DisplayName("Ikke fått plass")]
+        [Description("Ikke fått plass")]
         Denied = 7
     }
 }

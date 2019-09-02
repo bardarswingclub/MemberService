@@ -161,10 +161,10 @@
                                         @if (User.IsInRole(Roles.ADMIN) || signups.Status != Status.AcceptedAndPayed)
                                         {
                                             <option value="2">Anbefall plass</option>
-                                            <option value="4">Gi plass</option>
-                                            <option value="3">Sett på venteliste</option>
+                                            <option value="4">Gi plass &#x1F4E7;</option>
+                                            <option value="3">Sett på venteliste &#x1F4E7;</option>
                                         }
-                                        <option value="7">Frata plass</option>
+                                        <option value="7">Får ikke plass &#x1F4E7;</option>
                                         @if (User.IsInRole(Roles.ADMIN))
                                         {
                                             <optgroup label="ADMIN"></optgroup>
