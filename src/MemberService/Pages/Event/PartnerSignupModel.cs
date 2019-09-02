@@ -53,7 +53,7 @@ namespace MemberService.Pages.Event
         {
             Role = signup.Role;
             Status = signup.Status;
-            PartnerEmail = signup.PartnerEmail;
+            PartnerEmail = signup.PartnerEmail?.Trim();
         }
 
         public DanceRole Role { get; }

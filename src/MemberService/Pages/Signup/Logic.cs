@@ -68,7 +68,7 @@ namespace MemberService.Pages.Signup
                 EventId = id,
                 Priority = priority,
                 Role = role,
-                PartnerEmail = partnerEmail?.Normalize().ToUpperInvariant(),
+                PartnerEmail = partnerEmail?.Trim().Normalize().ToUpperInvariant(),
                 Status = status,
                 SignedUpAt = DateTime.UtcNow,
                 AuditLog =
