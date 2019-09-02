@@ -44,14 +44,6 @@ namespace MemberService.Pages.Event
 
         public static EventModel Create(Data.Event model)
         {
-            foreach (var (partner, signup) in model.Signups
-                .Select(s => s.Partner)
-                .WhereNotNull()
-                .Join(model.Signups, p => p.Id, s => s.UserId))
-            {
-                partner.EventSignups.Add(signup);
-            }
-
             return new EventModel
             {
                 Id = model.Id,

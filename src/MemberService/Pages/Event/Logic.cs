@@ -74,8 +74,6 @@ namespace MemberService.Pages.Event
 
             if (model == null) return null;
 
-            model.ConnectPartner();
-
             return EventModel.Create(model);
         }
 
@@ -185,13 +183,6 @@ namespace MemberService.Pages.Event
 
             await context.SaveChangesAsync();
         }
-
-        internal static void ConnectPartner(this Data.Event model)
-            => model.Signups
-                .Select(s => s.Partner)
-                .WhereNotNull()
-                .Join(model.Signups, p => p.Id, s => s.UserId)
-                .ForEach(((MemberUser partner, EventSignup signup) x) => x.partner.EventSignups.Add(x.signup));
 
         internal static IReadOnlyList<EventSignupStatusModel> GroupByStatus(this ICollection<EventSignup> signups)
             => Statuses
