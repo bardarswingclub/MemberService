@@ -180,7 +180,7 @@ namespace MemberService.Pages.Signup
                 eventSignup.AuditLog.Add($"Changed signup\n\n{eventSignup.Role} -> {input.Role}\n\n{eventSignup.PartnerEmail} -> {input.PartnerEmail}", user);
 
                 eventSignup.Role = input.Role;
-                eventSignup.PartnerEmail = input.PartnerEmail?.Normalize().ToUpperInvariant();
+                eventSignup.PartnerEmail = input.PartnerEmail?.Trim().Normalize().ToUpperInvariant();
 
                 await _database.SaveChangesAsync();
             }

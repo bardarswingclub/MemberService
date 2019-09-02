@@ -1,0 +1,42 @@
+﻿@using MemberService.Pages.Signup
+@model EventSignup
+
+@{
+    ViewData["Title"] = Model.Event.Title;
+}
+
+<form method="POST" class="card">
+    <h3 class="card-header">
+        Endre @Model.User.FullName sin påmelding til @Model.Event.Title
+    </h3>
+    <div class="card-body">
+        <div class="alert alert-danger">
+            <h5 class="alert-heading">Du gjør nå administrator endringer!</h5>
+            <p>Vær forsiktig</p>
+        </div>
+
+        <div class="form-group mt-4">
+            <label asp-for="Role"></label>
+            <select class="form-control" asp-for="Role">
+                <option value="@DanceRole.None">Ingenting</option>
+                <option value="@DanceRole.Lead">Fører</option>
+                <option value="@DanceRole.Follow">Følger</option>
+            </select>
+        </div>
+        <div class="form-group mt-4">
+            <label asp-for="PartnerEmail"></label>
+            <input type="text" class="form-control" asp-for="PartnerEmail" placeholder="epost@eksempel.no">
+            @if (Model.Partner is MemberUser partner)
+            {
+                <a asp-controller="Members" asp-action="Details" asp-route-id="@partner.Id" target="_blank">@partner.FullName</a>
+            }
+            else if(!string.IsNullOrEmpty(Model.PartnerEmail))
+            {
+                <span class="text-muted">(ukjent partner)</span>
+            }
+        </div>
+    </div>
+    <div class="card-footer">
+        <button type="submit" class="btn btn-success btn-block">Lagre endringer</button>
+    </div>
+</form>

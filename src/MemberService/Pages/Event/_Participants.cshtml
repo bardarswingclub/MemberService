@@ -18,10 +18,10 @@
                 <input type="checkbox" asp-for="@Model[i].Selected" />
             </td>
             <td>
-                <span class="badge badge-primary badge-pill">@(signup.Priority). pri</span>
                 <a asp-controller="Members" asp-action="Details" asp-route-id="@signup.UserId" target="_blank">@signup.FullName</a>
             </td>
             <td>
+                <span class="badge badge-primary badge-pill">@(signup.Priority). pri</span>
                 <a href="#" class="" data-toggle="modal" data-target="#modal-@signup.Id">
                     @signup.SignedUpAt.ToOsloDate()
                 </a>
@@ -30,7 +30,13 @@
                     <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalScrollableTitle">Historikk for @signup.FullName</h5>
+                                <h5 class="modal-title" id="exampleModalScrollableTitle">
+                                    Historikk for @signup.FullName
+                                    @if (User.IsInRole(Roles.ADMIN))
+                                    {
+                                        <a asp-action="EditSignup" asp-route-id="@signup.Id">Rediger</a>
+                                    }
+                                </h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>

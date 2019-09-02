@@ -8,6 +8,7 @@ using MemberService.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace MemberService.Pages.Event
@@ -202,6 +203,44 @@ namespace MemberService.Pages.Event
             await _database.EditEvent(id, e => e.SetEventStatus(status));
 
             return RedirectToAction(nameof(View), new { id });
+        }
+
+        [HttpGet]
+        [Authorize(Roles = Roles.ADMIN)]
+        public async Task<IActionResult> EditSignup(Guid id)
+        {
+            var signup = await _database.EventSignups
+                .Include(e => e.User)
+                .Include(e => e.Event)
+                    .ThenInclude(e => e.SignupOptions)
+                .Include(e => e.Partner)
+                .AsNoTracking()
+                .SingleOrDefaultAsync(e => e.Id == id);
+
+            return View(signup);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = Roles.ADMIN)]
+        public async Task<IActionResult> EditSignup(Guid id, [FromForm] DanceRole role, [FromForm] string partnerEmail)
+        {
+            var signup = await _database.EventSignups
+                .Include(e => e.AuditLog)
+                .SingleOrDefaultAsync(e => e.Id == id);
+
+            var user = await GetCurrentUser();
+
+            if (ModelState.IsValid)
+            {
+                signup.AuditLog.Add($"Admin edited\n\n{signup.Role} -> {role}\n\n{signup.PartnerEmail} -> {partnerEmail}", user);
+
+                signup.Role = role;
+                signup.PartnerEmail = partnerEmail?.Trim().Normalize().ToUpperInvariant();
+
+                await _database.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(View), new { id = signup.EventId });
         }
 
         private async Task<MemberUser> GetCurrentUser()
