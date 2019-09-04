@@ -101,7 +101,7 @@
                             <table class="table">
                                 <thead class="thead-light">
                                     <tr>
-                                        <th></th>
+                                        <th><input type="checkbox" data-action="select-all" /></th>
                                         <th>Navn</th>
                                         <th>Påmeldt</th>
                                         @if (Model.AllowPartnerSignup)
@@ -119,7 +119,7 @@
                             <table class="table">
                                 <thead class="thead-light">
                                     <tr>
-                                        <th></th>
+                                        <th><input type="checkbox" data-action="select-all" /></th>
                                         <th>Navn</th>
                                         <th>Påmeldt</th>
                                         @if (Model.AllowPartnerSignup)
@@ -142,7 +142,7 @@
                             <table class="table">
                                 <thead class="thead-light">
                                     <tr>
-                                        <th></th>
+                                        <th><input type="checkbox" data-action="select-all" /></th>
                                         <th>Navn</th>
                                         <th>Påmeldt</th>
                                     </tr>
@@ -226,6 +226,21 @@ _Hilsen Bårdar Swing Club_
         }
     </div>
 </div>
+
+@section Scripts {
+<script>
+    $(function () {
+        $("input[data-action=select-all]").on('click', function () {
+            var table = $(this).parents('table');
+
+            var checked = this.checked;
+
+            table.find('input[type=checkbox]').prop('checked', checked);
+        })
+    });
+
+</script>
+}
 
 @functions{
     string AlertClass(EventModel model)
