@@ -268,7 +268,7 @@ namespace MemberService.Pages.Signup
                 MustPayMembershipFee = mustPayMembershipFee
             };
 
-            if (mustPayClassesFee && model.User.GetClassesFee().FeeStatus == FeeStatus.Unpaid)
+            if (mustPayClassesFee)
             {
                 var classesFee = model.User.GetClassesFee().Fee;
                 acceptModel.MustPayAmount = classesFee.Amount;

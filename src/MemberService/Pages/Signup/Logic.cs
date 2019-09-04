@@ -94,9 +94,9 @@ namespace MemberService.Pages.Signup
             => options.RequiresMembershipFee && !user.HasPayedMembershipThisYear();
 
         public static bool MustPayTrainingFee(this MemberUser user, EventSignupOptions options)
-            => options.RequiresTrainingFee && !user.HasPayedTrainingFeeThisSemester();
+            => options.RequiresTrainingFee && !user.HasPayedTrainingFeeThisSemester() && !user.ExemptFromTrainingFee;
 
         public static bool MustPayClassesFee(this MemberUser user, EventSignupOptions options)
-            => options.RequiresClassesFee && !user.HasPayedClassesFeeThisSemester();
+            => options.RequiresClassesFee && !user.HasPayedClassesFeeThisSemester() && !user.ExemptFromClassesFee;
     }
 }
