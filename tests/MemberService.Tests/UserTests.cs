@@ -1,0 +1,219 @@
+﻿using System;
+using MemberService.Data;
+using NUnit.Framework;
+using NUnit.Framework.Internal;
+using Shouldly;
+
+namespace MemberService.Tests
+{
+    [TestFixture]
+    public class UserTests
+    {
+        [Test]
+        public void TestNoPayments()
+        {
+            var user = new MemberUser { };
+
+            user.HasPayedMembershipThisYear().ShouldBeFalse();
+            user.HasPayedTrainingFeeThisSemester().ShouldBeFalse();
+            user.HasPayedClassesFeeThisSemester().ShouldBeFalse();
+        }
+
+        [Test]
+        public void TestPaidLastYear()
+        {
+            var user = new MemberUser
+            {
+                Payments = new[]
+                {
+                    Payment(paidAt: TimeProvider.UtcNow.AddYears(-1), membership: true, training: true, classes: true)
+                }
+            };
+
+            user.HasPayedMembershipThisYear().ShouldBeFalse();
+            user.HasPayedTrainingFeeThisSemester().ShouldBeFalse();
+            user.HasPayedClassesFeeThisSemester().ShouldBeFalse();
+        }
+
+        [Test]
+        public void TestPaidLastSemester()
+        {
+            using (TemporaryTime.Is(new DateTime(2019, 10, 2)))
+            {
+                var user = new MemberUser
+                {
+                    Payments = new[]
+                    {
+                        Payment(paidAt: TimeProvider.UtcNow.AddMonths(-6), membership: true, training: true, classes: true)
+                    }
+                };
+
+                user.HasPayedMembershipThisYear().ShouldBeTrue();
+                user.HasPayedTrainingFeeThisSemester().ShouldBeFalse();
+                user.HasPayedClassesFeeThisSemester().ShouldBeFalse();
+            }
+        }
+
+        [Test]
+        public void TestPaidAllThisFallSemester()
+        {
+            using (TemporaryTime.Is(new DateTime(2019, 10, 2)))
+            {
+                var user = new MemberUser
+                {
+                    Payments = new[]
+                    {
+                        Payment(paidAt: TimeProvider.UtcNow.AddMonths(-1), membership: true, training: true, classes: true)
+                    }
+                };
+
+                user.HasPayedMembershipThisYear().ShouldBeTrue();
+                user.HasPayedTrainingFeeThisSemester().ShouldBeTrue();
+                user.HasPayedClassesFeeThisSemester().ShouldBeTrue();
+            }
+        }
+
+        [Test]
+        public void TestPaidMembershipThisFallSemester()
+        {
+            using (TemporaryTime.Is(new DateTime(2019, 10, 2)))
+            {
+                var user = new MemberUser
+                {
+                    Payments = new[]
+                    {
+                        Payment(paidAt: TimeProvider.UtcNow.AddMonths(-1), membership: true, training: false, classes: false)
+                    }
+                };
+
+                user.HasPayedMembershipThisYear().ShouldBeTrue();
+                user.HasPayedTrainingFeeThisSemester().ShouldBeFalse();
+                user.HasPayedClassesFeeThisSemester().ShouldBeFalse();
+            }
+        }
+
+        [Test]
+        public void TestPaidTrainingThisFallSemester()
+        {
+            using (TemporaryTime.Is(new DateTime(2019, 10, 2)))
+            {
+                var user = new MemberUser
+                {
+                    Payments = new[]
+                    {
+                        Payment(paidAt: TimeProvider.UtcNow.AddMonths(-1), membership: true, training: true, classes: false)
+                    }
+                };
+
+                user.HasPayedMembershipThisYear().ShouldBeTrue();
+                user.HasPayedTrainingFeeThisSemester().ShouldBeTrue();
+                user.HasPayedClassesFeeThisSemester().ShouldBeFalse();
+            }
+        }
+
+        [Test]
+        public void TestPaidAllThisSpringSemester()
+        {
+            using (TemporaryTime.Is(new DateTime(2019, 3, 2)))
+            {
+                var user = new MemberUser
+                {
+                    Payments = new[]
+                    {
+                        Payment(paidAt: TimeProvider.UtcNow.AddMonths(-1), membership: true, training: true, classes: true)
+                    }
+                };
+
+                user.HasPayedMembershipThisYear().ShouldBeTrue();
+                user.HasPayedTrainingFeeThisSemester().ShouldBeTrue();
+                user.HasPayedClassesFeeThisSemester().ShouldBeTrue();
+            }
+        }
+
+        [Test]
+        public void TestPaidMembershipThisSpringSemester()
+        {
+            using (TemporaryTime.Is(new DateTime(2019, 3, 2)))
+            {
+                var user = new MemberUser
+                {
+                    Payments = new[]
+                    {
+                        Payment(paidAt: TimeProvider.UtcNow.AddMonths(-1), membership: true, training: false, classes: false)
+                    }
+                };
+
+                user.HasPayedMembershipThisYear().ShouldBeTrue();
+                user.HasPayedTrainingFeeThisSemester().ShouldBeFalse();
+                user.HasPayedClassesFeeThisSemester().ShouldBeFalse();
+            }
+        }
+
+        [Test]
+        public void TestPaidTrainingThisSpringSemester()
+        {
+            using (TemporaryTime.Is(new DateTime(2019, 3, 2)))
+            {
+                var user = new MemberUser
+                {
+                    Payments = new[]
+                    {
+                        Payment(paidAt: TimeProvider.UtcNow.AddMonths(-1), membership: true, training: true, classes: false)
+                    }
+                };
+
+                user.HasPayedMembershipThisYear().ShouldBeTrue();
+                user.HasPayedTrainingFeeThisSemester().ShouldBeTrue();
+                user.HasPayedClassesFeeThisSemester().ShouldBeFalse();
+            }
+        }
+
+        [Test]
+        public void TestPaidMembershipThisSpringAndTrainingThisFallSemester()
+        {
+            using (TemporaryTime.Is(new DateTime(2019, 10, 2)))
+            {
+                var user = new MemberUser
+                {
+                    Payments = new[]
+                    {
+                        Payment(paidAt: TimeProvider.UtcNow.AddMonths(-6), membership: true, training: false, classes: false),
+                        Payment(paidAt: TimeProvider.UtcNow.AddMonths(-1), membership: false, training: true, classes: false)
+                    }
+                };
+
+                user.HasPayedMembershipThisYear().ShouldBeTrue();
+                user.HasPayedTrainingFeeThisSemester().ShouldBeTrue();
+                user.HasPayedClassesFeeThisSemester().ShouldBeFalse();
+            }
+        }
+
+        [Test]
+        public void TestPaidMembershipThisSpringAndClassesThisFallSemester()
+        {
+            using (TemporaryTime.Is(new DateTime(2019, 10, 2)))
+            {
+                var user = new MemberUser
+                {
+                    Payments = new[]
+                    {
+                        Payment(paidAt: TimeProvider.UtcNow.AddMonths(-6), membership: true, training: false, classes: false),
+                        Payment(paidAt: TimeProvider.UtcNow.AddMonths(-1), membership: false, training: true, classes: true)
+                    }
+                };
+
+                user.HasPayedMembershipThisYear().ShouldBeTrue();
+                user.HasPayedTrainingFeeThisSemester().ShouldBeTrue();
+                user.HasPayedClassesFeeThisSemester().ShouldBeTrue();
+            }
+        }
+
+        private static Payment Payment(DateTime? paidAt = null, bool membership = false, bool training = false, bool classes = false) => new Payment
+        {
+            IncludesMembership = membership,
+            IncludesTraining = training,
+            IncludesClasses = classes,
+            PayedAtUtc = paidAt ?? TimeProvider.UtcNow
+        };
+    }
+}

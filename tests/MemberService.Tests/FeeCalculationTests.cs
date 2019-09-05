@@ -5,7 +5,7 @@ using Shouldly;
 using System.Collections.Generic;
 using System;
 
-namespace Tests
+namespace MemberService.Tests
 {
     [TestFixture]
     public class FeeCalculationTests
