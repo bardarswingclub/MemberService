@@ -38,7 +38,7 @@ namespace MemberService.Pages.Event
                 Title = model.Title,
                 Description = model.Description,
                 Type = model.Type,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = TimeProvider.UtcNow,
                 CreatedByUser = user,
                 SignupOptions = new EventSignupOptions
                 {
@@ -146,16 +146,16 @@ namespace MemberService.Pages.Event
         {
             if (status == "open")
             {
-                model.SignupOptions.SignupOpensAt = DateTime.UtcNow;
+                model.SignupOptions.SignupOpensAt = TimeProvider.UtcNow;
                 model.SignupOptions.SignupClosesAt = null;
             }
             else if (status == "close")
             {
-                model.SignupOptions.SignupClosesAt = DateTime.UtcNow;
+                model.SignupOptions.SignupClosesAt = TimeProvider.UtcNow;
             }
             else if (status == "archive")
             {
-                model.SignupOptions.SignupClosesAt = model.SignupOptions.SignupClosesAt ?? DateTime.UtcNow;
+                model.SignupOptions.SignupClosesAt = model.SignupOptions.SignupClosesAt ?? TimeProvider.UtcNow;
                 model.Archived = true;
             }
         }
@@ -198,7 +198,7 @@ namespace MemberService.Pages.Event
 
             var localDateTime = LocalDateTimePattern.GeneralIso.Parse(dateTime).GetValueOrThrow();
 
-            return localDateTime.InZoneLeniently(Constants.TimeZoneOslo).ToDateTimeUtc();
+            return localDateTime.InZoneLeniently(TimeProvider.TimeZoneOslo).ToDateTimeUtc();
         }
 
         internal static (string Date, string Time) GetLocal(DateTime? utc)

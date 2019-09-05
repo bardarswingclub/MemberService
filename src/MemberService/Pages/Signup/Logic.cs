@@ -70,7 +70,7 @@ namespace MemberService.Pages.Signup
                 Role = role,
                 PartnerEmail = partnerEmail?.Trim().Normalize().ToUpperInvariant(),
                 Status = status,
-                SignedUpAt = DateTime.UtcNow,
+                SignedUpAt = TimeProvider.UtcNow,
                 AuditLog =
                 {
                     {

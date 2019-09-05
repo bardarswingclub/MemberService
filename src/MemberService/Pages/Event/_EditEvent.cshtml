@@ -136,7 +136,7 @@
             <div class="form-group row">
                 <label asp-for="SignupOpensAtDate" class="col-6 col-form-label">Dato</label>
                 <div class="col-6">
-                    <input type="date" class="form-control" asp-for="SignupOpensAtDate" placeholder="@DateTime.UtcNow.ToString("yyy-MM-dd")">
+                    <input type="date" class="form-control" asp-for="SignupOpensAtDate">
                 </div>
                 <span asp-validation-for="SignupOpensAtDate" class="text-danger col-12"></span>
             </div>
@@ -163,7 +163,7 @@
             <div class="form-group row">
                 <label asp-for="SignupClosesAtDate" class="col-6 col-form-label">Dato</label>
                 <div class="col-6">
-                    <input type="date" class="form-control" asp-for="SignupClosesAtDate" placeholder="@DateTime.UtcNow.ToString("yyy-MM-dd")">
+                    <input type="date" class="form-control" asp-for="SignupClosesAtDate">
                 </div>
                 <span asp-validation-for="SignupClosesAtDate" class="text-danger col-12"></span>
             </div>
