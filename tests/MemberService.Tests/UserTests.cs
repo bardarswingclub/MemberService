@@ -208,6 +208,44 @@ namespace MemberService.Tests
             }
         }
 
+        [Test]
+        public void TestPaidExemptFromFees()
+        {
+            using (TemporaryTime.Is(new DateTime(2019, 10, 2)))
+            {
+                var user = new MemberUser
+                {
+                    ExemptFromClassesFee = true,
+                    ExemptFromTrainingFee = true
+                };
+
+                user.HasPayedMembershipThisYear().ShouldBeFalse();
+                user.HasPayedTrainingFeeThisSemester().ShouldBeFalse();
+                user.HasPayedClassesFeeThisSemester().ShouldBeFalse();
+            }
+        }
+
+        [Test]
+        public void TestPaidExemptFromFees_PaidMembership()
+        {
+            using (TemporaryTime.Is(new DateTime(2019, 10, 2)))
+            {
+                var user = new MemberUser
+                {
+                    ExemptFromClassesFee = true,
+                    ExemptFromTrainingFee = true,
+                    Payments = new[]
+                    {
+                        Payment(paidAt: TimeProvider.UtcNow.AddMonths(-6), membership: true, training: false, classes: false)
+                    }
+                };
+
+                user.HasPayedMembershipThisYear().ShouldBeTrue();
+                user.HasPayedTrainingFeeThisSemester().ShouldBeTrue();
+                user.HasPayedClassesFeeThisSemester().ShouldBeTrue();
+            }
+        }
+
         private static Payment Payment(DateTime? paidAt = null, bool membership = false, bool training = false, bool classes = false) => new Payment
         {
             IncludesMembership = membership,

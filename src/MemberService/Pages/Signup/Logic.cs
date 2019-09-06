@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Clave.Expressionify;
 using MemberService.Data;
 using Microsoft.EntityFrameworkCore;
-using Stripe;
 
 namespace MemberService.Pages.Signup
 {

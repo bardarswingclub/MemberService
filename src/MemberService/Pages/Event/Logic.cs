@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
-using Clave.ExtensionMethods;
 using MemberService.Data;
 using Microsoft.EntityFrameworkCore;
 using NodaTime.Text;
@@ -13,16 +12,6 @@ namespace MemberService.Pages.Event
 {
     public static class Logic
     {
-        private static readonly Status[] Statuses = new[] {
-            Status.AcceptedAndPayed,
-            Status.Approved,
-            Status.WaitingList,
-            Status.Recommended,
-            Status.Pending,
-            Status.RejectedOrNotPayed,
-            Status.Denied,
-        };
-
         public static Task<List<Data.Event>> GetEvents(this MemberContext context, bool archived)
             => context.Events
                 .Include(e => e.SignupOptions)
@@ -183,12 +172,6 @@ namespace MemberService.Pages.Event
 
             await context.SaveChangesAsync();
         }
-
-        internal static IReadOnlyList<EventSignupStatusModel> GroupByStatus(this ICollection<EventSignup> signups)
-            => Statuses
-                .Select(s => (s, signups.Where(x => x.Status == s)))
-                .Select(EventSignupStatusModel.Create)
-                .ToReadOnlyList();
 
         internal static DateTime? GetUtc(bool enable, string date, string time)
         {
