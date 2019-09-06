@@ -1,7 +1,6 @@
 ﻿using System;
 using MemberService.Data;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 using Shouldly;
 
 namespace MemberService.Tests
@@ -12,7 +11,7 @@ namespace MemberService.Tests
         [Test]
         public void TestNoPayments()
         {
-            var user = new MemberUser { };
+            var user = new MemberUser();
 
             user.HasPayedMembershipThisYear().ShouldBeFalse();
             user.HasPayedTrainingFeeThisSemester().ShouldBeFalse();
@@ -24,7 +23,7 @@ namespace MemberService.Tests
         {
             var user = new MemberUser
             {
-                Payments = new[]
+                Payments =
                 {
                     Payment(paidAt: TimeProvider.UtcNow.AddYears(-1), membership: true, training: true, classes: true)
                 }
@@ -36,13 +35,32 @@ namespace MemberService.Tests
         }
 
         [Test]
+        public void TestPaidButRefunded()
+        {
+            using (TemporaryTime.Is(new DateTime(2019, 10, 2)))
+            {
+                var user = new MemberUser
+                {
+                    Payments =
+                    {
+                        Payment(paidAt: TimeProvider.UtcNow.AddMonths(-3), membership: true, training: true, classes: true, refunded: true)
+                    }
+                };
+
+                user.HasPayedMembershipThisYear().ShouldBeFalse();
+                user.HasPayedTrainingFeeThisSemester().ShouldBeFalse();
+                user.HasPayedClassesFeeThisSemester().ShouldBeFalse();
+            }
+        }
+
+        [Test]
         public void TestPaidLastSemester()
         {
             using (TemporaryTime.Is(new DateTime(2019, 10, 2)))
             {
                 var user = new MemberUser
                 {
-                    Payments = new[]
+                    Payments =
                     {
                         Payment(paidAt: TimeProvider.UtcNow.AddMonths(-6), membership: true, training: true, classes: true)
                     }
@@ -61,7 +79,7 @@ namespace MemberService.Tests
             {
                 var user = new MemberUser
                 {
-                    Payments = new[]
+                    Payments =
                     {
                         Payment(paidAt: TimeProvider.UtcNow.AddMonths(-1), membership: true, training: true, classes: true)
                     }
@@ -80,7 +98,7 @@ namespace MemberService.Tests
             {
                 var user = new MemberUser
                 {
-                    Payments = new[]
+                    Payments =
                     {
                         Payment(paidAt: TimeProvider.UtcNow.AddMonths(-1), membership: true, training: false, classes: false)
                     }
@@ -99,7 +117,7 @@ namespace MemberService.Tests
             {
                 var user = new MemberUser
                 {
-                    Payments = new[]
+                    Payments =
                     {
                         Payment(paidAt: TimeProvider.UtcNow.AddMonths(-1), membership: true, training: true, classes: false)
                     }
@@ -118,7 +136,7 @@ namespace MemberService.Tests
             {
                 var user = new MemberUser
                 {
-                    Payments = new[]
+                    Payments =
                     {
                         Payment(paidAt: TimeProvider.UtcNow.AddMonths(-1), membership: true, training: true, classes: true)
                     }
@@ -137,7 +155,7 @@ namespace MemberService.Tests
             {
                 var user = new MemberUser
                 {
-                    Payments = new[]
+                    Payments =
                     {
                         Payment(paidAt: TimeProvider.UtcNow.AddMonths(-1), membership: true, training: false, classes: false)
                     }
@@ -156,7 +174,7 @@ namespace MemberService.Tests
             {
                 var user = new MemberUser
                 {
-                    Payments = new[]
+                    Payments =
                     {
                         Payment(paidAt: TimeProvider.UtcNow.AddMonths(-1), membership: true, training: true, classes: false)
                     }
@@ -175,7 +193,7 @@ namespace MemberService.Tests
             {
                 var user = new MemberUser
                 {
-                    Payments = new[]
+                    Payments =
                     {
                         Payment(paidAt: TimeProvider.UtcNow.AddMonths(-6), membership: true, training: false, classes: false),
                         Payment(paidAt: TimeProvider.UtcNow.AddMonths(-1), membership: false, training: true, classes: false)
@@ -195,7 +213,7 @@ namespace MemberService.Tests
             {
                 var user = new MemberUser
                 {
-                    Payments = new[]
+                    Payments =
                     {
                         Payment(paidAt: TimeProvider.UtcNow.AddMonths(-6), membership: true, training: false, classes: false),
                         Payment(paidAt: TimeProvider.UtcNow.AddMonths(-1), membership: false, training: true, classes: true)
@@ -234,7 +252,7 @@ namespace MemberService.Tests
                 {
                     ExemptFromClassesFee = true,
                     ExemptFromTrainingFee = true,
-                    Payments = new[]
+                    Payments =
                     {
                         Payment(paidAt: TimeProvider.UtcNow.AddMonths(-6), membership: true, training: false, classes: false)
                     }
@@ -246,12 +264,13 @@ namespace MemberService.Tests
             }
         }
 
-        private static Payment Payment(DateTime? paidAt = null, bool membership = false, bool training = false, bool classes = false) => new Payment
+        private static Payment Payment(DateTime? paidAt = null, bool refunded = false, bool membership = false, bool training = false, bool classes = false) => new Payment
         {
             IncludesMembership = membership,
             IncludesTraining = training,
             IncludesClasses = classes,
-            PayedAtUtc = paidAt ?? TimeProvider.UtcNow
+            PayedAtUtc = paidAt ?? TimeProvider.UtcNow,
+            Refunded = refunded
         };
     }
 }

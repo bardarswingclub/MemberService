@@ -22,7 +22,7 @@ namespace MemberService.Data
         [ForeignKey(nameof(CreatedBy))]
         public MemberUser CreatedByUser { get; set; }
 
-        public EventSignupOptions SignupOptions { get; set; }
+        public EventSignupOptions SignupOptions { get; set; } = new EventSignupOptions();
 
         public ICollection<EventSignup> Signups { get; set; } = new List<EventSignup>();
 
