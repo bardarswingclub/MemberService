@@ -140,7 +140,7 @@ namespace MemberService.Pages.Members
                     IncludesMembership = model.IncludesMembership,
                     IncludesTraining = model.IncludesTraining,
                     IncludesClasses = model.IncludesClasses,
-                    PayedAtUtc = DateTime.UtcNow,
+                    PayedAtUtc = TimeProvider.UtcNow,
                     ManualPayment = User.Identity.Name
                 });
 

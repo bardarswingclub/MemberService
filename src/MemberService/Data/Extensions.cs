@@ -11,25 +11,25 @@ namespace MemberService.Data
     {
         [Expressionify]
         public static bool HasPayedMembershipThisYear(this MemberUser user)
-            => user.Payments.Any(p => p.PayedAtUtc > Constants.ThisYearUtc && p.IncludesMembership && !p.Refunded);
+            => user.Payments.Any(p => p.PayedAtUtc > TimeProvider.ThisYearUtc && p.IncludesMembership && !p.Refunded);
 
         [Expressionify]
         public static bool HasPayedTrainingFeeThisSemester(this MemberUser user)
-            => user.Payments.Any(p => p.PayedAtUtc > Constants.ThisSemesterUtc && p.IncludesTraining && !p.Refunded)
+            => user.Payments.Any(p => p.PayedAtUtc > TimeProvider.ThisSemesterUtc && p.IncludesTraining && !p.Refunded)
             || user.ExemptFromTrainingFee && user.HasPayedMembershipThisYear();
 
         [Expressionify]
         public static bool HasPayedClassesFeeThisSemester(this MemberUser user)
-            => user.Payments.Any(p => p.PayedAtUtc > Constants.ThisSemesterUtc && p.IncludesClasses && !p.Refunded)
+            => user.Payments.Any(p => p.PayedAtUtc > TimeProvider.ThisSemesterUtc && p.IncludesClasses && !p.Refunded)
             || user.ExemptFromClassesFee && user.HasPayedTrainingFeeThisSemester();
 
         [Expressionify]
         public static bool HasOpened(this Event e)
-            => e.SignupOptions.SignupOpensAt == null || e.SignupOptions.SignupOpensAt < DateTime.UtcNow;
+            => e.SignupOptions.SignupOpensAt == null || e.SignupOptions.SignupOpensAt < TimeProvider.UtcNow;
 
         [Expressionify]
         public static bool HasClosed(this Event e)
-            => e.SignupOptions.SignupClosesAt != null && e.SignupOptions.SignupClosesAt < DateTime.UtcNow;
+            => e.SignupOptions.SignupClosesAt != null && e.SignupOptions.SignupClosesAt < TimeProvider.UtcNow;
 
         [Expressionify]
         public static bool IsOpen(this Event e)

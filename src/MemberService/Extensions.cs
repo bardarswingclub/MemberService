@@ -32,7 +32,7 @@ namespace MemberService
             => utc.ToOsloZone().TimeOfDay.ToString("HH:mm", CultureInfo.InvariantCulture);
 
         public static ZonedDateTime ToOsloZone(this DateTime utc)
-            => Instant.FromDateTimeUtc(utc.WithKind(DateTimeKind.Utc)).InZone(Constants.TimeZoneOslo);
+            => Instant.FromDateTimeUtc(utc.WithKind(DateTimeKind.Utc)).InZone(TimeProvider.TimeZoneOslo);
 
         public static Expression<Func<T, bool>> Not<T>(this Expression<Func<T, bool>> predicate)
             => Expression.Lambda<Func<T, bool>>(Expression.Not(predicate.Body), predicate.Parameters);
@@ -93,7 +93,7 @@ namespace MemberService
             {
                 User = user,
                 Message = message,
-                OccuredAtUtc = occuredAtUtc ?? DateTime.UtcNow
+                OccuredAtUtc = occuredAtUtc ?? TimeProvider.UtcNow
             });
     }
 }

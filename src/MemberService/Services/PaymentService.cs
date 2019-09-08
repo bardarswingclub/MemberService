@@ -183,7 +183,7 @@ namespace MemberService.Services
                     UserName = email,
                     Email = email,
                     FullName = name,
-                    Payments = new List<Payment>
+                    Payments =
                     {
                         CreatePayment(charge)
                     }

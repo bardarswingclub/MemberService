@@ -2,10 +2,9 @@
 using MemberService.Data;
 using MemberService.Services;
 using Shouldly;
-using System.Collections.Generic;
 using System;
 
-namespace Tests
+namespace MemberService.Tests
 {
     [TestFixture]
     public class FeeCalculationTests
@@ -13,10 +12,7 @@ namespace Tests
         [Test]
         public void TestMembershipFee_NoPayments()
         {
-            var user = new MemberUser
-            {
-                Payments = new List<Payment>()
-            };
+            var user = new MemberUser();
 
             var (status, fee) = user.GetMembershipFee();
 
@@ -35,7 +31,7 @@ namespace Tests
         {
             var user = new MemberUser
             {
-                Payments = new[]
+                Payments =
                 {
                     MembershipPayment()
                 }
@@ -53,7 +49,7 @@ namespace Tests
         {
             var user = new MemberUser
             {
-                Payments = new[]
+                Payments =
                 {
                     MembershipPayment(-1)
                 }
@@ -74,10 +70,7 @@ namespace Tests
         [Test]
         public void TestTrainingFee_NoPayments()
         {
-            var user = new MemberUser
-            {
-                Payments = new List<Payment>()
-            };
+            var user = new MemberUser();
 
             var (status, fee) = user.GetTrainingFee();
 
@@ -96,7 +89,7 @@ namespace Tests
         {
             var user = new MemberUser
             {
-                Payments = new[]
+                Payments =
                 {
                     MembershipPayment(),
                     TrainingPayment()
@@ -115,7 +108,7 @@ namespace Tests
         {
             var user = new MemberUser
             {
-                Payments = new[]
+                Payments =
                 {
                     MembershipPayment(-1),
                     TrainingPayment(-1)
@@ -139,7 +132,7 @@ namespace Tests
         {
             var user = new MemberUser
             {
-                Payments = new[]
+                Payments =
                 {
                     MembershipPayment()
                 }
@@ -160,10 +153,7 @@ namespace Tests
         [Test]
         public void TestClassesFee_NoPayments()
         {
-            var user = new MemberUser
-            {
-                Payments = new List<Payment>()
-            };
+            var user = new MemberUser();
 
             var (status, fee) = user.GetClassesFee();
 
@@ -182,7 +172,7 @@ namespace Tests
         {
             var user = new MemberUser
             {
-                Payments = new[]
+                Payments =
                 {
                     MembershipPayment(),
                     TrainingPayment(),
@@ -202,7 +192,7 @@ namespace Tests
         {
             var user = new MemberUser
             {
-                Payments = new[]
+                Payments =
                 {
                     MembershipPayment(-1),
                     TrainingPayment(-1),
@@ -227,7 +217,7 @@ namespace Tests
         {
             var user = new MemberUser
             {
-                Payments = new[]
+                Payments =
                 {
                     MembershipPayment()
                 }
@@ -250,7 +240,7 @@ namespace Tests
         {
             var user = new MemberUser
             {
-                Payments = new[]
+                Payments =
                 {
                     MembershipPayment(),
                     TrainingPayment()
@@ -274,8 +264,7 @@ namespace Tests
         {
             var user = new MemberUser
             {
-                ExemptFromTrainingFee = true,
-                Payments = new List<Payment>()
+                ExemptFromTrainingFee = true
             };
 
             var (status, fee) = user.GetMembershipFee();
@@ -295,8 +284,7 @@ namespace Tests
         {
             var user = new MemberUser
             {
-                ExemptFromTrainingFee = true,
-                Payments = new List<Payment>()
+                ExemptFromTrainingFee = true
             };
 
             var (status, fee) = user.GetTrainingFee();
@@ -311,8 +299,7 @@ namespace Tests
         {
             var user = new MemberUser
             {
-                ExemptFromTrainingFee = true,
-                Payments = new List<Payment>()
+                ExemptFromTrainingFee = true
             };
 
             var (status, fee) = user.GetClassesFee();
@@ -333,7 +320,7 @@ namespace Tests
             var user = new MemberUser
             {
                 ExemptFromTrainingFee = true,
-                Payments = new[]
+                Payments =
                 {
                     MembershipPayment()
                 }
@@ -357,8 +344,7 @@ namespace Tests
             var user = new MemberUser
             {
                 ExemptFromTrainingFee = true,
-                ExemptFromClassesFee = true,
-                Payments = new List<Payment>()
+                ExemptFromClassesFee = true
             };
 
             var (status, fee) = user.GetMembershipFee();
@@ -379,8 +365,7 @@ namespace Tests
             var user = new MemberUser
             {
                 ExemptFromTrainingFee = true,
-                ExemptFromClassesFee = true,
-                Payments = new List<Payment>()
+                ExemptFromClassesFee = true
             };
 
             var (status, fee) = user.GetTrainingFee();
@@ -396,8 +381,7 @@ namespace Tests
             var user = new MemberUser
             {
                 ExemptFromTrainingFee = true,
-                ExemptFromClassesFee = true,
-                Payments = new List<Payment>()
+                ExemptFromClassesFee = true
             };
 
             var (status, fee) = user.GetClassesFee();
@@ -414,7 +398,7 @@ namespace Tests
             {
                 ExemptFromTrainingFee = true,
                 ExemptFromClassesFee = true,
-                Payments = new[]
+                Payments =
                 {
                     MembershipPayment()
                 }
@@ -432,8 +416,7 @@ namespace Tests
         {
             var user = new MemberUser
             {
-                ExemptFromClassesFee = true,
-                Payments = new List<Payment>()
+                ExemptFromClassesFee = true
             };
 
             var (status, fee) = user.GetMembershipFee();
@@ -453,8 +436,7 @@ namespace Tests
         {
             var user = new MemberUser
             {
-                ExemptFromClassesFee = true,
-                Payments = new List<Payment>()
+                ExemptFromClassesFee = true
             };
 
             var (status, fee) = user.GetTrainingFee();
@@ -474,8 +456,7 @@ namespace Tests
         {
             var user = new MemberUser
             {
-                ExemptFromClassesFee = true,
-                Payments = new List<Payment>()
+                ExemptFromClassesFee = true
             };
 
             var (status, fee) = user.GetClassesFee();
@@ -491,7 +472,7 @@ namespace Tests
             var user = new MemberUser
             {
                 ExemptFromClassesFee = true,
-                Payments = new[]
+                Payments =
                 {
                     MembershipPayment()
                 }

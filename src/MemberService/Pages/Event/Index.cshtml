@@ -62,11 +62,11 @@
         }
         else
         {
-            if (@event.SignupOptions.SignupOpensAt > DateTime.UtcNow)
+            if (@event.WillOpen())
             {
                 return $"Åpner {@event.SignupOptions.SignupOpensAt.Value.ToOsloDate()}";
             }
-            if (@event.SignupOptions.SignupClosesAt < DateTime.UtcNow)
+            if (@event.HasClosed())
             {
                 return $"Stengte {@event.SignupOptions.SignupClosesAt.Value.ToOsloDate()}";
             }

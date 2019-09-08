@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Clave.Expressionify;
 using MemberService.Data;
 using Microsoft.EntityFrameworkCore;
-using Stripe;
 
 namespace MemberService.Pages.Signup
 {
@@ -70,7 +69,7 @@ namespace MemberService.Pages.Signup
                 Role = role,
                 PartnerEmail = partnerEmail?.Trim().Normalize().ToUpperInvariant(),
                 Status = status,
-                SignedUpAt = DateTime.UtcNow,
+                SignedUpAt = TimeProvider.UtcNow,
                 AuditLog =
                 {
                     {
