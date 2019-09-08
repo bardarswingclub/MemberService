@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Clave.Expressionify;
+using MemberService.Auth;
 using MemberService.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -10,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Event.Presence
 {
-    [Authorize(Roles.INSTRUCTOR)]
+    [Authorize(nameof(Policy.IsInstructor))]
     [Route("/Event/{id}/Presence/{action}")]
     public class PresenceController : Controller
     {

@@ -8,10 +8,11 @@ using Microsoft.AspNetCore.Authorization;
 using MemberService.Services;
 using Microsoft.EntityFrameworkCore;
 using Clave.ExtensionMethods;
+using MemberService.Auth;
 
 namespace MemberService.Pages.Admin
 {
-    [Authorize(Roles.ADMIN)]
+    [Authorize(nameof(Policy.IsAdmin))]
     public class AdminController : Controller
     {
         private readonly ChargeService _chargeService;

@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Clave.Expressionify;
 using Clave.ExtensionMethods;
+using MemberService.Auth;
 using MemberService.Data;
 using MemberService.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +14,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Members
 {
-    [Authorize(Roles.INSTRUCTOR)]
+    [Authorize(nameof(Policy.IsInstructor))]
     public class MembersController : Controller
     {
         private readonly MemberContext _memberContext;
@@ -86,7 +87,7 @@ namespace MemberService.Pages.Members
         }
 
         [HttpPost]
-        [Authorize(Roles.ADMIN)]
+        [Authorize(nameof(Policy.IsAdmin))]
         public async Task<IActionResult> ToggleRole(string id, [FromForm] string role, [FromForm] bool value)
         {
             if (await _userManager.FindByIdAsync(id) is MemberUser user)
@@ -108,7 +109,7 @@ namespace MemberService.Pages.Members
         }
 
         [HttpPost]
-        [Authorize(Roles.ADMIN)]
+        [Authorize(nameof(Policy.IsAdmin))]
         public async Task<IActionResult> SetExemptions(string id, [FromForm] bool exemptFromTrainingFee, [FromForm] bool exemptFromClassesFee)
         {
             if (await _memberContext.FindAsync<MemberUser>(id) is MemberUser user)
@@ -125,7 +126,7 @@ namespace MemberService.Pages.Members
         }
 
         [HttpPost]
-        [Authorize(Roles.ADMIN)]
+        [Authorize(nameof(Policy.IsAdmin))]
         public async Task<IActionResult> AddManualPayment(string id, [FromForm] ManualPaymentModel model)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);

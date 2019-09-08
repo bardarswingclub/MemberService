@@ -88,14 +88,11 @@ namespace MemberService
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy(Roles.ADMIN,
-                    policy => policy.Requirements.Add(new OneOfAnyRoleRequirement(Roles.ADMIN)));
+                options.AddPolicy(nameof(Policy.IsAdmin), Policy.IsAdmin);
 
-                options.AddPolicy(Roles.COORDINATOR,
-                    policy => policy.Requirements.Add(new OneOfAnyRoleRequirement(Roles.COORDINATOR, Roles.ADMIN)));
+                options.AddPolicy(nameof(Policy.IsCoordinator), Policy.IsCoordinator);
 
-                options.AddPolicy(Roles.INSTRUCTOR,
-                    policy => policy.Requirements.Add(new OneOfAnyRoleRequirement(Roles.INSTRUCTOR, Roles.COORDINATOR, Roles.ADMIN)));
+                options.AddPolicy(nameof(Policy.IsInstructor), Policy.IsInstructor);
             });
 
             services.AddScoped<IUserClaimsPrincipalFactory<MemberUser>, MemberUserClaimsPrincipalFactory>();
