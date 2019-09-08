@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Members
 {
-    [Authorize(Roles = Roles.COORDINATOR_OR_ADMIN)]
+    [Authorize(Roles.INSTRUCTOR)]
     public class MembersController : Controller
     {
         private readonly MemberContext _memberContext;
@@ -86,7 +86,7 @@ namespace MemberService.Pages.Members
         }
 
         [HttpPost]
-        [Authorize(Roles = Roles.ADMIN)]
+        [Authorize(Roles.ADMIN)]
         public async Task<IActionResult> ToggleRole(string id, [FromForm] string role, [FromForm] bool value)
         {
             if (await _userManager.FindByIdAsync(id) is MemberUser user)
@@ -108,7 +108,7 @@ namespace MemberService.Pages.Members
         }
 
         [HttpPost]
-        [Authorize(Roles = Roles.ADMIN)]
+        [Authorize(Roles.ADMIN)]
         public async Task<IActionResult> SetExemptions(string id, [FromForm] bool exemptFromTrainingFee, [FromForm] bool exemptFromClassesFee)
         {
             if (await _memberContext.FindAsync<MemberUser>(id) is MemberUser user)
@@ -125,7 +125,7 @@ namespace MemberService.Pages.Members
         }
 
         [HttpPost]
-        [Authorize(Roles = Roles.ADMIN)]
+        [Authorize(Roles.ADMIN)]
         public async Task<IActionResult> AddManualPayment(string id, [FromForm] ManualPaymentModel model)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);

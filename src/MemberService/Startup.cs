@@ -86,6 +86,18 @@ namespace MemberService
                 .AddEntityFrameworkStores<MemberContext>()
                 .AddPasswordlessLoginTokenProvider(IsDevelopment);
 
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(Roles.ADMIN,
+                    policy => policy.Requirements.Add(new OneOfAnyRoleRequirement(Roles.ADMIN)));
+
+                options.AddPolicy(Roles.COORDINATOR,
+                    policy => policy.Requirements.Add(new OneOfAnyRoleRequirement(Roles.COORDINATOR, Roles.ADMIN)));
+
+                options.AddPolicy(Roles.INSTRUCTOR,
+                    policy => policy.Requirements.Add(new OneOfAnyRoleRequirement(Roles.INSTRUCTOR, Roles.COORDINATOR, Roles.ADMIN)));
+            });
+
             services.AddScoped<IUserClaimsPrincipalFactory<MemberUser>, MemberUserClaimsPrincipalFactory>();
 
             services.UseNamespaceViewLocations();

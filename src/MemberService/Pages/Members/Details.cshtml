@@ -54,6 +54,7 @@
             {
                 <partial name="_Role" model="(Model, Roles.ADMIN)" />
                 <partial name="_Role" model="(Model, Roles.COORDINATOR)" />
+                <partial name="_Role" model="(Model, Roles.INSTRUCTOR)" />
                 <hr />
                 <form asp-controller="Members" asp-action="SetExemptions" asp-route-id="@Model.Id" method="post" class="form">
                     <div class="form-check">

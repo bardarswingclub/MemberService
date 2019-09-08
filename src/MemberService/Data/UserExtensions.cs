@@ -19,17 +19,26 @@ namespace MemberService.Data
         {
             if (!await roleManager.RoleExistsAsync(Roles.ADMIN))
             {
-                var role = new MemberRole();
-                role.Name = Roles.ADMIN;
-                await roleManager.CreateAsync(role);
+                await roleManager.CreateAsync(new MemberRole
+                {
+                    Name = Roles.ADMIN
+                });
             }
-
 
             if (!await roleManager.RoleExistsAsync(Roles.COORDINATOR))
             {
-                var role = new MemberRole();
-                role.Name = Roles.COORDINATOR;
-                await roleManager.CreateAsync(role);
+                await roleManager.CreateAsync(new MemberRole
+                {
+                    Name = Roles.COORDINATOR
+                });
+            }
+
+            if (!await roleManager.RoleExistsAsync(Roles.INSTRUCTOR))
+            {
+                await roleManager.CreateAsync(new MemberRole
+                {
+                    Name = Roles.INSTRUCTOR
+                });
             }
         }
 

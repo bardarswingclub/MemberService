@@ -11,7 +11,7 @@ using Clave.ExtensionMethods;
 
 namespace MemberService.Pages.Admin
 {
-    [Authorize(Roles = Roles.ADMIN)]
+    [Authorize(Roles.ADMIN)]
     public class AdminController : Controller
     {
         private readonly ChargeService _chargeService;

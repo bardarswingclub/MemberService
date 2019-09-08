@@ -3,12 +3,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using Clave.Expressionify;
 using MemberService.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Event.Presence
 {
+    [Authorize(Roles.INSTRUCTOR)]
+    [Route("/Event/{id}/Presence/{action}")]
     public class PresenceController : Controller
     {
         private readonly MemberContext _database;
@@ -23,7 +26,7 @@ namespace MemberService.Pages.Event.Presence
         }
 
         [HttpGet]
-        public async Task<IActionResult> Presence(Guid id)
+        public async Task<IActionResult> Index(Guid id)
         {
             var model = await _database
                 .Events
@@ -49,11 +52,11 @@ namespace MemberService.Pages.Event.Presence
 
             await _database.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Presence), new { id });
+            return RedirectToAction(nameof(Index), new { id });
         }
 
         [HttpPost]
-        public async Task<IActionResult> Presence(
+        public async Task<IActionResult> SetPresence(
             Guid id,
             [FromForm] string userId,
             [FromForm] int lesson,

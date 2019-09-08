@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MemberService.Pages.Event
 {
-    [Authorize(Roles = Roles.COORDINATOR_OR_ADMIN)]
+    [Authorize(Roles.INSTRUCTOR)]
     public class EventController : Controller
     {
         private readonly MemberContext _database;
@@ -49,6 +49,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
+        [Authorize(Roles.COORDINATOR)]
         public IActionResult Create(EventType type = EventType.Class)
         {
             return View(new EventInputModel
@@ -58,6 +59,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
+        [Authorize(Roles.COORDINATOR)]
         public async Task<IActionResult> Create([FromForm] EventInputModel model)
         {
             if (!ModelState.IsValid)
@@ -87,6 +89,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
+        [Authorize(Roles.COORDINATOR)]
         public async Task<IActionResult> View(Guid id, [FromForm] EventSaveModel input)
         {
             var currentUser = await GetCurrentUser();
@@ -172,6 +175,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
+        [Authorize(Roles.COORDINATOR)]
         public async Task<IActionResult> Edit(Guid id)
         {
             var model = await _database.GetEventInputModel(id);
@@ -185,6 +189,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
+        [Authorize(Roles.COORDINATOR)]
         public async Task<IActionResult> Edit(Guid id, [FromForm] EventInputModel model)
         {
             if (!ModelState.IsValid)
@@ -198,6 +203,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
+        [Authorize(Roles.COORDINATOR)]
         public async Task<IActionResult> SetStatus(Guid id, [FromForm] string status)
         {
             await _database.EditEvent(id, e => e.SetEventStatus(status));
@@ -206,7 +212,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
-        [Authorize(Roles = Roles.ADMIN)]
+        [Authorize(Roles.ADMIN)]
         public async Task<IActionResult> EditSignup(Guid id)
         {
             var signup = await _database.EventSignups
@@ -221,7 +227,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
-        [Authorize(Roles = Roles.ADMIN)]
+        [Authorize(Roles.ADMIN)]
         public async Task<IActionResult> EditSignup(Guid id, [FromForm] DanceRole role, [FromForm] string partnerEmail)
         {
             var signup = await _database.EventSignups

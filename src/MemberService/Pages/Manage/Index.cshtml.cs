@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Clave.ExtensionMethods;
 using MemberService.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -11,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Manage
 {
+    [Authorize]
     public partial class IndexModel : PageModel
     {
         private readonly UserManager<MemberUser> _userManager;
