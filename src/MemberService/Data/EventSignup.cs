@@ -37,5 +37,7 @@ namespace MemberService.Data
         public Payment Payment { get; set; }
 
         public ICollection<EventSignupAuditEntry> AuditLog { get; set; } = new List<EventSignupAuditEntry>();
+
+        public ICollection<Presence> Presence { get; set; } = new List<Presence>();
     }
 }

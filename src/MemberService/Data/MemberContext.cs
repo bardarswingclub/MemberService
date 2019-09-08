@@ -20,6 +20,8 @@ namespace MemberService.Data
 
         public DbSet<EventSignup> EventSignups { get; set; }
 
+        public DbSet<Presence> Presence { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
