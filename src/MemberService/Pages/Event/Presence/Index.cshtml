@@ -1,0 +1,76 @@
+﻿@model PresenceModel
+
+<h1>@Model.Title</h1>
+
+
+<table class="table table-striped table-sm" style="white-space: nowrap">
+    @foreach (var role in Model.Roles)
+    {
+        <thead>
+            <tr>
+                <th colspan="@(Model.Count+2)">
+                    <h2 class="mt-5">@role.Role.DisplayName()</h2>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th class="pr-5">Navn</th>
+                @for (var i = 0; i < Model.Count; i++)
+                {
+                    <th class="pl-2 pr-2">@(i+1)</th>
+                }
+                <th class="pl-3" style="width: 100%">
+                    <form method="post" asp-controller="Presence" asp-action="AddLesson" asp-route-id="@Model.Id">
+                        <button class="btn btn-primary btn-sm">+</button>
+                    </form>
+                </th>
+            </tr>
+            @foreach (var participant in role.Participants)
+            {
+                <tr>
+                    <th class="pr-5">
+                        <a asp-controller="Members" asp-action="Details" asp-route-id="@participant.UserId" target="_blank">@participant.FullName</a>
+                    </th>
+                    @for (var i = 0; i < Model.Count; i++)
+                    {
+                        <td class="pl-2 pr-2">
+                            <form method="post" asp-controller="Presence" asp-action="SetPresence" asp-route-id="@Model.Id" data-action="ajax-form">
+                                <input type="hidden" name="userId" value="@participant.UserId"/>
+                                <input type="hidden" name="lesson" value="@i"/>
+                                <input type="checkbox" name="present" value="true" checked="@participant.Presence[i]" onchange="$(this.form).submit()"/>
+                            </form>
+                        </td>
+                    }
+                    <td></td>
+                </tr>
+            }
+        </tbody>
+    }
+</table>
+
+@section Scripts{
+    <script>
+        $(function () {
+
+            $("[data-action='ajax-form']").submit(
+                function (e) {
+                    e.preventDefault(); // avoid to execute the actual submit of the form.
+
+                    var form = $(this);
+                    var url = form.attr('action');
+
+                    form.prop('disabled', true);
+
+                    $.ajax({
+                        type: form.attr('method'),
+                        url: url,
+                        data: form.serialize(), // serializes the form's elements.
+                        success: function(data) {
+                            form.prop('disabled', false);
+                        }
+                    });
+                });
+        });
+    </script>
+}

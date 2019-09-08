@@ -5,16 +5,19 @@
 }
 <h2>
     <a asp-controller="Signup" asp-action="Index">@ViewData["Title"]</a>
-    <div class="btn-group float-right">
-        <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Opprett nytt arrangement
-        </button>
-        <div class="dropdown-menu dropdown-menu-right">
-            <a class="dropdown-item" asp-action="Create" asp-route-type="@EventType.Class">@EventType.Class.DisplayDescription()</a>
-            <a class="dropdown-item" asp-action="Create" asp-route-type="@EventType.Workshop">@EventType.Workshop.DisplayDescription()</a>
-            <a class="dropdown-item" asp-action="Create" asp-route-type="@EventType.Party">@EventType.Party.DisplayDescription()</a>
+    @if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN))
+    {
+        <div class="btn-group float-right">
+            <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Opprett nytt arrangement
+            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" asp-action="Create" asp-route-type="@EventType.Class">@EventType.Class.DisplayDescription()</a>
+                <a class="dropdown-item" asp-action="Create" asp-route-type="@EventType.Workshop">@EventType.Workshop.DisplayDescription()</a>
+                <a class="dropdown-item" asp-action="Create" asp-route-type="@EventType.Party">@EventType.Party.DisplayDescription()</a>
+            </div>
         </div>
-    </div>
+    }
 </h2>
 
 
@@ -40,7 +43,10 @@
     </tbody>
 </table>
 
-<a href="?archived=true">Se gamle arrangementer også</a>
+@if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN))
+{
+    <a href="?archived=true">Se gamle arrangementer også</a>
+}
 
 @functions{
     string EventStatus(Event @event)

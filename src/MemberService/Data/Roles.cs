@@ -6,6 +6,6 @@ namespace MemberService.Data
 
         public const string COORDINATOR = "Coordinator";
 
-        public const string COORDINATOR_OR_ADMIN = "Admin,Coordinator";
+        public const string INSTRUCTOR = "Instructor";
     }
 }

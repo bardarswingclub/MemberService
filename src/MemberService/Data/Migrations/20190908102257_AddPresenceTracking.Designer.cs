@@ -4,14 +4,16 @@ using MemberService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MemberService.Data.Migrations
 {
     [DbContext(typeof(MemberContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190908102257_AddPresenceTracking")]
+    partial class AddPresenceTracking
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,7 +39,8 @@ namespace MemberService.Data.Migrations
                     b.Property<string>("Title")
                         .IsRequired();
 
-                    b.Property<string>("Type");
+                    b.Property<string>("Type")
+                        .IsRequired();
 
                     b.HasKey("Id");
 
@@ -72,6 +75,8 @@ namespace MemberService.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("EventId");
+
+                    b.HasIndex("PartnerEmail");
 
                     b.HasIndex("PaymentId")
                         .IsUnique()
@@ -193,6 +198,7 @@ namespace MemberService.Data.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd");
 
                     b.Property<string>("NormalizedEmail")
+                        .IsRequired()
                         .HasMaxLength(256);
 
                     b.Property<string>("NormalizedUserName")
@@ -383,6 +389,11 @@ namespace MemberService.Data.Migrations
                         .WithMany("Signups")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("MemberService.Data.MemberUser", "Partner")
+                        .WithMany()
+                        .HasForeignKey("PartnerEmail")
+                        .HasPrincipalKey("NormalizedEmail");
 
                     b.HasOne("MemberService.Data.Payment", "Payment")
                         .WithOne("EventSignup")

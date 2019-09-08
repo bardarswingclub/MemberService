@@ -22,52 +22,57 @@
             </td>
             <td>
                 <span class="badge badge-primary badge-pill">@(signup.Priority). pri</span>
-                <a href="#" class="" data-toggle="modal" data-target="#modal-@signup.Id">
-                    @signup.SignedUpAt.ToOsloDate()
-                </a>
-
-                <div class="modal fade" id="modal-@signup.Id" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalScrollableTitle">
-                                    Historikk for @signup.FullName
-                                    @if (User.IsInRole(Roles.ADMIN))
-                                    {
-                                        <a asp-action="EditSignup" asp-route-id="@signup.Id">Rediger</a>
-                                    }
-                                </h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body p-0">
-                                <table class="table table-striped">
-                                    <tr>
-                                        <th>Hva?</th>
-                                        <th>Hvem?</th>
-                                        <th>Når?</th>
-                                    </tr>
-                                    @foreach (var entry in signup.AuditLog.OrderByDescending(x => x.OccuredAtUtc))
-                                    {
+                @if (User.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR))
+                {
+                    <a href="#" class="" data-toggle="modal" data-target="#modal-@signup.Id">
+                        @signup.SignedUpAt.ToOsloDate()
+                    </a>
+                    <div class="modal fade" id="modal-@signup.Id" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalScrollableTitle">
+                                        Historikk for @signup.FullName
+                                        @if (User.IsInRole(Roles.ADMIN))
+                                        {
+                                            <a asp-action="EditSignup" asp-route-id="@signup.Id">Rediger</a>
+                                        }
+                                    </h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body p-0">
+                                    <table class="table table-striped">
                                         <tr>
-                                            <td>
-                                                @Html.Markdown(entry.Message)
-                                            </td>
-                                            <td>
-                                                <a asp-controller="Members" asp-action="Details" asp-route-id="@entry.UserId" target="_blank">@entry.User.FullName</a>
-                                            </td>
-                                            <td>
-                                                @entry.OccuredAtUtc.ToOsloDate() klokken @entry.OccuredAtUtc.ToOsloTime()
-                                            </td>
+                                            <th>Hva?</th>
+                                            <th>Hvem?</th>
+                                            <th>Når?</th>
                                         </tr>
-                                    }
-                                </table>
+                                        @foreach (var entry in signup.AuditLog.OrderByDescending(x => x.OccuredAtUtc))
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @Html.Markdown(entry.Message)
+                                                </td>
+                                                <td>
+                                                    <a asp-controller="Members" asp-action="Details" asp-route-id="@entry.UserId" target="_blank">@entry.User.FullName</a>
+                                                </td>
+                                                <td>
+                                                    @entry.OccuredAtUtc.ToOsloDate() klokken @entry.OccuredAtUtc.ToOsloTime()
+                                                </td>
+                                            </tr>
+                                        }
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-
+                }
+                else
+                {
+                    @signup.SignedUpAt.ToOsloDate()
+                }
             </td>
 
             @if(Model.AllowPartnerSignup)

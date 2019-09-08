@@ -29,5 +29,7 @@ namespace MemberService.Data
         public bool Archived { get; set; }
 
         public EventType Type { get; set; }
+
+        public int LessonCount { get; set; }
     }
 }
