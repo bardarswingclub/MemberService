@@ -11,6 +11,7 @@ namespace MemberService.Pages.Event.Presence
         {
             Role = role;
             Participants = signups
+                .Where(s => s.Status == Status.AcceptedAndPayed)
                 .Select(s => new ParticipantsModel(s, count))
                 .OrderBy(p => p.FullName)
                 .ToReadOnlyCollection();
