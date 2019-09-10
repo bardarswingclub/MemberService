@@ -11,6 +11,7 @@ namespace MemberService.Pages.Event.Presence
             Id = s.Id;
             UserId = s.UserId;
             FullName = s.User.FullName;
+            Status = s.Status;
             Presence = CreateList(s.Presence, count);
         }
 
@@ -19,6 +20,8 @@ namespace MemberService.Pages.Event.Presence
         public string UserId { get; }
 
         public string FullName { get; }
+
+        public Status Status { get; }
 
         public IReadOnlyList<bool> Presence { get; }
 

@@ -42,7 +42,12 @@
                             </form>
                         </td>
                     }
-                    <td></td>
+                    <td>
+                        @if (participant.Status == Status.Approved)
+                        {
+                            <span class="text-danger">Ikke betalt</span>
+                        }
+                    </td>
                 </tr>
             }
         </tbody>
