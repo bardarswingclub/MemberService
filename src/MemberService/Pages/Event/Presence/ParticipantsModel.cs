@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using MemberService.Data;
 
 namespace MemberService.Pages.Event.Presence
@@ -28,7 +29,7 @@ namespace MemberService.Pages.Event.Presence
         private static IReadOnlyList<bool> CreateList(IEnumerable<Data.Presence> presence, int count)
         {
             var list = new bool[count];
-            foreach (var p in presence)
+            foreach (var p in presence.Where(x => x.Lesson < count))
             {
                 list[p.Lesson] = p.Present;
             }
