@@ -54,22 +54,11 @@ namespace MemberService.Services
             bool includesClasses = false,
             Guid? eventSignupId = null)
         {
-            var existingCustomers = await _customerService.ListAsync(new CustomerListOptions
-            {
-                Email = email,
-                Limit = 1
-            });
-
-            var customer = existingCustomers.FirstOrDefault()
-                ?? await _customerService.CreateAsync(new CustomerCreateOptions
-                {
-                    Email = email,
-                    Name = name
-                });
+            var customerId = await GetCustomerId(email, name);
 
             var session = await _sessionService.CreateAsync(new SessionCreateOptions
             {
-                CustomerId = customer.Id,
+                CustomerId = customerId,
                 PaymentIntentData = new SessionPaymentIntentDataOptions
                 {
                     Description = title,
@@ -106,6 +95,29 @@ namespace MemberService.Services
             });
 
             return session.Id;
+        }
+
+        private async Task<string> GetCustomerId(string email, string name)
+        {
+            if(email == null || name == null)
+            {
+                return null;
+            }
+
+            var existingCustomers = await _customerService.ListAsync(new CustomerListOptions
+            {
+                Email = email,
+                Limit = 1
+            });
+
+            var customer = existingCustomers.FirstOrDefault()
+                ?? await _customerService.CreateAsync(new CustomerCreateOptions
+                {
+                    Email = email,
+                    Name = name
+                });
+
+            return customer.Id;
         }
 
         public async Task<(int payments, int updates)> ImportPayments(string email)

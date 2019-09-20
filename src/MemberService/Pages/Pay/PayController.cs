@@ -18,23 +18,17 @@ namespace MemberService.Pages.Pay
         private readonly UserManager<MemberUser> _userManager;
         private readonly MemberContext _memberContext;
         private readonly IPaymentService _paymentService;
-        private readonly SessionService _sessionService;
-        private readonly ChargeService _chargeService;
 
         public PayController(
             SignInManager<MemberUser> signInManager,
             UserManager<MemberUser> userManager,
             MemberContext memberContext,
-            IPaymentService paymentService,
-            SessionService sessionService,
-            ChargeService chargeService)
+            IPaymentService paymentService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _memberContext = memberContext;
             _paymentService = paymentService;
-            _sessionService = sessionService;
-            _chargeService = chargeService;
         }
 
         public async Task<IActionResult> Index(string title, string description, decimal amount, string email = null, string name = null)
