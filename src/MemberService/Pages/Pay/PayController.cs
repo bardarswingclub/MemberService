@@ -105,13 +105,13 @@ namespace MemberService.Pages.Pay
             });
         }
 
-        public async Task<IActionResult> Success(string name, string description, string sessionId)
+        public async Task<IActionResult> Success(string title, string description, string sessionId)
         {
             await _paymentService.SavePayment(sessionId);
 
             return View(new PayModel
             {
-                Name = name,
+                Name = title,
                 Description = description
             });
         }
