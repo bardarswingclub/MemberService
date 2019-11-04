@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MemberService.Data;
+﻿using MemberService.Data;
 using Microsoft.AspNetCore.Authorization;
 
 namespace MemberService.Auth

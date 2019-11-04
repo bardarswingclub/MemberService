@@ -103,13 +103,21 @@
         @foreach (var signups in Model.Signups)
         {
             <form method="post" class="tab-pane @(signups.Active ? "active" : "")" id="@signups.Key" role="tabpanel" aria-labelledby="@signups.Key-tab" disabled="@Model.Archived">
+                
+                @if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN))
+                {
+                    <div class="row mb-5">
+                        <partial name="_SignupActions" for="@signups"/>
+                    </div>
+                }
+
                 <div class="row">
                     @if (Model.RoleSignup)
                     {
                         var leads = new ParticipantsModel(signups.Leads, Model.AllowPartnerSignup);
                         var follows = new ParticipantsModel(signups.Follows, Model.AllowPartnerSignup);
 
-                        <div class="col-xl-4 col-lg-6">
+                        <div class="col-lg-6">
                             <h4>Førere</h4>
 
                             <table class="table">
@@ -127,7 +135,7 @@
                                 <partial name="_Participants" for="@leads" />
                             </table>
                         </div>
-                        <div class="col-xl-4 col-lg-6">
+                        <div class="col-lg-6">
                             <h4>Følgere</h4>
 
                             <table class="table">
@@ -165,79 +173,6 @@
                             </table>
                         </div>
                     }
-
-                    @if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN))
-                    {
-                        <div class="col-xl-4 col-lg-6 offset-lg-3 offset-xl-0">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="form-group">
-                                        <select name="Status" class="custom-select">
-                                            <option selected="selected" value="">- Velg en handling -</option>
-                                            @if (User.IsInRole(Roles.ADMIN) || signups.Status != Status.AcceptedAndPayed)
-                                            {
-                                                <option value="2">Anbefall plass</option>
-                                                <option value="4">Gi plass &#x1F4E7;</option>
-                                                <option value="3">Sett på venteliste &#x1F4E7;</option>
-                                            }
-                                            <option value="7">Får ikke plass &#x1F4E7;</option>
-                                            @if (User.IsInRole(Roles.ADMIN))
-                                            {
-                                                <optgroup label="ADMIN"></optgroup>
-                                                <option value="1">Påmeldt</option>
-                                                <option value="5">Godtatt og betalt</option>
-                                            }
-                                        </select>
-                                    </div>
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input collapsed" id="SendEmail-@signups.Key" data-toggle="collapse" data-target="#custom-email-checkbox-@signups.Key" aria-expanded="false" name="SendEmail" value="true"/>
-                                        <label class="form-check-label" for="SendEmail-@signups.Key">
-                                            Informer via epost
-                                        </label>
-                                    </div>
-                                    <div class="form-check collapse" id="custom-email-checkbox-@signups.Key">
-                                        <input type="checkbox" class="form-check-input collapsed" id="SendCustomEmail-@signups.Key" name="SendCustomEmail" value="true" data-toggle="collapse" data-target="#custom-email-@signups.Key" aria-expanded="false"/>
-                                        <label class="form-check-label" for="SendCustomEmail-@signups.Key">
-                                            Skriv egen e-post
-                                        </label>
-                                    </div>
-                                    <div class="collapse pt-3" id="custom-email-@signups.Key">
-                                        <div class="form-group">
-                                            <label for="custom-email-subject">Emne</label>
-                                            <input type="text" class="form-control" id="custom-email-subject" name="Subject" value="Info om {TITLE}">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="custom-email-message">Melding</label>
-                                            <textarea class="form-control" id="custom-email-message" name="Message" rows="8">
-Hei {NAME}
-
-Du har meldt deg på {TITLE}.
-
-Trykk [her]({LINK}) for å betale
-
-_Hilsen Bårdar Swing Club_
-                                        </textarea>
-                                            <hr/>
-                                            <small class="text-muted">
-                                                Du kan bruke <a href="https://www.markdownguide.org/basic-syntax/" target="_blank">Markdown</a>, f.eks <code>**<b>bold</b>**</code>, <code>_<i>italics</i>_</code> og <code>[link](https://bardarswingclub.no)</code>
-                                                <br>
-                                                Du kan flette inn
-                                                <br>
-                                                <code>{NAME}</code>: Personens navn
-                                                <br>
-                                                <code>{TITLE}</code>: Navnet på arrangementet
-                                                <br>
-                                                <code>[skriv noe her]({LINK})</code>: Link til arrangementet
-                                            </small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card-footer">
-                                    <button type="submit" class="btn btn-success btn-block">Lagre</button>
-                                </div>
-                            </div>
-                        </div>
-                    }
                 </div>
             </form>
         }
@@ -253,7 +188,19 @@ _Hilsen Bårdar Swing Club_
             var checked = this.checked;
 
             table.find('input[type=checkbox]').prop('checked', checked);
-        })
+        });
+    });
+
+    $(function() {
+        $("select[data-action=set-email]").on('change', function() {
+            var tabContent = $(this).parents('form');
+
+            var subject = this.options[this.selectedIndex].getAttribute("data-subject");
+            var body = this.options[this.selectedIndex].getAttribute("data-body");
+            
+            tabContent.find('input[name=Subject]').val(subject);
+            tabContent.find('textarea[name=Message]').val(body);
+        });
     });
 
 </script>

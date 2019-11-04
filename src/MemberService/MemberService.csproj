@@ -9,7 +9,27 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Emails\Event\Approved.md" />
+    <None Remove="Emails\Event\Default.md" />
+    <None Remove="Emails\Event\Denied.md" />
+    <None Remove="Emails\Event\WaitingList.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Emails\Event\WaitingList.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Emails\Event\Default.md" />
+    <EmbeddedResource Include="Emails\Event\Denied.md" />
+  </ItemGroup>
+
+  <ItemGroup>
     <DotNetCliToolReference Include="dotnet-expressionify" Version="0.4.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Emails\Event\Approved.md" />
   </ItemGroup>
 
   <ItemGroup>

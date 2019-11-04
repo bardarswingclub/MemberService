@@ -112,12 +112,12 @@ namespace MemberService.Pages.Event
 
                     if (input.SendEmail)
                     {
-                            var model = new EventStatusModel(
-                                eventSignup.User.FullName,
-                                eventEntry.Title,
-                                await SignupLink(eventSignup.User, eventEntry));
+                        var model = new EventStatusModel(
+                            eventSignup.User.FullName,
+                            eventEntry.Title,
+                            await SignupLink(eventSignup.User, eventEntry));
 
-                            await SendEmail(input, model, currentUser, statusChanged, eventSignup);
+                        await SendEmail(input, model, currentUser, statusChanged, eventSignup);
                     }
                     else if (statusChanged)
                     {
@@ -133,38 +133,19 @@ namespace MemberService.Pages.Event
         {
             try
             {
-                if (input.SendCustomEmail)
-                {
-                    await _emailService.SendCustomEmail(
-                        eventSignup.User.Email,
-                        input.Subject,
-                        input.Message,
-                        model);
+                await _emailService.SendCustomEmail(
+                    eventSignup.User.Email,
+                    input.Subject,
+                    input.Message,
+                    model);
 
-                    if (statusChanged)
-                    {
-                        eventSignup.AuditLog.Add($"Moved to {input.Status} and sent custom email\n\n---\n\n> {input.Subject}\n\n{input.Message}", currentUser);
-                    }
-                    else
-                    {
-                        eventSignup.AuditLog.Add($"Sent custom email\n\n---\n\n> {input.Subject}\n\n{input.Message}", currentUser);
-                    }
+                if (statusChanged)
+                {
+                    eventSignup.AuditLog.Add($"Moved to {input.Status} and sent email\n\n---\n\n> {input.Subject}\n\n{input.Message}", currentUser);
                 }
-                else if (statusChanged)
+                else
                 {
-                    var sent = await _emailService.SendEventStatusEmail(
-                        eventSignup.User.Email,
-                        input.Status,
-                        model);
-
-                    if (sent)
-                    {
-                        eventSignup.AuditLog.Add($"Moved to {input.Status} and sent email", currentUser);
-                    }
-                    else
-                    {
-                        eventSignup.AuditLog.Add($"Moved to {input.Status} ", currentUser);
-                    }
+                    eventSignup.AuditLog.Add($"Sent email\n\n---\n\n> {input.Subject}\n\n{input.Message}", currentUser);
                 }
             }
             catch (Exception e)
