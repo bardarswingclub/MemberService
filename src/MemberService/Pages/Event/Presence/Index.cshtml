@@ -1,6 +1,12 @@
 ﻿@model PresenceModel
 
-<h1>@Model.Title</h1>
+@{
+    Layout = "../_Layout.cshtml";
+    ViewData["Title"] = Model.Title;
+    ViewData["Description"] = Model.Description;
+    ViewData["Id"] = Model.Id;
+    ViewData["Selected"] = "presence";
+}
 
 
 <table class="table table-striped table-sm" style="white-space: nowrap">

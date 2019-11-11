@@ -1,21 +1,21 @@
-@using MemberService.Pages.Event
 @model EventInputModel
 
 @{
-    ViewData["Title"] = $"Rediger {Model.Title}";
+    Layout = "_Layout.cshtml";
+    ViewData["Title"] = Model.Title;
+    ViewData["Description"] = Model.Description;
+    ViewData["Id"] = Model.Id;
+    ViewData["Selected"] = "edit";
 }
-<h2>
-    @ViewData["Title"]
-
-    <form method="POST" asp-action="SetStatus" asp-route-id="@Model.Id" class="d-inline float-right">
-        <input type="hidden" name="status" value="archive" />
-        <button class="btn btn-outline-danger">Arkiver</button>
-    </form>
-</h2>
 
 <form method="POST" asp-action="Edit" asp-route-id="@Model.Id" class="form-row justify-content-between">
     <partial name="_EditEvent" model="@Model" />
     <div class="col-md-12 mt-2">
         <button type="submit" class="btn btn-success">Lagre</button>
+        <button class="btn btn-outline-danger" form="archive-form">Arkiver</button>
     </div>
+</form>
+
+<form method="POST" asp-action="SetStatus" asp-route-id="@Model.Id" id="archive-form">
+    <input type="hidden" name="status" value="archive" />
 </form>

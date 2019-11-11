@@ -1,0 +1,38 @@
+@{
+    Layout = "~/Pages/_Layout.cshtml";
+    ViewData["ContainerClass"] = "container-fluid";
+    var id = ViewData["Id"];
+    var title = ViewData["title"] as string;
+    var description = ViewData["description"] as string;
+    var selected = ViewData["selected"] as string;
+}
+
+<h2>
+    @title
+</h2>
+
+<h4>@description</h4>
+
+<ul class="nav nav-tabs mt-3 mb-5">
+    <li class="nav-item">
+        <a class="nav-link @(selected == "view" ? "active" : "")" asp-controller="Event" asp-action="View" asp-route-id="@id">Påmeldte</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="Signup" asp-action="Event" asp-route-id="@id" asp-route-slug="@title.Slugify()" target="_blank">Påmelding</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(selected == "presence" ? "active" : "")" asp-controller="Presence" asp-action="Index" asp-route-id="@id">Registrer oppmøte</a>
+    </li>
+    @if (User.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR))
+    {
+        <li class=nav-item>
+            <a class="nav-link @(selected == "edit" ? "active" : "")" asp-controller="Event" asp-action="Edit" asp-route-id="@id">Rediger</a>
+        </li>
+    }
+</ul>
+
+@RenderBody()
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+}
