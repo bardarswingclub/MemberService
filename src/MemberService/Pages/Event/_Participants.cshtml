@@ -85,7 +85,13 @@
                                 @partner.Name
                             </a>
                             <br>
-                            @if(partner.PartnerEmail != signup.Email)
+                            @if(partner.PartnerEmail == null)
+                            {
+                                <span class="badge badge-warning">
+                                    @partner.Status.DisplayName() som @partner.Role.DisplayName() uten partner!
+                                </span>
+                            }
+                            else if(partner.PartnerEmail != signup.Email)
                             {
                                 <span class="badge badge-warning">
                                     @partner.Status.DisplayName() som @partner.Role.DisplayName() med en annen partner!

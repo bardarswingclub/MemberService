@@ -16,8 +16,8 @@
         @if (User.IsInRole(Roles.ADMIN))
         {
             <optgroup label="ADMIN"></optgroup>
-            <option value="1" value="" data-subject="Info om {TITLE}" data-body="@EmailBodies.Default">Påmeldt</option>
-            <option value="5" value="" data-subject="Info om {TITLE}" data-body="@EmailBodies.Default">Godtatt og betalt</option>
+            <option value="1" data-subject="Info om {TITLE}" data-body="@EmailBodies.Default">Påmeldt</option>
+            <option value="5" data-subject="Info om {TITLE}" data-body="@EmailBodies.Default">Godtatt og betalt</option>
         }
     </select>
     <div class="input-group-append">
