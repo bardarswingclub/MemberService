@@ -66,7 +66,8 @@ namespace MemberService.Data
                     .HasOne(s => s.Partner)
                     .WithMany()
                     .HasForeignKey(s => s.PartnerEmail)
-                    .HasPrincipalKey(s => s.NormalizedEmail);
+                    .HasPrincipalKey(s => s.NormalizedEmail)
+                    .IsRequired(false);
             });
 
             builder.Entity<Event>(@event =>
