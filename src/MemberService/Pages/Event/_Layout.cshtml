@@ -23,6 +23,9 @@
     <li class="nav-item">
         <a class="nav-link @(selected == "presence" ? "active" : "")" asp-controller="Presence" asp-action="Index" asp-route-id="@id">Registrer oppmøte</a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link @(selected == "questions" ? "active" : "")" asp-controller="Questions" asp-action="Index" asp-route-id="@id">Spørsmål</a>
+    </li>
     @if (User.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR))
     {
         <li class=nav-item>

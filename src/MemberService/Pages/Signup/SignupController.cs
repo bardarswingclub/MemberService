@@ -119,7 +119,15 @@ namespace MemberService.Pages.Signup
 
             var autoAccept = model.ShouldAutoAccept(input.Role);
 
-            user.AddEventSignup(id, input.Role, input.PartnerEmail, autoAccept);
+            var signup = user.AddEventSignup(id, input.Role, input.PartnerEmail, autoAccept);
+
+            foreach (var answer in input.Answers.SelectMany(a => a.Selected))
+            {
+                signup.Answers.Add(new QuestionAnswer
+                {
+                    OptionId = answer
+                });
+            }
 
             await _database.SaveChangesAsync();
 

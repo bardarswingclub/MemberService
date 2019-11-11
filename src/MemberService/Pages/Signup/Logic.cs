@@ -26,6 +26,8 @@ namespace MemberService.Pages.Signup
         public static async Task<SignupModel> GetSignupModel(this MemberContext db, Guid id)
             => await db.Events
                 .Include(e => e.SignupOptions)
+                .Include(e => e.Questions)
+                    .ThenInclude(q => q.Options)
                 .AsNoTracking()
                 .Expressionify()
                 .Where(e => e.Archived == false)
@@ -35,7 +37,10 @@ namespace MemberService.Pages.Signup
         public static async Task<Data.Event> GetEditableEvent(this MemberContext db, Guid id)
             => await db.Events
                 .Include(e => e.Signups)
+                    .ThenInclude(s => s.Answers)
                 .Include(e => e.SignupOptions)
+                .Include(e => e.Questions)
+                    .ThenInclude(q => q.Options)
                 .SingleOrDefaultAsync(e => e.Id == id);
 
         public static async Task<MemberUser> GetUser(this MemberContext database, string userId)
@@ -59,10 +64,10 @@ namespace MemberService.Pages.Signup
         public static bool ShouldAutoAccept(this Data.Event model, DanceRole role)
             => model.SignupOptions.AutoAcceptedSignups > model.Signups.Count(s => s.Role == role);
 
-        public static void AddEventSignup(this MemberUser user, Guid id, DanceRole role, string partnerEmail, bool autoAccept, int priority = 1)
+        public static EventSignup AddEventSignup(this MemberUser user, Guid id, DanceRole role, string partnerEmail, bool autoAccept, int priority = 1)
         {
             var status = autoAccept ? Status.Approved : Status.Pending;
-            user.EventSignups.Add(new EventSignup
+            var signup = new EventSignup
             {
                 EventId = id,
                 Priority = priority,
@@ -72,12 +77,13 @@ namespace MemberService.Pages.Signup
                 SignedUpAt = TimeProvider.UtcNow,
                 AuditLog =
                 {
-                    {
-                        $"Signed up as {role}{(partnerEmail is string ? $" with partner {partnerEmail}" : "")}, status is {status}",
-                        user
-                    }
+                    { $"Signed up as {role}{(partnerEmail is string ? $" with partner {partnerEmail}" : "")}, status is {status}", user }
                 }
-            });
+            };
+
+            user.EventSignups.Add(signup);
+
+            return signup;
         }
 
         public static bool CanEdit(this EventSignup e)
