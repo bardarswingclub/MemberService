@@ -22,6 +22,12 @@ namespace MemberService.Data
 
         public DbSet<Presence> Presence { get; set; }
 
+        public DbSet<Question> Questions { get; set; }
+
+        public DbSet<QuestionAnswer> QuestionAnswers { get; set; }
+
+        public DbSet<QuestionOption> QuestionOptions { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -75,6 +81,21 @@ namespace MemberService.Data
                 @event
                     .Property(e => e.Type)
                     .HasEnumStringConversion();
+            });
+
+            builder.Entity<Question>(question =>
+            {
+                question
+                    .Property(q => q.Type)
+                    .HasEnumStringConversion();
+            });
+
+            builder.Entity<QuestionAnswer>(answer =>
+            {
+                answer
+                    .HasOne<QuestionOption>()
+                    .WithMany()
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

@@ -39,5 +39,7 @@ namespace MemberService.Data
         public ICollection<EventSignupAuditEntry> AuditLog { get; set; } = new List<EventSignupAuditEntry>();
 
         public ICollection<Presence> Presence { get; set; } = new List<Presence>();
+
+        public ICollection<QuestionAnswer> Answers { get; set; } = new List<QuestionAnswer>();
     }
 }
