@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Clave.Expressionify;
 using Clave.ExtensionMethods;
@@ -29,7 +30,7 @@ namespace MemberService.Pages.Event.Questions
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(Guid id)
+        public async Task<IActionResult> Index(Guid id, string filter="all")
         {
             var model = await _database
                 .Events
@@ -40,7 +41,7 @@ namespace MemberService.Pages.Event.Questions
                 .ThenInclude(s => s.User)
                 .AsNoTracking()
                 .Expressionify()
-                .Select(e => QuestionsModel.Create(e))
+                .Select(e => QuestionsModel.Create(e, filter))
                 .SingleOrDefaultAsync(s => s.EventId == id);
 
             return View(model);
@@ -55,7 +56,7 @@ namespace MemberService.Pages.Event.Questions
                     .ThenInclude(q => q.Options)
                 .AsNoTracking()
                 .Expressionify()
-                .Select(e => QuestionsModel.Create(e))
+                .Select(e => QuestionsModel.Create(e, "all"))
                 .SingleOrDefaultAsync(s => s.EventId == id);
 
             return View(model);
@@ -129,9 +130,6 @@ namespace MemberService.Pages.Event.Questions
 
             return RedirectToAction(nameof(Index), new { id });
         }
-
-        private async Task<MemberUser> GetCurrentUser()
-            => await _database.Users.SingleUser(_userManager.GetUserId(User));
     }
 
     public class QuestionInput

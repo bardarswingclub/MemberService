@@ -48,7 +48,7 @@ namespace MemberService.Pages.Signup
         [HttpGet]
         [Route("Signup/Event/{id}/{slug?}")]
         [AllowAnonymous]
-        public async Task<IActionResult> Event(Guid id)
+        public async Task<IActionResult> Event(Guid id, bool preview = false)
         {
             var model = await _database.GetSignupModel(id);
 
@@ -78,7 +78,7 @@ namespace MemberService.Pages.Signup
                 return base.View("Accept", acceptModel);
             }
 
-            if (model.IsOpen)
+            if (model.IsOpen || preview)
             {
                 return View("Signup", model);
             }

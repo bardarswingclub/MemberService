@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Clave.Expressionify;
+using MemberService.Data;
 
 namespace MemberService.Pages.Event.Questions
 {
@@ -13,18 +14,27 @@ namespace MemberService.Pages.Event.Questions
 
         public string EventDescription { get; set; }
 
-        public int Signups { get; set; }
+        public string Filter { get; set; }
+
+        public IReadOnlyList<EventSignup> Signups { get; set; }
+
+        public int SignupsByAll => Signups.Count;
+
+        public int SignupsByApproved => Signups.Count(s => s.Status == Status.Approved || s.Status == Status.AcceptedAndPayed);
+
+        public int SignupsByPaid => Signups.Count(s => s.Status == Status.AcceptedAndPayed);
 
         public IReadOnlyList<QuestionModel> Questions { get; set; }
 
         [Expressionify]
-        public static QuestionsModel Create(Data.Event e) =>
+        public static QuestionsModel Create(Data.Event e, string filter) =>
         new QuestionsModel
         {
             EventId = e.Id,
             EventTitle = e.Title,
             EventDescription = e.Description,
-            Signups = e.Signups.Count,
+            Filter = filter,
+            Signups = e.Signups.ToList(),
             Questions = e.Questions
                 .Select(q => QuestionModel.Create(q))
                 .ToList()
