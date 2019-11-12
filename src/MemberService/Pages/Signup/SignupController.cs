@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Clave.ExtensionMethods;
 using MemberService.Data;
 using MemberService.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -121,12 +123,30 @@ namespace MemberService.Pages.Signup
 
             var signup = user.AddEventSignup(id, input.Role, input.PartnerEmail, autoAccept);
 
-            foreach (var answer in input.Answers.SelectMany(a => a.Selected))
+            foreach (var (question, index) in model.Questions.WithIndex())
             {
-                signup.Answers.Add(new QuestionAnswer
+                var answers = input.Answers
+                    .Where(a => a.QuestionId == question.Id)
+                    .SelectMany(a => a.Selected, (_, optionId) => new QuestionAnswer
+                    {
+                        Option = question.Options.FirstOrDefault(o => o.Id == optionId)
+                    })
+                    .ToReadOnlyCollection();
+
+                switch (question.Type)
                 {
-                    OptionId = answer
-                });
+                    case QuestionType.Radio when answers.Count == 0:
+                        ModelState.AddModelError($"Answers[{index}].Selected", "Velg et valg");
+                        return RedirectToAction(nameof(Event), new { id });
+
+                    case QuestionType.Radio:
+                        signup.Answers.Add(answers.FirstOrDefault());
+                        break;
+
+                    case QuestionType.CheckBox:
+                        signup.Answers.AddRange(answers);
+                        break;
+                }
             }
 
             await _database.SaveChangesAsync();

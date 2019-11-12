@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using MemberService.Data;
 using System.ComponentModel;
@@ -18,9 +17,9 @@ namespace MemberService.Pages.Signup
 
         public class Answer
         {
-            public Guid Id { get; set; }
+            public Guid QuestionId { get; set; }
 
-            public IList<Guid> Selected { get; set; }
+            public IList<Guid> Selected { get; set; } = new List<Guid>();
         }
     }
 }

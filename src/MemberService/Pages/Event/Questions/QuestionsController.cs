@@ -42,12 +42,14 @@ namespace MemberService.Pages.Event.Questions
                     .ThenInclude(q => q.Options)
                 .AsNoTracking()
                 .Expressionify()
-                .SingleOrDefaultAsync(s => s.Id == id);
+                .Select(e => QuestionsModel.Create(e))
+                .SingleOrDefaultAsync(s => s.EventId == id);
 
             return View(model);
         }
 
         [HttpPost]
+        [Authorize(nameof(Policy.IsCoordinator))]
         public async Task<IActionResult> Add(
             Guid id,
             [FromForm] QuestionType type)
@@ -69,6 +71,7 @@ namespace MemberService.Pages.Event.Questions
         }
 
         [HttpPost]
+        [Authorize(nameof(Policy.IsCoordinator))]
         public async Task<IActionResult> Save(
             Guid id,
             Guid questionId,
@@ -93,6 +96,11 @@ namespace MemberService.Pages.Event.Questions
                 option.Title = o.Title;
                 option.Description = o.Description;
                 option.Order = input.Options.IndexOf(o);
+
+                if (o.Action == "delete")
+                {
+                    question.Options.Remove(option);
+                }
             }
 
             if (action == "delete")
@@ -128,6 +136,8 @@ namespace MemberService.Pages.Event.Questions
             public string Title { get; set; }
 
             public string Description { get; set; }
+
+            public string Action { get; set; }
         }
     }
 }

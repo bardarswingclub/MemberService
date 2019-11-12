@@ -1,10 +1,10 @@
-﻿@model Event
+﻿@model QuestionsModel
 
 @{
     Layout = "../_Layout.cshtml";
-    ViewData["Title"] = Model.Title;
-    ViewData["Description"] = Model.Description;
-    ViewData["Id"] = Model.Id;
+    ViewData["Title"] = Model.EventTitle;
+    ViewData["Description"] = Model.EventDescription;
+    ViewData["Id"] = Model.EventId;
     ViewData["Selected"] = "questions";
 }
 
@@ -13,7 +13,7 @@
     var title = question.Title;
     var description = question.Description;
     var options = question.Options;
-    <form method="post" asp-controller="Questions" asp-action="Save" asp-route-id="@Model.Id" asp-route-questionId="@question.Id" class="card mb-5">
+    <form method="post" asp-controller="Questions" asp-action="Save" asp-route-id="@Model.EventId" asp-route-questionId="@question.Id" class="card mb-5">
         <div class="card-header">
             <div class="form-group row">
                 <label class="col-sm-2 col-form-label" asp-for="@title">Spørsmål</label>
@@ -35,17 +35,17 @@
                 <li class="list-group-item">
                     <h5 class="d-flex justify-content-between">
                         Alternativ @(i + 1)
-                        <button type="submit" name="action" class="btn btn-outline-danger">Fjern</button>
+                        <button type="submit" name="options[@i].Action" value="delete" class="btn btn-outline-danger">Fjern</button>
                     </h5>
                     <input type="hidden" asp-for="@options[i].Id"/>
                     <div class="form-group row">
-                        <label class=col-sm-2 col-form-label" asp-for="@options[i].Title"></label>
+                        <label class="col-sm-2 col-form-label" asp-for="@options[i].Title"></label>
                         <div class="col-sm-10">
                             <input class="form-control" asp-for="@options[i].Title">
                         </div>    
                     </div>
                     <div class="form-group row">
-                        <label class=col-sm-2 col-form-label" asp-for="@options[i].Description"></label>
+                        <label class="col-sm-2 col-form-label" asp-for="@options[i].Description"></label>
                         <div class="col-sm-10">
                             <input class="form-control" asp-for="@options[i].Description">
                         </div>
@@ -64,7 +64,7 @@
     </form>
 }
 
-<form method="post" asp-controller="Questions" asp-action="Add" asp-route-id="@Model.Id">
+<form method="post" asp-controller="Questions" asp-action="Add" asp-route-id="@Model.EventId">
     <div class="dropdown">
         <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Legg til nytt spørsmål
