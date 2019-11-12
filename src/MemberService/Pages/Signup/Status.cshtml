@@ -65,7 +65,38 @@
                         }
                     }
                 </p>
+            }
 
+            @for (var i = 0; i < Model.Questions.Count; i++)
+            {
+                if (i != 0)
+                {
+                    <hr />
+                }
+
+                var question = Model.Questions[i];
+                <h4>@question.Title</h4>
+                <p>@question.Description</p>
+
+                @foreach (var option in question.Options)
+                {
+                    <div class="form-check">
+                        @if (question.Type == QuestionType.CheckBox)
+                        {
+                            <input class="form-check-input" onclick="return false" type="checkbox" checked="@(Model.UserEventSignup.Answers.Any(a => a.OptionId == option.Id))" />
+                        }
+                        else if (question.Type == QuestionType.Radio)
+                        {
+                            <input class="form-check-input" onclick="return false" type="radio" checked="@(Model.UserEventSignup.Answers.Any(a => a.OptionId == option.Id))" />
+                        }
+                        <label class="form-check-label">@option.Title</label>
+                        <small class="text-muted form-text">@option.Description</small>
+                    </div>
+                }
+            }
+
+            @if (Model.Options.RoleSignup || Model.Questions.Any())
+            {
                 <div class="text-center">
                     <a asp-controller="Signup" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">Rediger påmelding</a>
                 </div>

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Clave.Expressionify;
+using Clave.ExtensionMethods;
 using MemberService.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,6 +49,7 @@ namespace MemberService.Pages.Signup
             => await database.Users
                 .Include(u => u.Payments)
                 .Include(u => u.EventSignups)
+                    .ThenInclude(s => s.Answers)
                 .AsNoTracking()
                 .SingleUser(userId);
 
@@ -84,6 +87,38 @@ namespace MemberService.Pages.Signup
             user.EventSignups.Add(signup);
 
             return signup;
+        }
+
+        public static IEnumerable<QuestionAnswer> JoinWithAnswers(this ICollection<Question> questions, IList<SignupInputModel.Answer> answers)
+        {
+
+            foreach (var (question, index) in questions.WithIndex())
+            {
+                var selectedAnswers = answers
+                    .Where(a => a.QuestionId == question.Id)
+                    .SelectMany(a => a.Selected, (_, optionId) => new QuestionAnswer
+                    {
+                        OptionId = optionId
+                    })
+                    .ToReadOnlyCollection();
+
+                switch (question.Type)
+                {
+                    case QuestionType.Radio when selectedAnswers.Count == 0:
+                        throw new ModelErrorException($"Answers[{index}].Selected", "Velg et av alternativene");
+
+                    case QuestionType.Radio:
+                        yield return selectedAnswers.FirstOrDefault();
+                        break;
+
+                    case QuestionType.CheckBox:
+                        foreach (var answer in selectedAnswers)
+                        {
+                            yield return answer;
+                        }
+                        break;
+                }
+            }
         }
 
         public static bool CanEdit(this EventSignup e)

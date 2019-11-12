@@ -34,7 +34,10 @@
             {
                 <li class="list-group-item">
                     <h5 class="d-flex justify-content-between">
-                        Alternativ @(i + 1)
+                        <span>
+                            <input type="@question.Type" checked onclick="return false" />
+                            Alternativ @(i + 1)
+                        </span>
                         <button type="submit" name="options[@i].Action" value="delete" class="btn btn-outline-danger">Fjern</button>
                     </h5>
                     <input type="hidden" asp-for="@options[i].Id"/>

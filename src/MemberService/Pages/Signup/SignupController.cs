@@ -123,30 +123,16 @@ namespace MemberService.Pages.Signup
 
             var signup = user.AddEventSignup(id, input.Role, input.PartnerEmail, autoAccept);
 
-            foreach (var (question, index) in model.Questions.WithIndex())
+            try
             {
-                var answers = input.Answers
-                    .Where(a => a.QuestionId == question.Id)
-                    .SelectMany(a => a.Selected, (_, optionId) => new QuestionAnswer
-                    {
-                        Option = question.Options.FirstOrDefault(o => o.Id == optionId)
-                    })
-                    .ToReadOnlyCollection();
-
-                switch (question.Type)
-                {
-                    case QuestionType.Radio when answers.Count == 0:
-                        ModelState.AddModelError($"Answers[{index}].Selected", "Velg et valg");
-                        return RedirectToAction(nameof(Event), new { id });
-
-                    case QuestionType.Radio:
-                        signup.Answers.Add(answers.FirstOrDefault());
-                        break;
-
-                    case QuestionType.CheckBox:
-                        signup.Answers.AddRange(answers);
-                        break;
-                }
+                signup.Answers = model.Questions
+                    .JoinWithAnswers(input.Answers)
+                    .ToList();
+            }
+            catch (ModelErrorException error)
+            {
+                ModelState.AddModelError(error.Key, error.Message);
+                return RedirectToAction(nameof(Event), new { id });
             }
 
             await _database.SaveChangesAsync();
@@ -196,7 +182,9 @@ namespace MemberService.Pages.Signup
                 return RedirectToAction(nameof(Edit), new { id });
             }
 
-            if (await _database.GetEditableEvent(id) == null)
+            var model = await _database.GetEditableEvent(id);
+
+            if (model == null)
             {
                 return NotFound();
             }
@@ -209,6 +197,18 @@ namespace MemberService.Pages.Signup
 
                 eventSignup.Role = input.Role;
                 eventSignup.PartnerEmail = input.PartnerEmail?.Trim().Normalize().ToUpperInvariant();
+
+                try
+                {
+                    eventSignup.Answers = model.Questions
+                        .JoinWithAnswers(input.Answers)
+                        .ToList();
+                }
+                catch (ModelErrorException error)
+                {
+                    ModelState.AddModelError(error.Key, error.Message);
+                    return RedirectToAction(nameof(Edit), new { id });
+                }
 
                 await _database.SaveChangesAsync();
             }
