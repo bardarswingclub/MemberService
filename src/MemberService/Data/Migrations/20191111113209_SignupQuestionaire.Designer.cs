@@ -526,7 +526,7 @@ namespace MemberService.Data.Migrations
             modelBuilder.Entity("MemberService.Data.QuestionAnswer", b =>
                 {
                     b.HasOne("MemberService.Data.QuestionOption", "Option")
-                        .WithMany()
+                        .WithMany("Answers")
                         .HasForeignKey("OptionId")
                         .OnDelete(DeleteBehavior.Restrict);
 

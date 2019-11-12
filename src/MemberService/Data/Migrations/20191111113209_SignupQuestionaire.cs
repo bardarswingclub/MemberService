@@ -65,7 +65,7 @@ namespace MemberService.Data.Migrations
                         name: "FK_QuestionAnswers_QuestionOptions_OptionId",
                         column: x => x.OptionId,
                         principalTable: "QuestionOptions",
-                        principalColumn: "id",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_QuestionAnswers_EventSignup_SignupId",

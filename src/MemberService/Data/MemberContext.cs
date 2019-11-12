@@ -93,8 +93,9 @@ namespace MemberService.Data
             builder.Entity<QuestionAnswer>(answer =>
             {
                 answer
-                    .HasOne<QuestionOption>()
-                    .WithMany()
+                    .HasOne(q => q.Option)
+                    .WithMany(o => o.Answers)
+                    .HasForeignKey(q => q.OptionId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
         }

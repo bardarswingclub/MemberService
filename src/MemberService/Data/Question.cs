@@ -19,6 +19,6 @@ namespace MemberService.Data
 
         public string Description { get; set; }
 
-        public IList<QuestionOption> Options { get; set; } = new List<QuestionOption>();
+        public ICollection<QuestionOption> Options { get; set; } = new List<QuestionOption>();
     }
 }

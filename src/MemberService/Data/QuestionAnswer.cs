@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MemberService.Data
 {
@@ -9,12 +8,10 @@ namespace MemberService.Data
 
         public Guid OptionId { get; set; }
 
-        [ForeignKey(nameof(OptionId))]
         public QuestionOption Option { get; set; }
 
         public Guid SignupId { get; set; }
 
-        [ForeignKey(nameof(SignupId))]
         public EventSignup Signup { get; set; }
     }
 }
