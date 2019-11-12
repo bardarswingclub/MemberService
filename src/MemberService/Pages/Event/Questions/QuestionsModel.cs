@@ -13,6 +13,8 @@ namespace MemberService.Pages.Event.Questions
 
         public string EventDescription { get; set; }
 
+        public int Signups { get; set; }
+
         public IReadOnlyList<QuestionModel> Questions { get; set; }
 
         [Expressionify]
@@ -22,6 +24,7 @@ namespace MemberService.Pages.Event.Questions
             EventId = e.Id,
             EventTitle = e.Title,
             EventDescription = e.Description,
+            Signups = e.Signups.Count,
             Questions = e.Questions
                 .Select(q => QuestionModel.Create(q))
                 .ToList()

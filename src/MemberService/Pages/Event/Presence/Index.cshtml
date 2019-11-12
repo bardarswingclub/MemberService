@@ -12,13 +12,16 @@
 <table class="table table-striped table-sm" style="white-space: nowrap">
     @foreach (var role in Model.Roles)
     {
-        <thead>
-            <tr>
-                <th colspan="@(Model.Count+2)">
-                    <h2 class="mt-5">@role.Role.DisplayName()</h2>
-                </th>
-            </tr>
-        </thead>
+        @if (role.Role != DanceRole.None)
+        {
+            <thead>
+                <tr>
+                    <th colspan="@(Model.Count + 2)">
+                        <h2 class="mt-5">@role.Role.DisplayName()</h2>
+                    </th>
+                </tr>
+            </thead>
+        }
         <tbody>
             <tr>
                 <th class="pr-5">Navn</th>

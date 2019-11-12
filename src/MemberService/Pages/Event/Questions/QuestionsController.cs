@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -34,10 +33,24 @@ namespace MemberService.Pages.Event.Questions
         {
             var model = await _database
                 .Events
-                .Include(e => e.Signups)
-                    .ThenInclude(s => s.User)
-                .Include(e => e.Signups)
-                    .ThenInclude(s => s.Answers)
+                .Include(e => e.Questions)
+                .ThenInclude(q => q.Options)
+                .ThenInclude(s => s.Answers)
+                .ThenInclude(a => a.Signup)
+                .ThenInclude(s => s.User)
+                .AsNoTracking()
+                .Expressionify()
+                .Select(e => QuestionsModel.Create(e))
+                .SingleOrDefaultAsync(s => s.EventId == id);
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(Guid id)
+        {
+            var model = await _database
+                .Events
                 .Include(e => e.Questions)
                     .ThenInclude(q => q.Options)
                 .AsNoTracking()
