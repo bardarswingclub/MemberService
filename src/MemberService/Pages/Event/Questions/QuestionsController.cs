@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Clave.Expressionify;
 using Clave.ExtensionMethods;
@@ -81,7 +80,7 @@ namespace MemberService.Pages.Event.Questions
 
             await _database.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index), new { id });
+            return RedirectToAction(nameof(Edit), new { id });
         }
 
         [HttpPost]
@@ -128,7 +127,7 @@ namespace MemberService.Pages.Event.Questions
 
             await _database.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index), new { id });
+            return RedirectToAction(nameof(Edit), new { id });
         }
     }
 
