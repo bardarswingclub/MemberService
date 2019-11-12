@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Clave.ExtensionMethods;
 using MemberService.Data;
 using MemberService.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -46,7 +48,7 @@ namespace MemberService.Pages.Signup
         [HttpGet]
         [Route("Signup/Event/{id}/{slug?}")]
         [AllowAnonymous]
-        public async Task<IActionResult> Event(Guid id)
+        public async Task<IActionResult> Event(Guid id, bool preview = false)
         {
             var model = await _database.GetSignupModel(id);
 
@@ -76,7 +78,7 @@ namespace MemberService.Pages.Signup
                 return base.View("Accept", acceptModel);
             }
 
-            if (model.IsOpen)
+            if (model.IsOpen || preview)
             {
                 return View("Signup", model);
             }
@@ -119,7 +121,19 @@ namespace MemberService.Pages.Signup
 
             var autoAccept = model.ShouldAutoAccept(input.Role);
 
-            user.AddEventSignup(id, input.Role, input.PartnerEmail, autoAccept);
+            var signup = user.AddEventSignup(id, input.Role, input.PartnerEmail, autoAccept);
+
+            try
+            {
+                signup.Answers = model.Questions
+                    .JoinWithAnswers(input.Answers)
+                    .ToList();
+            }
+            catch (ModelErrorException error)
+            {
+                ModelState.AddModelError(error.Key, error.Message);
+                return RedirectToAction(nameof(Event), new { id });
+            }
 
             await _database.SaveChangesAsync();
 
@@ -168,7 +182,9 @@ namespace MemberService.Pages.Signup
                 return RedirectToAction(nameof(Edit), new { id });
             }
 
-            if (await _database.GetEditableEvent(id) == null)
+            var model = await _database.GetEditableEvent(id);
+
+            if (model == null)
             {
                 return NotFound();
             }
@@ -181,6 +197,18 @@ namespace MemberService.Pages.Signup
 
                 eventSignup.Role = input.Role;
                 eventSignup.PartnerEmail = input.PartnerEmail?.Trim().Normalize().ToUpperInvariant();
+
+                try
+                {
+                    eventSignup.Answers = model.Questions
+                        .JoinWithAnswers(input.Answers)
+                        .ToList();
+                }
+                catch (ModelErrorException error)
+                {
+                    ModelState.AddModelError(error.Key, error.Message);
+                    return RedirectToAction(nameof(Edit), new { id });
+                }
 
                 await _database.SaveChangesAsync();
             }

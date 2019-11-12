@@ -79,6 +79,36 @@
                 </div>
             }
         }
+
+        @for (var i=0;  i < Model.Questions.Count; i++)
+        {
+            if (i != 0)
+            {
+                <hr />
+            }
+
+            var question = Model.Questions[i];
+            <h4>@question.Title</h4>
+            <span data-valmsg-for="Answers[@i].Selected" data-valmsg-replace="true" class="text-danger">@ViewData.ModelState.GetValueOrDefault($"Answers[{i}].Selected")</span>
+            <p>@question.Description</p>
+            
+            @foreach (var option in question.Options)
+            {
+                <input type="hidden" name="Answers[@i].QuestionId" value="@question.Id"/>
+                <div class="form-check">
+                    @if (question.Type == QuestionType.CheckBox)
+                    {
+                        <input class="form-check-input" type="checkbox" name="Answers[@i].Selected" value="@option.Id" id="@option.Id"/>
+                    }
+                    else if (question.Type == QuestionType.Radio)
+                    {
+                        <input class="form-check-input" type="radio" name="Answers[@i].Selected" value="@option.Id" id="@option.Id" data-val="true" data-val-required="Velg et av alternativene"/>
+                    }
+                    <label class="form-check-label" for="@option.Id">@option.Title</label>
+                    <small class="text-muted form-text">@option.Description</small>
+                </div>
+            }
+        }
     </div>
     <div class="card-footer">
         <button type="submit" class="btn btn-success btn-block">Meld deg på</button>

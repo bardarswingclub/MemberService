@@ -1,0 +1,95 @@
+﻿@model QuestionsModel
+
+@{
+    Layout = "../_Layout.cshtml";
+    ViewData["Title"] = Model.EventTitle;
+    ViewData["Description"] = Model.EventDescription;
+    ViewData["Id"] = Model.EventId;
+    ViewData["Selected"] = "answers";
+    
+    var signups = Model.Filter == "paid" ? Model.SignupsByPaid
+        : Model.Filter == "approved" ? Model.SignupsByApproved
+        : Model.SignupsByAll;
+}
+
+@if (Model.Questions.NotAny())
+{
+    <div class="alert alert-info">
+        <h5 class="alert-heading">
+            Ingeng spørsmål
+        </h5>
+        <p>
+            Legg til spørsmål for å få svar
+        </p>
+    </div>
+}
+else
+{
+    <form method="get" asp-controller="Questions" asp-action="Index" asp-route-id="@Model.EventId" class="btn-group" role="group" aria-label="Basic example">
+        <button type="submit" name="filter" value="all" class="btn btn-secondary @(Model.Filter == "all" ? "active" : "")">
+            Alle
+            <span class="badge badge-light">@Model.SignupsByAll</span>
+        </button>
+        <button type="submit" name="filter" value="approved" class="btn btn-secondary @(Model.Filter == "approved" ? "active" : "")">
+            De som har fått plass
+            <span class="badge badge-light">@Model.SignupsByApproved</span>
+        </button>
+        <button type="submit" name="filter" value="paid" class="btn btn-secondary @(Model.Filter == "paid" ? "active" : "")">
+            De som har fått plass og betalt
+            <span class="badge badge-light">@Model.SignupsByPaid</span>
+        </button>
+    </form>
+
+    <div class="card-columns card-columns-2 mt-5">
+        @foreach (var question in Model.Questions)
+        {
+            <div class="card mb-5">
+                <div class="card-header">
+                    <h5 class="card-title">@question.Title</h5>
+                    <h6>@question.Description</h6>
+                    <small class="text-muted">
+                        <input type="@question.Type" checked onclick="return false"/>
+                        @question.Type.DisplayName()
+                    </small>
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var option in question.Options)
+                    {
+                        var selectedBy = Model.Filter == "paid" ? option.SelectedByPaid
+                            : Model.Filter == "approved" ? option.SelectedByApproved
+                            : option.SelectedByAll;
+                        <li class="list-group-item">
+                            <h5 class="d-flex">
+                                <span>
+                                    <input type="@question.Type" checked onclick="return false"/>
+                                    @option.Title
+                                </span>
+                            </h5>
+                            <p>@option.Description</p>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: @(selectedBy.Count * 100f / signups)%; font-weight: bold;" aria-valuenow="@selectedBy.Count" aria-valuemin="0" aria-valuemax="@signups">@selectedBy.Count</div>
+                            </div>
+                            @if (selectedBy.Any())
+                            {
+                                <details>
+                                    <summary>Se hvem</summary>
+                                    <ol>
+                                        @foreach (var signup in selectedBy)
+                                        {
+                                            <li>
+                                                <a asp-controller="Members" asp-action="Details" asp-route-id="@signup.Id" target="_blank">@signup.Name</a>
+                                                <span class="badge badge-primary">
+                                                    @signup.Status.DisplayName()
+                                                </span>
+                                            </li>
+                                        }
+                                    </ol>
+                                </details>
+                            }
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+}

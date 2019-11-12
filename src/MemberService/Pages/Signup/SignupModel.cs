@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Clave.Expressionify;
 using MemberService.Data;
 
@@ -20,6 +22,8 @@ namespace MemberService.Pages.Signup
 
         public EventSignup UserEventSignup { get; set; }
 
+        public IReadOnlyList<SignupQuestion> Questions { get; set; }
+
         public bool HasClosed { get; set; }
 
         public bool IsOpen { get; set; }
@@ -33,7 +37,8 @@ namespace MemberService.Pages.Signup
                 Description = e.Description,
                 Options = e.SignupOptions,
                 IsOpen = e.IsOpen(),
-                HasClosed = e.HasClosed()
+                HasClosed = e.HasClosed(),
+                Questions = e.Questions.Select(q => SignupQuestion.Create(q)).ToList()
             };
     }
 }

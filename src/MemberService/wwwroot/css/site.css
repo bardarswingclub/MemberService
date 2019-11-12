@@ -138,3 +138,12 @@ details[open] summary .non-open-summary {
     padding: inherit;
     vertical-align: inherit;
 }
+
+.container-fluid .overflow-container {
+    margin-top: -1rem;
+    padding-top: 1rem;
+    margin-left: -15px;
+    margin-right: -15px;
+    padding-left: 15px;
+    padding-right: 15px;
+}

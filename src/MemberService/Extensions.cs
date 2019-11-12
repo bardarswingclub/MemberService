@@ -95,5 +95,16 @@ namespace MemberService
                 Message = message,
                 OccuredAtUtc = occuredAtUtc ?? TimeProvider.UtcNow
             });
+
+        public static void AddRange<T>(this ICollection<T> source, IEnumerable<T> items)
+        {
+            foreach (T item in items)
+            {
+                source.Add(item);
+            }
+        }
+
+        public static IEnumerable<(T item, int index)> WithIndex<T>(this IEnumerable<T> source)
+            => source.Select((item, index) => (item, index));
     }
 }

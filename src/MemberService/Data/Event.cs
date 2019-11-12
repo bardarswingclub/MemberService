@@ -24,6 +24,8 @@ namespace MemberService.Data
 
         public EventSignupOptions SignupOptions { get; set; } = new EventSignupOptions();
 
+        public ICollection<Question> Questions { get; set; } = new List<Question>();
+
         public ICollection<EventSignup> Signups { get; set; } = new List<EventSignup>();
 
         public bool Archived { get; set; }

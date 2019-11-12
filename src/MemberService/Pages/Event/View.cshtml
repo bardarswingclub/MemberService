@@ -1,26 +1,12 @@
-@using MemberService.Pages.Event
 @model EventModel
 
 @{
+    Layout = "_Layout.cshtml";
     ViewData["Title"] = Model.Title;
-    ViewData["ContainerClass"] = "container-fluid";
+    ViewData["Description"] = Model.Description;
+    ViewData["Id"] = Model.Id;
+    ViewData["Selected"] = "view";
 }
-
-<h2>
-    <a asp-controller="Signup" asp-action="Event" asp-route-id="@Model.Id" asp-route-slug="@Model.Title.Slugify()" target="_blank">
-        @ViewData["Title"]
-    </a>
-    @if (User.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR))
-    {
-        <a asp-controller="Event" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary float-right">
-            Rediger
-        </a>
-    }
-</h2>
-
-<h4>@Model.Description</h4>
-
-<a asp-controller="Presence" asp-action="Index" asp-route-id="@Model.Id">Registrer oppmøte</a>
 
 <form class="alert @AlertClass(Model) mt-2" asp-action="SetStatus" asp-route-id="@Model.Id" method="POST">
     @if (Model.Archived)
@@ -103,7 +89,7 @@
         @foreach (var signups in Model.Signups)
         {
             <form method="post" class="tab-pane @(signups.Active ? "active" : "")" id="@signups.Key" role="tabpanel" aria-labelledby="@signups.Key-tab" disabled="@Model.Archived">
-                
+
                 @if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN))
                 {
                     <div class="row mb-5">
@@ -158,8 +144,7 @@
                     {
                         var solos = new ParticipantsModel(signups.Solos, Model.AllowPartnerSignup);
 
-                        <div class="col-lg-8">
-                            <h4>Solo</h4>
+                        <div class="col-lg-12">
 
                             <table class="table">
                                 <thead class="thead-light">
@@ -197,7 +182,7 @@
 
             var subject = this.options[this.selectedIndex].getAttribute("data-subject");
             var body = this.options[this.selectedIndex].getAttribute("data-body");
-            
+
             tabContent.find('input[name=Subject]').val(subject);
             tabContent.find('textarea[name=Message]').val(body);
         });

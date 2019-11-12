@@ -4,14 +4,16 @@ using MemberService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MemberService.Data.Migrations
 {
     [DbContext(typeof(MemberContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191111104711_CleanupMissingMigrations")]
+    partial class CleanupMissingMigrations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -298,67 +300,6 @@ namespace MemberService.Data.Migrations
                     b.ToTable("Presence");
                 });
 
-            modelBuilder.Entity("MemberService.Data.Question", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Description");
-
-                    b.Property<Guid>("EventId");
-
-                    b.Property<int>("Order");
-
-                    b.Property<string>("Title");
-
-                    b.Property<string>("Type")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EventId");
-
-                    b.ToTable("Questions");
-                });
-
-            modelBuilder.Entity("MemberService.Data.QuestionAnswer", b =>
-                {
-                    b.Property<Guid>("id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<Guid>("OptionId");
-
-                    b.Property<Guid>("SignupId");
-
-                    b.HasKey("id");
-
-                    b.HasIndex("OptionId");
-
-                    b.HasIndex("SignupId");
-
-                    b.ToTable("QuestionAnswers");
-                });
-
-            modelBuilder.Entity("MemberService.Data.QuestionOption", b =>
-                {
-                    b.Property<Guid>("id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Description");
-
-                    b.Property<int>("Order");
-
-                    b.Property<Guid>("QuestionId");
-
-                    b.Property<string>("Title");
-
-                    b.HasKey("id");
-
-                    b.HasIndex("QuestionId");
-
-                    b.ToTable("QuestionOptions");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.Property<int>("Id")
@@ -510,35 +451,6 @@ namespace MemberService.Data.Migrations
                     b.HasOne("MemberService.Data.EventSignup", "Signup")
                         .WithMany("Presence")
                         .HasForeignKey("SignupId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("MemberService.Data.Question", b =>
-                {
-                    b.HasOne("MemberService.Data.Event", "Event")
-                        .WithMany("Questions")
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("MemberService.Data.QuestionAnswer", b =>
-                {
-                    b.HasOne("MemberService.Data.QuestionOption", "Option")
-                        .WithMany("Answers")
-                        .HasForeignKey("OptionId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("MemberService.Data.EventSignup", "Signup")
-                        .WithMany("Answers")
-                        .HasForeignKey("SignupId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("MemberService.Data.QuestionOption", b =>
-                {
-                    b.HasOne("MemberService.Data.Question", "Question")
-                        .WithMany("Options")
-                        .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

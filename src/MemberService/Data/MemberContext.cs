@@ -22,6 +22,12 @@ namespace MemberService.Data
 
         public DbSet<Presence> Presence { get; set; }
 
+        public DbSet<Question> Questions { get; set; }
+
+        public DbSet<QuestionAnswer> QuestionAnswers { get; set; }
+
+        public DbSet<QuestionOption> QuestionOptions { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -66,7 +72,8 @@ namespace MemberService.Data
                     .HasOne(s => s.Partner)
                     .WithMany()
                     .HasForeignKey(s => s.PartnerEmail)
-                    .HasPrincipalKey(s => s.NormalizedEmail);
+                    .HasPrincipalKey(s => s.NormalizedEmail)
+                    .IsRequired(false);
             });
 
             builder.Entity<Event>(@event =>
@@ -74,6 +81,22 @@ namespace MemberService.Data
                 @event
                     .Property(e => e.Type)
                     .HasEnumStringConversion();
+            });
+
+            builder.Entity<Question>(question =>
+            {
+                question
+                    .Property(q => q.Type)
+                    .HasEnumStringConversion();
+            });
+
+            builder.Entity<QuestionAnswer>(answer =>
+            {
+                answer
+                    .HasOne(q => q.Option)
+                    .WithMany(o => o.Answers)
+                    .HasForeignKey(q => q.OptionId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }
