@@ -6,7 +6,7 @@
     ViewData["Description"] = Model.EventDescription;
     ViewData["Id"] = Model.EventId;
     ViewData["Selected"] = "answers";
-    
+
     var signups = Model.Filter == "paid" ? Model.SignupsByPaid
         : Model.Filter == "approved" ? Model.SignupsByApproved
         : Model.SignupsByAll;
@@ -67,7 +67,7 @@ else
                             </h5>
                             <p>@option.Description</p>
                             <div class="progress">
-                                <div class="progress-bar" role="progressbar" style="width: @(selectedBy.Count * 100f / signups)%; font-weight: bold;" aria-valuenow="@selectedBy.Count" aria-valuemin="0" aria-valuemax="@signups">@selectedBy.Count</div>
+                                <div class="progress-bar" role="progressbar" style="width: @(Math.Floor(selectedBy.Count * 100f / signups))%; font-weight: bold;" aria-valuenow="@selectedBy.Count" aria-valuemin="0" aria-valuemax="@signups">@selectedBy.Count</div>
                             </div>
                             @if (selectedBy.Any())
                             {
