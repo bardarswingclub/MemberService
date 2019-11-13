@@ -73,6 +73,11 @@ namespace MemberService.Pages.Account
             {
                 await _signInManager.SignInAsync(user, true, IdentityConstants.ApplicationScheme);
 
+                if (string.IsNullOrWhiteSpace(user.FullName))
+                {
+                    return RedirectToPage("/Account/Register", new { returnUrl });
+                }
+
                 return Redirect(Url.IsLocalUrl(returnUrl) ? returnUrl : "/");
             }
 

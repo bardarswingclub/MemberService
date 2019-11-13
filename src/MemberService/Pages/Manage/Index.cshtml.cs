@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Clave.ExtensionMethods;
@@ -44,6 +45,7 @@ namespace MemberService.Pages.Manage
 
         public class InputModel
         {
+            [Required]
             [DisplayName("Fullt navn")]
             public string FullName { get; set; }
         }
