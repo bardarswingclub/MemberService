@@ -71,16 +71,17 @@ namespace MemberService.Pages.Account
                 return Page();
             }
 
-            var user = await _loginService.GetOrCreateUser(Input.Email);
+            var email = Input.Email.Trim();
+            var user = await _loginService.GetOrCreateUser(email);
 
-            await _emailService.SendLoginEmail(Input.Email, new Emails.Account.LoginModel
+            await _emailService.SendLoginEmail(email, new Emails.Account.LoginModel
             {
                 Name = user.FullName,
                 CallbackUrl = await _loginService.LoginLink(user, Input.ReturnUrl),
                 Code = await _loginService.LoginCode(user)
             });
 
-            return RedirectToPage("/Account/LoginConfirmation", null, new { email = Input.Email, returnUrl = Input.ReturnUrl });
+            return RedirectToPage("/Account/LoginConfirmation", null, new { email = email, returnUrl = Input.ReturnUrl });
         }
     }
 }
