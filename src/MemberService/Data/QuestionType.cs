@@ -1,4 +1,4 @@
-using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace MemberService.Data
 {
@@ -6,10 +6,10 @@ namespace MemberService.Data
     {
         Unknown,
 
-        [DisplayName("Et obligatorisk svar")]
+        [Display(Name = "Et obligatorisk svar")]
         Radio,
 
-        [DisplayName("Valgfritt svar")]
+        [Display(Name = "Valgfritt svar")]
         CheckBox
     }
 }

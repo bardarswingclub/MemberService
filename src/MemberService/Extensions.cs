@@ -13,7 +13,6 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text.RegularExpressions;
 
 namespace MemberService
 {
@@ -40,18 +39,18 @@ namespace MemberService
         private static DateTime WithKind(this DateTime dateTime, DateTimeKind kind)
             => DateTime.SpecifyKind(dateTime, kind);
 
-        public static TAttribute GetAttribute<TAttribute>(this Enum enumValue)
+        public static string DisplayName(this Enum enumValue)
+            => enumValue.GetAttribute<DisplayAttribute>().Name;
+
+        public static string DisplayDescription(this Enum enumValue)
+            => enumValue.GetAttribute<DisplayAttribute>()?.Description ?? enumValue.GetAttribute<DescriptionAttribute>().Description;
+
+        private static TAttribute GetAttribute<TAttribute>(this Enum enumValue)
             where TAttribute : Attribute
             => enumValue.GetType()
                 .GetMember(enumValue.ToString())
                 .Single()
                 .GetCustomAttribute<TAttribute>();
-
-        public static string DisplayName(this Enum enumValue)
-            => enumValue.GetAttribute<DisplayNameAttribute>().DisplayName;
-
-        public static string DisplayDescription(this Enum enumValue)
-            => enumValue.GetAttribute<DisplayAttribute>()?.Description ?? enumValue.GetAttribute<DescriptionAttribute>().Description;
 
         public static Guid? ToGuid(this string value)
             => Guid.TryParse(value, out var result) ? result : default;

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace MemberService.Auth
@@ -9,8 +10,9 @@ namespace MemberService.Auth
     {
         public LongTokenProvider(
             IDataProtectionProvider dataProtectionProvider,
-            IOptions<LongTokenProviderOptions> options)
-            : base(dataProtectionProvider, options)
+            IOptions<LongTokenProviderOptions> options,
+            ILogger<DataProtectorTokenProvider<TUser>> logger)
+            : base(dataProtectionProvider, options, logger)
         {
         }
     }

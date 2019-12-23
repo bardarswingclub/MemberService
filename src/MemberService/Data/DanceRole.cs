@@ -1,16 +1,16 @@
-using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace MemberService.Data
 {
     public enum DanceRole
     {
-        [DisplayName("Solo")]
+        [Display(Name = "Solo")]
         None,
 
-        [DisplayName("Fører")]
+        [Display(Name = "Fører")]
         Lead,
 
-        [DisplayName("Følger")]
+        [Display(Name = "Følger")]
         Follow
     }
 }

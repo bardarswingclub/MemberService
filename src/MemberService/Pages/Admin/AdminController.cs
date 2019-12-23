@@ -59,7 +59,7 @@ namespace MemberService.Pages.Admin
             {
                 var charges = await _chargeService.ListAsync(new ChargeListOptions
                 {
-                    CreatedRange = new DateRangeOptions
+                    Created = new DateRangeOptions
                     {
                         GreaterThan = after ?? new DateTime(2019, 1, 1)
                     },

@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MemberService.Data
 {
@@ -7,16 +6,13 @@ namespace MemberService.Data
     {
         Unknown,
 
-        [DisplayName("Kurs")]
-        [Display(Description = "Kurs (et semester)")]
+        [Display(Name = "Kurs", Description = "Kurs (et semester)")]
         Class,
 
-        [DisplayName("Workshop")]
-        [Display(Description = "Workshop (en helg)")]
+        [Display(Name = "Workshop", Description = "Workshop (en helg)")]
         Workshop,
 
-        [DisplayName("Fest")]
-        [Display(Description = "Fest (en kveld)")]
+        [Display(Name = "Fest", Description = "Fest (en kveld)")]
         Party,
     }
 }
