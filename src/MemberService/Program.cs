@@ -24,7 +24,7 @@ namespace MemberService
                 {
                     await scope.ServiceProvider
                         .GetRequiredService<MemberContext>()
-                        .Database.CreateOrMigrateAsync();
+                        .Database.MigrateAsync();
 
                     await scope.ServiceProvider
                         .GetRequiredService<RoleManager<MemberRole>>()
@@ -41,16 +41,10 @@ namespace MemberService
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseApplicationInsights()
                 .ConfigureLogging((hostingContext, logging) =>
                 {
                     logging.AddConsole();
                 })
                 .UseStartup<Startup>();
-
-        public static Task CreateOrMigrateAsync(this DatabaseFacade database)
-            => RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? database.MigrateAsync()
-                : database.EnsureCreatedAsync();
     }
 }

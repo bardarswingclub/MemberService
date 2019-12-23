@@ -3,19 +3,17 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MemberService.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Runtime.InteropServices;
 using MemberService.Configs;
 using MemberService.Auth;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using MemberService.Auth.Development;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using MemberService.Services;
+using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -25,14 +23,14 @@ namespace MemberService
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration, IHostingEnvironment hostingEnvironment)
+        public Startup(IConfiguration configuration, IWebHostEnvironment hostingEnvironment)
         {
             Configuration = configuration;
             HostingEnvironment = hostingEnvironment;
         }
 
         public IConfiguration Configuration { get; }
-        public IHostingEnvironment HostingEnvironment { get; }
+        public IWebHostEnvironment HostingEnvironment { get; }
         private bool IsDevelopment => HostingEnvironment.IsDevelopment();
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -44,6 +42,7 @@ namespace MemberService
                 .AddScoped<Stripe.ChargeService>()
                 .AddScoped<Stripe.Checkout.SessionService>()
                 .AddScoped<Stripe.CustomerService>()
+                .AddScoped<Stripe.PaymentIntentService>()
                 .AddScoped<IPaymentService, PaymentService>()
                 .AddScoped<ILoginService, LoginService>()
                 .AddScoped<IPartialRenderer, PartialRenderer>()
@@ -64,7 +63,7 @@ namespace MemberService
 
             services.AddSingleton(Configuration.Get<Config>());
 
-            services.AddDbContext<MemberContext>(ConfigureConnectionString);
+            services.AddDbContext<MemberContext>(o => o.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services
                 .AddIdentity<User, MemberRole>(config =>
@@ -86,6 +85,9 @@ namespace MemberService
                 .AddEntityFrameworkStores<MemberContext>()
                 .AddPasswordlessLoginTokenProvider(IsDevelopment);
 
+            services.AddRazorPages();
+            services.AddControllers();
+
             services.AddAuthorization(options =>
             {
                 options.AddPolicy(nameof(Policy.IsAdmin), Policy.IsAdmin);
@@ -98,19 +100,20 @@ namespace MemberService
             services.AddScoped<IUserClaimsPrincipalFactory<User>, UserClaimsPrincipalFactory>();
 
             services.UseNamespaceViewLocations();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.ConfigureApplicationCookie(options =>
             {
                 options.LoginPath = $"/account/login";
                 options.LogoutPath = $"/account/logout";
                 options.AccessDeniedPath = $"/account/accessDenied";
             });
+
+            services.AddApplicationInsightsTelemetry();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, Config config)
         {
-            Stripe.StripeConfiguration.SetApiKey(config.Stripe.SecretKey);
+            Stripe.StripeConfiguration.ApiKey = config.Stripe.SecretKey;
 
             if (IsDevelopment)
             {
@@ -126,6 +129,8 @@ namespace MemberService
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            app.UseRouting();
 
             var supportedCultures = new[]
             {
@@ -144,29 +149,12 @@ namespace MemberService
             app.UseStatusCodePagesWithReExecute("/Home/StatusCode/{0}");
 
             app.UseAuthentication();
+            app.UseAuthorization();
 
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+            app.UseEndpoints(endpoints => {
+                endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapRazorPages();
             });
-        }
-
-        private void ConfigureConnectionString(DbContextOptionsBuilder options)
-        {
-
-            options
-                .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning));
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
-            }
-            else
-            {
-                options.UseSqlite("Data Source=members.db");
-            }
         }
     }
 }

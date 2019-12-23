@@ -58,7 +58,7 @@ namespace MemberService.Services
 
             var session = await _sessionService.CreateAsync(new SessionCreateOptions
             {
-                CustomerId = customerId,
+                Customer = customerId,
                 PaymentIntentData = new SessionPaymentIntentDataOptions
                 {
                     Description = title,
@@ -133,8 +133,8 @@ namespace MemberService.Services
             {
                 var charges = await _chargeService.ListAsync(new ChargeListOptions
                 {
-                    CustomerId = customer.Id,
-                    CreatedRange = new DateRangeOptions
+                    Customer = customer.Id,
+                    Created = new DateRangeOptions
                     {
                         GreaterThan = new DateTime(2019, 1, 1)
                     },
@@ -154,7 +154,7 @@ namespace MemberService.Services
 
             var charges = await _chargeService.ListAsync(new ChargeListOptions
             {
-                PaymentIntentId = session.PaymentIntentId
+                PaymentIntent = session.PaymentIntentId
             });
 
             return await SavePayments(charges);
