@@ -1,10 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <UserSecretsId>aspnet-MemberService-75CC680B-0120-4A9C-8F8E-5DB317907710</UserSecretsId>
-    <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
-    <AspNetCoreModuleName>AspNetCoreModule</AspNetCoreModuleName>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
@@ -17,40 +15,33 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Emails\Event\WaitingList.md" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="Emails\Event\Default.md" />
     <EmbeddedResource Include="Emails\Event\Denied.md" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <DotNetCliToolReference Include="dotnet-expressionify" Version="0.4.5" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="Emails\Event\Approved.md" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Clave.Expressionify" Version="0.4.5" />
-    <PackageReference Include="Clave.Expressionify.Tasks" Version="0.4.5">
+    <PackageReference Include="Clave.Expressionify" Version="3.1.1" />
+    <PackageReference Include="Clave.Expressionify.Tasks" Version="3.1.1">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Clave.ExtensionMethods" Version="0.1.21" />
-    <PackageReference Include="Clave.NamespaceViewLocationExpander" Version="0.2.5" />
-    <PackageReference Include="MailKit" Version="2.1.5.1" />
-    <PackageReference Include="Markdig" Version="0.17.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.5.1" />
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.1" />
-    <PackageReference Include="NodaTime" Version="2.4.4" />
+    <PackageReference Include="Clave.ExtensionMethods" Version="0.1.27" />
+    <PackageReference Include="Clave.NamespaceViewLocationExpander" Version="0.2.6" />
+    <PackageReference Include="Markdig" Version="0.18.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.12.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="NodaTime" Version="2.4.7" />
     <PackageReference Include="SendGrid" Version="9.12.0" />
     <PackageReference Include="SlugGenerator" Version="2.0.2" />
-    <PackageReference Include="Stripe.net" Version="25.16.1" />
+    <PackageReference Include="Stripe.net" Version="34.8.0" />
   </ItemGroup>
 
   <ItemGroup>
