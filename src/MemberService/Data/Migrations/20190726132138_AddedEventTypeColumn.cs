@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using MemberService.Data.ValueTypes;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MemberService.Data.Migrations
 {

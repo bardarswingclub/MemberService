@@ -5,6 +5,6 @@ namespace MemberService.Data
 {
     public class MemberRole : IdentityRole
     {
-        public ICollection<MemberUserRole> UserRoles { get; set; }
+        public ICollection<UserRole> UserRoles { get; set; }
     }
 }

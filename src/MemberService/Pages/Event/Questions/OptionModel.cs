@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Clave.Expressionify;
 using MemberService.Data;
+using MemberService.Data.ValueTypes;
 
 namespace MemberService.Pages.Event.Questions
 {
@@ -34,7 +35,7 @@ namespace MemberService.Pages.Event.Questions
                 Title = o.Title,
                 Description = o.Description,
                 SelectedBy = o.Answers
-                    .Select(a => AnswerModel.Create(a.Signup))
+                    .Select(a => AnswerModel.Create(a.EventSignup))
                     .ToList()
             };
     }

@@ -15,7 +15,7 @@ namespace MemberService.Data
         public string UserId { get; set; }
 
         [ForeignKey(nameof(UserId))]
-        public MemberUser User { get; set; }
+        public User User { get; set; }
 
         public string Message { get; set; }
 

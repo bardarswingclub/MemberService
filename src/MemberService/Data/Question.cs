@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MemberService.Data.ValueTypes;
 
 namespace MemberService.Data
 {

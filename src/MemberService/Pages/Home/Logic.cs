@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Clave.Expressionify;
 using MemberService.Data;
+using MemberService.Data.ValueTypes;
 using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Home

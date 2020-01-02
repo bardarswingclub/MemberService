@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Identity;
 
 namespace MemberService.Data
 {
-    public class MemberUserRole : IdentityUserRole<string>
+    public class UserRole : IdentityUserRole<string>
     {
-        public virtual MemberUser User { get; set; }
+        public virtual User User { get; set; }
         public virtual MemberRole Role { get; set; }
     }
 }

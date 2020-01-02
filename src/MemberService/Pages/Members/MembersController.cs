@@ -18,12 +18,12 @@ namespace MemberService.Pages.Members
     public class MembersController : Controller
     {
         private readonly MemberContext _memberContext;
-        private readonly UserManager<MemberUser> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly IPaymentService _paymentService;
 
         public MembersController(
             MemberContext memberContext,
-            UserManager<MemberUser> userManager,
+            UserManager<User> userManager,
             IPaymentService paymentService)
         {
             _memberContext = memberContext;
@@ -90,7 +90,7 @@ namespace MemberService.Pages.Members
         [Authorize(nameof(Policy.IsAdmin))]
         public async Task<IActionResult> ToggleRole(string id, [FromForm] string role, [FromForm] bool value)
         {
-            if (await _userManager.FindByIdAsync(id) is MemberUser user)
+            if (await _userManager.FindByIdAsync(id) is User user)
             {
                 if (value && !await _userManager.IsInRoleAsync(user, role))
                 {
@@ -112,7 +112,7 @@ namespace MemberService.Pages.Members
         [Authorize(nameof(Policy.IsAdmin))]
         public async Task<IActionResult> SetExemptions(string id, [FromForm] bool exemptFromTrainingFee, [FromForm] bool exemptFromClassesFee)
         {
-            if (await _memberContext.FindAsync<MemberUser>(id) is MemberUser user)
+            if (await _memberContext.FindAsync<User>(id) is User user)
             {
                 user.ExemptFromTrainingFee = exemptFromTrainingFee;
                 user.ExemptFromClassesFee = exemptFromClassesFee;
@@ -131,7 +131,7 @@ namespace MemberService.Pages.Members
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            if (await _memberContext.FindAsync<MemberUser>(id) is MemberUser user)
+            if (await _memberContext.FindAsync<User>(id) is User user)
             {
                 await _memberContext.AddAsync(new Payment
                 {
@@ -156,7 +156,7 @@ namespace MemberService.Pages.Members
         [HttpPost]
         public async Task<IActionResult> UpdatePayments(string id)
         {
-            if (await _memberContext.FindAsync<MemberUser>(id) is MemberUser user)
+            if (await _memberContext.FindAsync<User>(id) is User user)
             {
                 var (payments, updates) = await _paymentService.ImportPayments(user.NormalizedEmail);
 
@@ -168,7 +168,7 @@ namespace MemberService.Pages.Members
             return NotFound();
         }
 
-        private static Expression<Func<MemberUser, bool>> Filter(string filter, Expression<Func<MemberUser, bool>> predicate)
+        private static Expression<Func<User, bool>> Filter(string filter, Expression<Func<User, bool>> predicate)
         {
             switch (filter)
             {
@@ -181,7 +181,7 @@ namespace MemberService.Pages.Members
             }
         }
 
-        private static Expression<Func<MemberUser, bool>> Search(string query)
+        private static Expression<Func<User, bool>> Search(string query)
         {
             if (string.IsNullOrWhiteSpace(query))
             {

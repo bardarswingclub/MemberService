@@ -15,14 +15,14 @@ namespace MemberService.Services
         private readonly SessionService _sessionService;
         private readonly ChargeService _chargeService;
         private readonly CustomerService _customerService;
-        private readonly UserManager<MemberUser> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly MemberContext _memberContext;
 
         public PaymentService(
             SessionService sessionService,
             ChargeService chargeService,
             CustomerService customerService,
-            UserManager<MemberUser> userManager,
+            UserManager<User> userManager,
             MemberContext memberContext)
         {
             _sessionService = sessionService;
@@ -190,7 +190,7 @@ namespace MemberService.Services
 
             if (user is null)
             {
-                await _userManager.CreateAsync(new MemberUser
+                await _userManager.CreateAsync(new User
                 {
                     UserName = email,
                     Email = email,
@@ -229,11 +229,11 @@ namespace MemberService.Services
             return Status.CreatedPayment;
         }
 
-        private static void SetEventSignupStatus(Payment payment, MemberUser user)
+        private static void SetEventSignupStatus(Payment payment, User user)
         {
-            if (payment.EventSignup?.Status == Data.Status.Approved && !payment.Refunded)
+            if (payment.EventSignup?.Status == Data.ValueTypes.Status.Approved && !payment.Refunded)
             {
-                payment.EventSignup.Status = Data.Status.AcceptedAndPayed;
+                payment.EventSignup.Status = Data.ValueTypes.Status.AcceptedAndPayed;
                 payment.EventSignup.AuditLog.Add("Paid", user, payment.PayedAtUtc);
             }
         }

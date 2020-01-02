@@ -3,14 +3,14 @@ using Microsoft.AspNetCore.Identity;
 
 namespace MemberService.Data
 {
-    public class MemberUser : IdentityUser
+    public class User : IdentityUser
     {
         [PersonalData]
         public string FullName { get; set; }
 
         public ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
-        public ICollection<MemberUserRole> UserRoles { get; set; } = new List<MemberUserRole>();
+        public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 
         public ICollection<EventSignup> EventSignups { get; set; } = new List<EventSignup>();
 

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MemberService.Auth;
 using MemberService.Data;
+using MemberService.Data.ValueTypes;
 using MemberService.Emails.Event;
 using MemberService.Pages.Signup;
 using MemberService.Services;
@@ -19,7 +20,7 @@ namespace MemberService.Pages.Event
     {
         private readonly MemberContext _database;
 
-        private readonly UserManager<MemberUser> _userManager;
+        private readonly UserManager<User> _userManager;
 
         private readonly IEmailService _emailService;
 
@@ -29,7 +30,7 @@ namespace MemberService.Pages.Event
 
         public EventController(
             MemberContext database,
-            UserManager<MemberUser> userManager,
+            UserManager<User> userManager,
             IEmailService emailService,
             ILoginService linker,
             ILogger<EventController> logger)
@@ -129,7 +130,7 @@ namespace MemberService.Pages.Event
             return RedirectToAction(nameof(View), new { id });
         }
 
-        private async Task SendEmail(EventSaveModel input, EventStatusModel model, MemberUser currentUser, bool statusChanged, EventSignup eventSignup)
+        private async Task SendEmail(EventSaveModel input, EventStatusModel model, User currentUser, bool statusChanged, EventSignup eventSignup)
         {
             try
             {
@@ -231,10 +232,10 @@ namespace MemberService.Pages.Event
             return RedirectToAction(nameof(View), new { id = signup.EventId });
         }
 
-        private async Task<MemberUser> GetCurrentUser()
+        private async Task<User> GetCurrentUser()
             => await _database.Users.SingleUser(_userManager.GetUserId(User));
 
-        private async Task<string> SignupLink(MemberUser user, Data.Event e)
+        private async Task<string> SignupLink(User user, Data.Event e)
         {
             var targetLink = SignupLink(e.Id, e.Title);
 

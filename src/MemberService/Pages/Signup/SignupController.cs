@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Clave.ExtensionMethods;
 using MemberService.Data;
+using MemberService.Data.ValueTypes;
 using MemberService.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -16,12 +17,12 @@ namespace MemberService.Pages.Signup
     public class SignupController : Controller
     {
         private readonly MemberContext _database;
-        private readonly UserManager<MemberUser> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly IPaymentService _paymentService;
 
         public SignupController(
             MemberContext database,
-            UserManager<MemberUser> userManager,
+            UserManager<User> userManager,
             IPaymentService paymentService)
         {
             _database = database;

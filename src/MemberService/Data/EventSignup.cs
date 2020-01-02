@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using MemberService.Data.ValueTypes;
 
 namespace MemberService.Data
 {
-    [Table(nameof(EventSignup))]
     public class EventSignup
     {
         public Guid Id { get; set; }
@@ -16,7 +16,7 @@ namespace MemberService.Data
 
         public string UserId { get; set; }
 
-        public MemberUser User { get; set; }
+        public User User { get; set; }
 
         [Required]
         public DateTime SignedUpAt { get; set; }
@@ -25,7 +25,7 @@ namespace MemberService.Data
 
         public string PartnerEmail { get; set; }
 
-        public MemberUser Partner { get; set; }
+        public User Partner { get; set; }
 
         public int Priority { get; set; }
 

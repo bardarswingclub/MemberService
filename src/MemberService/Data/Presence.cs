@@ -18,6 +18,6 @@ namespace MemberService.Data
 
         public string RegisteredById { get; set; }
 
-        public MemberUser RegisteredBy { get; set; }
+        public User RegisteredBy { get; set; }
     }
 }

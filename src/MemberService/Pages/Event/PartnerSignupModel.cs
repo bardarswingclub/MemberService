@@ -1,5 +1,6 @@
 using System.Linq;
 using MemberService.Data;
+using MemberService.Data.ValueTypes;
 
 namespace MemberService.Pages.Event
 {
@@ -12,14 +13,14 @@ namespace MemberService.Pages.Event
 
         public string Email { get; }
 
-        public static PartnerSignupModel Create(string email, MemberUser partner)
+        public static PartnerSignupModel Create(string email, User partner)
         {
             if (partner?.EventSignups.FirstOrDefault() is EventSignup signup)
             {
                 return new SignedUpPartnerSignupModel(signup);
             }
 
-            if (partner is MemberUser)
+            if (partner is User)
             {
                 return new KnownPartnerSignupModel(partner);
             }
@@ -35,7 +36,7 @@ namespace MemberService.Pages.Event
 
     public class KnownPartnerSignupModel : PartnerSignupModel
     {
-        public KnownPartnerSignupModel(MemberUser partner) : base(partner.Email)
+        public KnownPartnerSignupModel(User partner) : base(partner.Email)
         {
             Id = partner?.Id;
             Name = partner?.FullName;

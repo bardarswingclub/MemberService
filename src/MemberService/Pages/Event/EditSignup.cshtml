@@ -1,4 +1,5 @@
-﻿@using MemberService.Pages.Signup
+﻿@using MemberService.Data.ValueTypes
+@using MemberService.Pages.Signup
 @model EventSignup
 
 @{
@@ -26,7 +27,7 @@
         <div class="form-group mt-4">
             <label asp-for="PartnerEmail"></label>
             <input type="text" class="form-control" asp-for="PartnerEmail" placeholder="epost@eksempel.no">
-            @if (Model.Partner is MemberUser partner)
+            @if (Model.Partner is User partner)
             {
                 <a asp-controller="Members" asp-action="Details" asp-route-id="@partner.Id" target="_blank">@partner.FullName</a>
             }

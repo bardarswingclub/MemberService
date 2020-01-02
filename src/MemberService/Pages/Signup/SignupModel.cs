@@ -18,7 +18,7 @@ namespace MemberService.Pages.Signup
 
         public SignupInputModel Input { get; set; }
 
-        public MemberUser User { get; set; }
+        public User User { get; set; }
 
         public EventSignup UserEventSignup { get; set; }
 

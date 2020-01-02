@@ -1,4 +1,5 @@
 ﻿using MemberService.Data;
+using MemberService.Data.ValueTypes;
 using Microsoft.AspNetCore.Authorization;
 
 namespace MemberService.Auth

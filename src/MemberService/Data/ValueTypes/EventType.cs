@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace MemberService.Data
+namespace MemberService.Data.ValueTypes
 {
     public enum EventType
     {

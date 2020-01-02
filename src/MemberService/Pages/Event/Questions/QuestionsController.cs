@@ -6,6 +6,7 @@ using Clave.Expressionify;
 using Clave.ExtensionMethods;
 using MemberService.Auth;
 using MemberService.Data;
+using MemberService.Data.ValueTypes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -18,11 +19,11 @@ namespace MemberService.Pages.Event.Questions
     public class QuestionsController : Controller
     {
         private readonly MemberContext _database;
-        private readonly UserManager<MemberUser> _userManager;
+        private readonly UserManager<User> _userManager;
 
         public QuestionsController(
             MemberContext database,
-            UserManager<MemberUser> userManager)
+            UserManager<User> userManager)
         {
             _database = database;
             _userManager = userManager;
@@ -36,7 +37,7 @@ namespace MemberService.Pages.Event.Questions
                 .Include(e => e.Questions)
                 .ThenInclude(q => q.Options)
                 .ThenInclude(s => s.Answers)
-                .ThenInclude(a => a.Signup)
+                .ThenInclude(a => a.EventSignup)
                 .ThenInclude(s => s.User)
                 .AsNoTracking()
                 .Expressionify()

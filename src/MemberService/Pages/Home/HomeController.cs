@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Clave.Expressionify;
 using Clave.ExtensionMethods;
 using MemberService.Data;
+using MemberService.Data.ValueTypes;
 using MemberService.Pages.Signup;
 using MemberService.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -19,11 +20,11 @@ namespace MemberService.Pages.Home
     public class HomeController : Controller
     {
         private readonly MemberContext _memberContext;
-        private readonly UserManager<MemberUser> _userManager;
+        private readonly UserManager<User> _userManager;
 
         public HomeController(
             MemberContext memberContext,
-            UserManager<MemberUser> userManager)
+            UserManager<User> userManager)
         {
             _memberContext = memberContext;
             _userManager = userManager;
@@ -165,7 +166,7 @@ namespace MemberService.Pages.Home
             return View();
         }
 
-        private async Task<MemberUser> GetCurrentUser()
+        private async Task<User> GetCurrentUser()
             => await _memberContext.Users
                 .Include(x => x.Payments)
                 .SingleUser(_userManager.GetUserId(User));

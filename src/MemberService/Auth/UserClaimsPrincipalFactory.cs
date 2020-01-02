@@ -6,17 +6,17 @@ using Microsoft.Extensions.Options;
 
 namespace MemberService.Auth
 {
-    public class MemberUserClaimsPrincipalFactory : UserClaimsPrincipalFactory<MemberUser, MemberRole>
+    public class UserClaimsPrincipalFactory : UserClaimsPrincipalFactory<User, MemberRole>
     {
-        public MemberUserClaimsPrincipalFactory(
-            UserManager<MemberUser> userManager,
+        public UserClaimsPrincipalFactory(
+            UserManager<User> userManager,
             RoleManager<MemberRole> roleManager,
             IOptions<IdentityOptions> optionsAccessor)
             : base(userManager, roleManager, optionsAccessor)
         {
         }
 
-        protected override async Task<ClaimsIdentity> GenerateClaimsAsync(MemberUser user)
+        protected override async Task<ClaimsIdentity> GenerateClaimsAsync(User user)
         {
             var identity = await base.GenerateClaimsAsync(user);
             identity.AddClaim(new Claim("FullName", user.FullName ?? ""));

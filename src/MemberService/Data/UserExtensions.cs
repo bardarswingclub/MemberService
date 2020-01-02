@@ -1,13 +1,14 @@
 ﻿using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using MemberService.Data.ValueTypes;
 using Microsoft.AspNetCore.Identity;
 
 namespace MemberService.Data
 {
     public static class UserExtensions
     {
-        public static async Task SeedUserRoles(this UserManager<MemberUser> userManager, params string[] emails)
+        public static async Task SeedUserRoles(this UserManager<User> userManager, params string[] emails)
         {
             foreach(var email in emails)
             {
@@ -42,9 +43,9 @@ namespace MemberService.Data
             }
         }
 
-        public static async Task<bool> EnsureUserHasRole(this UserManager<MemberUser> userManager, string email, string role)
+        public static async Task<bool> EnsureUserHasRole(this UserManager<User> userManager, string email, string role)
         {
-            if (await userManager.FindByEmailAsync(email) is MemberUser user)
+            if (await userManager.FindByEmailAsync(email) is User user)
             {
                 if (!await userManager.IsInRoleAsync(user, role))
                 {

@@ -5,6 +5,6 @@ namespace MemberService.Pages.Admin
 {
     public class AdminModel
     {
-        public IReadOnlyCollection<(MemberRole, IReadOnlyCollection<MemberUser>)> Roles { get; set; }
+        public IReadOnlyCollection<(MemberRole, IReadOnlyCollection<User>)> Roles { get; set; }
     }
 }

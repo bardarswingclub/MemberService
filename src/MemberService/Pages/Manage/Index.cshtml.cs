@@ -16,14 +16,14 @@ namespace MemberService.Pages.Manage
     [Authorize]
     public partial class IndexModel : PageModel
     {
-        private readonly UserManager<MemberUser> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly MemberContext _memberContext;
-        private readonly SignInManager<MemberUser> _signInManager;
+        private readonly SignInManager<User> _signInManager;
 
         public IndexModel(
-            UserManager<MemberUser> userManager,
+            UserManager<User> userManager,
             MemberContext memberContext,
-            SignInManager<MemberUser> signInManager)
+            SignInManager<User> signInManager)
         {
             _userManager = userManager;
             _memberContext = memberContext;

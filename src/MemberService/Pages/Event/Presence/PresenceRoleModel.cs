@@ -2,6 +2,7 @@
 using System.Linq;
 using Clave.ExtensionMethods;
 using MemberService.Data;
+using MemberService.Data.ValueTypes;
 
 namespace MemberService.Pages.Event.Presence
 {

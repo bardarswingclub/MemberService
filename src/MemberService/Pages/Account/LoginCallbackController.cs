@@ -11,12 +11,12 @@ namespace MemberService.Pages.Account
     [AllowAnonymous]
     public class LoginCallbackController : Controller
     {
-        private readonly UserManager<MemberUser> _userManager;
-        private readonly SignInManager<MemberUser> _signInManager;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
 
         public LoginCallbackController(
-            UserManager<MemberUser> userManager,
-            SignInManager<MemberUser> signInManager)
+            UserManager<User> userManager,
+            SignInManager<User> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -53,7 +53,7 @@ namespace MemberService.Pages.Account
             return await SignIn(user, Input.Code.Trim(), "ShortToken", Input.ReturnUrl);
         }
 
-        private async Task<IActionResult> SignIn(MemberUser user, string token, string tokenType, string returnUrl)
+        private async Task<IActionResult> SignIn(User user, string token, string tokenType, string returnUrl)
         {
             if (user == null)
             {

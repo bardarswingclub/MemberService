@@ -5,8 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Data
 {
-    public class MemberContext : IdentityDbContext<MemberUser, MemberRole, string, IdentityUserClaim<string>,
-    MemberUserRole, IdentityUserLogin<string>,
+    public class MemberContext : IdentityDbContext<User, MemberRole, string, IdentityUserClaim<string>,
+    UserRole, IdentityUserLogin<string>,
     IdentityRoleClaim<string>, IdentityUserToken<string>>
     {
         public MemberContext(DbContextOptions<MemberContext> options)
@@ -32,7 +32,7 @@ namespace MemberService.Data
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<MemberUserRole>(userRole =>
+            builder.Entity<UserRole>(userRole =>
             {
                 userRole.HasKey(ur => new { ur.UserId, ur.RoleId });
 

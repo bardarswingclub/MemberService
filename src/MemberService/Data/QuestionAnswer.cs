@@ -10,8 +10,8 @@ namespace MemberService.Data
 
         public QuestionOption Option { get; set; }
 
-        public Guid SignupId { get; set; }
+        public Guid EventSignupId { get; set; }
 
-        public EventSignup Signup { get; set; }
+        public EventSignup EventSignup { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-namespace MemberService.Data
+namespace MemberService.Data.ValueTypes
 {
     public static class Roles
     {

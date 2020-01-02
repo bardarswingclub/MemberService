@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using MemberService.Data.ValueTypes;
 
 namespace MemberService.Data
 {
@@ -20,7 +21,7 @@ namespace MemberService.Data
         public string CreatedBy { get; set; }
 
         [ForeignKey(nameof(CreatedBy))]
-        public MemberUser CreatedByUser { get; set; }
+        public User CreatedByUser { get; set; }
 
         public EventSignupOptions SignupOptions { get; set; } = new EventSignupOptions();
 

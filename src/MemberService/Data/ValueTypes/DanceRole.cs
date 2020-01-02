@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace MemberService.Data
+namespace MemberService.Data.ValueTypes
 {
     public enum DanceRole
     {

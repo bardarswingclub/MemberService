@@ -16,7 +16,7 @@ namespace MemberService.Services
         public const decimal TrainingFee = 425;
         public const decimal ClassesFee = 900;
 
-        public static (FeeStatus FeeStatus, Fee Fee) GetFee(this MemberUser user, string key)
+        public static (FeeStatus FeeStatus, Fee Fee) GetFee(this User user, string key)
         {
             switch (key)
             {
@@ -31,7 +31,7 @@ namespace MemberService.Services
             }
         }
 
-        public static (FeeStatus FeeStatus, Fee Fee) GetMembershipFee(this MemberUser user)
+        public static (FeeStatus FeeStatus, Fee Fee) GetMembershipFee(this User user)
         {
             if (user.HasPayedMembershipThisYear())
                 return (FeeStatus.Paid, null);
@@ -42,7 +42,7 @@ namespace MemberService.Services
             );
         }
 
-        public static (FeeStatus FeeStatus, Fee Fee) GetTrainingFee(this MemberUser user)
+        public static (FeeStatus FeeStatus, Fee Fee) GetTrainingFee(this User user)
         {
             if (user.HasPayedTrainingFeeThisSemester())
                 return (FeeStatus.Paid, null);
@@ -62,7 +62,7 @@ namespace MemberService.Services
             );
         }
 
-        public static (FeeStatus FeeStatus, Fee Fee) GetClassesFee(this MemberUser user)
+        public static (FeeStatus FeeStatus, Fee Fee) GetClassesFee(this User user)
         {
             if (user.HasPayedClassesFeeThisSemester())
                 return (FeeStatus.Paid, null);

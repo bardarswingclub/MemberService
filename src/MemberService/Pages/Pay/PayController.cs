@@ -14,14 +14,14 @@ namespace MemberService.Pages.Pay
 {
     public class PayController : Controller
     {
-        private readonly SignInManager<MemberUser> _signInManager;
-        private readonly UserManager<MemberUser> _userManager;
+        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<User> _userManager;
         private readonly MemberContext _memberContext;
         private readonly IPaymentService _paymentService;
 
         public PayController(
-            SignInManager<MemberUser> signInManager,
-            UserManager<MemberUser> userManager,
+            SignInManager<User> signInManager,
+            UserManager<User> userManager,
             MemberContext memberContext,
             IPaymentService paymentService)
         {
@@ -38,7 +38,7 @@ namespace MemberService.Pages.Pay
                 return NotFound();
             }
 
-            if (email != null && await _userManager.FindByEmailAsync(email) is MemberUser user)
+            if (email != null && await _userManager.FindByEmailAsync(email) is User user)
             {
                 name = user.FullName;
                 if (User.Identity.IsAuthenticated)
@@ -129,7 +129,7 @@ namespace MemberService.Pages.Pay
             return RedirectToAction(nameof(HomeController.Fees), "Home");
         }
 
-        private async Task<MemberUser> GetCurrentUser()
+        private async Task<User> GetCurrentUser()
             => await _memberContext.Users
                 .Include(x => x.Payments)
                 .SingleUser(_userManager.GetUserId(User));

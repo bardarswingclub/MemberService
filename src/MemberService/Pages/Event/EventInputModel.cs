@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using MemberService.Data;
+using MemberService.Data.ValueTypes;
 
 namespace MemberService.Pages.Event
 {

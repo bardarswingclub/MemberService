@@ -67,7 +67,7 @@ namespace MemberService
             services.AddDbContext<MemberContext>(ConfigureConnectionString);
 
             services
-                .AddIdentity<MemberUser, MemberRole>(config =>
+                .AddIdentity<User, MemberRole>(config =>
                 {
                     config.SignIn.RequireConfirmedEmail = true;
                     config.User.RequireUniqueEmail = true;
@@ -95,7 +95,7 @@ namespace MemberService
                 options.AddPolicy(nameof(Policy.IsInstructor), Policy.IsInstructor);
             });
 
-            services.AddScoped<IUserClaimsPrincipalFactory<MemberUser>, MemberUserClaimsPrincipalFactory>();
+            services.AddScoped<IUserClaimsPrincipalFactory<User>, UserClaimsPrincipalFactory>();
 
             services.UseNamespaceViewLocations();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);

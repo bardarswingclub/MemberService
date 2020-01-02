@@ -10,13 +10,13 @@ namespace MemberService.Services
 {
     public class LoginService : ILoginService
     {
-        private readonly SignInManager<MemberUser> _signInManager;
-        private readonly UserManager<MemberUser> _userManager;
+        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<User> _userManager;
         private readonly IUrlHelper _urlHelper;
 
         public LoginService(
-            SignInManager<MemberUser> signInManager,
-            UserManager<MemberUser> userManager,
+            SignInManager<User> signInManager,
+            UserManager<User> userManager,
             IUrlHelper urlHelper)
         {
             _signInManager = signInManager;
@@ -29,15 +29,15 @@ namespace MemberService.Services
             return _signInManager.IsSignedIn(user);
         }
 
-        public async Task<MemberUser> GetOrCreateUser(string email)
+        public async Task<User> GetOrCreateUser(string email)
         {
-            if (await _userManager.FindByEmailAsync(email) is MemberUser user)
+            if (await _userManager.FindByEmailAsync(email) is User user)
             {
                 return user;
             }
             else
             {
-                var newUser = new MemberUser { UserName = email, Email = email };
+                var newUser = new User { UserName = email, Email = email };
                 var result = await _userManager.CreateAsync(newUser);
                 if (result.Succeeded)
                 {
@@ -50,12 +50,12 @@ namespace MemberService.Services
             }
         }
 
-        public async Task<string> LoginCode(MemberUser user)
+        public async Task<string> LoginCode(User user)
         {
             return await _userManager.GenerateUserTokenAsync(user, "ShortToken", "passwordless-auth");
         }
 
-        public async Task<string> LoginLink(MemberUser user, string returnUrl)
+        public async Task<string> LoginLink(User user, string returnUrl)
         {
             var token = await _userManager.GenerateUserTokenAsync(user, "LongToken", "passwordless-auth");
 

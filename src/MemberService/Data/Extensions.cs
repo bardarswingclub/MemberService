@@ -10,16 +10,16 @@ namespace MemberService.Data
     public static class Extensions
     {
         [Expressionify]
-        public static bool HasPayedMembershipThisYear(this MemberUser user)
+        public static bool HasPayedMembershipThisYear(this User user)
             => user.Payments.Any(p => p.PayedAtUtc > TimeProvider.ThisYearUtc && p.IncludesMembership && !p.Refunded);
 
         [Expressionify]
-        public static bool HasPayedTrainingFeeThisSemester(this MemberUser user)
+        public static bool HasPayedTrainingFeeThisSemester(this User user)
             => user.Payments.Any(p => p.PayedAtUtc > TimeProvider.ThisSemesterUtc && p.IncludesTraining && !p.Refunded)
             || user.ExemptFromTrainingFee && user.HasPayedMembershipThisYear();
 
         [Expressionify]
-        public static bool HasPayedClassesFeeThisSemester(this MemberUser user)
+        public static bool HasPayedClassesFeeThisSemester(this User user)
             => user.Payments.Any(p => p.PayedAtUtc > TimeProvider.ThisSemesterUtc && p.IncludesClasses && !p.Refunded)
             || user.ExemptFromClassesFee && user.HasPayedTrainingFeeThisSemester();
 
@@ -40,10 +40,10 @@ namespace MemberService.Data
             => !e.HasOpened() && !e.HasClosed();
 
         [Expressionify]
-        public static bool IsSignedUpFor(this MemberUser user, Guid id)
+        public static bool IsSignedUpFor(this User user, Guid id)
             => user.EventSignups.Any(e => e.EventId == id);
 
-        public static async Task<MemberUser> SingleUser(this IQueryable<MemberUser> users, string id)
+        public static async Task<User> SingleUser(this IQueryable<User> users, string id)
             => await users.SingleOrDefaultAsync(user => user.Id == id);
 
         public static void HasEnumStringConversion<TEnum>(this PropertyBuilder<TEnum> property)

@@ -14,6 +14,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using MemberService.Data.ValueTypes;
 
 namespace MemberService
 {
@@ -88,7 +89,7 @@ namespace MemberService
             return statuses.Count(s => s.Role == DanceRole.None).ToString();
         }
 
-        public static void Add(this ICollection<EventSignupAuditEntry> collection, string message, MemberUser user, DateTime? occuredAtUtc = null)
+        public static void Add(this ICollection<EventSignupAuditEntry> collection, string message, User user, DateTime? occuredAtUtc = null)
             => collection.Add(new EventSignupAuditEntry
             {
                 User = user,

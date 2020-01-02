@@ -16,11 +16,11 @@ namespace MemberService.Pages.Event.Presence
     public class PresenceController : Controller
     {
         private readonly MemberContext _database;
-        private readonly UserManager<MemberUser> _userManager;
+        private readonly UserManager<User> _userManager;
 
         public PresenceController(
             MemberContext database,
-            UserManager<MemberUser> userManager)
+            UserManager<User> userManager)
         {
             _database = database;
             _userManager = userManager;
@@ -100,7 +100,7 @@ namespace MemberService.Pages.Event.Presence
             return Ok();
         }
 
-        private async Task<MemberUser> GetCurrentUser()
+        private async Task<User> GetCurrentUser()
             => await _database.Users.SingleUser(_userManager.GetUserId(User));
     }
 }

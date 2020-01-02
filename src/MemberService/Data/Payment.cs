@@ -9,7 +9,7 @@ namespace MemberService.Data
         public string Id { get; set; }
 
         [Required]
-        public MemberUser User { get; set; }
+        public User User { get; set; }
 
         [Required]
         public DateTime PayedAtUtc { get; set; }

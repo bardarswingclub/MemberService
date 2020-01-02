@@ -31,7 +31,7 @@ namespace MemberService
                         .SeedRoles();
 
                     await scope.ServiceProvider
-                        .GetRequiredService<UserManager<MemberUser>>()
+                        .GetRequiredService<UserManager<User>>()
                         .SeedUserRoles(config.AdminEmails.Split(","));
                 }
 

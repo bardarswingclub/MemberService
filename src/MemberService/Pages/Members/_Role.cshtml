@@ -1,4 +1,4 @@
-@model (MemberUser User, string Role)
+@model (User User, string Role)
 
 <form asp-controller="Members" asp-action="ToggleRole" asp-route-id="@Model.User.Id" method="post" class="d-inline">
     <input type="hidden" name="role" value="@Model.Role">

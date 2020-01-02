@@ -10,8 +10,8 @@ namespace MemberService.Pages.Account
 {
     public class RegisterModel : PageModel
     {
-        private readonly UserManager<MemberUser> _userManager;
-        private readonly SignInManager<MemberUser> _signInManager;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
 
         [BindProperty]
         public InputModel Input { get; set; }
@@ -26,8 +26,8 @@ namespace MemberService.Pages.Account
         }
 
         public RegisterModel(
-            UserManager<MemberUser> userManager,
-            SignInManager<MemberUser> signInManager)
+            UserManager<User> userManager,
+            SignInManager<User> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;

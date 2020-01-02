@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Clave.Expressionify;
 using MemberService.Data;
+using MemberService.Data.ValueTypes;
 
 namespace MemberService.Pages.Manage
 {

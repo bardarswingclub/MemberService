@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Clave.Expressionify;
 using Clave.ExtensionMethods;
 using MemberService.Data;
+using MemberService.Data.ValueTypes;
 using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Signup
@@ -45,7 +46,7 @@ namespace MemberService.Pages.Signup
                     .ThenInclude(q => q.Options)
                 .SingleOrDefaultAsync(e => e.Id == id);
 
-        public static async Task<MemberUser> GetUser(this MemberContext database, string userId)
+        public static async Task<User> GetUser(this MemberContext database, string userId)
             => await database.Users
                 .Include(u => u.Payments)
                 .Include(u => u.EventSignups)
@@ -53,13 +54,13 @@ namespace MemberService.Pages.Signup
                 .AsNoTracking()
                 .SingleUser(userId);
 
-        public static async Task<MemberUser> GetEditableUser(this MemberContext database, string userId)
+        public static async Task<User> GetEditableUser(this MemberContext database, string userId)
             => await database.Users
                 .Include(u => u.Payments)
                 .Include(u => u.EventSignups)
                 .SingleUser(userId);
 
-        public static EventSignup GetEditableEvent(this MemberUser user, Guid id)
+        public static EventSignup GetEditableEvent(this User user, Guid id)
             => user.EventSignups
                 .Where(e => e.CanEdit())
                 .FirstOrDefault(e => e.EventId == id);
@@ -67,7 +68,7 @@ namespace MemberService.Pages.Signup
         public static bool ShouldAutoAccept(this Data.Event model, DanceRole role)
             => model.SignupOptions.AutoAcceptedSignups > model.Signups.Count(s => s.Role == role);
 
-        public static EventSignup AddEventSignup(this MemberUser user, Guid id, DanceRole role, string partnerEmail, bool autoAccept, int priority = 1)
+        public static EventSignup AddEventSignup(this User user, Guid id, DanceRole role, string partnerEmail, bool autoAccept, int priority = 1)
         {
             var status = autoAccept ? Status.Approved : Status.Pending;
             var signup = new EventSignup
@@ -124,19 +125,19 @@ namespace MemberService.Pages.Signup
         public static bool CanEdit(this EventSignup e)
             => e.Status == Status.Pending || e.Status == Status.Recommended;
 
-        public static bool MustPayNonMembersPrice(this MemberUser user, EventSignupOptions options)
+        public static bool MustPayNonMembersPrice(this User user, EventSignupOptions options)
             => options.PriceForNonMembers > 0 && !user.HasPayedMembershipThisYear();
 
-        public static bool MustPayMembersPrice(this MemberUser user, EventSignupOptions options)
+        public static bool MustPayMembersPrice(this User user, EventSignupOptions options)
             => options.PriceForMembers > 0 && user.HasPayedMembershipThisYear();
 
-        public static bool MustPayMembershipFee(this MemberUser user, EventSignupOptions options)
+        public static bool MustPayMembershipFee(this User user, EventSignupOptions options)
             => options.RequiresMembershipFee && !user.HasPayedMembershipThisYear();
 
-        public static bool MustPayTrainingFee(this MemberUser user, EventSignupOptions options)
+        public static bool MustPayTrainingFee(this User user, EventSignupOptions options)
             => options.RequiresTrainingFee && !user.HasPayedTrainingFeeThisSemester() && !user.ExemptFromTrainingFee;
 
-        public static bool MustPayClassesFee(this MemberUser user, EventSignupOptions options)
+        public static bool MustPayClassesFee(this User user, EventSignupOptions options)
             => options.RequiresClassesFee && !user.HasPayedClassesFeeThisSemester() && !user.ExemptFromClassesFee;
     }
 }

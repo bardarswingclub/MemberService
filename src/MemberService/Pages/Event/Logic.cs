@@ -21,7 +21,7 @@ namespace MemberService.Pages.Event
                 .OrderByDescending(e => e.CreatedAt)
                 .ToListAsync();
 
-        public static Data.Event ToEntity(this EventInputModel model, MemberUser user)
+        public static Data.Event ToEntity(this EventInputModel model, User user)
             => new Data.Event
             {
                 Title = model.Title,
