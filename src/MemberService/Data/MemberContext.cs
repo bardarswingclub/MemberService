@@ -74,6 +74,14 @@ namespace MemberService.Data
                     .HasForeignKey(s => s.PartnerEmail)
                     .HasPrincipalKey(s => s.NormalizedEmail)
                     .IsRequired(false);
+
+                signup
+                    .HasOne(s => s.User)
+                    .WithMany(u => u.EventSignups)
+                    .HasForeignKey(s => s.UserId)
+                    .HasPrincipalKey(u => u.Id)
+                    .IsRequired(true);
+
             });
 
             builder.Entity<Event>(@event =>

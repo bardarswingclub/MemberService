@@ -14,6 +14,7 @@ namespace MemberService.Data
 
         public Event Event { get; set; }
 
+        [Required]
         public string UserId { get; set; }
 
         public User User { get; set; }
