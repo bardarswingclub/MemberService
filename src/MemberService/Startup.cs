@@ -86,7 +86,18 @@ namespace MemberService
                 .AddPasswordlessLoginTokenProvider(IsDevelopment);
 
             services.AddRazorPages();
-            services.AddControllers();
+
+            if (HostingEnvironment.IsDevelopment())
+            {
+                services
+                    .AddControllersWithViews()
+                    .AddRazorRuntimeCompilation();
+            }
+            else
+            {
+                services
+                    .AddControllersWithViews();
+            }
 
             services.AddAuthorization(options =>
             {
