@@ -41,6 +41,8 @@ namespace MemberService.Data
 
         public ICollection<Presence> Presence { get; set; } = new List<Presence>();
 
-        public ICollection<QuestionAnswer> Answers { get; set; } = new List<QuestionAnswer>();
+        public Guid? ResponseId { get; set; }
+
+        public Response Response { get; set; }
     }
 }

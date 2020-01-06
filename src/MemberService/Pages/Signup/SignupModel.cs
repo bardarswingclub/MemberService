@@ -38,7 +38,7 @@ namespace MemberService.Pages.Signup
                 Options = e.SignupOptions,
                 IsOpen = e.IsOpen(),
                 HasClosed = e.HasClosed(),
-                Questions = e.Questions.Select(q => SignupQuestion.Create(q)).ToList()
+                Questions = e.Survey.Questions.Select(q => SignupQuestion.Create(q)).ToList()
             };
     }
 }

@@ -126,9 +126,16 @@ namespace MemberService.Pages.Signup
 
             try
             {
-                signup.Answers = model.Questions
-                    .JoinWithAnswers(input.Answers)
-                    .ToList();
+                if (model.Survey != null)
+                {
+                    signup.Response = new Response
+                    {
+                        User = user,
+                        Answers = model.Survey.Questions
+                            .JoinWithAnswers(input.Answers)
+                            .ToList()
+                    };
+                }
             }
             catch (ModelErrorException error)
             {
@@ -201,9 +208,17 @@ namespace MemberService.Pages.Signup
 
                 try
                 {
-                    eventSignup.Answers = model.Questions
-                        .JoinWithAnswers(input.Answers)
-                        .ToList();
+                    if (model.Survey != null)
+                    {
+                        if (eventSignup.Response == null)
+                        {
+                            eventSignup.Response = new Response {User = user};
+                        }
+
+                        eventSignup.Response.Answers = model.Survey.Questions
+                            .JoinWithAnswers(input.Answers)
+                            .ToList();
+                    }
                 }
                 catch (ModelErrorException error)
                 {

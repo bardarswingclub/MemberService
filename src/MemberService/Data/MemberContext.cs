@@ -22,6 +22,8 @@ namespace MemberService.Data
 
         public DbSet<Presence> Presence { get; set; }
 
+        public DbSet<Survey> Surveys { get; set; }
+
         public DbSet<Question> Questions { get; set; }
 
         public DbSet<QuestionAnswer> QuestionAnswers { get; set; }

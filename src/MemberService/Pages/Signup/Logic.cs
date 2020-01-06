@@ -29,8 +29,9 @@ namespace MemberService.Pages.Signup
         public static async Task<SignupModel> GetSignupModel(this MemberContext db, Guid id)
             => await db.Events
                 .Include(e => e.SignupOptions)
-                .Include(e => e.Questions)
-                    .ThenInclude(q => q.Options)
+                .Include(e => e.Survey)
+                    .ThenInclude(s => s.Questions)
+                        .ThenInclude(q => q.Options)
                 .AsNoTracking()
                 .Expressionify()
                 .Where(e => e.Archived == false)
@@ -40,17 +41,20 @@ namespace MemberService.Pages.Signup
         public static async Task<Data.Event> GetEditableEvent(this MemberContext db, Guid id)
             => await db.Events
                 .Include(e => e.Signups)
-                    .ThenInclude(s => s.Answers)
+                    .ThenInclude(s => s.Response)
+                        .ThenInclude(r => r.Answers)
                 .Include(e => e.SignupOptions)
-                .Include(e => e.Questions)
-                    .ThenInclude(q => q.Options)
+                .Include(e => e.Survey)
+                    .ThenInclude(s => s.Questions)
+                        .ThenInclude(q => q.Options)
                 .SingleOrDefaultAsync(e => e.Id == id);
 
         public static async Task<User> GetUser(this MemberContext database, string userId)
             => await database.Users
                 .Include(u => u.Payments)
                 .Include(u => u.EventSignups)
-                    .ThenInclude(s => s.Answers)
+                    .ThenInclude(s => s.Response)
+                        .ThenInclude(r => r.Answers)
                 .AsNoTracking()
                 .SingleUser(userId);
 

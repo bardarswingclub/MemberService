@@ -1,15 +1,11 @@
-﻿@model QuestionsModel
+﻿@model MemberService.Pages.Event.Survey.SurveyResultModel
 
 @{
     Layout = "../_Layout.cshtml";
-    ViewData["Title"] = Model.EventTitle;
-    ViewData["Description"] = Model.EventDescription;
-    ViewData["Id"] = Model.EventId;
+    ViewData["Title"] = Model.Title;
+    ViewData["Description"] = Model.Description;
+    ViewData["Id"] = Model.Id;
     ViewData["Selected"] = "answers";
-
-    var signups = Model.Filter == "paid" ? Model.SignupsByPaid
-        : Model.Filter == "approved" ? Model.SignupsByApproved
-        : Model.SignupsByAll;
 }
 
 @if (Model.Questions.NotAny())
@@ -25,8 +21,8 @@
 }
 else
 {
-    <form method="get" asp-controller="Questions" asp-action="Index" asp-route-id="@Model.EventId" class="btn-group" role="group" aria-label="Basic example">
-        <button type="submit" name="filter" value="all" class="btn btn-secondary @(Model.Filter == "all" ? "active" : "")">
+    <form method="get" asp-controller="Questions" asp-action="Index" asp-route-id="@Model.Id" class="btn-group" role="group" aria-label="Basic example">
+        @*<button type="submit" name="filter" value="all" class="btn btn-secondary @(Model.Filter == "all" ? "active" : "")">
             Alle
             <span class="badge badge-light">@Model.SignupsByAll</span>
         </button>
@@ -37,7 +33,7 @@ else
         <button type="submit" name="filter" value="paid" class="btn btn-secondary @(Model.Filter == "paid" ? "active" : "")">
             De som har fått plass og betalt
             <span class="badge badge-light">@Model.SignupsByPaid</span>
-        </button>
+        </button>*@
     </form>
 
     <div class="card-columns card-columns-2 mt-5">
@@ -55,9 +51,7 @@ else
                 <ul class="list-group list-group-flush">
                     @foreach (var option in question.Options)
                     {
-                        var selectedBy = Model.Filter == "paid" ? option.SelectedByPaid
-                            : Model.Filter == "approved" ? option.SelectedByApproved
-                            : option.SelectedByAll;
+                        var selectedBy = Model.Responses;
                         <li class="list-group-item">
                             <h5 class="d-flex">
                                 <span>
@@ -67,7 +61,7 @@ else
                             </h5>
                             <p>@option.Description</p>
                             <div class="progress">
-                                <div class="progress-bar" role="progressbar" style="width: @(Math.Floor(selectedBy.Count * 100f / signups))%; font-weight: bold;" aria-valuenow="@selectedBy.Count" aria-valuemin="0" aria-valuemax="@signups">@selectedBy.Count</div>
+                                <div class="progress-bar" role="progressbar" style="width: @(Math.Floor(selectedBy.Count * 100f / Model.Responses.Count))%; font-weight: bold;" aria-valuenow="@selectedBy.Count" aria-valuemin="0" aria-valuemax="@Model.Responses.Count">@selectedBy.Count</div>
                             </div>
                             @if (selectedBy.Any())
                             {
@@ -77,9 +71,9 @@ else
                                         @foreach (var signup in selectedBy)
                                         {
                                             <li>
-                                                <a asp-controller="Members" asp-action="Details" asp-route-id="@signup.Id" target="_blank">@signup.Name</a>
+                                                <a asp-controller="Members" asp-action="Details" asp-route-id="@signup.UserId" target="_blank">@signup.Name</a>
                                                 <span class="badge badge-primary">
-                                                    @signup.Status.DisplayName()
+                                                    @*signup.Status.DisplayName()*@
                                                 </span>
                                             </li>
                                         }

@@ -62,11 +62,11 @@
                 <div class="form-check">
                     @if (question.Type == QuestionType.CheckBox)
                     {
-                        <input class="form-check-input" type="checkbox" name="Answers[@i].Selected" value="@option.Id" id="@option.Id" checked="@(Model.UserEventSignup.Answers.Any(a => a.OptionId == option.Id))" />
+                        <input class="form-check-input" type="checkbox" name="Answers[@i].Selected" value="@option.Id" id="@option.Id" checked="@(Model.UserEventSignup.Response.Answers.Any(a => a.OptionId == option.Id))" />
                     }
                     else if (question.Type == QuestionType.Radio)
                     {
-                        <input class="form-check-input" type="radio" name="Answers[@i].Selected" value="@option.Id" id="@option.Id" data-val="true" data-val-required="Velg et av alternativene" checked="@(Model.UserEventSignup.Answers.Any(a => a.OptionId == option.Id))" />
+                        <input class="form-check-input" type="radio" name="Answers[@i].Selected" value="@option.Id" id="@option.Id" data-val="true" data-val-required="Velg et av alternativene" checked="@(Model.UserEventSignup.Response.Answers.Any(a => a.OptionId == option.Id))" />
                     }
                     <label class="form-check-label" for="@option.Id">@option.Title</label>
                     <small class="text-muted form-text">@option.Description</small>

@@ -10,9 +10,9 @@ namespace MemberService.Data
 
         public QuestionType Type { get; set; }
 
-        public Guid EventId { get; set; }
+        public Guid SurveyId { get; set; }
 
-        public Event Event { get; set; }
+        public Survey Survey { get; set; }
 
         public int Order { get; set; }
 

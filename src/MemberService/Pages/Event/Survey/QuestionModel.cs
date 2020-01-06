@@ -5,7 +5,7 @@ using Clave.Expressionify;
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
 
-namespace MemberService.Pages.Event.Questions
+namespace MemberService.Pages.Event.Survey
 {
     public class QuestionModel
     {

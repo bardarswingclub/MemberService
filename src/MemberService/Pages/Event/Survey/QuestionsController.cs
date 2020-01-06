@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace MemberService.Pages.Event.Questions
+namespace MemberService.Pages.Event.Survey
 {
     [Authorize(nameof(Policy.IsInstructor))]
     [Route("/Event/{id}/Questions/{action=Index}/{questionId?}")]
@@ -31,20 +31,29 @@ namespace MemberService.Pages.Event.Questions
 
         [HttpGet]
         public async Task<IActionResult> Index(Guid id, string filter="all")
-        {
-            var model = await _database
-                .Events
-                .Include(e => e.Questions)
-                .ThenInclude(q => q.Options)
-                .ThenInclude(s => s.Answers)
-                .ThenInclude(a => a.EventSignup)
-                .ThenInclude(s => s.User)
-                .AsNoTracking()
-                .Expressionify()
-                .Select(e => QuestionsModel.Create(e, filter))
-                .SingleOrDefaultAsync(s => s.EventId == id);
+        {/*
+            var e = await _database.Events
+                .Include(e => e.Signups)
+                .Where(e => e.Signups.)
+                .SingleOrDefaultAsync(e => e.Id == id);
 
-            return View(model);
+            _database.Entry(e)
+                .Collection(e => e.Signups)
+                .;
+                
+
+            var survey = await _database
+                .Surveys
+                .Include(s => s.Questions)
+                    .ThenInclude(q => q.Options)
+                .Include(s => s.Responses)
+                    .ThenInclude(r => r.Answers)
+                .SingleOrDefaultAsync(s => s.Id == id);
+
+            await _database.Entry(survey)
+                .Collection(s => s.Responses)
+                */
+            return View(null);
         }
 
         [HttpGet]
@@ -52,11 +61,12 @@ namespace MemberService.Pages.Event.Questions
         {
             var model = await _database
                 .Events
-                .Include(e => e.Questions)
-                    .ThenInclude(q => q.Options)
+                .Include(e => e.Survey)
+                .ThenInclude(s => s.Questions)
+                .ThenInclude(q => q.Options)
                 .AsNoTracking()
                 .Expressionify()
-                .Select(e => QuestionsModel.Create(e, "all"))
+                .Select(e => SurveyModel.Create(e.Survey))
                 .SingleOrDefaultAsync(s => s.EventId == id);
 
             return View(model);
@@ -69,8 +79,8 @@ namespace MemberService.Pages.Event.Questions
             [FromForm] QuestionType type)
         {
             var model = await _database
-                .Events
-                .Include(e => e.Questions)
+                .Surveys
+                .Include(s => s.Responses)
                 .SingleOrDefaultAsync(e => e.Id == id);
 
             model.Questions.Add(new Question
@@ -94,7 +104,7 @@ namespace MemberService.Pages.Event.Questions
         {
             var question = await _database.Questions
                 .Include(q => q.Options)
-                .Where(q => q.EventId == id)
+                .Where(q => q.SurveyId == id)
                 .SingleAsync(q => q.Id == questionId);
 
             if (question == null)

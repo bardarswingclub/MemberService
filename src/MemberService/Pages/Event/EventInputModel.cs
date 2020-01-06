@@ -6,17 +6,15 @@ using MemberService.Data.ValueTypes;
 
 namespace MemberService.Pages.Event
 {
-    public class EventInputModel
+    public class EventInputModel : EventBaseModel
     {
         public Guid Id { get; set; }
 
         [DisplayName("Type")]
         public EventType Type { get; set; }
 
-        [DisplayName("Navn")]
         public string Title { get; set; }
 
-        [DisplayName("Beskrivelse")]
         public string Description { get; set; }
 
         public bool EnableSignupOpensAt { get; set; }
