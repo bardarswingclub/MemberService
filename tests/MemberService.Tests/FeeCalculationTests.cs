@@ -12,7 +12,7 @@ namespace MemberService.Tests
         [Test]
         public void TestMembershipFee_NoPayments()
         {
-            var user = new MemberUser();
+            var user = new User();
 
             var (status, fee) = user.GetMembershipFee();
 
@@ -29,7 +29,7 @@ namespace MemberService.Tests
         [Test]
         public void TestMembershipFee_AlreadyPayed()
         {
-            var user = new MemberUser
+            var user = new User
             {
                 Payments =
                 {
@@ -47,7 +47,7 @@ namespace MemberService.Tests
         [Test]
         public void TestMembershipFee_PayedLastYear()
         {
-            var user = new MemberUser
+            var user = new User
             {
                 Payments =
                 {
@@ -70,7 +70,7 @@ namespace MemberService.Tests
         [Test]
         public void TestTrainingFee_NoPayments()
         {
-            var user = new MemberUser();
+            var user = new User();
 
             var (status, fee) = user.GetTrainingFee();
 
@@ -87,7 +87,7 @@ namespace MemberService.Tests
         [Test]
         public void TestTrainingFee_AlreadyPayed()
         {
-            var user = new MemberUser
+            var user = new User
             {
                 Payments =
                 {
@@ -106,7 +106,7 @@ namespace MemberService.Tests
         [Test]
         public void TestTrainingFee_PayedLastYear()
         {
-            var user = new MemberUser
+            var user = new User
             {
                 Payments =
                 {
@@ -130,7 +130,7 @@ namespace MemberService.Tests
         [Test]
         public void TestTrainingFee_MembershipPayed()
         {
-            var user = new MemberUser
+            var user = new User
             {
                 Payments =
                 {
@@ -153,7 +153,7 @@ namespace MemberService.Tests
         [Test]
         public void TestClassesFee_NoPayments()
         {
-            var user = new MemberUser();
+            var user = new User();
 
             var (status, fee) = user.GetClassesFee();
 
@@ -170,7 +170,7 @@ namespace MemberService.Tests
         [Test]
         public void TestClassesFee_AlreadyPayed()
         {
-            var user = new MemberUser
+            var user = new User
             {
                 Payments =
                 {
@@ -190,7 +190,7 @@ namespace MemberService.Tests
         [Test]
         public void TestClassesFee_PayedLastYear()
         {
-            var user = new MemberUser
+            var user = new User
             {
                 Payments =
                 {
@@ -215,7 +215,7 @@ namespace MemberService.Tests
         [Test]
         public void TestClassesFee_MembershipPayed()
         {
-            var user = new MemberUser
+            var user = new User
             {
                 Payments =
                 {
@@ -238,7 +238,7 @@ namespace MemberService.Tests
         [Test]
         public void TestClassesFee_TrainingPayed()
         {
-            var user = new MemberUser
+            var user = new User
             {
                 Payments =
                 {
@@ -262,7 +262,7 @@ namespace MemberService.Tests
         [Test]
         public void TestMembershipFee_ExcemptTraining_NoPayments()
         {
-            var user = new MemberUser
+            var user = new User
             {
                 ExemptFromTrainingFee = true
             };
@@ -282,7 +282,7 @@ namespace MemberService.Tests
         [Test]
         public void TestTrainingFee_ExcemptTraining_NoPayments()
         {
-            var user = new MemberUser
+            var user = new User
             {
                 ExemptFromTrainingFee = true
             };
@@ -297,7 +297,7 @@ namespace MemberService.Tests
         [Test]
         public void TestClassesFee_ExcemptTraining_NoPayments()
         {
-            var user = new MemberUser
+            var user = new User
             {
                 ExemptFromTrainingFee = true
             };
@@ -317,7 +317,7 @@ namespace MemberService.Tests
         [Test]
         public void TestClassesFee_ExcemptTraining_MembershipPayed()
         {
-            var user = new MemberUser
+            var user = new User
             {
                 ExemptFromTrainingFee = true,
                 Payments =
@@ -341,7 +341,7 @@ namespace MemberService.Tests
         [Test]
         public void TestMembershipFee_ExcemptTrainingAndClasses_NoPayments()
         {
-            var user = new MemberUser
+            var user = new User
             {
                 ExemptFromTrainingFee = true,
                 ExemptFromClassesFee = true
@@ -362,7 +362,7 @@ namespace MemberService.Tests
         [Test]
         public void TestTrainingFee_ExcemptTrainingAndClasses_NoPayments()
         {
-            var user = new MemberUser
+            var user = new User
             {
                 ExemptFromTrainingFee = true,
                 ExemptFromClassesFee = true
@@ -378,7 +378,7 @@ namespace MemberService.Tests
         [Test]
         public void TestClassesFee_ExcemptTrainingAndClasses_NoPayments()
         {
-            var user = new MemberUser
+            var user = new User
             {
                 ExemptFromTrainingFee = true,
                 ExemptFromClassesFee = true
@@ -394,7 +394,7 @@ namespace MemberService.Tests
         [Test]
         public void TestClassesFee_ExcemptTrainingAndClasses_MembershipPayed()
         {
-            var user = new MemberUser
+            var user = new User
             {
                 ExemptFromTrainingFee = true,
                 ExemptFromClassesFee = true,
@@ -414,7 +414,7 @@ namespace MemberService.Tests
         [Test]
         public void TestMembershipFee_ExcemptClasses_NoPayments()
         {
-            var user = new MemberUser
+            var user = new User
             {
                 ExemptFromClassesFee = true
             };
@@ -434,7 +434,7 @@ namespace MemberService.Tests
         [Test]
         public void TestTrainingFee_ExcemptClasses_NoPayments()
         {
-            var user = new MemberUser
+            var user = new User
             {
                 ExemptFromClassesFee = true
             };
@@ -454,7 +454,7 @@ namespace MemberService.Tests
         [Test]
         public void TestClassesFee_ExcemptClasses_NoPayments()
         {
-            var user = new MemberUser
+            var user = new User
             {
                 ExemptFromClassesFee = true
             };
@@ -469,7 +469,7 @@ namespace MemberService.Tests
         [Test]
         public void TestClassesFee_ExcemptClasses_MembershipPayed()
         {
-            var user = new MemberUser
+            var user = new User
             {
                 ExemptFromClassesFee = true,
                 Payments =

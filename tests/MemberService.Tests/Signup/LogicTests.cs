@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Clave.ExtensionMethods.Magic;
 using MemberService.Data;
+using MemberService.Data.ValueTypes;
 using MemberService.Pages.Signup;
 using NUnit.Framework;
 
@@ -62,7 +63,7 @@ namespace MemberService.Tests.Signup
                 PriceForNonMembers = price
             };
 
-            var user = new MemberUser
+            var user = new User
             {
                 Payments =
                 {
@@ -84,7 +85,7 @@ namespace MemberService.Tests.Signup
                 PriceForMembers = price
             };
 
-            var user = new MemberUser
+            var user = new User
             {
                 Payments =
                 {
@@ -106,7 +107,7 @@ namespace MemberService.Tests.Signup
                 RequiresMembershipFee = requiresMembership
             };
 
-            var user = new MemberUser
+            var user = new User
             {
                 Payments =
                 {
@@ -132,7 +133,7 @@ namespace MemberService.Tests.Signup
                 RequiresTrainingFee = requiresTrainingFee
             };
 
-            var user = new MemberUser
+            var user = new User
             {
                 ExemptFromTrainingFee = exemptFromTrainingFee,
                 Payments =
@@ -159,7 +160,7 @@ namespace MemberService.Tests.Signup
                 RequiresClassesFee = requiresClassesFee
             };
 
-            var user = new MemberUser
+            var user = new User
             {
                 ExemptFromClassesFee = exemptFromClassesFee,
                 Payments =

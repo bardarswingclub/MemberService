@@ -11,7 +11,7 @@ namespace MemberService.Tests
         [Test]
         public void TestNoPayments()
         {
-            var user = new MemberUser();
+            var user = new User();
 
             user.HasPayedMembershipThisYear().ShouldBeFalse();
             user.HasPayedTrainingFeeThisSemester().ShouldBeFalse();
@@ -21,7 +21,7 @@ namespace MemberService.Tests
         [Test]
         public void TestPaidLastYear()
         {
-            var user = new MemberUser
+            var user = new User
             {
                 Payments =
                 {
@@ -39,7 +39,7 @@ namespace MemberService.Tests
         {
             using (TemporaryTime.Is(new DateTime(2019, 10, 2)))
             {
-                var user = new MemberUser
+                var user = new User
                 {
                     Payments =
                     {
@@ -58,7 +58,7 @@ namespace MemberService.Tests
         {
             using (TemporaryTime.Is(new DateTime(2019, 10, 2)))
             {
-                var user = new MemberUser
+                var user = new User
                 {
                     Payments =
                     {
@@ -77,7 +77,7 @@ namespace MemberService.Tests
         {
             using (TemporaryTime.Is(new DateTime(2019, 10, 2)))
             {
-                var user = new MemberUser
+                var user = new User
                 {
                     Payments =
                     {
@@ -96,7 +96,7 @@ namespace MemberService.Tests
         {
             using (TemporaryTime.Is(new DateTime(2019, 10, 2)))
             {
-                var user = new MemberUser
+                var user = new User
                 {
                     Payments =
                     {
@@ -115,7 +115,7 @@ namespace MemberService.Tests
         {
             using (TemporaryTime.Is(new DateTime(2019, 10, 2)))
             {
-                var user = new MemberUser
+                var user = new User
                 {
                     Payments =
                     {
@@ -134,7 +134,7 @@ namespace MemberService.Tests
         {
             using (TemporaryTime.Is(new DateTime(2019, 3, 2)))
             {
-                var user = new MemberUser
+                var user = new User
                 {
                     Payments =
                     {
@@ -153,7 +153,7 @@ namespace MemberService.Tests
         {
             using (TemporaryTime.Is(new DateTime(2019, 3, 2)))
             {
-                var user = new MemberUser
+                var user = new User
                 {
                     Payments =
                     {
@@ -172,7 +172,7 @@ namespace MemberService.Tests
         {
             using (TemporaryTime.Is(new DateTime(2019, 3, 2)))
             {
-                var user = new MemberUser
+                var user = new User
                 {
                     Payments =
                     {
@@ -191,7 +191,7 @@ namespace MemberService.Tests
         {
             using (TemporaryTime.Is(new DateTime(2019, 10, 2)))
             {
-                var user = new MemberUser
+                var user = new User
                 {
                     Payments =
                     {
@@ -211,7 +211,7 @@ namespace MemberService.Tests
         {
             using (TemporaryTime.Is(new DateTime(2019, 10, 2)))
             {
-                var user = new MemberUser
+                var user = new User
                 {
                     Payments =
                     {
@@ -231,7 +231,7 @@ namespace MemberService.Tests
         {
             using (TemporaryTime.Is(new DateTime(2019, 10, 2)))
             {
-                var user = new MemberUser
+                var user = new User
                 {
                     ExemptFromClassesFee = true,
                     ExemptFromTrainingFee = true
@@ -248,7 +248,7 @@ namespace MemberService.Tests
         {
             using (TemporaryTime.Is(new DateTime(2019, 10, 2)))
             {
-                var user = new MemberUser
+                var user = new User
                 {
                     ExemptFromClassesFee = true,
                     ExemptFromTrainingFee = true,

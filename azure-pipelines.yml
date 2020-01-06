@@ -17,33 +17,33 @@ steps:
   - task: DotNetCoreCLI@2
     displayName: Restore
     inputs:
-    command: restore
-    projects: '**/*.csproj'
+      command: restore
+      projects: '**/*.csproj'
 
   - task: DotNetCoreCLI@2
     displayName: Build
     inputs:
-    projects: '**/*.csproj'
-    arguments: '--configuration $(BuildConfiguration)'
+      projects: '**/*.csproj'
+      arguments: '--configuration $(BuildConfiguration)'
 
   - task: DotNetCoreCLI@2
     displayName: Test
     inputs:
-    command: test
-    projects: '**/*.Tests.csproj'
-    arguments: '--configuration $(BuildConfiguration)'
+      command: test
+      projects: '**/*.Tests.csproj'
+      arguments: '--configuration $(BuildConfiguration)'
 
   - task: DotNetCoreCLI@2
     displayName: Publish
     inputs:
-    command: publish
-    publishWebProjects: True
-    arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)'
-    zipAfterPublish: True
+      command: publish
+      publishWebProjects: True
+      arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)'
+      zipAfterPublish: True
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact'
     inputs:
-    PathtoPublish: '$(build.artifactstagingdirectory)'
-    ArtifactName: 'Drop'
+      PathtoPublish: '$(build.artifactstagingdirectory)'
+      ArtifactName: 'Drop'
 
