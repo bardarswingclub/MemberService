@@ -59,7 +59,7 @@ namespace MemberService.Pages.Event
                 .Include(e => e.Signups)
                     .ThenInclude(s => s.Partner)
                 .AsNoTracking()
-                .SingleOrDefaultAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id);
 
             if (model == null) return null;
 
@@ -78,7 +78,7 @@ namespace MemberService.Pages.Event
             var model = await context.Events
                 .Include(e => e.SignupOptions)
                 .AsNoTracking()
-                .SingleOrDefaultAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id);
 
             if (model == null) return null;
 
@@ -164,7 +164,7 @@ namespace MemberService.Pages.Event
                     .ThenInclude(s => s.User)
                 .Include(e => e.Signups)
                     .ThenInclude(s => s.AuditLog)
-                .SingleOrDefaultAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id);
 
             if (entry == null) return;
 

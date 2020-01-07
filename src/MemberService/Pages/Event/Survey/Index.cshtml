@@ -2,10 +2,12 @@
 
 @{
     Layout = "../_Layout.cshtml";
-    ViewData["Title"] = Model.Title;
-    ViewData["Description"] = Model.Description;
-    ViewData["Id"] = Model.Id;
+    ViewData["Title"] = Model.EventTitle;
+    ViewData["Description"] = Model.EventDescription;
+    ViewData["Id"] = Model.EventId;
     ViewData["Selected"] = "answers";
+    var totalCount = Model.Responses.DistinctBy(r => r.UserId).Count();
+
 }
 
 @if (Model.Questions.NotAny())
@@ -22,18 +24,18 @@
 else
 {
     <form method="get" asp-controller="Questions" asp-action="Index" asp-route-id="@Model.Id" class="btn-group" role="group" aria-label="Basic example">
-        @*<button type="submit" name="filter" value="all" class="btn btn-secondary @(Model.Filter == "all" ? "active" : "")">
+        <button type="submit" name="filter" value="all" class="btn btn-secondary @(Model.Filter == "all" ? "active" : "")">
             Alle
-            <span class="badge badge-light">@Model.SignupsByAll</span>
+            @*<span class="badge badge-light">@Model.SignupsByAll</span>*@
         </button>
         <button type="submit" name="filter" value="approved" class="btn btn-secondary @(Model.Filter == "approved" ? "active" : "")">
             De som har fått plass
-            <span class="badge badge-light">@Model.SignupsByApproved</span>
+            @*<span class="badge badge-light">@Model.SignupsByApproved</span>*@
         </button>
         <button type="submit" name="filter" value="paid" class="btn btn-secondary @(Model.Filter == "paid" ? "active" : "")">
             De som har fått plass og betalt
-            <span class="badge badge-light">@Model.SignupsByPaid</span>
-        </button>*@
+            @*<span class="badge badge-light">@Model.SignupsByPaid</span>*@
+        </button>
     </form>
 
     <div class="card-columns card-columns-2 mt-5">
@@ -51,7 +53,10 @@ else
                 <ul class="list-group list-group-flush">
                     @foreach (var option in question.Options)
                     {
-                        var selectedBy = Model.Responses;
+                        var selectedBy = Model.Responses.Where(r => r.OptionId == option.Id).ToList();
+                        
+                        var selectedByCount = selectedBy.Count;
+                        
                         <li class="list-group-item">
                             <h5 class="d-flex">
                                 <span>
@@ -61,7 +66,7 @@ else
                             </h5>
                             <p>@option.Description</p>
                             <div class="progress">
-                                <div class="progress-bar" role="progressbar" style="width: @(Math.Floor(selectedBy.Count * 100f / Model.Responses.Count))%; font-weight: bold;" aria-valuenow="@selectedBy.Count" aria-valuemin="0" aria-valuemax="@Model.Responses.Count">@selectedBy.Count</div>
+                                <div class="progress-bar" role="progressbar" style="width: @Math.Floor(selectedByCount * 100f / totalCount)%; font-weight: bold;" aria-valuenow="@selectedByCount" aria-valuemin="0" aria-valuemax="@totalCount">@selectedByCount</div>
                             </div>
                             @if (selectedBy.Any())
                             {
@@ -73,7 +78,7 @@ else
                                             <li>
                                                 <a asp-controller="Members" asp-action="Details" asp-route-id="@signup.UserId" target="_blank">@signup.Name</a>
                                                 <span class="badge badge-primary">
-                                                    @*signup.Status.DisplayName()*@
+                                                    signup.Status.DisplayName()
                                                 </span>
                                             </li>
                                         }

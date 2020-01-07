@@ -36,7 +36,7 @@ namespace MemberService.Pages.Signup
                 .Expressionify()
                 .Where(e => e.Archived == false)
                 .Select(e => SignupModel.Create(e))
-                .SingleOrDefaultAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id);
 
         public static async Task<Data.Event> GetEditableEvent(this MemberContext db, Guid id)
             => await db.Events
@@ -47,7 +47,7 @@ namespace MemberService.Pages.Signup
                 .Include(e => e.Survey)
                     .ThenInclude(s => s.Questions)
                         .ThenInclude(q => q.Options)
-                .SingleOrDefaultAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id);
 
         public static async Task<User> GetUser(this MemberContext database, string userId)
             => await database.Users

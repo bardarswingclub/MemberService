@@ -130,6 +130,7 @@ namespace MemberService.Pages.Signup
                 {
                     signup.Response = new Response
                     {
+                        Survey = model.Survey,
                         User = user,
                         Answers = model.Survey.Questions
                             .JoinWithAnswers(input.Answers)
@@ -212,7 +213,11 @@ namespace MemberService.Pages.Signup
                     {
                         if (eventSignup.Response == null)
                         {
-                            eventSignup.Response = new Response {User = user};
+                            eventSignup.Response = new Response
+                            {
+                                Survey = model.Survey,
+                                User = user
+                            };
                         }
 
                         eventSignup.Response.Answers = model.Survey.Questions

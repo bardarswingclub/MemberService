@@ -15,7 +15,7 @@
         var title = question.Title;
         var description = question.Description;
         var options = question.Options;
-        <form method="post" asp-controller="Questions" asp-action="Save" asp-route-id="@Model.Id" asp-route-questionId="@question.Id" class="card mb-5">
+        <form method="post" asp-controller="Questions" asp-action="Save" asp-route-id="@Model.EventId" asp-route-questionId="@question.Id" class="card mb-5">
             <div class="card-header">
                 <div class="form-group row">
                     <label class="col-sm-2 col-form-label" asp-for="@title">Spørsmål</label>
@@ -73,7 +73,7 @@
     }
 </div>
 
-<form method="post" asp-controller="Questions" asp-action="Add" asp-route-id="@Model.Id">
+<form method="post" asp-controller="Questions" asp-action="Add" asp-route-id="@Model.EventId">
     <div class="dropdown">
         <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Legg til nytt spørsmål

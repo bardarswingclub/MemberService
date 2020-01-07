@@ -1,0 +1,21 @@
+﻿@model MemberService.Pages.Event.Survey.CreateSurveyModel
+
+@{
+    Layout = "../_Layout.cshtml";
+    ViewData["Title"] = Model.EventTitle;
+    ViewData["Description"] = Model.EventDescription;
+    ViewData["Id"] = Model.EventId;
+    ViewData["Selected"] = "questions";
+}
+
+<div class="alert alert-info">
+    <h5 class="alert-heading">
+        Ingen spørreundersøkelse lagd
+    </h5>
+    <p>
+        Vil du lage en spørreundersøkelse?
+    </p>
+    <form method="post" asp-controller="Questions" asp-action="Create" asp-route-id="@Model.EventId">
+        <button type="submit" class="btn btn-success btn-lg">Opprett spørreundersøkelse</button>
+    </form>
+</div>

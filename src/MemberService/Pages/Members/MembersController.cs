@@ -76,7 +76,7 @@ namespace MemberService.Pages.Members
                 .Include(u => u.EventSignups)
                     .ThenInclude(s => s.Event)
                 .AsNoTracking()
-                .SingleOrDefaultAsync(u => u.Id == id);
+                .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)
             {

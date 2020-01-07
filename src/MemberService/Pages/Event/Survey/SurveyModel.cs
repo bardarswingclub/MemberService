@@ -18,13 +18,16 @@ namespace MemberService.Pages.Event.Survey
         public IReadOnlyList<QuestionModel> Questions { get; set; }
 
         [Expressionify]
-        public static SurveyModel Create(Data.Survey s) =>
+        public static SurveyModel Create(Data.Event e) =>
         new SurveyModel
         {
-            Id = s.Id,
-            Title = s.Title,
-            Description = s.Description,
-            Questions = s.Questions
+            Id = e.Survey.Id,
+            EventId = e.Id,
+            EventTitle = e.Title,
+            EventDescription = e.Description,
+            Title = e.Survey.Title,
+            Description = e.Survey.Description,
+            Questions = e.Survey.Questions
                 .Select(q => QuestionModel.Create(q))
                 .ToList()
         };

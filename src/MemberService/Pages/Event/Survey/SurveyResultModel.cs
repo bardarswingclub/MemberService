@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Clave.Expressionify;
 using MemberService.Data;
 
 namespace MemberService.Pages.Event.Survey
 {
-    public class SurveyResultModel
+    public class SurveyResultModel : EventBaseModel
     {
         public Guid Id { get; set; }
 
@@ -14,36 +15,30 @@ namespace MemberService.Pages.Event.Survey
 
         public string Description { get; set; }
 
-        public IReadOnlyCollection<QuestionModel> Questions { get; set; }
+        public string Filter { get; set; }
+
+        public IReadOnlyList<QuestionModel> Questions { get; set; }
 
         public IReadOnlyCollection<ResponseModel> Responses { get; set; }
 
         [Expressionify]
-        public static SurveyResultModel Create(Data.Survey s) =>
+        public static SurveyResultModel Create(Data.Event e, string filter, Expression<Func<EventSignup, bool>> filterExpression) =>
             new SurveyResultModel
             {
-                Id = s.Id,
-                Title = s.Title,
-                Description = s.Description,
-                Questions = s.Questions
+                Id = e.Survey.Id,
+                EventId = e.Id,
+                EventTitle = e.Title,
+                EventDescription = e.Description,
+                Title = e.Survey.Title,
+                Filter = filter,
+                Description = e.Survey.Description,
+                Questions = e.Survey.Questions
                     .Select(q => QuestionModel.Create(q))
                     .ToList(),
-                Responses = s.Responses
-                    .Select(r => ResponseModel.Create(r))
+                Responses = e.Signups.AsQueryable()
+                    .Where(filterExpression)
+                    .SelectMany(es => es.Response.Answers.Select(a => ResponseModel.Create(es, a)))
                     .ToList()
-            };
-    }
-
-    public class ResponseModel
-    {
-        public string Name { get; set; }
-
-        public string UserId { get; set; }
-        public static ResponseModel Create(Response r) =>
-            new ResponseModel
-            {
-                UserId = r.UserId,
-                Name = r.User.FullName
             };
 
     }

@@ -25,7 +25,7 @@
                 <a class="nav-link @(selected == "presence" ? "active" : "")" asp-controller="Presence" asp-action="Index" asp-route-id="@id">Registrer oppmøte</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link @(selected == "answers" ? "active" : "")" asp-controller="Questions" asp-action="Index" asp-route-id="@id">Svar</a>
+                <a class="nav-link @(selected == "answers" ? "active" : "")" asp-controller="Questions" asp-action="Index" asp-route-eventId="@id">Svar</a>
             </li>
             <li class="nav-item">
 
@@ -33,7 +33,7 @@
             @if (User.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR))
             {
                 <li class="nav-item">
-                    <a class="nav-link @(selected == "questions" ? "active" : "")" asp-controller="Questions" asp-action="Edit" asp-route-id="@id">Spørsmål</a>
+                    <a class="nav-link @(selected == "questions" ? "active" : "")" asp-controller="Questions" asp-action="Edit" asp-route-eventId="@id">Spørsmål</a>
                 </li>
                 <li class=nav-item>
                     <a class="nav-link @(selected == "edit" ? "active" : "")" asp-controller="Event" asp-action="Edit" asp-route-id="@id">Rediger</a>

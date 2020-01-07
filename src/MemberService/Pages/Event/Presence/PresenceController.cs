@@ -37,7 +37,7 @@ namespace MemberService.Pages.Event.Presence
                     .ThenInclude(s => s.Presence)
                 .AsNoTracking()
                 .Expressionify()
-                .SingleOrDefaultAsync(s => s.Id == id);
+                .FirstOrDefaultAsync(s => s.Id == id);
 
             return View(new PresenceModel(model));
         }
@@ -47,7 +47,7 @@ namespace MemberService.Pages.Event.Presence
         {
             var model = await _database
                 .Events
-                .SingleOrDefaultAsync(s => s.Id == id);
+                .FirstOrDefaultAsync(s => s.Id == id);
 
             model.LessonCount++;
 

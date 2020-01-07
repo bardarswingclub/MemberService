@@ -204,7 +204,7 @@ namespace MemberService.Pages.Event
                     .ThenInclude(e => e.SignupOptions)
                 .Include(e => e.Partner)
                 .AsNoTracking()
-                .SingleOrDefaultAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id);
 
             return View(signup);
         }
@@ -215,7 +215,7 @@ namespace MemberService.Pages.Event
         {
             var signup = await _database.EventSignups
                 .Include(e => e.AuditLog)
-                .SingleOrDefaultAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id);
 
             var user = await GetCurrentUser();
 
