@@ -11,6 +11,8 @@ namespace MemberService
 
         public static DateTime ThisSemesterUtc => new DateTime(UtcNow.Year, (UtcNow.Month >= 7 ? 7 : 1), 1);
 
+        public static DateTime NextSemesterUtc => new DateTime(UtcNow.Year, (UtcNow.Month >= 7 ? 7 : 1), 1).AddMonths(6);
+
         public static DateTime UtcNow => UtcNowProvider();
 
         public static Func<DateTime> UtcNowProvider { get; set; } = DefaultProvider;

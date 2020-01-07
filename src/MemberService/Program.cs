@@ -7,8 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using MemberService.Data;
 using MemberService.Configs;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using System.Runtime.InteropServices;
 
 namespace MemberService
 {

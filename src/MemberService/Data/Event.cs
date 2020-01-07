@@ -29,6 +29,10 @@ namespace MemberService.Data
 
         public Survey Survey { get; set; }
 
+        public Guid? SemesterId { get; set; }
+
+        public Semester Semester { get; set; }
+
         public ICollection<EventSignup> Signups { get; set; } = new List<EventSignup>();
 
         public bool Archived { get; set; }

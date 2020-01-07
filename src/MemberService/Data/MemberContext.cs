@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,6 +28,8 @@ namespace MemberService.Data
         public DbSet<QuestionAnswer> QuestionAnswers { get; set; }
 
         public DbSet<QuestionOption> QuestionOptions { get; set; }
+
+        public DbSet<Semester> Semesters { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

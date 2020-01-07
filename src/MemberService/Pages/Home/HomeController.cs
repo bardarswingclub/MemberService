@@ -36,11 +36,13 @@ namespace MemberService.Pages.Home
 
             var signups = await _memberContext.EventSignups
                 .Include(s => s.Event)
+                .ThenInclude(e => e.Semester)
                 .Include(s => s.User)
                 .AsNoTracking()
                 .Expressionify()
                 .Where(s => s.UserId == userId)
-                .Where(s => s.Event.Type == EventType.Class)
+                .Where(s => s.Event.Semester != null)
+                .Where(s => s.Event.Semester.IsActive())
                 .Where(s => !s.Event.Archived)
                 .OrderBy(s => s.Priority)
                 .Select(s => ClassSignupModel.Create(s))
@@ -126,7 +128,7 @@ namespace MemberService.Pages.Home
 
             foreach(var (_, signup) in changedSignups)
             {
-                var eventSignup = user.EventSignups.FirstOrDefault(s => s.EventId == signup.Id);
+                var eventSignup = user.EventSignups.First(s => s.EventId == signup.Id);
                 eventSignup.Priority = signup.Priority;
             }
 

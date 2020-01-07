@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Clave.Expressionify;
 using MemberService.Data;
-using MemberService.Data.ValueTypes;
 using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Home
@@ -17,7 +16,8 @@ namespace MemberService.Pages.Home
                 .Include(e => e.SignupOptions)
                 .AsNoTracking()
                 .Expressionify()
-                .Where(e => e.Type == EventType.Class)
+                .Where(e => e.Semester != null)
+                .Where(e => e.Semester.IsActive())
                 .Where(e => e.Archived == false)
                 .Where(predicate)
                 .OrderBy(e => e.SignupOptions.SignupOpensAt)

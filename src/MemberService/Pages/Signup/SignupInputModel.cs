@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using MemberService.Data;
 using System.ComponentModel;
 using MemberService.Data.ValueTypes;
 

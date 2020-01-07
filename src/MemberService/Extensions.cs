@@ -20,7 +20,7 @@ namespace MemberService
     public static class Extensions
     {
         public static string FormatMoney(this decimal amount)
-            => string.Format("kr {0:0},-", amount);
+            => $"kr {amount:0},-";
 
         public static string ToOsloDate(this DateTime utc)
             => utc.ToOsloZone().Date.ToString();
