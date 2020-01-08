@@ -5,9 +5,9 @@ namespace MemberService.Pages.Home
 {
     public class SignupModel
     {
-        public IReadOnlyCollection<ClassModel> Classes { get; set; }
+        public IReadOnlyCollection<CourseModel> Courses { get; set; }
 
-        public IReadOnlyCollection<ClassModel> OpenClasses { get; set; }
+        public IReadOnlyCollection<CourseModel> OpenClasses { get; set; }
 
         public DateTime? OpensAt { get; set; }
 

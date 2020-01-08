@@ -11,12 +11,12 @@
     <h2 class="card-header text-center">
         Meld deg på kurs
     </h2>
-    @if (Model.Classes.Any())
+    @if (Model.Courses.Any())
     {
         <div class="list-group list-group-flush priority-group @(Model.Sortable ? "sortable" : "")">
-            @foreach (var item in Model.Classes)
+            @foreach (var item in Model.Courses)
             {
-                @if (item.Signup is ClassSignupModel signup)
+                @if (item.Signup is CourseSignupModel signup)
                 {
                     <div class="list-group-item" data-id="@item.Id">
                         <input type="hidden" name="classes[]" value="@item.Id" />

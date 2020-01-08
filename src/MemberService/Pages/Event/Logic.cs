@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-
+using Clave.Expressionify;
 using MemberService.Data;
 using Microsoft.EntityFrameworkCore;
 using NodaTime.Text;
@@ -12,13 +12,14 @@ namespace MemberService.Pages.Event
 {
     public static class Logic
     {
-        public static Task<List<Data.Event>> GetEvents(this MemberContext context, bool archived)
+        public static Task<List<EventEntry>> GetEvents(this MemberContext context, bool archived)
             => context.Events
-                .Include(e => e.SignupOptions)
-                .Include(e => e.Signups)
                 .AsNoTracking()
+                .Expressionify()
                 .Where(e => archived || e.Archived == false)
+                .Where(e => e.SemesterId == null)
                 .OrderByDescending(e => e.CreatedAt)
+                .Select(e => EventEntry.Create(e))
                 .ToListAsync();
 
         public static Data.Event ToEntity(this EventInputModel model, User user)
@@ -88,6 +89,7 @@ namespace MemberService.Pages.Event
             return new EventInputModel
             {
                 Id = model.Id,
+                SemesterId = model.SemesterId,
                 Title = model.Title,
                 Description = model.Description,
                 Type = model.Type,
@@ -144,19 +146,19 @@ namespace MemberService.Pages.Event
             }
             else if (status == "archive")
             {
-                model.SignupOptions.SignupClosesAt = model.SignupOptions.SignupClosesAt ?? TimeProvider.UtcNow;
+                model.SignupOptions.SignupClosesAt ??= TimeProvider.UtcNow;
                 model.Archived = true;
             }
         }
 
-        public static Task EditEvent(this MemberContext context, Guid id, Action<Data.Event> action)
+        public static Task<Data.Event> EditEvent(this MemberContext context, Guid id, Action<Data.Event> action)
             => context.EditEvent(id, e =>
             {
                 action(e);
                 return Task.CompletedTask;
             });
 
-        public static async Task EditEvent(this MemberContext context, Guid id, Func<Data.Event, Task> action)
+        public static async Task<Data.Event> EditEvent(this MemberContext context, Guid id, Func<Data.Event, Task> action)
         {
             var entry = await context.Events
                 .Include(e => e.SignupOptions)
@@ -166,11 +168,13 @@ namespace MemberService.Pages.Event
                     .ThenInclude(s => s.AuditLog)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
-            if (entry == null) return;
+            if (entry == null) return null;
 
             await action(entry);
 
             await context.SaveChangesAsync();
+
+            return entry;
         }
 
         internal static DateTime? GetUtc(string date, string time)

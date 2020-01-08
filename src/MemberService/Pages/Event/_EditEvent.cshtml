@@ -1,6 +1,8 @@
 ﻿@using MemberService.Data.ValueTypes
 @model EventInputModel
 
+<input type="hidden" asp-for="SemesterId"/>
+
 <div class="form-group col-md-6">
     <label asp-for="Title"></label>
     <input type="text" class="form-control" asp-for="Title">
@@ -9,11 +11,17 @@
 
 <div class="form-group col-md-6">
     <label asp-for="Type"></label>
-    <select class="form-control" asp-for="Type">
-        <option value="@EventType.Class">@EventType.Class.DisplayDescription()</option>
-        <option value="@EventType.Workshop">@EventType.Workshop.DisplayDescription()</option>
-        <option value="@EventType.Party">@EventType.Party.DisplayDescription()</option>
-    </select>
+    @if (Model.SemesterId.HasValue)
+    {
+        <input type="hidden" asp-for="Type"/>
+        <span class="form-control-plaintext">@EventType.Class.DisplayDescription()</span>
+    }
+    else { 
+        <select class="form-control" asp-for="Type">
+            <option value="@EventType.Workshop">@EventType.Workshop.DisplayDescription()</option>
+            <option value="@EventType.Party">@EventType.Party.DisplayDescription()</option>
+        </select>
+    }
     <span asp-validation-for="Type" class="text-danger"></span>
 </div>
 

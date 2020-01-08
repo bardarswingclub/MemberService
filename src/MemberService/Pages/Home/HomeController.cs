@@ -19,14 +19,14 @@ namespace MemberService.Pages.Home
     [Authorize]
     public class HomeController : Controller
     {
-        private readonly MemberContext _memberContext;
+        private readonly MemberContext _database;
         private readonly UserManager<User> _userManager;
 
         public HomeController(
-            MemberContext memberContext,
+            MemberContext database,
             UserManager<User> userManager)
         {
-            _memberContext = memberContext;
+            _database = database;
             _userManager = userManager;
         }
 
@@ -34,7 +34,7 @@ namespace MemberService.Pages.Home
         {
             var userId = _userManager.GetUserId(User);
 
-            var signups = await _memberContext.EventSignups
+            var signups = await _database.EventSignups
                 .Include(s => s.Event)
                 .ThenInclude(e => e.Semester)
                 .Include(s => s.User)
@@ -45,7 +45,7 @@ namespace MemberService.Pages.Home
                 .Where(s => s.Event.Semester.IsActive())
                 .Where(s => !s.Event.Archived)
                 .OrderBy(s => s.Priority)
-                .Select(s => ClassSignupModel.Create(s))
+                .Select(s => CourseSignupModel.Create(s))
                 .ToListAsync();
 
             return View(new IndexModel
@@ -58,15 +58,15 @@ namespace MemberService.Pages.Home
         {
             var userId = _userManager.GetUserId(User);
 
-            var classes = await _memberContext.GetClasses(userId, e => e.HasOpened());
+            var courses = await _database.GetCourses(userId, e => e.HasOpened());
 
-            var openClasses = classes
+            var availableCourses = courses
                 .Where(c => c.IsOpen)
                 .Where(c => c.Signup == null)
                 .OrderBy(c => c.Title)
                 .ToReadOnlyList();
 
-            var futureClasses = await _memberContext.GetClasses(userId, e => e.WillOpen());
+            var futureClasses = await _database.GetCourses(userId, e => e.WillOpen());
 
             var willOpenAt = futureClasses
                 .WhereNotNull(e => e.OpensAt)
@@ -74,17 +74,17 @@ namespace MemberService.Pages.Home
                 .Select(e => e.OpensAt)
                 .FirstOrDefault();
 
-            var sortable = classes
+            var sortable = courses
                 .Select(c => c.Signup)
                 .WhereNotNull()
                 .NotAny(c => c.Status != Status.Pending);
 
             return View(new SignupModel
             {
-                Classes = classes
+                Courses = courses
                     .OrderBy(c => c.Signup?.Priority)
                     .ToReadOnlyList(),
-                OpenClasses = openClasses,
+                OpenClasses = availableCourses,
                 OpensAt = willOpenAt,
                 Sortable = sortable
             });
@@ -103,9 +103,9 @@ namespace MemberService.Pages.Home
             }
 
             var userId = _userManager.GetUserId(User);
-            var user = await _memberContext.GetEditableUser(userId);
+            var user = await _database.GetEditableUser(userId);
 
-            var openClasses = await _memberContext.GetClasses(userId, e => e.HasOpened());
+            var openClasses = await _database.GetCourses(userId, e => e.HasOpened());
 
             var classesNotSignedUpFor = openClasses
                 .Where(c => c.Signup == null)
@@ -137,7 +137,7 @@ namespace MemberService.Pages.Home
                 .Where(c => items.NotAny(i => i.Id == c.Id))
                 .ToReadOnlyList();
 
-            await _memberContext.SaveChangesAsync();
+            await _database.SaveChangesAsync();
 
             return RedirectToAction(nameof(Signup));
         }
@@ -169,7 +169,7 @@ namespace MemberService.Pages.Home
         }
 
         private async Task<User> GetCurrentUser()
-            => await _memberContext.Users
+            => await _database.Users
                 .Include(x => x.Payments)
                 .SingleUser(_userManager.GetUserId(User));
 

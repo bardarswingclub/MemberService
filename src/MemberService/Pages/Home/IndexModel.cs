@@ -4,6 +4,6 @@ namespace MemberService.Pages.Home
 {
     public class IndexModel
     {
-        public IReadOnlyCollection<ClassSignupModel> Signups { get; set; }
+        public IReadOnlyCollection<CourseSignupModel> Signups { get; set; }
     }
 }

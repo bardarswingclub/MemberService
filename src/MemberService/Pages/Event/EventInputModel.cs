@@ -12,8 +12,10 @@ namespace MemberService.Pages.Event
         [DisplayName("Type")]
         public EventType Type { get; set; }
 
+        [DisplayName("Navn")]
         public string Title { get; set; }
 
+        [DisplayName("Beskrivelse")]
         public string Description { get; set; }
 
         public bool EnableSignupOpensAt { get; set; }
@@ -64,5 +66,7 @@ namespace MemberService.Pages.Event
 
         [DisplayName("Automatisk tildelte plasser")]
         public int AutoAcceptedSignups { get; set; }
+
+        public Guid? SemesterId { get; set; }
     }
 }

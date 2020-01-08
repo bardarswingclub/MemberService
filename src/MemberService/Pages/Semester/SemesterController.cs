@@ -25,17 +25,13 @@ namespace MemberService.Pages.Semester
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(bool all = false)
+        public async Task<IActionResult> Index(bool archived=false)
         {
             var semester = await _database.Semesters
-                .Include(s => s.Courses)
-                .ThenInclude(c => c.Signups)
-                .Include(s => s.Courses)
-                .ThenInclude(c => c.SignupOptions)
-                .Include(s => s.Survey)
                 .Expressionify()
-                .Where(Filter(all))
-                .Select(s => SemesterModel.Create(s))
+                .Where(s => s.IsActive())
+                .OrderByDescending(s => s.SignupOpensAt)
+                .Select(s => SemesterModel.Create(s, Filter(archived)))
                 .FirstOrDefaultAsync();
 
             if (semester == null)
@@ -56,7 +52,7 @@ namespace MemberService.Pages.Semester
 
             var (date, _) = now.AddDays(7).GetLocalDateAndTime();
 
-            var model = new CreateSemesterModel
+            var model = new SemesterInputModel
             {
                 Title = $"{season} {year}",
                 SignupOpensAtDate = date,
@@ -68,7 +64,7 @@ namespace MemberService.Pages.Semester
 
         [HttpPost]
         [Authorize(nameof(Policy.IsCoordinator))]
-        public async Task<IActionResult> Create([FromForm]CreateSemesterModel input)
+        public async Task<IActionResult> Create([FromForm]SemesterInputModel input)
         {
             if (!ModelState.IsValid)
             {
@@ -77,7 +73,7 @@ namespace MemberService.Pages.Semester
 
             var activeSemesters = await _database.Semesters
                 .Expressionify()
-                .AnyAsync(Filter());
+                .AnyAsync(s => s.IsActive());
 
             if (activeSemesters)
             {
@@ -95,14 +91,67 @@ namespace MemberService.Pages.Semester
             return RedirectToAction(nameof(Index));
         }
 
-        private static Expression<Func<Data.Semester, bool>> Filter(bool all = false)
+        [HttpGet]
+        public async Task<IActionResult> Edit()
+        {
+            var semester = await _database.Semesters
+                .Expressionify()
+                .Where(s => s.IsActive())
+                .OrderByDescending(s => s.SignupOpensAt)
+                .FirstOrDefaultAsync();
+
+            var (date, time) = semester.SignupOpensAt.GetLocalDateAndTime();
+
+            var model = new SemesterInputModel
+            {
+                Title = semester.Title,
+                SignupOpensAtDate = date,
+                SignupOpensAtTime = time
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit([FromForm] SemesterInputModel input)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(input);
+            }
+
+            var semester = await _database.Semesters
+                .Include(s => s.Courses)
+                .ThenInclude(c => c.SignupOptions)
+                .Expressionify()
+                .Where(s => s.IsActive())
+                .OrderByDescending(s => s.SignupOpensAt)
+                .FirstOrDefaultAsync();
+
+            semester.Title = input.Title;
+            semester.SignupOpensAt = GetUtc(input.SignupOpensAtDate, input.SignupOpensAtTime);
+
+            foreach (var course in semester.Courses)
+            {
+                if (course.SignupOptions.SignupOpensAt < semester.SignupOpensAt)
+                {
+                    course.SignupOptions.SignupOpensAt = semester.SignupOpensAt;
+                }
+            }
+
+            await _database.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        private static Expression<Func<Data.Event, bool>> Filter(bool all = false)
         {
             if (all)
             {
-                return s => true;
+                return e => true;
             }
 
-            return s => s.IsActive();
+            return e => e.Archived == false;
         }
 
         internal static DateTime GetUtc(string date, string time)

@@ -5,6 +5,7 @@ using MemberService.Auth;
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
 using MemberService.Emails.Event;
+using MemberService.Pages.Semester;
 using MemberService.Pages.Signup;
 using MemberService.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -52,8 +53,24 @@ namespace MemberService.Pages.Event
 
         [HttpGet]
         [Authorize(nameof(Policy.IsCoordinator))]
-        public IActionResult Create(EventType type = EventType.Class)
+        public async Task<IActionResult> Create(EventType type = EventType.Class, Guid? semesterId = null)
         {
+            if (semesterId.HasValue)
+            {
+                var semester = await _database.Semesters.FindAsync(semesterId.Value);
+
+                var (date, time) = semester.SignupOpensAt.GetLocalDateAndTime();
+
+                return View(new EventInputModel
+                {
+                    Type = type,
+                    SemesterId = semesterId,
+                    SignupOpensAtDate = date,
+                    SignupOpensAtTime = time,
+                    EnableSignupOpensAt = true,
+                });
+            }
+
             return View(new EventInputModel
             {
                 Type = type
@@ -71,7 +88,16 @@ namespace MemberService.Pages.Event
 
             var entity = model.ToEntity(await GetCurrentUser());
 
-            await _database.AddAsync(entity);
+            if (model.SemesterId.HasValue)
+            {
+                var semester = await _database.Semesters.FindAsync(model.SemesterId.Value);
+                semester.Courses.Add(entity);
+            }
+            else
+            {
+                _database.Events.Add(entity);
+            }
+
             await _database.SaveChangesAsync();
 
             return RedirectToAction(nameof(View), new { id = entity.Id });
@@ -189,7 +215,19 @@ namespace MemberService.Pages.Event
         [Authorize(nameof(Policy.IsCoordinator))]
         public async Task<IActionResult> SetStatus(Guid id, [FromForm] string status)
         {
-            await _database.EditEvent(id, e => e.SetEventStatus(status));
+            var ev = await _database.EditEvent(id, e => e.SetEventStatus(status));
+
+            if (ev.Archived)
+            {
+                if (ev.SemesterId.HasValue)
+                {
+                    return RedirectToAction(nameof(SemesterController.Index), "Semester");
+                }
+                else
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+            }
 
             return RedirectToAction(nameof(View), new { id });
         }

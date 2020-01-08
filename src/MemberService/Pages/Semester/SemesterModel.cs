@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Clave.Expressionify;
+using MemberService.Pages.Event;
 
 namespace MemberService.Pages.Semester
 {
@@ -11,17 +13,19 @@ namespace MemberService.Pages.Semester
 
         public string Title { get; set; }
 
-        public IReadOnlyList<Data.Event> Courses { get; set; }
+        public IReadOnlyList<EventEntry> Courses { get; set; }
 
         [Expressionify]
-        public static SemesterModel Create(Data.Semester s) => 
+        public static SemesterModel Create(Data.Semester s, Expression<Func<Data.Event, bool>> filter) => 
             new SemesterModel
             {
                 Id = s.Id,
                 Title = s.Title,
                 Courses = s.Courses
-                    .Where(c => c.Archived == false)
-                    .OrderBy(c => c.Title)
+                    .AsQueryable()
+                    .Where(filter)
+                    .OrderBy(e => e.Title)
+                    .Select(e => EventEntry.Create(e))
                     .ToList()
             };
     }

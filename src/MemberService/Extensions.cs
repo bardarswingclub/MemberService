@@ -14,6 +14,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using MemberService.Data.ValueTypes;
+using MemberService.Pages.Event;
 
 namespace MemberService
 {
@@ -70,7 +71,7 @@ namespace MemberService
             url.ActionContext.HttpContext.Request.Scheme,
             url.ActionContext.HttpContext.Request.Host.Value);
 
-        public static string RolesCount(this Event model, Status? status = null)
+        public static string RolesCount(this EventEntry model, Status? status = null)
         {
             var statuses = model.Signups
                 .Where(s => status != null
@@ -78,7 +79,7 @@ namespace MemberService
                     : s.Status != Status.RejectedOrNotPayed && s.Status != Status.Denied)
                 .ToReadOnlyCollection();
 
-            if (model.SignupOptions.RoleSignup)
+            if (model.RoleSignup)
             {
                 var leads = statuses.Count(s => s.Role == DanceRole.Lead);
                 var follows = statuses.Count(s => s.Role == DanceRole.Follow);

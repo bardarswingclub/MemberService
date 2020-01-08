@@ -5,7 +5,7 @@ using MemberService.Data;
 
 namespace MemberService.Pages.Home
 {
-    public class ClassModel
+    public class CourseModel
     {
         public Guid Id { get; set; }
 
@@ -27,10 +27,10 @@ namespace MemberService.Pages.Home
 
         public string AllowPartnerSignupHelp { get; set; }
 
-        public ClassSignupModel Signup { get; set; }
+        public CourseSignupModel Signup { get; set; }
 
         [Expressionify]
-        public static ClassModel Create(Data.Event e, string userId) => new ClassModel
+        public static CourseModel Create(Data.Event e, string userId) => new CourseModel
         {
             Id = e.Id,
             Title = e.Title,
@@ -43,7 +43,7 @@ namespace MemberService.Pages.Home
             AllowPartnerSignup = e.SignupOptions.AllowPartnerSignup,
             AllowPartnerSignupHelp = e.SignupOptions.AllowPartnerSignupHelp,
             Signup = e.Signups
-                .Select(s => ClassSignupModel.Create(s))
+                .Select(s => CourseSignupModel.Create(s))
                 .FirstOrDefault(s => s.UserId == userId)
         };
     }

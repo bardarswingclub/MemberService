@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MemberService.Pages.Semester
 {
-    public class CreateSemesterModel
+    public class SemesterInputModel
     {
         [Required]
         [DisplayName("Navn")]

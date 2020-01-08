@@ -11,9 +11,10 @@ namespace MemberService.Pages.Home
 {
     public static class Logic
     {
-        public static async Task<IReadOnlyList<ClassModel>> GetClasses(this MemberContext db, string userId, Expression<Func<Data.Event, bool>> predicate)
+        public static async Task<IReadOnlyList<CourseModel>> GetCourses(this MemberContext db, string userId, Expression<Func<Data.Event, bool>> predicate)
             => await db.Events
                 .Include(e => e.SignupOptions)
+                .Include(e => e.Semester)
                 .AsNoTracking()
                 .Expressionify()
                 .Where(e => e.Semester != null)
@@ -21,7 +22,7 @@ namespace MemberService.Pages.Home
                 .Where(e => e.Archived == false)
                 .Where(predicate)
                 .OrderBy(e => e.SignupOptions.SignupOpensAt)
-                .Select(e => ClassModel.Create(e, userId))
+                .Select(e => CourseModel.Create(e, userId))
                 .ToListAsync();
     }
 }
