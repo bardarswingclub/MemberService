@@ -1,1 +1,77 @@
-﻿
+﻿@using MemberService.Data.ValueTypes
+@model SemesterModel
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<h2>
+    @ViewData["Title"]
+    @if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN))
+    {
+        <a class="btn btn-success float-right" asp-controller="Event" asp-action="Create" asp-route-type="@EventType.Class" asp-route-semester="@Model.Id">Legg til kurs...</a>
+    }
+</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Navn</th>
+            <th>Påmeldte</th>
+            <th>Deltakere</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var eventEntry in Model.Courses)
+        {
+            <tr>
+                <td><a asp-controller="Event" asp-action="View" asp-route-id="@eventEntry.Id">@eventEntry.Title</a></td>
+                <td>@eventEntry.RolesCount()</td>
+                <td>@eventEntry.RolesCount(Status.AcceptedAndPayed)</td>
+                <td>@EventStatus(eventEntry)</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN))
+{
+    <a href="?archived=true">Se gamle arrangementer også</a>
+}
+
+@functions{
+    string EventStatus(Event @event)
+    {
+        if (@event.Archived)
+        {
+            return "Arkivert";
+        }
+        else if (@event.IsOpen())
+        {
+            if (@event.SignupOptions.SignupOpensAt.HasValue)
+            {
+                return $"Åpnet {@event.SignupOptions.SignupOpensAt.Value.ToOsloDate()}";
+            }
+            else
+            {
+                return "Åpen";
+            }
+        }
+        else
+        {
+            if (@event.WillOpen())
+            {
+                return $"Åpner {@event.SignupOptions.SignupOpensAt.Value.ToOsloDate()}";
+            }
+            if (@event.HasClosed())
+            {
+                return $"Stengte {@event.SignupOptions.SignupClosesAt.Value.ToOsloDate()}";
+            }
+            else
+            {
+                return "Stengt";
+            }
+        }
+    }
+}

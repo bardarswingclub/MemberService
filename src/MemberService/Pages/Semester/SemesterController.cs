@@ -2,11 +2,13 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Clave.Expressionify;
 using MemberService.Auth;
 using MemberService.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NodaTime.Extensions;
 using NodaTime.Text;
 
 namespace MemberService.Pages.Semester
@@ -25,22 +27,47 @@ namespace MemberService.Pages.Semester
         [HttpGet]
         public async Task<IActionResult> Index(bool all = false)
         {
-            var semesters = await _database.Semesters
+            var semester = await _database.Semesters
+                .Include(s => s.Courses)
+                .ThenInclude(c => c.Signups)
+                .Include(s => s.Courses)
+                .ThenInclude(c => c.SignupOptions)
+                .Include(s => s.Survey)
+                .Expressionify()
                 .Where(Filter(all))
-                .ToListAsync();
+                .Select(s => SemesterModel.Create(s))
+                .FirstOrDefaultAsync();
 
-            return View(semesters);
+            if (semester == null)
+            {
+                return View("Nothing");
+            }
+
+            return View(semester);
         }
 
         [HttpGet]
+        [Authorize(nameof(Policy.IsCoordinator))]
         public IActionResult Create()
         {
-            var model = new CreateSemesterModel();
+            var now = TimeProvider.UtcToday;
+            var season = now.Month >= 7 ? "Høsten" : "Våren";
+            var year = now.Year;
+
+            var (date, _) = now.AddDays(7).GetLocalDateAndTime();
+
+            var model = new CreateSemesterModel
+            {
+                Title = $"{season} {year}",
+                SignupOpensAtDate = date,
+                SignupOpensAtTime = "12:00"
+            };
 
             return View(model);
         }
 
         [HttpPost]
+        [Authorize(nameof(Policy.IsCoordinator))]
         public async Task<IActionResult> Create([FromForm]CreateSemesterModel input)
         {
             if (!ModelState.IsValid)
@@ -48,7 +75,9 @@ namespace MemberService.Pages.Semester
                 return View(input);
             }
 
-            var activeSemesters = await _database.Semesters.AnyAsync(Filter());
+            var activeSemesters = await _database.Semesters
+                .Expressionify()
+                .AnyAsync(Filter());
 
             if (activeSemesters)
             {

@@ -15,6 +15,8 @@ namespace MemberService
 
         public static DateTime UtcNow => UtcNowProvider();
 
+        public static DateTime UtcToday => UtcNow.Date;
+
         public static Func<DateTime> UtcNowProvider { get; set; } = DefaultProvider;
 
         public static void Reset() => UtcNowProvider = DefaultProvider;

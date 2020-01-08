@@ -6,28 +6,51 @@
 <h2>@ViewData["Title"]</h2>
 
 <form method="POST" asp-action="Create" class="form-row justify-content-between">
-    <div class="form-group col-md-6">
-        <label asp-for="Title"></label>
-        <input type="text" class="form-control" asp-for="Title">
-        <span asp-validation-for="Title" class="text-danger"></span>
+    <div class="col-md-6">
+        <div class="card flex-fill mr-1">
+            <div class="card-header">
+                Semester
+            </div>
+            <div class="card-body">
+                <div class="form-group row">
+                    <label asp-for="Title" class="col-6 col-form-label"></label>
+                    <div class="col-6">
+                        <input type="text" class="form-control" asp-for="Title">
+                    </div>
+                    <span asp-validation-for="Title" class="text-danger col-12"></span>
+                </div>
+                <div class="form-group">
+                    Dette blir det aktive semesteret fra <strong>@TimeProvider.ThisSemesterUtc.ToOsloDate()</strong> og frem til <strong>@TimeProvider.NextSemesterUtc.ToOsloDate()</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+
+        <div class="card flex-fill ml-1">
+            <div class="card-header">
+                Påmelding åpner
+            </div>
+            <div class="card-body">
+                <div class="form-group row">
+                    <label asp-for="SignupOpensAtDate" class="col-6 col-form-label">Dato</label>
+                    <div class="col-6">
+                        <input type="date" class="form-control" asp-for="SignupOpensAtDate">
+                    </div>
+                    <span asp-validation-for="SignupOpensAtDate" class="text-danger col-12"></span>
+                </div>
+                <div class="form-group row">
+                    <label asp-for="SignupOpensAtTime" class="col-6 col-form-label">Tid</label>
+                    <div class="col-6">
+                        <input type="text" pattern="\d\d:\d\d" class="form-control" asp-for="SignupOpensAtTime" placeholder="f.eks 12:00">
+                    </div>
+                    <span asp-validation-for="SignupOpensAtTime" class="text-danger col-12"></span>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="form-group row">
-        <label asp-for="SignupOpensAtDate" class="col-6 col-form-label">Dato</label>
-        <div class="col-6">
-            <input type="date" class="form-control" asp-for="SignupOpensAtDate">
-        </div>
-        <span asp-validation-for="SignupOpensAtDate" class="text-danger col-12"></span>
-    </div>
-    <div class="form-group row">
-        <label for="SignupOpensAtTime" class="col-6 col-form-label">Tid</label>
-        <div class="col-6">
-            <input type="text" pattern="\d\d:\d\d" class="form-control" asp-for="SignupOpensAtTime" placeholder="f.eks 00:00">
-        </div>
-        <span asp-validation-for="SignupOpensAtTime" class="text-danger col-12"></span>
-    </div>
-
-    <div class="col-md-6 mt-2">
-        <button type="submit" class="btn btn-success">Opprett</button>
+    <div class="col-12 mt-2">
+            <button type="submit" class="btn btn-success">Opprett Semester</button>
     </div>
 </form>

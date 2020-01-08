@@ -57,7 +57,7 @@ namespace MemberService
             => Guid.TryParse(value, out var result) ? result : default;
 
         public static IHtmlContent Markdown<T>(this IHtmlHelper<T> html, string value)
-            => html.Raw(Markdig.Markdown.ToHtml(value ?? string.Empty));
+            => html.Raw(Markdig.Markdown.ToHtml(value ?? String.Empty));
 
         public static string Slugify(this string phrase)
             => phrase.GenerateSlug();
@@ -106,5 +106,21 @@ namespace MemberService
 
         public static IEnumerable<(T item, int index)> WithIndex<T>(this IEnumerable<T> source)
             => source.Select((item, index) => (item, index));
+
+
+        public static (string Date, string Time) GetLocalDateAndTime(this DateTime? utc)
+        {
+            return utc?.GetLocalDateAndTime() ?? (null, null);
+        }
+
+        public static (string Date, string Time) GetLocalDateAndTime(this DateTime utc)
+        {
+            var result = utc.ToOsloZone();
+
+            var date = result.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            var time = result.TimeOfDay.ToString("HH:mm", CultureInfo.InvariantCulture);
+
+            return (date, time);
+        }
     }
 }

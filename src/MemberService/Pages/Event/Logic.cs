@@ -36,8 +36,8 @@ namespace MemberService.Pages.Event
                     RequiresClassesFee = model.RequiresClassesFee,
                     PriceForMembers = model.PriceForMembers,
                     PriceForNonMembers = model.PriceForNonMembers,
-                    SignupOpensAt = GetUtc(model.EnableSignupOpensAt, model.SignupOpensAtDate, model.SignupOpensAtTime),
-                    SignupClosesAt = GetUtc(model.EnableSignupClosesAt, model.SignupClosesAtDate, model.SignupClosesAtTime),
+                    SignupOpensAt = model.EnableSignupOpensAt ? GetUtc(model.SignupOpensAtDate, model.SignupOpensAtTime) : null,
+                    SignupClosesAt = model.EnableSignupClosesAt ? GetUtc(model.SignupClosesAtDate, model.SignupClosesAtTime) : null,
                     SignupHelp = model.SignupHelp,
                     RoleSignup = model.RoleSignup,
                     RoleSignupHelp = model.RoleSignupHelp,
@@ -82,8 +82,8 @@ namespace MemberService.Pages.Event
 
             if (model == null) return null;
 
-            var (signupOpensAtDate, signupOpensAtTime) = GetLocal(model.SignupOptions.SignupOpensAt);
-            var (signupClosesAtDate, signupClosesAtTime) = GetLocal(model.SignupOptions.SignupClosesAt);
+            var (signupOpensAtDate, signupOpensAtTime) = model.SignupOptions.SignupOpensAt.GetLocalDateAndTime();
+            var (signupClosesAtDate, signupClosesAtTime) = model.SignupOptions.SignupClosesAt.GetLocalDateAndTime();
 
             return new EventInputModel
             {
@@ -121,8 +121,8 @@ namespace MemberService.Pages.Event
             entity.SignupOptions.RequiresClassesFee = model.RequiresClassesFee;
             entity.SignupOptions.PriceForMembers = model.PriceForMembers;
             entity.SignupOptions.PriceForNonMembers = model.PriceForNonMembers;
-            entity.SignupOptions.SignupOpensAt = GetUtc(model.EnableSignupOpensAt, model.SignupOpensAtDate, model.SignupOpensAtTime);
-            entity.SignupOptions.SignupClosesAt = GetUtc(model.EnableSignupClosesAt, model.SignupClosesAtDate, model.SignupClosesAtTime);
+            entity.SignupOptions.SignupOpensAt = model.EnableSignupOpensAt ? GetUtc(model.SignupOpensAtDate, model.SignupOpensAtTime) : null;
+            entity.SignupOptions.SignupClosesAt = model.EnableSignupClosesAt ? GetUtc(model.SignupClosesAtDate, model.SignupClosesAtTime) : null;
             entity.SignupOptions.SignupHelp = model.SignupHelp;
             entity.SignupOptions.RoleSignup = model.RoleSignup;
             entity.SignupOptions.RoleSignupHelp = model.RoleSignupHelp;
@@ -173,27 +173,13 @@ namespace MemberService.Pages.Event
             await context.SaveChangesAsync();
         }
 
-        internal static DateTime? GetUtc(bool enable, string date, string time)
+        internal static DateTime? GetUtc(string date, string time)
         {
-            if (!enable) return null;
-
             var dateTime = $"{date}T{time}:00";
 
             var localDateTime = LocalDateTimePattern.GeneralIso.Parse(dateTime).GetValueOrThrow();
 
             return localDateTime.InZoneLeniently(TimeProvider.TimeZoneOslo).ToDateTimeUtc();
-        }
-
-        internal static (string Date, string Time) GetLocal(DateTime? utc)
-        {
-            if (!utc.HasValue) return (null, null);
-
-            var result = utc.Value.ToOsloZone();
-
-            var date = result.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            var time = result.TimeOfDay.ToString("HH:mm", CultureInfo.InvariantCulture);
-
-            return (date, time);
         }
     }
 }
