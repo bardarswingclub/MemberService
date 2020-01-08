@@ -4,10 +4,11 @@
 
 <div class="list-group-item" data-id="@Model.Id" data-hidden>
     <input type="hidden" name="classes[]" value="@Model.Id" disabled />
+    <div class="sort-drag">
+        <h4 class="d-inline-block priority">@Model.Title</h4>
 
-    <h4 class="d-inline-block priority">@Model.Title</h4>
-
-    <img src="~/img/reorder.svg" width="20" class="float-right sort-drag" />
+        <img src="~/img/reorder.svg" width="20" class="float-right" />
+    </div>
 
     <p class="lead">@Model.Description</p>
 
@@ -54,8 +55,7 @@
         <input type="hidden" name="partners[]" value="" disabled />
     }
 
-    <div class="btn-group mt-3" role="group">
-        <button type="submit" class="btn btn-success">Lagre</button>
+    <div class="mt-3 d-flex justify-content-end">
         <button type="button" class="btn btn-outline-danger" data-action="remove">Fjern</button>
     </div>
 </div>

@@ -7,96 +7,142 @@
     Layout = "~/Pages/_CoverLayout.cshtml";
 }
 
-<form asp-action="Signup" method="post" class="card shadow mt-5">
+<form asp-action="Signup" method="post" class="card shadow mt-5" id="signup-form">
     <h2 class="card-header text-center">
         Meld deg på kurs
     </h2>
-    @if (Model.Courses.Any())
-    {
-        <div class="list-group list-group-flush priority-group @(Model.Sortable ? "sortable" : "")">
-            @foreach (var item in Model.Courses)
-            {
-                @if (item.Signup is CourseSignupModel signup)
+    
+    <div class="card-body collapse show">
+        <h5>Før du melder deg på kurs burde du lese dette. </h5>
+        <ul>
+            <li>Du finner <a href="https://www.bardarswingclub.no/kurs/">kursinfo</a> og <a href="https://www.bardarswingclub.no/kurs/kursplaner/">timeplan</a> på nettsiden vår.</li>
+            <li>Du kan melde deg på så mange kurs du vil, du betaler den samme kursavgiften uansett</li>
+            <li>Du vil bli gitt plass på kurs i den rekkefølgen du setter opp på listen; øverst blir høyest prioritert</li>
+            <li>Det er lurt å melde seg på før midnatt @Model.OpensAt?.ToOsloDate() for å sikre seg plass, spesielt på nybegynnerkursene, som er de mest populære</li>
+            <li>Hvis et kurs blir fullt blir det trekning blandt de som meldte seg på før midnatt</li>
+            <li>Du kan melde deg på sammen en partner hvis dere er to som har veldig lyst til å gå sammen</li>
+            <li>Du er ikke garantert plass selv om du melder deg på med partner; enten får dere begge plass eller så får ingen av dere plass</li>
+            <li>Du vil få tilbakemelding om du har fått plass på kurset innen en uke etter påmeldingen</li>
+            <li>Du kan alltid logge inn på <a href="/">denne siden</a> igjen for å sjekke status</li>
+            <li>Du betaler for kurs når du har fått plass</li>
+            <li>Det er viktig å betale så fort som mulig, ellers kan plassen din bli gitt til noen andre</li>
+            <li>Kursene starter opp en uke etter påmeldingen åpner</li>
+        </ul>
+        <button type="button" class="btn btn-success btn-block" data-toggle="collapse" data-target="#collapse-course-list">OK, jeg skjønner</button>
+    </div>
+    <div class="collapse" id="collapse-course-list">
+
+        @if (Model.Courses.Any())
+        {
+            <div class="list-group list-group-flush priority-group sortable">
+                @foreach (var item in Model.Courses)
                 {
-                    <div class="list-group-item" data-id="@item.Id">
-                        <input type="hidden" name="classes[]" value="@item.Id" />
-                        <input type="hidden" name="roles[]" value="@signup.Role" />
-                        <input type="hidden" name="partners[]" value="@signup.PartnerEmail" />
-
-                        <h4 class="d-inline-block priority">@item.Title</h4>
-                        <img src="~/img/reorder.svg" width="20" class="float-right sort-drag" />
-
-                        @switch(signup.Status)
-                        {
-                            case Status.AcceptedAndPayed:
-                                <partial name="_signupAccepted" model="signup" />
-                                break;
-                            case Status.Approved:
-                                <partial name="_signupApproved" model="signup" />
-                                break;
-                            case Status.Denied:
-                            case Status.RejectedOrNotPayed:
-                                <partial name="_signupRejected" model="signup" />
-                                break;
-                            case Status.Pending:
-                                <partial name="_signupEdit" model="signup" />
-                                break;
-                            case Status.WaitingList:
-                                <partial name="_signupWaiting" model="signup" />
-                                break;
-                            default:
-                                <partial name="_signupInfo" model="signup" />
-                                break;
-                        }
-                    </div>
-                }
-                else
-                {
-                    <partial name="_signupAdd" model="item" />
-                }
-            }
-        </div>
-    }
-
-    @if (Model.OpenClasses.Any())
-    {
-        <div class="card-body">
-            <div class="input-group">
-                <select class="custom-select" id="class-select">
-                    <option value="" selected disabled>Velg kurs du har lyst til å delta på</option>
-                    @foreach (var item in Model.OpenClasses)
+                    @if (item.Signup is CourseSignupModel signup)
                     {
-                        <option value="@item.Id">@item.Title</option>
+                        <div class="list-group-item" data-id="@item.Id">
+                            <input type="hidden" name="classes[]" value="@item.Id" />
+                            <input type="hidden" name="roles[]" value="@signup.Role" />
+                            <input type="hidden" name="partners[]" value="@signup.PartnerEmail" />
+                            @if (Model.Sortable)
+                            {
+                                <div class="sort-drag">
+                                    <h4 class="d-inline-block priority">@item.Title</h4>
+                                    <img src="~/img/reorder.svg" width="20" class="float-right" />
+                                </div>
+                            }
+                            else
+                            {
+                                <h4 class="d-inline-block priority">@item.Title</h4>
+                            }
+
+                            @switch (signup.Status)
+                            {
+                                case Status.AcceptedAndPayed:
+                                    <partial name="_signupAccepted" model="signup" />
+                                    break;
+                                case Status.Approved:
+                                    <partial name="_signupApproved" model="signup" />
+                                    break;
+                                case Status.Denied:
+                                case Status.RejectedOrNotPayed:
+                                    <partial name="_signupRejected" model="signup" />
+                                    break;
+                                case Status.Pending:
+                                    <partial name="_signupEdit" model="signup" />
+                                    break;
+                                case Status.WaitingList:
+                                    <partial name="_signupWaiting" model="signup" />
+                                    break;
+                                default:
+                                    <partial name="_signupInfo" model="signup" />
+                                    break;
+                            }
+                        </div>
                     }
-                </select>
-                <div class="input-group-append">
-                    <button type="button" class="btn btn-outline-success" id="add-class-button">Legg til</button>
+                    else
+                    {
+                        <partial name="_signupAdd" model="item" />
+                    }
+                }
+            </div>
+        }
+
+        @if (Model.OpenClasses.Any())
+        {
+            <div class="card-body">
+                <div class="input-group">
+                    <select class="custom-select" id="class-select">
+                        <option value="" selected disabled>Velg kurs du har lyst til å delta på</option>
+                        @foreach (var item in Model.OpenClasses)
+                        {
+                            <option value="@item.Id">@item.Title</option>
+                        }
+                    </select>
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-outline-success" id="add-class-button">Legg til</button>
+                    </div>
                 </div>
             </div>
-        </div>
-    }
-    else if (Model.OpensAt.HasValue)
-    {
-        <div class="card-body text-center pt-5 pb-5">
-            <p style="font-size: 1.2em">
-                Påmeldingen åpner <strong>@Model.OpensAt.Value.ToOsloDate()</strong> klokken <strong>@Model.OpensAt.Value.ToOsloTime()</strong>
-            </p>
-            <p>
-                Lurer du på noe om kursene i høst? <a href="https://www.bardarswingclub.no/nyheter/2019/07/29/hostens-kurs/">Her finner du svar</a>.
-            </p>
-        </div>
-    }
-    else
-    {
-        <div class="card-body text-center pt-5 pb-5">
-            <p style="font-size: 1.2em">
-                Påmeldingen til kurs er desverre stengt
-            </p>
-            <p>
-                Kurspåmelding åpner vanligvis tidlig i januar og september
-            </p>
-        </div>
-    }
+
+            <div class="card-footer">
+                <ul>
+                    <li>Har du lagt til alle kursene du vil delta på?</li>
+                    <li>Har du lagt kursene i prioritert rekkefølge?</li>
+                </ul>
+
+                <button type="button" class="btn btn-success btn-block" data-toggle="collapse" data-target="#collapse-coc">Ja, jeg er ferdig!</button>
+            </div>
+        }
+        else if (Model.OpensAt.HasValue)
+        {
+            <div class="card-body text-center pt-5 pb-5">
+                <p style="font-size: 1.2em">
+                    Påmeldingen åpner <strong>@Model.OpensAt.Value.ToOsloDate()</strong> klokken <strong>@Model.OpensAt.Value.ToOsloTime()</strong>
+                </p>
+                <p>
+                    Lurer du på noe om kursene i høst? <a href="https://www.bardarswingclub.no/nyheter/2019/07/29/hostens-kurs/">Her finner du svar</a>.
+                </p>
+            </div>
+        }
+        else
+        {
+            <div class="card-body text-center pt-5 pb-5">
+                <p style="font-size: 1.2em">
+                    Påmeldingen til kurs er desverre stengt
+                </p>
+                <p>
+                    Kurspåmelding åpner vanligvis tidlig i januar og september
+                </p>
+            </div>
+        }
+    </div>
+    
+    <div class="card-body collapse" id="collapse-coc">
+        Har du lest og godtatt vår Code of Conduct?
+
+        <button type="submit" class="btn btn-success btn-block">Ja, jeg er ferdig!</button>
+    </div>
+
     <div class="card-footer text-center">
         <a href="/Home/Fees">Jeg vil ikke gå kurs, jeg vil bare bli medlem</a>
     </div>
@@ -145,14 +191,6 @@
 
                 // enable everything inside the group so they are submitted to the server
                 group.find("input, select").prop("disabled", false);
-            });
-
-            $("[data-action=save]").on('click', function (e) {
-                // find the input group to remove
-                var group = $(this).parents("details");
-
-                // hide the group
-                group.removeAttr("open");
             });
 
             $("[data-action=remove]").on('click', function (e) {
