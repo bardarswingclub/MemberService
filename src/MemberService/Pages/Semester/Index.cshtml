@@ -1,5 +1,4 @@
 ﻿@using MemberService.Data.ValueTypes
-@using MemberService.Pages.Event
 @model SemesterModel
 
 @{
@@ -12,8 +11,8 @@
     {
     <div class="btn-group float-right">
         <a class="btn btn-secondary" asp-controller="Semester" asp-action="Edit">Rediger</a>
-        <a class="btn btn-secondary" asp-controller="Event" asp-action="Create">Spørsmål</a>
-        <a class="btn btn-secondary" asp-controller="Event" asp-action="Create">Svar</a>
+        <a class="btn btn-secondary" asp-controller="Questions" asp-action="Edit" asp-route-semesterId="@Model.Id">Spørsmål</a>
+        <a class="btn btn-secondary" asp-controller="Questions" asp-action="Index" asp-route-semesterId="@Model.Id">Svar</a>
         <a class="btn btn-success" asp-controller="Event" asp-action="Create" asp-route-type="@EventType.Class" asp-route-semesterId="@Model.Id">Legg til kurs...</a>
     </div>
         

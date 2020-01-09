@@ -1,0 +1,17 @@
+﻿@model CreateSurveyModel
+
+@{
+    ViewData["Title"] = Model.SemesterTitle;
+}
+
+<div class="alert alert-info">
+    <h5 class="alert-heading">
+        Ingen spørreundersøkelse lagd
+    </h5>
+    <p>
+        Vil du lage en spørreundersøkelse?
+    </p>
+    <form method="post" asp-controller="Questions" asp-action="Create" asp-route-semesterId="@Model.SemesterId">
+        <button type="submit" class="btn btn-success btn-lg">Opprett spørreundersøkelse</button>
+    </form>
+</div>

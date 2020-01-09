@@ -1,11 +1,7 @@
-﻿@model MemberService.Pages.Event.Survey.SurveyResultModel
+﻿@model SurveyResultModel
 
 @{
-    Layout = "../_Layout.cshtml";
-    ViewData["Title"] = Model.EventTitle;
-    ViewData["Description"] = Model.EventDescription;
-    ViewData["Id"] = Model.EventId;
-    ViewData["Selected"] = "answers";
+    ViewData["Title"] = Model.Title;
     var totalCount = Model.Responses.DistinctBy(r => r.UserId).Count();
 
 }
@@ -28,12 +24,16 @@ else
             Alle
             @*<span class="badge badge-light">@Model.SignupsByAll</span>*@
         </button>
-        <button type="submit" name="filter" value="approved" class="btn btn-secondary @(Model.Filter == "approved" ? "active" : "")">
-            De som har fått plass
+        <button type="submit" name="filter" value="member" class="btn btn-secondary @(Model.Filter == "member" ? "active" : "")">
+            Medlemmer
             @*<span class="badge badge-light">@Model.SignupsByApproved</span>*@
         </button>
-        <button type="submit" name="filter" value="paid" class="btn btn-secondary @(Model.Filter == "paid" ? "active" : "")">
-            De som har fått plass og betalt
+        <button type="submit" name="filter" value="training" class="btn btn-secondary @(Model.Filter == "training" ? "active" : "")">
+            Betalt treningsavgift
+            @*<span class="badge badge-light">@Model.SignupsByPaid</span>*@
+        </button>
+        <button type="submit" name="filter" value="classes" class="btn btn-secondary @(Model.Filter == "classes" ? "active" : "")">
+            Kursdeltagere
             @*<span class="badge badge-light">@Model.SignupsByPaid</span>*@
         </button>
     </form>
@@ -78,7 +78,21 @@ else
                                             <li>
                                                 <a asp-controller="Members" asp-action="Details" asp-route-id="@signup.UserId" target="_blank">@signup.Name</a>
                                                 <span class="badge badge-primary">
-                                                    @signup.Status.DisplayName()
+                                                    @if (signup.HasPayedClassesFeeThisSemester)
+                                                    {
+                                                        @: Kursdeltaker
+                                                    }
+                                                    else if (signup.HasPayedTrainingFeeThisSemester)
+                                                    {
+                                                        @: Egentrening
+                                                    }else if (signup.HasPayedMembershipThisYear)
+                                                    {
+                                                        @: Medlem
+                                                    }
+                                                    else
+                                                    {
+                                                        @: Ikke medlem
+                                                    }
                                                 </span>
                                             </li>
                                         }
