@@ -24,5 +24,13 @@ namespace MemberService.Pages.Home
                 .OrderBy(e => e.SignupOptions.SignupOpensAt)
                 .Select(e => CourseModel.Create(e, userId))
                 .ToListAsync();
+
+        public static Task GetSemester(this MemberContext db, string userId) =>
+            db.Semesters
+                .AsNoTracking()
+                .Expressionify()
+                .Where(s => s.IsActive())
+                .Select(s => SignupModel.Create(s, userId))
+                .FirstOrDefaultAsync();
     }
 }

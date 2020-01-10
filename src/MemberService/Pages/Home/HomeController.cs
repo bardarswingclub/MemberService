@@ -35,9 +35,6 @@ namespace MemberService.Pages.Home
             var userId = _userManager.GetUserId(User);
 
             var signups = await _database.EventSignups
-                .Include(s => s.Event)
-                .ThenInclude(e => e.Semester)
-                .Include(s => s.User)
                 .AsNoTracking()
                 .Expressionify()
                 .Where(s => s.UserId == userId)
@@ -57,6 +54,11 @@ namespace MemberService.Pages.Home
         public async Task<IActionResult> Signup()
         {
             var userId = _userManager.GetUserId(User);
+            
+            var semester = await _database.Semesters
+                .Expressionify()
+                .Where(s => s.IsActive())
+                .FirstOrDefaultAsync();
 
             var courses = await _database.GetCourses(userId, e => e.HasOpened());
 
@@ -85,7 +87,7 @@ namespace MemberService.Pages.Home
                     .OrderBy(c => c.Signup?.Priority)
                     .ToReadOnlyList(),
                 OpenClasses = availableCourses,
-                OpensAt = willOpenAt,
+                OpensAt = semester.SignupOpensAt,
                 Sortable = sortable
             });
         }
@@ -140,6 +142,84 @@ namespace MemberService.Pages.Home
             await _database.SaveChangesAsync();
 
             return RedirectToAction(nameof(Signup));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Survey()
+        {
+            var userId = _userManager.GetUserId(User);
+
+            var model = await _database.Semesters
+                .Expressionify()
+                .Where(s => s.IsActive())
+                .Where(s => s.Survey != null)
+                .Select(s => SurveyModel.Create(s, userId))
+                .FirstOrDefaultAsync();
+
+            if (model == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Survey([FromForm] SurveyInputModel input)
+        {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Survey));
+            }
+            
+            var userId = _userManager.GetUserId(User);
+
+            var model = await _database.Semesters
+                .Include(s => s.Survey)
+                .ThenInclude(s => s.Responses)
+                .ThenInclude(r => r.Answers)
+                .Expressionify()
+                .Where(s => s.IsActive())
+                .Where(s => s.Survey != null)
+                .Select(s => new
+                {
+                    Survey = s.Survey,
+                    Questions = s.Survey.Questions,
+                    Responses = s.Survey.Responses.Where(r => r.UserId == userId)
+                })
+                .FirstOrDefaultAsync();
+
+            if (model == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            var response = model.Responses.FirstOrDefault(r => r.UserId == userId);
+
+            if (response == null)
+            {
+                response = new Response
+                {
+                    UserId = userId
+                };
+                model.Survey.Responses.Add(response);
+            }
+
+            try
+            {
+                response.Answers = model.Survey.Questions
+                    .JoinWithAnswers(input.Answers)
+                    .ToList();
+            }
+            catch (ModelErrorException error)
+            {
+                ModelState.AddModelError(error.Key, error.Message);
+                return RedirectToAction(nameof(Survey));
+            }
+            
+            await _database.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Fees()

@@ -97,12 +97,16 @@ namespace MemberService
                 OccuredAtUtc = occuredAtUtc ?? TimeProvider.UtcNow
             });
 
-        public static void AddRange<T>(this ICollection<T> source, IEnumerable<T> items)
+        public static T GetOrAdd<T>(this ICollection<T> collection, Func<T, bool> predicate, Func<T> factory)
         {
-            foreach (T item in items)
+            var result = collection.FirstOrDefault(predicate);
+            if (result == null)
             {
-                source.Add(item);
+                result = factory();
+                collection.Add(result);
             }
+
+            return result;
         }
 
         public static IEnumerable<(T item, int index)> WithIndex<T>(this IEnumerable<T> source)

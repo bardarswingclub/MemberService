@@ -93,9 +93,8 @@ namespace MemberService.Pages.Signup
             return signup;
         }
 
-        public static IEnumerable<QuestionAnswer> JoinWithAnswers(this ICollection<Question> questions, IList<SignupInputModel.Answer> answers)
+        public static IEnumerable<QuestionAnswer> JoinWithAnswers(this ICollection<Question> questions, IList<Answer> answers)
         {
-
             foreach (var (question, index) in questions.WithIndex())
             {
                 var selectedAnswers = answers
