@@ -14,13 +14,14 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using MemberService.Data.ValueTypes;
+using MemberService.Pages.Event;
 
 namespace MemberService
 {
     public static class Extensions
     {
         public static string FormatMoney(this decimal amount)
-            => string.Format("kr {0:0},-", amount);
+            => $"kr {amount:0},-";
 
         public static string ToOsloDate(this DateTime utc)
             => utc.ToOsloZone().Date.ToString();
@@ -57,7 +58,7 @@ namespace MemberService
             => Guid.TryParse(value, out var result) ? result : default;
 
         public static IHtmlContent Markdown<T>(this IHtmlHelper<T> html, string value)
-            => html.Raw(Markdig.Markdown.ToHtml(value ?? string.Empty));
+            => html.Raw(Markdig.Markdown.ToHtml(value ?? String.Empty));
 
         public static string Slugify(this string phrase)
             => phrase.GenerateSlug();
@@ -70,7 +71,7 @@ namespace MemberService
             url.ActionContext.HttpContext.Request.Scheme,
             url.ActionContext.HttpContext.Request.Host.Value);
 
-        public static string RolesCount(this Event model, Status? status = null)
+        public static string RolesCount(this EventEntry model, Status? status = null)
         {
             var statuses = model.Signups
                 .Where(s => status != null
@@ -78,7 +79,7 @@ namespace MemberService
                     : s.Status != Status.RejectedOrNotPayed && s.Status != Status.Denied)
                 .ToReadOnlyCollection();
 
-            if (model.SignupOptions.RoleSignup)
+            if (model.RoleSignup)
             {
                 var leads = statuses.Count(s => s.Role == DanceRole.Lead);
                 var follows = statuses.Count(s => s.Role == DanceRole.Follow);
@@ -96,15 +97,35 @@ namespace MemberService
                 OccuredAtUtc = occuredAtUtc ?? TimeProvider.UtcNow
             });
 
-        public static void AddRange<T>(this ICollection<T> source, IEnumerable<T> items)
+        public static T GetOrAdd<T>(this ICollection<T> collection, Func<T, bool> predicate, Func<T> factory)
         {
-            foreach (T item in items)
+            var result = collection.FirstOrDefault(predicate);
+            if (result == null)
             {
-                source.Add(item);
+                result = factory();
+                collection.Add(result);
             }
+
+            return result;
         }
 
         public static IEnumerable<(T item, int index)> WithIndex<T>(this IEnumerable<T> source)
             => source.Select((item, index) => (item, index));
+
+
+        public static (string Date, string Time) GetLocalDateAndTime(this DateTime? utc)
+        {
+            return utc?.GetLocalDateAndTime() ?? (null, null);
+        }
+
+        public static (string Date, string Time) GetLocalDateAndTime(this DateTime utc)
+        {
+            var result = utc.ToOsloZone();
+
+            var date = result.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            var time = result.TimeOfDay.ToString("HH:mm", CultureInfo.InvariantCulture);
+
+            return (date, time);
+        }
     }
 }

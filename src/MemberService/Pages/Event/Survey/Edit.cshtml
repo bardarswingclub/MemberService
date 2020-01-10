@@ -1,10 +1,10 @@
 ﻿@using MemberService.Data.ValueTypes
-@model QuestionsModel
+@model MemberService.Pages.Event.Survey.SurveyModel
 
 @{
     Layout = "../_Layout.cshtml";
-    ViewData["Title"] = Model.EventTitle;
-    ViewData["Description"] = Model.EventDescription;
+    ViewData["Title"] = Model.Title;
+    ViewData["Description"] = Model.Description;
     ViewData["Id"] = Model.EventId;
     ViewData["Selected"] = "questions";
 }

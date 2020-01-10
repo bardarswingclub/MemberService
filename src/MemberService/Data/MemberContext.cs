@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,11 +21,15 @@ namespace MemberService.Data
 
         public DbSet<Presence> Presence { get; set; }
 
+        public DbSet<Survey> Surveys { get; set; }
+
         public DbSet<Question> Questions { get; set; }
 
         public DbSet<QuestionAnswer> QuestionAnswers { get; set; }
 
         public DbSet<QuestionOption> QuestionOptions { get; set; }
+
+        public DbSet<Semester> Semesters { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

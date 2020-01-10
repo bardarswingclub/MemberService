@@ -1,0 +1,33 @@
+﻿using System;
+using Clave.Expressionify;
+using MemberService.Data;
+
+namespace MemberService.Pages.Semester.Survey
+{
+    public class ResponseModel
+    {
+        public string Name { get; set; }
+
+        public string UserId { get; set; }
+
+        public bool HasPayedMembershipThisYear { get; set; }
+
+        public bool HasPayedTrainingFeeThisSemester { get; set; }
+
+        public bool HasPayedClassesFeeThisSemester { get; set; }
+
+        public Guid OptionId { get; set; }
+
+        [Expressionify]
+        public static ResponseModel Create(Response r, QuestionAnswer a) =>
+            new ResponseModel
+            {
+                UserId = r.UserId,
+                Name = r.User.FullName,
+                HasPayedMembershipThisYear = r.User.HasPayedMembershipThisYear(),
+                HasPayedTrainingFeeThisSemester = r.User.HasPayedTrainingFeeThisSemester(),
+                HasPayedClassesFeeThisSemester = r.User.HasPayedClassesFeeThisSemester(),
+                OptionId = a.OptionId
+            };
+    }
+}

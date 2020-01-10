@@ -1,12 +1,11 @@
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using MemberService.Data;
 using MemberService.Data.ValueTypes;
 
 namespace MemberService.Pages.Event
 {
-    public class EventInputModel
+    public class EventInputModel : EventBaseModel
     {
         public Guid Id { get; set; }
 
@@ -67,5 +66,7 @@ namespace MemberService.Pages.Event
 
         [DisplayName("Automatisk tildelte plasser")]
         public int AutoAcceptedSignups { get; set; }
+
+        public Guid? SemesterId { get; set; }
     }
 }

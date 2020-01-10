@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Clave.Expressionify;
 using Clave.ExtensionMethods;
@@ -12,10 +13,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace MemberService.Pages.Event.Questions
+namespace MemberService.Pages.Semester.Survey
 {
     [Authorize(nameof(Policy.IsInstructor))]
-    [Route("/Event/{id}/Questions/{action=Index}/{questionId?}")]
+    [Route("/Semester/{semesterId}/Questions/{action=Index}/{questionId?}")]
     public class QuestionsController : Controller
     {
         private readonly MemberContext _database;
@@ -30,48 +31,87 @@ namespace MemberService.Pages.Event.Questions
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(Guid id, string filter="all")
+        public async Task<IActionResult> Index(Guid semesterId, string filter="all")
         {
             var model = await _database
-                .Events
-                .Include(e => e.Questions)
-                .ThenInclude(q => q.Options)
-                .ThenInclude(s => s.Answers)
-                .ThenInclude(a => a.EventSignup)
-                .ThenInclude(s => s.User)
-                .AsNoTracking()
+                .Semesters
                 .Expressionify()
-                .Select(e => QuestionsModel.Create(e, filter))
-                .SingleOrDefaultAsync(s => s.EventId == id);
+                .Where(s => s.SurveyId != null)
+                .Select(s => SurveyResultModel.Create(s, filter, GetFilter(filter)))
+                .FirstOrDefaultAsync(s => s.SemesterId == semesterId);
+
+            if (model == null)
+            {
+                var createModel = await _database.Semesters
+                    .Select(s => new CreateSurveyModel
+                    {
+                        SemesterId = s.Id,
+                        SemesterTitle = s.Title
+                    })
+                    .FirstOrDefaultAsync(e => e.SemesterId == semesterId);
+
+                return View("Create", createModel);
+            }
 
             return View(model);
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(Guid id)
+        public async Task<IActionResult> Edit(Guid semesterId)
         {
             var model = await _database
-                .Events
-                .Include(e => e.Questions)
-                    .ThenInclude(q => q.Options)
+                .Semesters
                 .AsNoTracking()
                 .Expressionify()
-                .Select(e => QuestionsModel.Create(e, "all"))
-                .SingleOrDefaultAsync(s => s.EventId == id);
+                .Where(s => s.SurveyId != null)
+                .Select(s => SurveyModel.Create(s))
+                .FirstOrDefaultAsync(s => s.SemesterId == semesterId);
+
+            if (model == null)
+            {
+                var createModel = await _database.Semesters
+                    .Select(s => new CreateSurveyModel
+                    {
+                        SemesterId = s.Id,
+                        SemesterTitle = s.Title
+                    })
+                    .FirstOrDefaultAsync(e => e.SemesterId == semesterId);
+
+                return View("Create", createModel);
+            }
 
             return View(model);
         }
 
         [HttpPost]
         [Authorize(nameof(Policy.IsCoordinator))]
+        public async Task<IActionResult> Create(Guid semesterId, [FromForm] string description)
+        {
+            var semester = await _database.Semesters.FirstOrDefaultAsync(e => e.Id == semesterId);
+
+            semester.Survey = new Data.Survey
+            {
+                Title = semester.Title,
+                Description = description
+            };
+
+            await _database.SaveChangesAsync();
+            
+            return RedirectToAction(nameof(Edit), new { semesterId });
+        }
+
+        [HttpPost]
+        [Authorize(nameof(Policy.IsCoordinator))]
         public async Task<IActionResult> Add(
-            Guid id,
+            Guid semesterId,
             [FromForm] QuestionType type)
         {
+            var semester = await _database.Semesters.FirstOrDefaultAsync(s => s.Id == semesterId);
+
             var model = await _database
-                .Events
-                .Include(e => e.Questions)
-                .SingleOrDefaultAsync(e => e.Id == id);
+                .Surveys
+                .Include(s => s.Questions)
+                .FirstOrDefaultAsync(e => e.Id == semester.SurveyId);
 
             model.Questions.Add(new Question
             {
@@ -81,20 +121,22 @@ namespace MemberService.Pages.Event.Questions
 
             await _database.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Edit), new { id });
+            return RedirectToAction(nameof(Edit), new { semesterId });
         }
 
         [HttpPost]
         [Authorize(nameof(Policy.IsCoordinator))]
         public async Task<IActionResult> Save(
-            Guid id,
+            Guid semesterId,
             Guid questionId,
             QuestionInput input,
             [FromForm] string action)
         {
+            var semester = await _database.Semesters.FirstOrDefaultAsync(s => s.Id == semesterId);
+
             var question = await _database.Questions
                 .Include(q => q.Options)
-                .Where(q => q.EventId == id)
+                .Where(q => q.SurveyId == semester.SurveyId)
                 .SingleAsync(q => q.Id == questionId);
 
             if (question == null)
@@ -128,8 +170,17 @@ namespace MemberService.Pages.Event.Questions
 
             await _database.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Edit), new { id });
+            return RedirectToAction(nameof(Edit), new { semesterId });
         }
+
+        private static Expression<Func<ResponseModel, bool>> GetFilter(string filter) =>
+            filter switch
+            {
+                "member" => r => r.HasPayedMembershipThisYear,
+                "training" => r => r.HasPayedTrainingFeeThisSemester,
+                "classes" => r => r.HasPayedClassesFeeThisSemester,
+                _ => r => true
+            };
     }
 
     public class QuestionInput

@@ -5,23 +5,32 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Clave.Expressionify;
 using MemberService.Data;
-using MemberService.Data.ValueTypes;
 using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Home
 {
     public static class Logic
     {
-        public static async Task<IReadOnlyList<ClassModel>> GetClasses(this MemberContext db, string userId, Expression<Func<Data.Event, bool>> predicate)
+        public static async Task<IReadOnlyList<CourseModel>> GetCourses(this MemberContext db, string userId, Expression<Func<Data.Event, bool>> predicate)
             => await db.Events
                 .Include(e => e.SignupOptions)
+                .Include(e => e.Semester)
                 .AsNoTracking()
                 .Expressionify()
-                .Where(e => e.Type == EventType.Class)
+                .Where(e => e.Semester != null)
+                .Where(e => e.Semester.IsActive())
                 .Where(e => e.Archived == false)
                 .Where(predicate)
                 .OrderBy(e => e.SignupOptions.SignupOpensAt)
-                .Select(e => ClassModel.Create(e, userId))
+                .Select(e => CourseModel.Create(e, userId))
                 .ToListAsync();
+
+        public static Task GetSemester(this MemberContext db, string userId) =>
+            db.Semesters
+                .AsNoTracking()
+                .Expressionify()
+                .Where(s => s.IsActive())
+                .Select(s => SignupModel.Create(s, userId))
+                .FirstOrDefaultAsync();
     }
 }

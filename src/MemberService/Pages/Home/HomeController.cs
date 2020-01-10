@@ -19,14 +19,14 @@ namespace MemberService.Pages.Home
     [Authorize]
     public class HomeController : Controller
     {
-        private readonly MemberContext _memberContext;
+        private readonly MemberContext _database;
         private readonly UserManager<User> _userManager;
 
         public HomeController(
-            MemberContext memberContext,
+            MemberContext database,
             UserManager<User> userManager)
         {
-            _memberContext = memberContext;
+            _database = database;
             _userManager = userManager;
         }
 
@@ -34,16 +34,15 @@ namespace MemberService.Pages.Home
         {
             var userId = _userManager.GetUserId(User);
 
-            var signups = await _memberContext.EventSignups
-                .Include(s => s.Event)
-                .Include(s => s.User)
+            var signups = await _database.EventSignups
                 .AsNoTracking()
                 .Expressionify()
                 .Where(s => s.UserId == userId)
-                .Where(s => s.Event.Type == EventType.Class)
+                .Where(s => s.Event.Semester != null)
+                .Where(s => s.Event.Semester.IsActive())
                 .Where(s => !s.Event.Archived)
                 .OrderBy(s => s.Priority)
-                .Select(s => ClassSignupModel.Create(s))
+                .Select(s => CourseSignupModel.Create(s))
                 .ToListAsync();
 
             return View(new IndexModel
@@ -54,17 +53,65 @@ namespace MemberService.Pages.Home
 
         public async Task<IActionResult> Signup()
         {
+            var semester = await _database.Semesters
+                .Expressionify()
+                .Where(s => s.IsActive())
+                .Select(s => new SignupInputModel { SignupOpensAt = s.SignupOpensAt })
+                .FirstOrDefaultAsync();
+
+            if (semester == null)
+            {
+                return View("NoSemester");
+            }
+
+            if (semester.SignupOpensAt > TimeProvider.UtcNow)
+            {
+                return View("NotOpenYet", semester);
+            }
+
+            return View(semester);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Signup([FromForm] SignupInputModel input)
+        {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Signup));
+            }
+
+            return RedirectToAction(nameof(Courses));
+        }
+
+        public async Task<IActionResult> Courses()
+        {
             var userId = _userManager.GetUserId(User);
 
-            var classes = await _memberContext.GetClasses(userId, e => e.HasOpened());
+            var semester = await _database.Semesters
+                .Expressionify()
+                .Where(s => s.IsActive())
+                .Select(s => new SignupInputModel { SignupOpensAt = s.SignupOpensAt })
+                .FirstOrDefaultAsync();
 
-            var openClasses = classes
+            if (semester == null)
+            {
+                return View("NoSemester");
+            }
+
+            if (semester.SignupOpensAt > TimeProvider.UtcNow)
+            {
+                return View("NotOpenYet", semester);
+            }
+
+            var courses = await _database.GetCourses(userId, e => e.HasOpened());
+
+            var availableCourses = courses
                 .Where(c => c.IsOpen)
                 .Where(c => c.Signup == null)
                 .OrderBy(c => c.Title)
                 .ToReadOnlyList();
 
-            var futureClasses = await _memberContext.GetClasses(userId, e => e.WillOpen());
+            var futureClasses = await _database.GetCourses(userId, e => e.WillOpen());
 
             var willOpenAt = futureClasses
                 .WhereNotNull(e => e.OpensAt)
@@ -72,24 +119,24 @@ namespace MemberService.Pages.Home
                 .Select(e => e.OpensAt)
                 .FirstOrDefault();
 
-            var sortable = classes
+            var sortable = courses
                 .Select(c => c.Signup)
                 .WhereNotNull()
                 .NotAny(c => c.Status != Status.Pending);
 
             return View(new SignupModel
             {
-                Classes = classes
+                Courses = courses
                     .OrderBy(c => c.Signup?.Priority)
                     .ToReadOnlyList(),
-                OpenClasses = openClasses,
-                OpensAt = willOpenAt,
+                OpenClasses = availableCourses,
+                OpensAt = semester.SignupOpensAt,
                 Sortable = sortable
             });
         }
 
         [HttpPost]
-        public async Task<IActionResult> Signup(
+        public async Task<IActionResult> Courses(
             [FromForm] IReadOnlyList<Guid> classes,
             [FromForm] IReadOnlyList<DanceRole> roles,
             [FromForm] IReadOnlyList<string> partners)
@@ -101,9 +148,9 @@ namespace MemberService.Pages.Home
             }
 
             var userId = _userManager.GetUserId(User);
-            var user = await _memberContext.GetEditableUser(userId);
+            var user = await _database.GetEditableUser(userId);
 
-            var openClasses = await _memberContext.GetClasses(userId, e => e.HasOpened());
+            var openClasses = await _database.GetCourses(userId, e => e.HasOpened());
 
             var classesNotSignedUpFor = openClasses
                 .Where(c => c.Signup == null)
@@ -126,7 +173,7 @@ namespace MemberService.Pages.Home
 
             foreach(var (_, signup) in changedSignups)
             {
-                var eventSignup = user.EventSignups.FirstOrDefault(s => s.EventId == signup.Id);
+                var eventSignup = user.EventSignups.First(s => s.EventId == signup.Id);
                 eventSignup.Priority = signup.Priority;
             }
 
@@ -135,9 +182,87 @@ namespace MemberService.Pages.Home
                 .Where(c => items.NotAny(i => i.Id == c.Id))
                 .ToReadOnlyList();
 
-            await _memberContext.SaveChangesAsync();
+            await _database.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Signup));
+            return RedirectToAction(nameof(Survey));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Survey()
+        {
+            var userId = _userManager.GetUserId(User);
+
+            var model = await _database.Semesters
+                .Expressionify()
+                .Where(s => s.IsActive())
+                .Where(s => s.Survey != null)
+                .Select(s => SurveyModel.Create(s, userId))
+                .FirstOrDefaultAsync();
+
+            if (model == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Survey([FromForm] SurveyInputModel input)
+        {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Survey));
+            }
+
+            var userId = _userManager.GetUserId(User);
+
+            var model = await _database.Semesters
+                .Include(s => s.Survey)
+                .ThenInclude(s => s.Responses)
+                .ThenInclude(r => r.Answers)
+                .Expressionify()
+                .Where(s => s.IsActive())
+                .Where(s => s.Survey != null)
+                .Select(s => new
+                {
+                    Survey = s.Survey,
+                    Questions = s.Survey.Questions,
+                    Responses = s.Survey.Responses.Where(r => r.UserId == userId)
+                })
+                .FirstOrDefaultAsync();
+
+            if (model == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            var response = model.Responses.FirstOrDefault(r => r.UserId == userId);
+
+            if (response == null)
+            {
+                response = new Response
+                {
+                    UserId = userId
+                };
+                model.Survey.Responses.Add(response);
+            }
+
+            try
+            {
+                response.Answers = model.Survey.Questions
+                    .JoinWithAnswers(input.Answers)
+                    .ToList();
+            }
+            catch (ModelErrorException error)
+            {
+                ModelState.AddModelError(error.Key, error.Message);
+                return RedirectToAction(nameof(Survey));
+            }
+
+            await _database.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Fees()
@@ -167,7 +292,7 @@ namespace MemberService.Pages.Home
         }
 
         private async Task<User> GetCurrentUser()
-            => await _memberContext.Users
+            => await _database.Users
                 .Include(x => x.Payments)
                 .SingleUser(_userManager.GetUserId(User));
 

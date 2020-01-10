@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Clave.Expressionify;
-using MemberService.Data;
+﻿using Clave.Expressionify;
 using MemberService.Data.ValueTypes;
 
-namespace MemberService.Pages.Event.Questions
+namespace MemberService.Pages.Semester.Survey
 {
     public class AnswerModel
     {

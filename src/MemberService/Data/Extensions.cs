@@ -43,6 +43,10 @@ namespace MemberService.Data
         public static bool IsSignedUpFor(this User user, Guid id)
             => user.EventSignups.Any(e => e.EventId == id);
 
+        [Expressionify]
+        public static bool IsActive(this Semester semester)
+            => semester.SignupOpensAt > TimeProvider.ThisSemesterUtc;
+
         public static async Task<User> SingleUser(this IQueryable<User> users, string id)
             => await users.SingleOrDefaultAsync(user => user.Id == id);
 

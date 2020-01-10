@@ -1,0 +1,56 @@
+﻿@model SemesterInputModel
+
+@{
+    ViewData["Title"] = $"Rediger {Model.Title}";
+}
+<h2>@ViewData["Title"]</h2>
+
+<form method="POST" asp-action="Edit" class="form-row justify-content-between">
+    <div class="col-md-6">
+        <div class="card flex-fill mr-1">
+            <div class="card-header">
+                Semester
+            </div>
+            <div class="card-body">
+                <div class="form-group row">
+                    <label asp-for="Title" class="col-6 col-form-label"></label>
+                    <div class="col-6">
+                        <input type="text" class="form-control" asp-for="Title">
+                    </div>
+                    <span asp-validation-for="Title" class="text-danger col-12"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+
+        <div class="card flex-fill ml-1">
+            <div class="card-header">
+                Påmelding åpner
+            </div>
+            <div class="card-body">
+                <div class="form-group row">
+                    <label asp-for="SignupOpensAtDate" class="col-6 col-form-label">Dato</label>
+                    <div class="col-6">
+                        <input type="date" class="form-control" asp-for="SignupOpensAtDate">
+                    </div>
+                    <span asp-validation-for="SignupOpensAtDate" class="text-danger col-12"></span>
+                </div>
+                <div class="form-group row">
+                    <label asp-for="SignupOpensAtTime" class="col-6 col-form-label">Tid</label>
+                    <div class="col-6">
+                        <input type="text" pattern="\d\d:\d\d" class="form-control" asp-for="SignupOpensAtTime" placeholder="f.eks 12:00">
+                    </div>
+                    <span asp-validation-for="SignupOpensAtTime" class="text-danger col-12"></span>
+                </div>
+                <div class="row">
+                    <p class="col-12 text-danger">Hvis du endrer når påmeldingen åpner vil alle kurs bli satt til å åpne tidligs da.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 mt-2">
+            <button type="submit" class="btn btn-success">Lagre</button>
+    </div>
+</form>

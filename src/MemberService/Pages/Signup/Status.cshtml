@@ -84,11 +84,11 @@
                     <div class="form-check">
                         @if (question.Type == QuestionType.CheckBox)
                         {
-                            <input class="form-check-input" onclick="return false" type="checkbox" checked="@(Model.UserEventSignup.Answers.Any(a => a.OptionId == option.Id))" />
+                            <input class="form-check-input" onclick="return false" type="checkbox" checked="@(Model.UserEventSignup.Response.Answers.Any(a => a.OptionId == option.Id))" />
                         }
                         else if (question.Type == QuestionType.Radio)
                         {
-                            <input class="form-check-input" onclick="return false" type="radio" checked="@(Model.UserEventSignup.Answers.Any(a => a.OptionId == option.Id))" />
+                            <input class="form-check-input" onclick="return false" type="radio" checked="@(Model.UserEventSignup.Response.Answers.Any(a => a.OptionId == option.Id))" />
                         }
                         <label class="form-check-label">@option.Title</label>
                         <small class="text-muted form-text">@option.Description</small>

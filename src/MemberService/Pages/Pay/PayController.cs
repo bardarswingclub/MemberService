@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Stripe;
-using Stripe.Checkout;
 using System.Threading.Tasks;
 
 namespace MemberService.Pages.Pay

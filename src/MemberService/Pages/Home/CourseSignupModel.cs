@@ -5,7 +5,7 @@ using MemberService.Data.ValueTypes;
 
 namespace MemberService.Pages.Home
 {
-    public class ClassSignupModel
+    public class CourseSignupModel
     {
         public int Priority { get; set; }
 
@@ -26,7 +26,7 @@ namespace MemberService.Pages.Home
         public bool AllowPartnerSignup { get; set; }
 
         [Expressionify]
-        public static ClassSignupModel Create(EventSignup s) => new ClassSignupModel
+        public static CourseSignupModel Create(EventSignup s) => new CourseSignupModel
         {
             Priority = s.Priority,
             Title = s.Event.Title,

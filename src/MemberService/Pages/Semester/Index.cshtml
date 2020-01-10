@@ -1,0 +1,47 @@
+﻿@using MemberService.Data.ValueTypes
+@model SemesterModel
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<h2>
+    @ViewData["Title"]
+    @if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN))
+    {
+    <div class="btn-group float-right">
+        <a class="btn btn-secondary" asp-controller="Semester" asp-action="Edit">Rediger</a>
+        <a class="btn btn-secondary" asp-controller="Questions" asp-action="Edit" asp-route-semesterId="@Model.Id">Spørsmål</a>
+        <a class="btn btn-secondary" asp-controller="Questions" asp-action="Index" asp-route-semesterId="@Model.Id">Svar</a>
+        <a class="btn btn-success" asp-controller="Event" asp-action="Create" asp-route-type="@EventType.Class" asp-route-semesterId="@Model.Id">Legg til kurs...</a>
+    </div>
+        
+    }
+</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Navn</th>
+            <th>Påmeldte</th>
+            <th>Deltakere</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var eventEntry in Model.Courses)
+        {
+            <tr>
+                <td><a asp-controller="Event" asp-action="View" asp-route-id="@eventEntry.Id">@eventEntry.Title</a></td>
+                <td>@eventEntry.RolesCount()</td>
+                <td>@eventEntry.RolesCount(Status.AcceptedAndPayed)</td>
+                <td>@eventEntry.Status()</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN))
+{
+    <a href="?archived=true">Se gamle arrangementer også</a>
+}

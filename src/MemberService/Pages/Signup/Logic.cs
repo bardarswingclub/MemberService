@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -29,28 +28,32 @@ namespace MemberService.Pages.Signup
         public static async Task<SignupModel> GetSignupModel(this MemberContext db, Guid id)
             => await db.Events
                 .Include(e => e.SignupOptions)
-                .Include(e => e.Questions)
-                    .ThenInclude(q => q.Options)
+                .Include(e => e.Survey)
+                    .ThenInclude(s => s.Questions)
+                        .ThenInclude(q => q.Options)
                 .AsNoTracking()
                 .Expressionify()
                 .Where(e => e.Archived == false)
                 .Select(e => SignupModel.Create(e))
-                .SingleOrDefaultAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id);
 
         public static async Task<Data.Event> GetEditableEvent(this MemberContext db, Guid id)
             => await db.Events
                 .Include(e => e.Signups)
-                    .ThenInclude(s => s.Answers)
+                    .ThenInclude(s => s.Response)
+                        .ThenInclude(r => r.Answers)
                 .Include(e => e.SignupOptions)
-                .Include(e => e.Questions)
-                    .ThenInclude(q => q.Options)
-                .SingleOrDefaultAsync(e => e.Id == id);
+                .Include(e => e.Survey)
+                    .ThenInclude(s => s.Questions)
+                        .ThenInclude(q => q.Options)
+                .FirstOrDefaultAsync(e => e.Id == id);
 
         public static async Task<User> GetUser(this MemberContext database, string userId)
             => await database.Users
                 .Include(u => u.Payments)
                 .Include(u => u.EventSignups)
-                    .ThenInclude(s => s.Answers)
+                    .ThenInclude(s => s.Response)
+                        .ThenInclude(r => r.Answers)
                 .AsNoTracking()
                 .SingleUser(userId);
 
@@ -90,9 +93,8 @@ namespace MemberService.Pages.Signup
             return signup;
         }
 
-        public static IEnumerable<QuestionAnswer> JoinWithAnswers(this ICollection<Question> questions, IList<SignupInputModel.Answer> answers)
+        public static IEnumerable<QuestionAnswer> JoinWithAnswers(this ICollection<Question> questions, IList<Answer> answers)
         {
-
             foreach (var (question, index) in questions.WithIndex())
             {
                 var selectedAnswers = answers

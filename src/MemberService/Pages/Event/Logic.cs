@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-
+using Clave.Expressionify;
 using MemberService.Data;
 using Microsoft.EntityFrameworkCore;
 using NodaTime.Text;
@@ -12,13 +12,14 @@ namespace MemberService.Pages.Event
 {
     public static class Logic
     {
-        public static Task<List<Data.Event>> GetEvents(this MemberContext context, bool archived)
+        public static Task<List<EventEntry>> GetEvents(this MemberContext context, bool archived)
             => context.Events
-                .Include(e => e.SignupOptions)
-                .Include(e => e.Signups)
                 .AsNoTracking()
+                .Expressionify()
                 .Where(e => archived || e.Archived == false)
+                .Where(e => e.SemesterId == null)
                 .OrderByDescending(e => e.CreatedAt)
+                .Select(e => EventEntry.Create(e))
                 .ToListAsync();
 
         public static Data.Event ToEntity(this EventInputModel model, User user)
@@ -36,8 +37,8 @@ namespace MemberService.Pages.Event
                     RequiresClassesFee = model.RequiresClassesFee,
                     PriceForMembers = model.PriceForMembers,
                     PriceForNonMembers = model.PriceForNonMembers,
-                    SignupOpensAt = GetUtc(model.EnableSignupOpensAt, model.SignupOpensAtDate, model.SignupOpensAtTime),
-                    SignupClosesAt = GetUtc(model.EnableSignupClosesAt, model.SignupClosesAtDate, model.SignupClosesAtTime),
+                    SignupOpensAt = model.EnableSignupOpensAt ? GetUtc(model.SignupOpensAtDate, model.SignupOpensAtTime) : null,
+                    SignupClosesAt = model.EnableSignupClosesAt ? GetUtc(model.SignupClosesAtDate, model.SignupClosesAtTime) : null,
                     SignupHelp = model.SignupHelp,
                     RoleSignup = model.RoleSignup,
                     RoleSignupHelp = model.RoleSignupHelp,
@@ -59,7 +60,7 @@ namespace MemberService.Pages.Event
                 .Include(e => e.Signups)
                     .ThenInclude(s => s.Partner)
                 .AsNoTracking()
-                .SingleOrDefaultAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id);
 
             if (model == null) return null;
 
@@ -78,16 +79,17 @@ namespace MemberService.Pages.Event
             var model = await context.Events
                 .Include(e => e.SignupOptions)
                 .AsNoTracking()
-                .SingleOrDefaultAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id);
 
             if (model == null) return null;
 
-            var (signupOpensAtDate, signupOpensAtTime) = GetLocal(model.SignupOptions.SignupOpensAt);
-            var (signupClosesAtDate, signupClosesAtTime) = GetLocal(model.SignupOptions.SignupClosesAt);
+            var (signupOpensAtDate, signupOpensAtTime) = model.SignupOptions.SignupOpensAt.GetLocalDateAndTime();
+            var (signupClosesAtDate, signupClosesAtTime) = model.SignupOptions.SignupClosesAt.GetLocalDateAndTime();
 
             return new EventInputModel
             {
                 Id = model.Id,
+                SemesterId = model.SemesterId,
                 Title = model.Title,
                 Description = model.Description,
                 Type = model.Type,
@@ -121,8 +123,8 @@ namespace MemberService.Pages.Event
             entity.SignupOptions.RequiresClassesFee = model.RequiresClassesFee;
             entity.SignupOptions.PriceForMembers = model.PriceForMembers;
             entity.SignupOptions.PriceForNonMembers = model.PriceForNonMembers;
-            entity.SignupOptions.SignupOpensAt = GetUtc(model.EnableSignupOpensAt, model.SignupOpensAtDate, model.SignupOpensAtTime);
-            entity.SignupOptions.SignupClosesAt = GetUtc(model.EnableSignupClosesAt, model.SignupClosesAtDate, model.SignupClosesAtTime);
+            entity.SignupOptions.SignupOpensAt = model.EnableSignupOpensAt ? GetUtc(model.SignupOpensAtDate, model.SignupOpensAtTime) : null;
+            entity.SignupOptions.SignupClosesAt = model.EnableSignupClosesAt ? GetUtc(model.SignupClosesAtDate, model.SignupClosesAtTime) : null;
             entity.SignupOptions.SignupHelp = model.SignupHelp;
             entity.SignupOptions.RoleSignup = model.RoleSignup;
             entity.SignupOptions.RoleSignupHelp = model.RoleSignupHelp;
@@ -144,19 +146,19 @@ namespace MemberService.Pages.Event
             }
             else if (status == "archive")
             {
-                model.SignupOptions.SignupClosesAt = model.SignupOptions.SignupClosesAt ?? TimeProvider.UtcNow;
+                model.SignupOptions.SignupClosesAt ??= TimeProvider.UtcNow;
                 model.Archived = true;
             }
         }
 
-        public static Task EditEvent(this MemberContext context, Guid id, Action<Data.Event> action)
+        public static Task<Data.Event> EditEvent(this MemberContext context, Guid id, Action<Data.Event> action)
             => context.EditEvent(id, e =>
             {
                 action(e);
                 return Task.CompletedTask;
             });
 
-        public static async Task EditEvent(this MemberContext context, Guid id, Func<Data.Event, Task> action)
+        public static async Task<Data.Event> EditEvent(this MemberContext context, Guid id, Func<Data.Event, Task> action)
         {
             var entry = await context.Events
                 .Include(e => e.SignupOptions)
@@ -164,36 +166,24 @@ namespace MemberService.Pages.Event
                     .ThenInclude(s => s.User)
                 .Include(e => e.Signups)
                     .ThenInclude(s => s.AuditLog)
-                .SingleOrDefaultAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id);
 
-            if (entry == null) return;
+            if (entry == null) return null;
 
             await action(entry);
 
             await context.SaveChangesAsync();
+
+            return entry;
         }
 
-        internal static DateTime? GetUtc(bool enable, string date, string time)
+        internal static DateTime? GetUtc(string date, string time)
         {
-            if (!enable) return null;
-
             var dateTime = $"{date}T{time}:00";
 
             var localDateTime = LocalDateTimePattern.GeneralIso.Parse(dateTime).GetValueOrThrow();
 
             return localDateTime.InZoneLeniently(TimeProvider.TimeZoneOslo).ToDateTimeUtc();
-        }
-
-        internal static (string Date, string Time) GetLocal(DateTime? utc)
-        {
-            if (!utc.HasValue) return (null, null);
-
-            var result = utc.Value.ToOsloZone();
-
-            var date = result.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            var time = result.TimeOfDay.ToString("HH:mm", CultureInfo.InvariantCulture);
-
-            return (date, time);
         }
     }
 }
