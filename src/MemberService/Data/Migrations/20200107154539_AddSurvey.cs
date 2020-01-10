@@ -69,6 +69,11 @@ namespace MemberService.Data.Migrations
                     table.PrimaryKey("PK_Surveys", x => x.Id);
                 });
 
+            migrationBuilder.Sql(@"
+                INSERT INTO [Surveys] (Id)
+                SELECT DISTINCT [Questions].[SurveyId]
+                FROM [Questions]");
+
             migrationBuilder.CreateTable(
                 name: "Response",
                 columns: table => new
@@ -93,6 +98,12 @@ namespace MemberService.Data.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.Sql(@"
+                INSERT INTO [Response] (Id, SurveyId, UserId)
+                SELECT DISTINCT es.[Id], es.[EventId], es.[UserId]
+                FROM [QuestionAnswers] qa
+                INNER JOIN [EventSignups] es ON es.[Id] = qa.[ResponseId]");
 
             migrationBuilder.CreateIndex(
                 name: "IX_EventSignups_ResponseId",
