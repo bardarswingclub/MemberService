@@ -7,12 +7,10 @@
 }
 
 <form method="POST" class="card shadow mt-5">
-    <h3 class="card-header">
-        @ViewData["Title"]
-    </h3>
+    <h2 class="card-header text-center">
+        Meld deg på kurs
+    </h2>
     <div class="card-body">
-        <p class="lead">@Model.Description</p>
-        
         @for (var i = 0; i < Model.Questions.Count; i++)
         {
             if (i != 0)
@@ -44,6 +42,6 @@
         }
     </div>
     <div class="card-footer">
-        <button type="submit" class="btn btn-success btn-block">Meld deg på</button>
+        <button type="submit" class="btn btn-success btn-block">OK</button>
     </div>
 </form>

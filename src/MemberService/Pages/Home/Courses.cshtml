@@ -1,0 +1,175 @@
+﻿@using MemberService.Data.ValueTypes
+@model SignupModel
+
+@{
+    ViewData["Title"] = "Home Page";
+    Layout = "~/Pages/_CoverLayout.cshtml";
+}
+
+<form method="post" class="card shadow mt-5">
+    <h2 class="card-header text-center">
+        Meld deg på kurs
+    </h2>
+
+    <div class="list-group list-group-flush priority-group sortable">
+        @foreach (var item in Model.Courses)
+        {
+            @if (item.Signup is CourseSignupModel signup)
+            {
+                <div class="list-group-item" data-id="@item.Id">
+                    <input type="hidden" name="classes[]" value="@item.Id" />
+                    <input type="hidden" name="roles[]" value="@signup.Role" />
+                    <input type="hidden" name="partners[]" value="@signup.PartnerEmail" />
+                    @if (Model.Sortable)
+                    {
+                        <div class="sort-drag">
+                            <h4 class="d-inline-block priority">@item.Title</h4>
+                            <img src="~/img/reorder.svg" width="20" class="float-right" />
+                        </div>
+                    }
+                    else
+                    {
+                        <h4 class="d-inline-block priority">@item.Title</h4>
+                    }
+
+                    @switch (signup.Status)
+                    {
+                        case Status.AcceptedAndPayed:
+                            <partial name="_signupAccepted" model="signup" />
+                            break;
+                        case Status.Approved:
+                            <partial name="_signupApproved" model="signup" />
+                            break;
+                        case Status.Denied:
+                        case Status.RejectedOrNotPayed:
+                            <partial name="_signupRejected" model="signup" />
+                            break;
+                        case Status.Pending:
+                            <partial name="_signupEdit" model="signup" />
+                            break;
+                        case Status.WaitingList:
+                            <partial name="_signupWaiting" model="signup" />
+                            break;
+                        default:
+                            <partial name="_signupInfo" model="signup" />
+                            break;
+                    }
+                </div>
+            }
+            else
+            {
+                <partial name="_signupAdd" model="item" />
+            }
+        }
+    </div>
+
+    <div class="card-body">
+        <div class="input-group">
+            <select class="custom-select" id="class-select">
+                <option value="" selected disabled>Velg kurs du har lyst til å delta på</option>
+                @foreach (var item in Model.OpenClasses)
+                {
+                    <option value="@item.Id">@item.Title</option>
+                }
+            </select>
+            <div class="input-group-append">
+                <button type="button" class="btn btn-outline-success" id="add-class-button">Legg til</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-footer">
+        <ul>
+            <li>Har du lagt til alle kursene du vil delta på?</li>
+            <li>Har du lagt kursene i prioritert rekkefølge?</li>
+        </ul>
+
+        <button type="submit" class="btn btn-success btn-block">Ja, jeg er ferdig!</button>
+    </div>
+    <div class="card-footer text-center">
+        <a href="/Home/Fees">Jeg vil ikke gå kurs, jeg vil bare bli medlem</a>
+    </div>
+</form>
+
+@section Scripts {
+    <script src="~/js/sortable.js"></script>
+    <script>
+        $(function () {
+            var sortableGroup = sortable('.sortable', {
+                items: ':not(.non-sortable)',
+                placeholder: '<div class="list-group-item bg-light pt-1 pb-1"><div class="lead text-center">Endre prioritet på kurset</div></div>',
+                handle: '.sort-drag'
+                //placeholderClass: 'none'
+            });
+
+            $(sortableGroup).on('sortupdate', function (e) {
+                var group = $(e.originalEvent.detail.item);
+
+                var form = group.parents('form');
+                if (form[0].checkValidity()) {
+                    form.submit();
+                }
+            });
+
+            $("#add-class-button").on('click', function (e) {
+                var select = $("#class-select");
+
+                // get the id of the selected class
+                var id = select.val();
+
+                // set the value back to nothing
+                select.val("");
+
+                // disable the selected class in the <select> so that we can't add it again
+                select.find("option[value=" + id + "]").prop("disabled", true);
+
+                // find the input group for the selected class
+                var group = $("[data-id=" + id + "]");
+
+                // move last
+                group.parent().append(group);
+
+                // make it visible
+                group.removeAttr("data-hidden");
+
+                // enable everything inside the group so they are submitted to the server
+                group.find("input, select").prop("disabled", false);
+            });
+
+            $("[data-action=remove]").on('click', function (e) {
+                // find the input group to remove
+                var group = $(this).parents("[data-id]");
+
+                // hide the group
+                group.attr("data-hidden", "");
+
+                // disable everything inside the group, so we don't submit it to the server
+                group.find("input, select").prop("disabled", true);
+
+                // get the id of the class
+                var id = group.attr("data-id");
+
+                // enable the select option again
+                $("option[value=" + id + "]").prop("disabled", false);
+            });
+        })
+    </script>
+}
+
+@functions
+{
+    string BadgeColor(Status status)
+    {
+        switch (status)
+        {
+            case Status.Approved:
+            case Status.AcceptedAndPayed:
+                return "badge-success";
+            case Status.Denied:
+            case Status.RejectedOrNotPayed:
+                return "badge-danger";
+            default:
+                return "badge-info";
+        }
+    }
+}

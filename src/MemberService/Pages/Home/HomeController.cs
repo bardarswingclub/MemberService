@@ -53,12 +53,55 @@ namespace MemberService.Pages.Home
 
         public async Task<IActionResult> Signup()
         {
-            var userId = _userManager.GetUserId(User);
-            
             var semester = await _database.Semesters
                 .Expressionify()
                 .Where(s => s.IsActive())
+                .Select(s => new SignupInputModel { SignupOpensAt = s.SignupOpensAt })
                 .FirstOrDefaultAsync();
+
+            if (semester == null)
+            {
+                return View("NoSemester");
+            }
+
+            if (semester.SignupOpensAt > TimeProvider.UtcNow)
+            {
+                return View("NotOpenYet", semester);
+            }
+
+            return View(semester);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Signup([FromForm] SignupInputModel input)
+        {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Signup));
+            }
+
+            return RedirectToAction(nameof(Courses));
+        }
+
+        public async Task<IActionResult> Courses()
+        {
+            var userId = _userManager.GetUserId(User);
+
+            var semester = await _database.Semesters
+                .Expressionify()
+                .Where(s => s.IsActive())
+                .Select(s => new SignupInputModel { SignupOpensAt = s.SignupOpensAt })
+                .FirstOrDefaultAsync();
+
+            if (semester == null)
+            {
+                return View("NoSemester");
+            }
+
+            if (semester.SignupOpensAt > TimeProvider.UtcNow)
+            {
+                return View("NotOpenYet", semester);
+            }
 
             var courses = await _database.GetCourses(userId, e => e.HasOpened());
 
@@ -93,7 +136,7 @@ namespace MemberService.Pages.Home
         }
 
         [HttpPost]
-        public async Task<IActionResult> Signup(
+        public async Task<IActionResult> Courses(
             [FromForm] IReadOnlyList<Guid> classes,
             [FromForm] IReadOnlyList<DanceRole> roles,
             [FromForm] IReadOnlyList<string> partners)
@@ -141,7 +184,7 @@ namespace MemberService.Pages.Home
 
             await _database.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Signup));
+            return RedirectToAction(nameof(Survey));
         }
 
         [HttpGet]
@@ -171,7 +214,7 @@ namespace MemberService.Pages.Home
             {
                 return RedirectToAction(nameof(Survey));
             }
-            
+
             var userId = _userManager.GetUserId(User);
 
             var model = await _database.Semesters
@@ -216,7 +259,7 @@ namespace MemberService.Pages.Home
                 ModelState.AddModelError(error.Key, error.Message);
                 return RedirectToAction(nameof(Survey));
             }
-            
+
             await _database.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));

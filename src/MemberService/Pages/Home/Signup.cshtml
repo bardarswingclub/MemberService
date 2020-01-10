@@ -1,231 +1,39 @@
-﻿@using MemberService.Data.ValueTypes
-@model SignupModel
+﻿@model SignupInputModel
 
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Meld deg på kurs";
     Layout = "~/Pages/_CoverLayout.cshtml";
 }
 
-<form asp-action="Signup" method="post" class="card shadow mt-5" id="signup-form">
+<form method="post" class="card shadow mt-5" id="signup-form">
     <h2 class="card-header text-center">
         Meld deg på kurs
     </h2>
-    
+
     <div class="card-body collapse show">
-        <h5>Før du melder deg på kurs burde du lese dette. </h5>
+        <h5>Før du melder deg på kurs bør du lese dette. </h5>
         <ul>
-            <li>Du finner <a href="https://www.bardarswingclub.no/kurs/">kursinfo</a> og <a href="https://www.bardarswingclub.no/kurs/kursplaner/">timeplan</a> på nettsiden vår.</li>
+            <li>Du finner <a href="https://www.bardarswingclub.no/kurs/" target="_blank">kursinfo</a> og <a href="https://www.bardarswingclub.no/kurs/kursplaner/" target="_blank">timeplan</a> på nettsiden vår.</li>
             <li>Du kan melde deg på så mange kurs du vil, du betaler den samme kursavgiften uansett</li>
             <li>Du vil bli gitt plass på kurs i den rekkefølgen du setter opp på listen; øverst blir høyest prioritert</li>
-            <li>Det er lurt å melde seg på før midnatt @Model.OpensAt?.ToOsloDate() for å sikre seg plass, spesielt på nybegynnerkursene, som er de mest populære</li>
-            <li>Hvis et kurs blir fullt blir det trekning blandt de som meldte seg på før midnatt</li>
+            <li>Nybegynnerkursene er svært populære; for å være med i trekning av plass må du melde deg på innen midnatt @Model.SignupOpensAt.ToOsloDate()</li>
             <li>Du kan melde deg på sammen en partner hvis dere er to som har veldig lyst til å gå sammen</li>
-            <li>Du er ikke garantert plass selv om du melder deg på med partner; enten får dere begge plass eller så får ingen av dere plass</li>
             <li>Du vil få tilbakemelding om du har fått plass på kurset innen en uke etter påmeldingen</li>
             <li>Du kan alltid logge inn på <a href="/">denne siden</a> igjen for å sjekke status</li>
             <li>Du betaler for kurs når du har fått plass</li>
             <li>Det er viktig å betale så fort som mulig, ellers kan plassen din bli gitt til noen andre</li>
             <li>Kursene starter opp en uke etter påmeldingen åpner</li>
+            <li>Du må godta våre <a href="https://www.bardarswingclub.no/om-klubben/code-of-conduct/" target="_blank">rettningslinjer</a> (Code of conduct) for å delta på kurs</li>
         </ul>
-        <button type="button" class="btn btn-success btn-block" data-toggle="collapse" data-target="#collapse-course-list">OK, jeg skjønner</button>
-    </div>
-    <div class="collapse" id="collapse-course-list">
-
-        @if (Model.Courses.Any())
-        {
-            <div class="list-group list-group-flush priority-group sortable">
-                @foreach (var item in Model.Courses)
-                {
-                    @if (item.Signup is CourseSignupModel signup)
-                    {
-                        <div class="list-group-item" data-id="@item.Id">
-                            <input type="hidden" name="classes[]" value="@item.Id" />
-                            <input type="hidden" name="roles[]" value="@signup.Role" />
-                            <input type="hidden" name="partners[]" value="@signup.PartnerEmail" />
-                            @if (Model.Sortable)
-                            {
-                                <div class="sort-drag">
-                                    <h4 class="d-inline-block priority">@item.Title</h4>
-                                    <img src="~/img/reorder.svg" width="20" class="float-right" />
-                                </div>
-                            }
-                            else
-                            {
-                                <h4 class="d-inline-block priority">@item.Title</h4>
-                            }
-
-                            @switch (signup.Status)
-                            {
-                                case Status.AcceptedAndPayed:
-                                    <partial name="_signupAccepted" model="signup" />
-                                    break;
-                                case Status.Approved:
-                                    <partial name="_signupApproved" model="signup" />
-                                    break;
-                                case Status.Denied:
-                                case Status.RejectedOrNotPayed:
-                                    <partial name="_signupRejected" model="signup" />
-                                    break;
-                                case Status.Pending:
-                                    <partial name="_signupEdit" model="signup" />
-                                    break;
-                                case Status.WaitingList:
-                                    <partial name="_signupWaiting" model="signup" />
-                                    break;
-                                default:
-                                    <partial name="_signupInfo" model="signup" />
-                                    break;
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <partial name="_signupAdd" model="item" />
-                    }
-                }
-            </div>
-        }
-
-        @if (Model.OpenClasses.Any())
-        {
-            <div class="card-body">
-                <div class="input-group">
-                    <select class="custom-select" id="class-select">
-                        <option value="" selected disabled>Velg kurs du har lyst til å delta på</option>
-                        @foreach (var item in Model.OpenClasses)
-                        {
-                            <option value="@item.Id">@item.Title</option>
-                        }
-                    </select>
-                    <div class="input-group-append">
-                        <button type="button" class="btn btn-outline-success" id="add-class-button">Legg til</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card-footer">
-                <ul>
-                    <li>Har du lagt til alle kursene du vil delta på?</li>
-                    <li>Har du lagt kursene i prioritert rekkefølge?</li>
-                </ul>
-
-                <button type="button" class="btn btn-success btn-block" data-toggle="collapse" data-target="#collapse-coc">Ja, jeg er ferdig!</button>
-            </div>
-        }
-        else if (Model.OpensAt.HasValue)
-        {
-            <div class="card-body text-center pt-5 pb-5">
-                <p style="font-size: 1.2em">
-                    Påmeldingen åpner <strong>@Model.OpensAt.Value.ToOsloDate()</strong> klokken <strong>@Model.OpensAt.Value.ToOsloTime()</strong>
-                </p>
-                <p>
-                    Lurer du på noe om kursene i høst? <a href="https://www.bardarswingclub.no/nyheter/2019/07/29/hostens-kurs/">Her finner du svar</a>.
-                </p>
-            </div>
-        }
-        else
-        {
-            <div class="card-body text-center pt-5 pb-5">
-                <p style="font-size: 1.2em">
-                    Påmeldingen til kurs er desverre stengt
-                </p>
-                <p>
-                    Kurspåmelding åpner vanligvis tidlig i januar og september
-                </p>
-            </div>
-        }
-    </div>
-    
-    <div class="card-body collapse" id="collapse-coc">
-        Har du lest og godtatt vår Code of Conduct?
-
-        <button type="submit" class="btn btn-success btn-block">Ja, jeg er ferdig!</button>
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" asp-for="Accept">
+            <label asp-for="Accept"></label>
+            <span asp-validation-for="Accept" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-success btn-block">OK</button>
     </div>
 
     <div class="card-footer text-center">
         <a href="/Home/Fees">Jeg vil ikke gå kurs, jeg vil bare bli medlem</a>
     </div>
 </form>
-
-@section Scripts {
-    <script src="~/js/sortable.js"></script>
-    <script>
-        $(function () {
-            var sortableGroup = sortable('.sortable', {
-                items: ':not(.non-sortable)',
-                placeholder: '<div class="list-group-item bg-light pt-1 pb-1"><div class="lead text-center">Endre prioritet på kurset</div></div>',
-                handle: '.sort-drag'
-                //placeholderClass: 'none'
-            });
-
-            $(sortableGroup).on('sortupdate', function (e) {
-                var group = $(e.originalEvent.detail.item);
-
-                var form = group.parents('form');
-                if (form[0].checkValidity()) {
-                    form.submit();
-                }
-            });
-
-            $("#add-class-button").on('click', function (e) {
-                var select = $("#class-select");
-
-                // get the id of the selected class
-                var id = select.val();
-
-                // set the value back to nothing
-                select.val("");
-
-                // disable the selected class in the <select> so that we can't add it again
-                select.find("option[value=" + id + "]").prop("disabled", true);
-
-                // find the input group for the selected class
-                var group = $("[data-id=" + id + "]");
-
-                // move last
-                group.parent().append(group);
-
-                // make it visible
-                group.removeAttr("data-hidden");
-
-                // enable everything inside the group so they are submitted to the server
-                group.find("input, select").prop("disabled", false);
-            });
-
-            $("[data-action=remove]").on('click', function (e) {
-                // find the input group to remove
-                var group = $(this).parents("[data-id]");
-
-                // hide the group
-                group.attr("data-hidden", "");
-
-                // disable everything inside the group, so we don't submit it to the server
-                group.find("input, select").prop("disabled", true);
-
-                // get the id of the class
-                var id = group.attr("data-id");
-
-                // enable the select option again
-                $("option[value=" + id + "]").prop("disabled", false);
-            });
-        })
-    </script>
-}
-
-@functions
-{
-    string BadgeColor(Status status)
-    {
-        switch (status)
-        {
-            case Status.Approved:
-            case Status.AcceptedAndPayed:
-                return "badge-success";
-            case Status.Denied:
-            case Status.RejectedOrNotPayed:
-                return "badge-danger";
-            default:
-                return "badge-info";
-        }
-    }
-}

@@ -1,0 +1,23 @@
+﻿@model SignupInputModel
+@{
+    ViewData["Title"] = "Meld deg på kurs";
+    Layout = "~/Pages/_CoverLayout.cshtml";
+}
+
+<div class="card shadow mt-5">
+    <h2 class="card-header text-center">
+        Meld deg på kurs
+    </h2>
+    <div class="card-body text-center pt-5 pb-5">
+        <p style="font-size: 1.2em">
+            Påmeldingen åpner <strong>@Model.SignupOpensAt.ToOsloDate()</strong> klokken <strong>@Model.SignupOpensAt.ToOsloTime()</strong>
+        </p>
+        <p>
+            Lurer du på noe om kursene i høst? <a href="https://www.bardarswingclub.no/nyheter/2019/07/29/hostens-kurs/">Her finner du svar</a>.
+        </p>
+    </div>
+
+    <div class="card-footer text-center">
+        <a href="/Home/Fees">Jeg vil ikke gå kurs, jeg vil bare bli medlem</a>
+    </div>
+</div>
