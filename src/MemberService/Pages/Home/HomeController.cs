@@ -30,25 +30,32 @@ namespace MemberService.Pages.Home
             _userManager = userManager;
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             var userId = _userManager.GetUserId(User);
 
-            var signups = await _database.EventSignups
-                .AsNoTracking()
-                .Expressionify()
-                .Where(s => s.UserId == userId)
-                .Where(s => s.Event.Semester != null)
-                .Where(s => s.Event.Semester.IsActive())
-                .Where(s => !s.Event.Archived)
-                .OrderBy(s => s.Priority)
-                .Select(s => CourseSignupModel.Create(s))
-                .ToListAsync();
+            var model = await _database.GetIndexModel(userId);
 
-            return View(new IndexModel
+            var openEvents = await _database.GetEvents(userId, e => e.IsOpen());
+
+            var futureEvents = await _database.GetEvents(userId, e => e.WillOpen());
+
+            model.PartyModel = new EventsModel
             {
-                Signups = signups
-            });
+                Title = "Fester",
+                OpenEvents = openEvents.Where(e => e.Type == EventType.Party).ToList(),
+                FutureEvents = futureEvents.Where(e => e.Type == EventType.Party).ToList()
+            };
+
+            model.WorkshopModel = new EventsModel
+            {
+                Title = "Workshops",
+                OpenEvents = openEvents.Where(e => e.Type == EventType.Workshop).ToList(),
+                FutureEvents = futureEvents.Where(e => e.Type == EventType.Workshop).ToList()
+            };
+
+            return View(model);
         }
 
         public async Task<IActionResult> Signup()

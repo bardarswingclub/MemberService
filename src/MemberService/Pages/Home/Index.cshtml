@@ -1,63 +1,18 @@
-﻿@using MemberService.Data.ValueTypes
-@using MemberService.Pages.Home
-@model IndexModel
+﻿@model IndexModel
 
 @{
-    ViewData["Title"] = "Home Page";
-    Layout = "~/Pages/_CoverLayout.cshtml";
+    ViewData["Title"] = "Bårdar Swing Club";
+    ViewData["BodyClass"] = "cover";
 }
 
-<div class="card shadow mt-5">
-    <h2 class="card-header text-center">
-        Dine påmeldinger
-    </h2>
-    @if (Model.Signups.Any())
-    {
-        <div class="list-group list-group-flush priority-group">
-            @foreach (var item in Model.Signups)
-            {
-                <div class="list-group-item">
-                    <h4 class="d-inline-block priority">@item.Title</h4>
-
-                    @switch(item.Status)
-                    {
-                        case Status.AcceptedAndPayed:
-                            <partial name="_signupAccepted" model="item" />
-                            break;
-                        case Status.Approved:
-                            <partial name="_signupApproved" model="item" />
-                            break;
-                        case Status.Denied:
-                        case Status.RejectedOrNotPayed:
-                            <partial name="_signupRejected" model="item" />
-                            break;
-                        case Status.Pending:
-                            <partial name="_signupEdit" model="item" />
-                            break;
-                        case Status.WaitingList:
-                            <partial name="_signupWaiting" model="item" />
-                            break;
-                        default:
-                            <partial name="_signupInfo" model="item" />
-                            break;
-                    }
-                </div>
-            }
-        </div>
-        <div class="card-body text-center">
-            <a asp-action="Courses" class="btn btn-sm btn-outline-primary">Meld deg på flere kurs</a>
-        </div>
-    }
-    else
-    {
-        <div class="card-body text-center pt-5 pb-5">
-            <p style="font-size: 1.2em">
-                Du har ikke meldt deg på noen kurs ennå
-            </p>
-            <a asp-action="Signup" class="btn btn-primary">Meld deg på kurs</a>
-        </div>
-    }
-    <div class="card-footer text-center">
-        <a asp-action="Fees">Jeg vil ikke gå kurs, jeg vil bare bli medlem</a>
+<div class="row justify-content-md-center">
+    <div class="col-md-4">
+        <partial name="_SemesterStatus" model="Model" />
+    </div>
+    <div class="col-md-4">
+        <partial name="_EventStatus" for="PartyModel" />
+    </div>
+    <div class="col-md-4">
+        <partial name="_EventStatus" for="WorkshopModel" />
     </div>
 </div>

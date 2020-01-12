@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
+using MemberService.Pages.Home;
 using MemberService.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -29,19 +30,9 @@ namespace MemberService.Pages.Signup
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var userId = GetUserId();
-
-            var openEvents = await _database.GetEvents(userId, e => e.IsOpen());
-
-            var futureEvents = await _database.GetEvents(userId, e => e.WillOpen());
-
-            return View(new EventsModel
-            {
-                OpenEvents = openEvents,
-                FutureEvents = futureEvents
-            });
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         [HttpGet]

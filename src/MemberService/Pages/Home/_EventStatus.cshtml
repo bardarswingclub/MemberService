@@ -1,0 +1,77 @@
+﻿@using MemberService.Data.ValueTypes
+@using MemberService.Pages.Signup
+@model EventsModel
+
+@if (Model.OpenEvents.NotAny() && Model.FutureEvents.NotAny())
+{
+    <div class="card shadow mt-5">
+        <h3 class="card-header text-center">
+            @Model.Title
+        </h3>
+        <div class="card-body pt-3 pb-3">
+            <p class="lead text-center">
+                Det er for tiden ingen åpne påmeldinger.
+            </p>
+        </div>
+    </div>
+}
+
+@if (Model.OpenEvents.Any())
+{
+    <div class="card shadow mt-5">
+        <h3 class="card-header">
+            @Model.Title
+        </h3>
+        <div class="list-group list-group-flush">
+            @foreach (var signup in Model.OpenEvents)
+            {
+                <a class="list-group-item list-group-item-action" asp-controller="Signup" asp-action="Event" asp-route-id="@signup.Id" asp-route-slug="@signup.Title.Slugify()">
+                    @if (signup.UserSignup is EventSignup userSignup)
+                    {
+                        <span class="float-right badge @BadgeColor(userSignup.Status)">@userSignup.Status.DisplayDescription()</span>
+                    }
+                    <h5 class="card-title">@signup.Title</h5>
+                    <p class="card-text">@signup.Description</p>
+                </a>
+            }
+        </div>
+    </div>
+}
+
+@if (Model.FutureEvents.Any())
+{
+    <div class="card shadow mt-5">
+        <h3 class="card-header">
+            Kommende @Model.Title
+        </h3>
+        <div class="list-group list-group-flush">
+            @foreach (var signup in Model.FutureEvents)
+            {
+                <a class="list-group-item list-group-item-action" asp-controller="Signup" asp-action="Event" asp-route-id="@signup.Id" asp-route-slug="@signup.Title.Slugify()">
+                    <small class="badge badge-info float-right">@signup.OpensAt.Value.ToOsloDate() klokken @signup.OpensAt.Value.ToOsloTime()</small>
+                    <h5 class="card-title">@signup.Title</h5>
+                    <p class="card-text">@signup.Description</p>
+                </a>
+            }
+        </div>
+    </div>
+}
+
+
+@functions
+{
+    string BadgeColor(Status status)
+    {
+        switch (status)
+        {
+            case Status.Approved:
+            case Status.AcceptedAndPayed:
+                return "badge-success";
+            case Status.Denied:
+            case Status.RejectedOrNotPayed:
+                return "badge-danger";
+            default:
+                return "badge-info";
+        }
+    }
+}

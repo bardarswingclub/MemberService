@@ -5,7 +5,7 @@
     ViewData["Title"] = "Arrangementer";
 }
 <h2>
-    <a asp-controller="Signup" asp-action="Index">@ViewData["Title"]</a>
+    <a asp-controller="Home" asp-action="Index">@ViewData["Title"]</a>
     @if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN))
     {
         <div class="btn-group float-right">

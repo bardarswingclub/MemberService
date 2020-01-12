@@ -1,0 +1,82 @@
+﻿@using MemberService.Data.ValueTypes
+@model IndexModel
+
+<div class="card shadow mt-5">
+    <h2 class="card-header text-center">
+        Kurs
+    </h2>
+    @if (Model?.SignupOpensAt == null)
+    {
+        <div class="card-body text-center pt-5 pb-5">
+            <p style="font-size: 1.2em">
+                Påmeldingen til kurs er desverre stengt
+            </p>
+            <p>
+                Kurspåmelding åpner vanligvis tidlig i januar og september
+            </p>
+        </div>
+    }
+    else if (Model.SignupOpensAt > TimeProvider.UtcNow)
+    {
+        <div class="card-body text-center pt-5 pb-5">
+            <p style="font-size: 1.2em">
+                Påmeldingen til kurs åpner <strong>@Model.SignupOpensAt.Value.ToOsloDate()</strong> klokken <strong>@Model.SignupOpensAt.Value.ToOsloTime()</strong>
+            </p>
+            <p>
+                Lurer du på hvordan påmeldingen fungerer? <a href="https://www.bardarswingclub.no/nyheter/2020/01/07/kurs/">Her finner du svar</a>.
+            </p>
+        </div>
+    }
+    else if (Model.Signups.Any())
+    {
+        <div class="list-group list-group-flush priority-group">
+            @foreach (var item in Model.Signups)
+            {
+                <div class="list-group-item">
+                    <h4 class="d-inline-block priority">@item.Title</h4>
+
+                    @switch (item.Status)
+                    {
+                        case Status.AcceptedAndPayed:
+                            <partial name="_signupAccepted" model="item" />
+                            break;
+                        case Status.Approved:
+                            <partial name="_signupApproved" model="item" />
+                            break;
+                        case Status.Denied:
+                        case Status.RejectedOrNotPayed:
+                            <partial name="_signupRejected" model="item" />
+                            break;
+                        case Status.Pending:
+                            <partial name="_signupEdit" model="item" />
+                            break;
+                        case Status.WaitingList:
+                            <partial name="_signupWaiting" model="item" />
+                            break;
+                        default:
+                            <partial name="_signupInfo" model="item" />
+                            break;
+                    }
+                </div>
+            }
+        </div>
+        <div class="card-body text-center">
+            <a asp-action="Courses" class="btn btn-sm btn-outline-primary">Meld deg på flere kurs</a>
+        </div>
+    }
+    else
+    {
+        <div class="card-body text-center pt-5 pb-5">
+            @if (Model.UserId != null)
+            {
+                <p style="font-size: 1.2em">
+                    Du har ikke meldt deg på noen kurs ennå
+                </p>
+            }
+            <a asp-action="Signup" class="btn btn-primary">Meld deg på kurs</a>
+        </div>
+    }
+    <div class="card-footer text-center">
+        <a asp-action="Fees">Jeg vil ikke gå kurs, jeg vil bare bli medlem</a>
+    </div>
+</div>

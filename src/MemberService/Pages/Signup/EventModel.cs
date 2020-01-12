@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Clave.Expressionify;
 using MemberService.Data;
+using MemberService.Data.ValueTypes;
 
 namespace MemberService.Pages.Signup
 {
@@ -10,6 +11,8 @@ namespace MemberService.Pages.Signup
         public Guid Id { get; set; }
 
         public string Title { get; set; }
+
+        public EventType Type { get; set; }
 
         public string Description { get; set; }
 
@@ -23,6 +26,7 @@ namespace MemberService.Pages.Signup
             {
                 Id = e.Id,
                 Title = e.Title,
+                Type = e.Type,
                 Description = e.Description,
                 OpensAt = e.SignupOptions.SignupOpensAt,
                 UserSignup = e.Signups.FirstOrDefault(s => s.UserId == userId)
