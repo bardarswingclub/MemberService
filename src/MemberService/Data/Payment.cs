@@ -6,6 +6,7 @@ namespace MemberService.Data
 {
     public class Payment
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; }
 
         [Required]
