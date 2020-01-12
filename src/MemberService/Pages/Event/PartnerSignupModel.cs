@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
@@ -13,9 +14,9 @@ namespace MemberService.Pages.Event
 
         public string Email { get; }
 
-        public static PartnerSignupModel Create(string email, User partner)
+        public static PartnerSignupModel Create(string email, User partner, Guid eventId)
         {
-            if (partner?.EventSignups.FirstOrDefault() is EventSignup signup)
+            if (partner?.EventSignups.FirstOrDefault(e => e.EventId == eventId) is EventSignup signup)
             {
                 return new SignedUpPartnerSignupModel(signup);
             }

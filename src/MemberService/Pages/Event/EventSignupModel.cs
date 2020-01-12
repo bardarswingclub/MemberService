@@ -40,7 +40,7 @@ namespace MemberService.Pages.Event
                 Priority = s.Priority,
                 SignedUpAt = s.SignedUpAt,
                 Status = s.Status,
-                Partner = PartnerSignupModel.Create(s.PartnerEmail, s.Partner),
+                Partner = PartnerSignupModel.Create(s.PartnerEmail, s.Partner, s.EventId),
                 Role = s.Role,
                 AuditLog = s.AuditLog
                     .ToReadOnlyCollection()

@@ -59,6 +59,7 @@ namespace MemberService.Pages.Event
                         .ThenInclude(l => l.User)
                 .Include(e => e.Signups)
                     .ThenInclude(s => s.Partner)
+                        .ThenInclude(p => p.EventSignups)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(e => e.Id == id);
 
