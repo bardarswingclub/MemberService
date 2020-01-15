@@ -1,23 +1,26 @@
 ﻿@using MemberService.Pages.Home
 @model CourseSignupModel
 
-<div class="alert alert-success">
-    <p>
-        &#x1F604; Du har fått plass på kurset
+    <div class="alert alert-success">
+        <p>
+            &#x1F604; Du har fått plass på kurset
 
-        @if (Model.RoleSignup)
-        {
-            @: som <strong>@Model.Role.DisplayName().ToLower()</strong>
-
-
-            @if (Model.AllowPartnerSignup && !string.IsNullOrEmpty(Model.PartnerEmail))
+            @if (Model.RoleSignup)
             {
-                @: sammen med <strong>@Model.PartnerEmail.ToLower()</strong>
+                @: som <strong>@Model.Role.DisplayName().ToLower()</strong>
+
+
+
+
+                @if (Model.AllowPartnerSignup && !string.IsNullOrEmpty(Model.PartnerEmail))
+                {
+                    @: sammen med <strong>@Model.PartnerEmail.ToLower()</strong>
+                }
             }
-        }
-    </p>
+        </p>
 
-    Du må godta og betale evt utestående beløp for å beholde plassen
+        Du må godta og betale evt utestående beløp for å beholde plassen
 
-    <a asp-controller="Signup" asp-action="Event" asp-route-id="@Model.EventId" class="btn btn-success btn-block mt-3 mb-1">Godta plass</a>
-</div>
+        <a asp-controller="Signup" asp-action="Event" asp-route-id="@Model.EventId" class="btn btn-success btn-block mt-3 mb-1">Godta plass</a>
+        <a asp-controller="Signup" asp-action="Event" asp-route-id="@Model.EventId" class="btn btn-light btn-block btn-sm mb-1">Gi plassen til noen andre</a>
+    </div>
