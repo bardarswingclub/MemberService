@@ -2,22 +2,11 @@
 @model SemesterModel
 
 @{
+    ViewData["ContainerClass"] = "container-fluid";
     ViewData["Title"] = Model.Title;
 }
 
-<h2>
-    @ViewData["Title"]
-    @if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN))
-    {
-    <div class="btn-group float-right">
-        <a class="btn btn-secondary" asp-controller="Semester" asp-action="Edit">Rediger</a>
-        <a class="btn btn-secondary" asp-controller="Questions" asp-action="Edit" asp-route-semesterId="@Model.Id">Spørsmål</a>
-        <a class="btn btn-secondary" asp-controller="Questions" asp-action="Index" asp-route-semesterId="@Model.Id">Svar</a>
-        <a class="btn btn-success" asp-controller="Event" asp-action="Create" asp-route-type="@EventType.Class" asp-route-semesterId="@Model.Id">Legg til kurs...</a>
-    </div>
-        
-    }
-</h2>
+<vc:semester-header id="@Model.Id"></vc:semester-header>
 
 <table class="table">
     <thead>

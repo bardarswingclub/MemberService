@@ -1,8 +1,11 @@
 @model EventInputModel
 
 @{
+    ViewData["ContainerClass"] = "container-fluid";
     ViewData["Title"] = "Opprett nytt arrangement";
 }
+
+<vc:semester-header id="@Model.SemesterId"></vc:semester-header>
 <h2>@ViewData["Title"]</h2>
 
 <form method="POST" asp-action="Create" class="form-row justify-content-between">

@@ -21,6 +21,7 @@ namespace MemberService.Pages.Event.Survey
         {
             Id = e.Survey.Id,
             EventId = e.Id,
+            SemesterId = e.SemesterId,
             EventTitle = e.Title,
             EventDescription = e.Description,
             Title = e.Survey.Title,

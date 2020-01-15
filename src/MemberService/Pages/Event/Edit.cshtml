@@ -1,12 +1,12 @@
 @model EventInputModel
 
 @{
-    Layout = "_Layout.cshtml";
     ViewData["Title"] = Model.Title;
-    ViewData["Description"] = Model.Description;
-    ViewData["Id"] = Model.Id;
-    ViewData["Selected"] = "edit";
+    ViewData["ContainerClass"] = "container-fluid";
 }
+
+<vc:semester-header id="@Model.SemesterId"></vc:semester-header>
+<vc:event-header id="@Model.Id"></vc:event-header>
 
 <form method="POST" asp-action="Edit" asp-route-id="@Model.Id" class="form-row justify-content-between">
     <partial name="_EditEvent" model="@Model" />

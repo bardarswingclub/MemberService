@@ -7,6 +7,8 @@ namespace MemberService.Pages.Event
     {
         public Guid EventId { get; set; }
 
+        public Guid? SemesterId { get; set; }
+
         [DisplayName("Navn")]
         public string EventTitle { get; set; }
 

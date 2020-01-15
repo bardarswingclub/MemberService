@@ -2,11 +2,13 @@
 @model SurveyModel
 
 @{
+    ViewData["ContainerClass"] = "container-fluid";
     ViewData["Title"] = Model.Title;
 }
+<vc:semester-header id="@Model.SemesterId"></vc:semester-header>
 
 <div class="card-columns card-columns-2">
-    @foreach(var question in Model.Questions)
+    @foreach (var question in Model.Questions)
     {
         var title = question.Title;
         var description = question.Description;
@@ -31,7 +33,7 @@
                 </small>
             </div>
             <ul class="list-group list-group-flush">
-                @for(var i=0; i<options.Count; i++ )
+                @for (var i = 0; i < options.Count; i++)
                 {
                     <li class="list-group-item">
                         <h5 class="d-flex justify-content-between">
@@ -41,12 +43,12 @@
                             </span>
                             <button type="submit" name="options[@i].Action" value="delete" class="btn btn-outline-danger">Fjern</button>
                         </h5>
-                        <input type="hidden" asp-for="@options[i].Id"/>
+                        <input type="hidden" asp-for="@options[i].Id" />
                         <div class="form-group row">
                             <label class="col-sm-3 col-form-label" asp-for="@options[i].Title"></label>
                             <div class="col-sm-9">
                                 <input class="form-control" asp-for="@options[i].Title">
-                            </div>    
+                            </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-3 col-form-label" asp-for="@options[i].Description"></label>

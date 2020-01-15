@@ -2,12 +2,12 @@
 @model PresenceModel
 
 @{
-    Layout = "../_Layout.cshtml";
     ViewData["Title"] = Model.Title;
-    ViewData["Description"] = Model.Description;
-    ViewData["Id"] = Model.Id;
-    ViewData["Selected"] = "presence";
+    ViewData["ContainerClass"] = "container-fluid";
 }
+
+<vc:semester-header id="@Model.SemesterId"></vc:semester-header>
+<vc:event-header id="@Model.Id" current-tab="presence"></vc:event-header>
 
 
 <table class="table table-striped table-sm" style="white-space: nowrap">
@@ -28,7 +28,7 @@
                 <th class="pr-5">Navn</th>
                 @for (var i = 0; i < Model.Count; i++)
                 {
-                    <th class="pl-2 pr-2">@(i+1)</th>
+                    <th class="pl-2 pr-2">@(i + 1)</th>
                 }
                 <th class="pl-3" style="width: 100%">
                     <form method="post" asp-controller="Presence" asp-action="AddLesson" asp-route-id="@Model.Id">
@@ -46,9 +46,9 @@
                     {
                         <td class="pl-2 pr-2">
                             <form method="post" asp-controller="Presence" asp-action="SetPresence" asp-route-id="@Model.Id" data-action="ajax-form">
-                                <input type="hidden" name="userId" value="@participant.UserId"/>
-                                <input type="hidden" name="lesson" value="@i"/>
-                                <input type="checkbox" name="present" value="true" checked="@participant.Presence[i]" onchange="$(this.form).submit()"/>
+                                <input type="hidden" name="userId" value="@participant.UserId" />
+                                <input type="hidden" name="lesson" value="@i" />
+                                <input type="checkbox" name="present" value="true" checked="@participant.Presence[i]" onchange="$(this.form).submit()" />
                             </form>
                         </td>
                     }
@@ -81,7 +81,7 @@
                         type: form.attr('method'),
                         url: url,
                         data: form.serialize(), // serializes the form's elements.
-                        success: function(data) {
+                        success: function (data) {
                             form.prop('disabled', false);
                         }
                     });

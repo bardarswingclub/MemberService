@@ -1,14 +1,14 @@
 ﻿@model MemberService.Pages.Event.Survey.SurveyResultModel
 
 @{
-    Layout = "../_Layout.cshtml";
     ViewData["Title"] = Model.EventTitle;
-    ViewData["Description"] = Model.EventDescription;
-    ViewData["Id"] = Model.EventId;
-    ViewData["Selected"] = "answers";
+    ViewData["ContainerClass"] = "container-fluid";
     var totalCount = Model.Responses.DistinctBy(r => r.UserId).Count();
-
 }
+
+<vc:semester-header id="@Model.SemesterId"></vc:semester-header>
+<vc:event-header id="@Model.EventId"></vc:event-header>
+
 
 @if (Model.Questions.NotAny())
 {
@@ -46,7 +46,7 @@ else
                     <h5 class="card-title">@question.Title</h5>
                     <h6>@question.Description</h6>
                     <small class="text-muted">
-                        <input type="@question.Type" checked onclick="return false"/>
+                        <input type="@question.Type" checked onclick="return false" />
                         @question.Type.DisplayName()
                     </small>
                 </div>
@@ -54,13 +54,13 @@ else
                     @foreach (var option in question.Options)
                     {
                         var selectedBy = Model.Responses.Where(r => r.OptionId == option.Id).ToList();
-                        
+
                         var selectedByCount = selectedBy.Count;
-                        
+
                         <li class="list-group-item">
                             <h5 class="d-flex">
                                 <span>
-                                    <input type="@question.Type" checked onclick="return false"/>
+                                    <input type="@question.Type" checked onclick="return false" />
                                     @option.Title
                                 </span>
                             </h5>

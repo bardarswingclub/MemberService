@@ -16,7 +16,7 @@ using Microsoft.EntityFrameworkCore;
 namespace MemberService.Pages.Event.Survey
 {
     [Authorize(nameof(Policy.IsInstructor))]
-    [Route("/Event/{eventId}/Questions/{action=Index}/{questionId?}")]
+    [Route("/Event/{id}/Questions/{action=Index}/{questionId?}")]
     public class QuestionsController : Controller
     {
         private readonly MemberContext _database;
@@ -31,7 +31,7 @@ namespace MemberService.Pages.Event.Survey
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(Guid eventId, string filter="all")
+        public async Task<IActionResult> Index(Guid id, string filter="all")
         {
             var model = await _database
                 .Events
@@ -47,7 +47,7 @@ namespace MemberService.Pages.Event.Survey
                 .Expressionify()
                 .Where(e => e.SurveyId != null)
                 .Select(e => SurveyResultModel.Create(e, filter, GetFilter(filter)))
-                .FirstOrDefaultAsync(s => s.EventId == eventId);
+                .FirstOrDefaultAsync(s => s.EventId == id);
 
             if (model == null)
             {
@@ -55,10 +55,11 @@ namespace MemberService.Pages.Event.Survey
                     .Select(e => new CreateSurveyModel
                     {
                         EventId = e.Id,
+                        SemesterId = e.SemesterId,
                         EventTitle = e.Title,
                         EventDescription = e.Description
                     })
-                    .FirstOrDefaultAsync(e => e.EventId == eventId);
+                    .FirstOrDefaultAsync(e => e.EventId == id);
 
                 return View("Create", createModel);
             }
@@ -67,7 +68,7 @@ namespace MemberService.Pages.Event.Survey
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(Guid eventId)
+        public async Task<IActionResult> Edit(Guid id)
         {
             var model = await _database
                 .Events
@@ -78,7 +79,7 @@ namespace MemberService.Pages.Event.Survey
                 .Expressionify()
                 .Where(e => e.SurveyId != null)
                 .Select(e => SurveyModel.Create(e))
-                .FirstOrDefaultAsync(s => s.EventId == eventId);
+                .FirstOrDefaultAsync(s => s.EventId == id);
 
             if (model == null)
             {
@@ -86,10 +87,11 @@ namespace MemberService.Pages.Event.Survey
                     .Select(e => new CreateSurveyModel
                     {
                         EventId = e.Id,
+                        SemesterId = e.SemesterId,
                         EventTitle = e.Title,
                         EventDescription = e.Description
                     })
-                    .FirstOrDefaultAsync(e => e.EventId == eventId);
+                    .FirstOrDefaultAsync(e => e.EventId == id);
 
                 return View("Create", createModel);
             }
@@ -99,9 +101,9 @@ namespace MemberService.Pages.Event.Survey
 
         [HttpPost]
         [Authorize(nameof(Policy.IsCoordinator))]
-        public async Task<IActionResult> Create(Guid eventId)
+        public async Task<IActionResult> Create(Guid id)
         {
-            var ev = await _database.Events.FirstOrDefaultAsync(e => e.Id == eventId);
+            var ev = await _database.Events.FirstOrDefaultAsync(e => e.Id == id);
 
             ev.Survey = new Data.Survey
             {
@@ -110,17 +112,17 @@ namespace MemberService.Pages.Event.Survey
             };
 
             await _database.SaveChangesAsync();
-            
-            return RedirectToAction(nameof(Edit), new { eventId });
+
+            return RedirectToAction(nameof(Edit), new { id });
         }
 
         [HttpPost]
         [Authorize(nameof(Policy.IsCoordinator))]
         public async Task<IActionResult> Add(
-            Guid eventId,
+            Guid id,
             [FromForm] QuestionType type)
         {
-            var ev = await _database.Events.FirstOrDefaultAsync(s => s.Id == eventId);
+            var ev = await _database.Events.FirstOrDefaultAsync(s => s.Id == id);
 
             var model = await _database
                 .Surveys
@@ -135,18 +137,18 @@ namespace MemberService.Pages.Event.Survey
 
             await _database.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Edit), new { eventId });
+            return RedirectToAction(nameof(Edit), new { id });
         }
 
         [HttpPost]
         [Authorize(nameof(Policy.IsCoordinator))]
         public async Task<IActionResult> Save(
-            Guid eventId,
+            Guid id,
             Guid questionId,
             QuestionInput input,
             [FromForm] string action)
         {
-            var ev = await _database.Events.FirstOrDefaultAsync(s => s.Id == eventId);
+            var ev = await _database.Events.FirstOrDefaultAsync(s => s.Id == id);
 
             var question = await _database.Questions
                 .Include(q => q.Options)
@@ -184,7 +186,7 @@ namespace MemberService.Pages.Event.Survey
 
             await _database.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Edit), new { eventId });
+            return RedirectToAction(nameof(Edit), new { id });
         }
 
         private static Expression<Func<EventSignup, bool>> GetFilter(string filter) =>

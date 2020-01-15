@@ -2,12 +2,12 @@
 @model EventModel
 
 @{
-    Layout = "_Layout.cshtml";
     ViewData["Title"] = Model.Title;
-    ViewData["Description"] = Model.Description;
-    ViewData["Id"] = Model.Id;
-    ViewData["Selected"] = "view";
+    ViewData["ContainerClass"] = "container-fluid";
 }
+
+<vc:semester-header id="@Model.SemesterId"></vc:semester-header>
+<vc:event-header id="@Model.Id"></vc:event-header>
 
 <form class="alert @AlertClass(Model) mt-2" asp-action="SetStatus" asp-route-id="@Model.Id" method="POST">
     @if (Model.Archived)
@@ -94,7 +94,7 @@
                 @if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN))
                 {
                     <div class="row mb-5">
-                        <partial name="_SignupActions" for="@signups"/>
+                        <partial name="_SignupActions" for="@signups" />
                     </div>
                 }
 
@@ -166,30 +166,30 @@
 </div>
 
 @section Scripts {
-<script>
-    $(function () {
-        $("input[data-action=select-all]").on('click', function () {
-            var table = $(this).parents('table');
+    <script>
+        $(function () {
+            $("input[data-action=select-all]").on('click', function () {
+                var table = $(this).parents('table');
 
-            var checked = this.checked;
+                var checked = this.checked;
 
-            table.find('input[type=checkbox]').prop('checked', checked);
+                table.find('input[type=checkbox]').prop('checked', checked);
+            });
         });
-    });
 
-    $(function() {
-        $("select[data-action=set-email]").on('change', function() {
-            var tabContent = $(this).parents('form');
+        $(function () {
+            $("select[data-action=set-email]").on('change', function () {
+                var tabContent = $(this).parents('form');
 
-            var subject = this.options[this.selectedIndex].getAttribute("data-subject");
-            var body = this.options[this.selectedIndex].getAttribute("data-body");
+                var subject = this.options[this.selectedIndex].getAttribute("data-subject");
+                var body = this.options[this.selectedIndex].getAttribute("data-body");
 
-            tabContent.find('input[name=Subject]').val(subject);
-            tabContent.find('textarea[name=Message]').val(body);
+                tabContent.find('input[name=Subject]').val(subject);
+                tabContent.find('textarea[name=Message]').val(body);
+            });
         });
-    });
 
-</script>
+    </script>
 }
 
 @functions{

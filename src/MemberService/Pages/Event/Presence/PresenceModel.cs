@@ -10,6 +10,7 @@ namespace MemberService.Pages.Event.Presence
         public PresenceModel(Data.Event e)
         {
             Id = e.Id;
+            SemesterId = e.SemesterId;
             Title = e.Title;
             Description = e.Description;
             Count = e.LessonCount;
@@ -19,6 +20,8 @@ namespace MemberService.Pages.Event.Presence
         }
 
         public Guid Id { get; }
+
+        public Guid? SemesterId { get; }
 
         public string Title { get; }
 

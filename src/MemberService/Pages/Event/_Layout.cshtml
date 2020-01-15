@@ -8,40 +8,40 @@
     var selected = ViewData["selected"] as string;
 }
 
-    <div class="bg-light overflow-container">
-        <h2>
-            @title
-        </h2>
+<div class="bg-light overflow-container">
+    <h2>
+        @title
+    </h2>
 
-        <h4>@description</h4>
-        <ul class="nav nav-tabs flex-column flex-md-row pt-3 mb-5 overflow-container">
-            <li class="nav-item">
-                <a class="nav-link" asp-controller="Signup" asp-action="Event" asp-route-id="@id" asp-route-slug="@title.Slugify()" asp-route-preview="true" target="_blank">Forhåndsvis påmelding</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link @(selected == "view" ? "active" : "")" asp-controller="Event" asp-action="View" asp-route-id="@id">Påmeldte</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link @(selected == "presence" ? "active" : "")" asp-controller="Presence" asp-action="Index" asp-route-id="@id">Registrer oppmøte</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link @(selected == "answers" ? "active" : "")" asp-controller="Questions" asp-action="Index" asp-route-eventId="@id">Svar</a>
-            </li>
-            <li class="nav-item">
+    <h4>@description</h4>
+    <ul class="nav nav-tabs flex-column flex-md-row pt-3 mb-5 overflow-container">
+        <li class="nav-item">
+            <a class="nav-link" asp-controller="Signup" asp-action="Event" asp-route-id="@id" asp-route-slug="@title.Slugify()" asp-route-preview="true" target="_blank">Forhåndsvis påmelding</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(selected == "view" ? "active" : "")" asp-controller="Event" asp-action="View" asp-route-id="@id">Påmeldte</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(selected == "presence" ? "active" : "")" asp-controller="Presence" asp-action="Index" asp-route-id="@id">Registrer oppmøte</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(selected == "answers" ? "active" : "")" asp-controller="Questions" asp-action="Index" asp-route-eventId="@id">Svar</a>
+        </li>
+        <li class="nav-item">
 
+        </li>
+        @if (User.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR))
+        {
+            <li class="nav-item">
+                <a class="nav-link @(selected == "questions" ? "active" : "")" asp-controller="Questions" asp-action="Edit" asp-route-eventId="@id">Spørsmål</a>
             </li>
-            @if (User.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR))
-            {
-                <li class="nav-item">
-                    <a class="nav-link @(selected == "questions" ? "active" : "")" asp-controller="Questions" asp-action="Edit" asp-route-eventId="@id">Spørsmål</a>
-                </li>
-                <li class=nav-item>
-                    <a class="nav-link @(selected == "edit" ? "active" : "")" asp-controller="Event" asp-action="Edit" asp-route-id="@id">Rediger</a>
-                </li>
-            }
-        </ul>
+            <li class=nav-item>
+                <a class="nav-link @(selected == "edit" ? "active" : "")" asp-controller="Event" asp-action="Edit" asp-route-id="@id">Rediger</a>
+            </li>
+        }
+    </ul>
 
-    </div>
+</div>
 @RenderBody()
 
 @section Scripts {

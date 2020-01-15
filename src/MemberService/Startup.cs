@@ -85,7 +85,12 @@ namespace MemberService
                 .AddEntityFrameworkStores<MemberContext>()
                 .AddPasswordlessLoginTokenProvider(IsDevelopment);
 
-            services.AddRazorPages();
+            services
+                .AddRazorPages()
+                .AddRazorOptions(options =>
+            {
+                options.ViewLocationFormats.Add("/{0}.cshtml");
+            });
 
             if (HostingEnvironment.IsDevelopment())
             {

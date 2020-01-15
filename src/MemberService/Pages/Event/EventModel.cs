@@ -21,6 +21,8 @@ namespace MemberService.Pages.Event
 
         public Guid Id { get; set; }
 
+        public Guid? SemesterId { get; set; }
+
         public string Title { get; set; }
 
         public string Description { get; set; }
@@ -48,6 +50,7 @@ namespace MemberService.Pages.Event
             return new EventModel
             {
                 Id = model.Id,
+                SemesterId = model.SemesterId,
                 Title = model.Title,
                 Description = model.Description,
                 Signups = Statuses

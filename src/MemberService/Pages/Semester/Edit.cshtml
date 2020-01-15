@@ -1,9 +1,11 @@
 ﻿@model SemesterInputModel
 
 @{
+    ViewData["ContainerClass"] = "container-fluid";
     ViewData["Title"] = $"Rediger {Model.Title}";
 }
-<h2>@ViewData["Title"]</h2>
+
+<vc:semester-header id="@Model.Id"></vc:semester-header>
 
 <form method="POST" asp-action="Edit" class="form-row justify-content-between">
     <div class="col-md-6">
@@ -51,6 +53,6 @@
     </div>
 
     <div class="col-12 mt-2">
-            <button type="submit" class="btn btn-success">Lagre</button>
+        <button type="submit" class="btn btn-success">Lagre</button>
     </div>
 </form>
