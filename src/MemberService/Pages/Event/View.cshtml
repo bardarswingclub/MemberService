@@ -65,6 +65,46 @@
     }
 </form>
 
+<form method="get" class="btn-toolbar mb-2">
+    <div class="input-group">
+        <div class="input-group-prepend">
+            <label class="input-group-text" asp-for="Filter.SignedUpBefore">Påmeldt før</label>
+        </div>
+        <input type="date" asp-for="Filter.SignedUpBefore" class="form-control" onchange="this.form.submit()" />
+    </div>
+    <div class="input-group ml-2">
+        <div class="input-group-prepend">
+            <label class="input-group-text" asp-for="Filter.Priority">Prioritet</label>
+        </div>
+        <select asp-for="Filter.Priority" class="custom-select" onchange="this.form.submit()">
+            <option>Alle prioriteter</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">5</option>
+        </select>
+    </div>
+    <div class="input-group ml-2">
+        <div class="input-group-prepend">
+            <label class="input-group-text" asp-for="Filter.Name">Navn</label>
+        </div>
+        <input type="text" asp-for="Filter.Name" class="form-control" onchange="this.form.submit()" />
+    </div>
+    <div class="input-group ml-2">
+        <div class="input-group-prepend">
+            <label class="input-group-text" asp-for="Filter.NoOtherSpots">Ikke fått plass på andre kurs</label>
+        </div>
+        <div class="input-group-append">
+            <div class="input-group-text bg-white">
+                <input type="checkbox" asp-for="Filter.NoOtherSpots" onchange="this.form.submit()" />
+            </div>
+        </div>
+    </div>
+    <div class="btn-group ml-2">
+        <button type="submit" class="btn btn-success">Filtrer</button>
+    </div>
+</form>
+
 <div class="card">
     <div class="card-header">
         <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">

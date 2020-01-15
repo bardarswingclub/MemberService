@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Clave.Expressionify;
 using MemberService.Data;
+using MemberService.Data.ValueTypes;
 using Microsoft.EntityFrameworkCore;
 using NodaTime.Text;
 
@@ -48,24 +50,37 @@ namespace MemberService.Pages.Event
                 }
             };
 
-        public static async Task<EventModel> GetEventModel(this MemberContext context, Guid id)
+        public static async Task<EventModel> GetEventModel(
+            this MemberContext context, 
+            Guid id,
+            DateTime? signedUpBefore,
+            int? priority,
+            string name,
+            bool noOtherSpots)
         {
             var model = await context.Events
                 .Include(e => e.SignupOptions)
-                .Include(e => e.Signups)
-                    .ThenInclude(s => s.User)
-                .Include(e => e.Signups)
-                    .ThenInclude(s => s.AuditLog)
-                        .ThenInclude(l => l.User)
-                .Include(e => e.Signups)
-                    .ThenInclude(s => s.Partner)
-                        .ThenInclude(p => p.EventSignups)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(e => e.Id == id);
-
+            
             if (model == null) return null;
 
-            return EventModel.Create(model);
+            var signups = await context.EventSignups
+                .Include(s => s.User)
+                .Include(s => s.AuditLog)
+                .ThenInclude(l => l.User)
+                .Include(s => s.Partner)
+                .ThenInclude(p => p.EventSignups)
+                .AsNoTracking()
+                .Expressionify()
+                .Where(e => e.EventId == id)
+                .Filter(signedUpBefore.HasValue, e => e.SignedUpAt < signedUpBefore)
+                .Filter(priority.HasValue, e => e.Priority == priority)
+                .Filter(!string.IsNullOrWhiteSpace(name), e => e.User.NameMatches(name))
+                .Filter(noOtherSpots, e => !e.User.EventSignups.Where(s => s.Event.SemesterId == model.SemesterId).Any(s => s.Status == Status.AcceptedAndPayed || s.Status == Status.Approved | s.Status == Status.Recommended))
+                .ToListAsync();
+
+            return EventModel.Create(model, signups);
         }
 
         public static IEnumerable<Guid> GetSelected(this EventSaveModel input)

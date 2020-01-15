@@ -188,8 +188,7 @@ namespace MemberService.Pages.Members
                 return u => true;
             }
 
-            var like = $"%{query.Trim()}%";
-            return u => EF.Functions.Like(u.FullName, like) || EF.Functions.Like(u.Email, like);
+            return u => u.NameMatches(query);
         }
     }
 }

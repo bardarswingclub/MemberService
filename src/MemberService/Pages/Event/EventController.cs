@@ -104,14 +104,23 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
-        public async Task<IActionResult> View(Guid id)
+        public async Task<IActionResult> View(
+            Guid id,
+            [FromQuery]EventFilterModel filter)
         {
-            var model = await _database.GetEventModel(id);
+            var model = await _database.GetEventModel(
+                id,
+                filter?.SignedUpBefore,
+                filter?.Priority,
+                filter?.Name,
+                filter?.NoOtherSpots ?? false);
 
             if (model == null)
             {
                 return NotFound();
             }
+
+            model.Filter = filter;
 
             return View(model);
         }

@@ -47,6 +47,10 @@ namespace MemberService.Data
         public static bool IsActive(this Semester semester)
             => semester.SignupOpensAt > TimeProvider.ThisSemesterUtc;
 
+        [Expressionify]
+        public static bool NameMatches(this User user, string name)
+            => user.FullName.Contains(name) | user.Email.Contains(name);
+
         public static async Task<User> SingleUser(this IQueryable<User> users, string id)
             => await users.SingleOrDefaultAsync(user => user.Id == id);
 

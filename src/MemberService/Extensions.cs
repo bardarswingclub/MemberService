@@ -38,6 +38,9 @@ namespace MemberService
         public static Expression<Func<T, bool>> Not<T>(this Expression<Func<T, bool>> predicate)
             => Expression.Lambda<Func<T, bool>>(Expression.Not(predicate.Body), predicate.Parameters);
 
+        public static IQueryable<T> Filter<T>(this IQueryable<T> events, bool filter, Expression<Func<T, bool>> predicate)
+            => filter ? events.Where(predicate) : events;
+
         private static DateTime WithKind(this DateTime dateTime, DateTimeKind kind)
             => DateTime.SpecifyKind(dateTime, kind);
 

@@ -45,7 +45,9 @@ namespace MemberService.Pages.Event
 
         public bool IsOpen { get; set; }
 
-        public static EventModel Create(Data.Event model)
+        public EventFilterModel Filter { get; set; }
+
+        public static EventModel Create(Data.Event model, IEnumerable<Data.EventSignup> signups)
         {
             return new EventModel
             {
@@ -54,7 +56,7 @@ namespace MemberService.Pages.Event
                 Title = model.Title,
                 Description = model.Description,
                 Signups = Statuses
-                    .Select(s => (s, model.Signups.Where(x => x.Status == s)))
+                    .Select(s => (s, signups.Where(x => x.Status == s)))
                     .Select(EventSignupStatusModel.Create)
                     .ToReadOnlyCollection(),
                 Archived = model.Archived,
