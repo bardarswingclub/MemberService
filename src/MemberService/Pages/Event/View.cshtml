@@ -68,31 +68,31 @@
 <form method="get" class="btn-toolbar mb-2">
     <div class="input-group">
         <div class="input-group-prepend">
-            <label class="input-group-text" asp-for="Filter.SignedUpBefore">Påmeldt før</label>
+            <label class="input-group-text @(Model.Filter.SignedUpBefore.HasValue ? "bg-info text-white" : "")" asp-for="Filter.SignedUpBefore">Påmeldt før</label>
         </div>
         <input type="date" asp-for="Filter.SignedUpBefore" class="form-control" onchange="this.form.submit()" />
     </div>
     <div class="input-group ml-2">
         <div class="input-group-prepend">
-            <label class="input-group-text" asp-for="Filter.Priority">Prioritet</label>
+            <label class="input-group-text @(Model.Filter.Priority.HasValue ? "bg-info text-white" : "")" asp-for="Filter.Priority">Prioritet</label>
         </div>
         <select asp-for="Filter.Priority" class="custom-select" onchange="this.form.submit()">
             <option>Alle</option>
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
-            <option value="4">5</option>
+            <option value="4">4</option>
         </select>
     </div>
     <div class="input-group ml-2">
         <div class="input-group-prepend">
-            <label class="input-group-text" asp-for="Filter.Name">Navn</label>
+            <label class="input-group-text @(!string.IsNullOrWhiteSpace(Model.Filter.Name) ? "bg-info text-white" : "")" asp-for="Filter.Name">Navn</label>
         </div>
         <input type="text" asp-for="Filter.Name" class="form-control" onchange="this.form.submit()" />
     </div>
     <div class="input-group ml-2">
         <div class="input-group-prepend">
-            <span class="input-group-text">Utenom</span>
+            <span class="input-group-text @(Model.Filter.ExcludeAcceptedElsewhere || Model.Filter.ExcludeApprovedElsewhere || Model.Filter.ExcludeRecommendedElsewhere ? "bg-info text-white" : "")">Utenom</span>
         </div>
         <div class="input-group-append">
             <div class="input-group-text bg-white">
@@ -109,12 +109,12 @@
             </div>
         </div>
         <div class="input-group-append">
-            <span class="input-group-text">på andre kurs</span>
+            <span class="input-group-text @(Model.Filter.ExcludeAcceptedElsewhere || Model.Filter.ExcludeApprovedElsewhere || Model.Filter.ExcludeRecommendedElsewhere ? "bg-info text-white" : "")">på andre kurs</span>
         </div>
     </div>
     <div class="input-group ml-2">
         <div class="input-group-prepend">
-            <span class="input-group-text">Bare</span>
+            <span class="input-group-text @(Model.Filter.OnlyWaitingListElsewhere || Model.Filter.OnlyRejectedElsewhere || Model.Filter.OnlyDeniedElsewhere ? "bg-info text-white" : "")">Bare</span>
         </div>
         <div class="input-group-append">
             <div class="input-group-text bg-white">
@@ -131,7 +131,7 @@
             </div>
         </div>
         <div class="input-group-append">
-            <span class="input-group-text">på andre kurs</span>
+            <span class="input-group-text @(Model.Filter.OnlyWaitingListElsewhere || Model.Filter.OnlyRejectedElsewhere || Model.Filter.OnlyDeniedElsewhere ? "bg-info text-white" : "")">på andre kurs</span>
         </div>
     </div>
     <div class="btn-group ml-2 sr-only">
