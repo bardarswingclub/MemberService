@@ -113,7 +113,12 @@ namespace MemberService.Pages.Event
                 filter?.SignedUpBefore,
                 filter?.Priority,
                 filter?.Name,
-                filter?.NoOtherSpots ?? false);
+                filter?.ExcludeAcceptedElsewhere ?? false,
+                filter?.ExcludeApprovedElsewhere ?? false,
+                filter?.ExcludeRecommendedElsewhere ?? false,
+                filter?.OnlyDeniedElsewhere ?? false,
+                filter?.OnlyRejectedElsewhere ?? false,
+                filter?.OnlyWaitingListElsewhere ?? false);
 
             if (model == null)
             {

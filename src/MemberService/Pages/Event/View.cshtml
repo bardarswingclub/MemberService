@@ -77,7 +77,7 @@
             <label class="input-group-text" asp-for="Filter.Priority">Prioritet</label>
         </div>
         <select asp-for="Filter.Priority" class="custom-select" onchange="this.form.submit()">
-            <option>Alle prioriteter</option>
+            <option>Alle</option>
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
@@ -92,15 +92,49 @@
     </div>
     <div class="input-group ml-2">
         <div class="input-group-prepend">
-            <label class="input-group-text" asp-for="Filter.NoOtherSpots">Ikke fått plass på andre kurs</label>
+            <span class="input-group-text">Utenom</span>
         </div>
         <div class="input-group-append">
             <div class="input-group-text bg-white">
-                <input type="checkbox" asp-for="Filter.NoOtherSpots" onchange="this.form.submit()" />
+                <input class="mr-1" type="checkbox" asp-for="Filter.ExcludeAcceptedElsewhere" onchange="this.form.submit()" />
+                <label class="form-check-label" asp-for="Filter.ExcludeAcceptedElsewhere">@Status.AcceptedAndPayed.DisplayName()</label>
+            </div>
+            <div class="input-group-text bg-white">
+                <input class="mr-1" type="checkbox" asp-for="Filter.ExcludeApprovedElsewhere" onchange="this.form.submit()" />
+                <label class="form-check-label" asp-for="Filter.ExcludeApprovedElsewhere">@Status.Approved.DisplayName()</label>
+            </div>
+            <div class="input-group-text bg-white">
+                <input class="mr-1" type="checkbox" asp-for="Filter.ExcludeRecommendedElsewhere" onchange="this.form.submit()" />
+                <label class="form-check-label" asp-for="Filter.ExcludeRecommendedElsewhere">@Status.Recommended.DisplayName()</label>
             </div>
         </div>
+        <div class="input-group-append">
+            <span class="input-group-text">på andre kurs</span>
+        </div>
     </div>
-    <div class="btn-group ml-2">
+    <div class="input-group ml-2">
+        <div class="input-group-prepend">
+            <span class="input-group-text">Bare</span>
+        </div>
+        <div class="input-group-append">
+            <div class="input-group-text bg-white">
+                <input class="mr-1" type="checkbox" asp-for="Filter.OnlyWaitingListElsewhere" onchange="this.form.submit()" />
+                <label class="form-check-label" asp-for="Filter.OnlyWaitingListElsewhere">@Status.WaitingList.DisplayName()</label>
+            </div>
+            <div class="input-group-text bg-white">
+                <input class="mr-1" type="checkbox" asp-for="Filter.OnlyRejectedElsewhere" onchange="this.form.submit()" />
+                <label class="form-check-label" asp-for="Filter.OnlyRejectedElsewhere">@Status.RejectedOrNotPayed.DisplayName()</label>
+            </div>
+            <div class="input-group-text bg-white">
+                <input class="mr-1" type="checkbox" asp-for="Filter.OnlyDeniedElsewhere" onchange="this.form.submit()" />
+                <label class="form-check-label" asp-for="Filter.OnlyDeniedElsewhere">@Status.Denied.DisplayName()</label>
+            </div>
+        </div>
+        <div class="input-group-append">
+            <span class="input-group-text">på andre kurs</span>
+        </div>
+    </div>
+    <div class="btn-group ml-2 sr-only">
         <button type="submit" class="btn btn-success">Filtrer</button>
     </div>
 </form>

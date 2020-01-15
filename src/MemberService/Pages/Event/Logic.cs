@@ -56,7 +56,12 @@ namespace MemberService.Pages.Event
             DateTime? signedUpBefore,
             int? priority,
             string name,
-            bool noOtherSpots)
+            bool excludeAcceptedElsewhere,
+            bool excludeApprovedElsewhere,
+            bool excludeRecommendedElsewhere,
+            bool onlyDeniedElsewhere,
+            bool onlyRejectedElsewhere,
+            bool onlyWaitingListElsewhere)
         {
             var model = await context.Events
                 .Include(e => e.SignupOptions)
@@ -77,7 +82,18 @@ namespace MemberService.Pages.Event
                 .Filter(signedUpBefore.HasValue, e => e.SignedUpAt < signedUpBefore)
                 .Filter(priority.HasValue, e => e.Priority == priority)
                 .Filter(!string.IsNullOrWhiteSpace(name), e => e.User.NameMatches(name))
-                .Filter(noOtherSpots, e => !e.User.EventSignups.Where(s => s.Event.SemesterId == model.SemesterId).Where(s => s.EventId != e.EventId).Any(s => s.Status == Status.AcceptedAndPayed || s.Status == Status.Approved || s.Status == Status.Recommended))
+                .Filter(excludeAcceptedElsewhere || excludeApprovedElsewhere || excludeRecommendedElsewhere, e => !e.User.EventSignups
+                    .Where(s => s.Event.SemesterId == model.SemesterId)
+                    .Where(s => s.EventId != e.EventId)
+                    .Any(s => (excludeAcceptedElsewhere && s.Status == Status.AcceptedAndPayed) 
+                              || (excludeApprovedElsewhere && s.Status == Status.Approved) 
+                              || (excludeRecommendedElsewhere && s.Status == Status.Recommended)))
+                .Filter(onlyDeniedElsewhere || onlyRejectedElsewhere || onlyWaitingListElsewhere, e => e.User.EventSignups
+                    .Where(s => s.Event.SemesterId == model.SemesterId)
+                    .Any(s => s.EventId == e.EventId
+                              || (onlyDeniedElsewhere && s.Status == Status.Denied)
+                              || (onlyRejectedElsewhere && s.Status == Status.RejectedOrNotPayed) 
+                              || (onlyWaitingListElsewhere && s.Status == Status.WaitingList)))
                 .ToListAsync();
 
             return EventModel.Create(model, signups);
