@@ -74,6 +74,12 @@
                 </p>
             }
             <a asp-action="Signup" class="btn btn-primary">Meld deg på kurs</a>
+            @if (Model.UserId == null)
+            {
+                <p class="mt-5 mb-0">
+                    Allerede påmeldt? <a asp-page="/Account/Login">Logg inn</a> for å se status
+                </p>
+            }
         </div>
     }
     <div class="card-footer text-center">
