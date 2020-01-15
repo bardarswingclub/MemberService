@@ -77,7 +77,7 @@ namespace MemberService.Pages.Event
                 .Filter(signedUpBefore.HasValue, e => e.SignedUpAt < signedUpBefore)
                 .Filter(priority.HasValue, e => e.Priority == priority)
                 .Filter(!string.IsNullOrWhiteSpace(name), e => e.User.NameMatches(name))
-                .Filter(noOtherSpots, e => !e.User.EventSignups.Where(s => s.Event.SemesterId == model.SemesterId).Any(s => s.Status == Status.AcceptedAndPayed || s.Status == Status.Approved | s.Status == Status.Recommended))
+                .Filter(noOtherSpots, e => !e.User.EventSignups.Where(s => s.Event.SemesterId == model.SemesterId).Where(s => s.EventId != e.EventId).Any(s => s.Status == Status.AcceptedAndPayed || s.Status == Status.Approved || s.Status == Status.Recommended))
                 .ToListAsync();
 
             return EventModel.Create(model, signups);
