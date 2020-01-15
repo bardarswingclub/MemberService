@@ -20,7 +20,7 @@
 }
 else
 {
-    <form method="get" asp-controller="Questions" asp-action="Index" asp-route-id="@Model.Id" class="btn-group" role="group" aria-label="Basic example">
+    <form method="get" asp-controller="Questions" asp-action="Index" asp-route-semesterId="@Model.SemesterId" class="btn-group" role="group" aria-label="Basic example">
         <button type="submit" name="filter" value="all" class="btn btn-secondary @(Model.Filter == "all" ? "active" : "")">
             Alle
             @*<span class="badge badge-light">@Model.SignupsByAll</span>*@

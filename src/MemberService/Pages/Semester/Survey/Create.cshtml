@@ -1,8 +1,10 @@
 ﻿@model CreateSurveyModel
 
 @{
+    ViewData["ContainerClass"] = "container-fluid";
     ViewData["Title"] = Model.SemesterTitle;
 }
+<vc:semester-header id="@Model.SemesterId"></vc:semester-header>
 
 <div class="alert alert-info">
     <h5 class="alert-heading">
