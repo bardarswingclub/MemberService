@@ -9,7 +9,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MemberService.Configs;
 using MemberService.Auth;
-using MemberService.Auth.Development;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using MemberService.Services;
@@ -37,7 +36,8 @@ namespace MemberService
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddScoped(typeof(IEmailSender), IsDevelopment ? typeof(DummyConsoleEmailSender) : typeof(EmailSender))
+                .AddScoped(typeof(IEmailer), IsDevelopment ? typeof(DummyConsoleEmailer) : typeof(SendGridEmailer))
+                .AddScoped<IEmailSender, EmailSender>()
                 .AddScoped(e => new SendGridClient(Configuration["Email:SendGridApiKey"]))
                 .AddScoped<Stripe.ChargeService>()
                 .AddScoped<Stripe.Checkout.SessionService>()

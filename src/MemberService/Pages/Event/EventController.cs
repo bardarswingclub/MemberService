@@ -175,10 +175,11 @@ namespace MemberService.Pages.Event
             try
             {
                 await _emailService.SendCustomEmail(
-                    eventSignup.User.Email,
+                    eventSignup.User,
                     input.Subject,
                     input.Message,
-                    model);
+                    model,
+                    input.ReplyToMe ? currentUser : null);
 
                 if (statusChanged)
                 {

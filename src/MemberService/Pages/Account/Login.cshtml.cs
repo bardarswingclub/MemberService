@@ -74,7 +74,7 @@ namespace MemberService.Pages.Account
             var email = Input.Email.Trim();
             var user = await _loginService.GetOrCreateUser(email);
 
-            await _emailService.SendLoginEmail(email, new Emails.Account.LoginModel
+            await _emailService.SendLoginEmail(email, user.FullName, new Emails.Account.LoginModel
             {
                 Name = user.FullName,
                 CallbackUrl = await _loginService.LoginLink(user, Input.ReturnUrl),

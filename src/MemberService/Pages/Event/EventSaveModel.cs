@@ -18,6 +18,8 @@ namespace MemberService.Pages.Event
 
         public bool SendEmail { get; set; }
 
+        public bool ReplyToMe { get; set; }
+
         [Required]
         public string Subject { get; set; }
 

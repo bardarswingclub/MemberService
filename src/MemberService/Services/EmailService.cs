@@ -1,40 +1,43 @@
 ﻿using MemberService.Emails.Account;
 using MemberService.Emails.Event;
 using System.Threading.Tasks;
+using MemberService.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using SendGrid.Helpers.Mail;
 
 namespace MemberService.Services
 {
     public class EmailService : IEmailService
     {
         private readonly IPartialRenderer _partialRenderer;
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailer _emailer;
 
         public EmailService(
-            IPartialRenderer partialRenderer, IEmailSender emailSender)
+            IPartialRenderer partialRenderer, IEmailer emailer)
         {
             _partialRenderer = partialRenderer;
-            _emailSender = emailSender;
+            _emailer = emailer;
         }
 
-        public async Task SendLoginEmail(string email, LoginModel model)
+        public async Task SendLoginEmail(string email, string name, LoginModel model)
         {
             var subject = $"Logg inn - {model.Code} - Bårdar Swing Club";
 
             var body = await _partialRenderer.RenderPartial("~/Emails/Account/Login.cshtml", model);
 
-            await _emailSender.SendEmailAsync(
-                email,
+            await _emailer.Send(
+                new EmailAddress(email, name),
                 subject,
                 body);
         }
 
-        public async Task SendCustomEmail(string email, string subject, string message, EventStatusModel eventStatusModel)
+        public async Task SendCustomEmail(User to, string subject, string message, EventStatusModel eventStatusModel, User replyTo = null)
         {
-            await _emailSender.SendEmailAsync(
-                email,
+            await _emailer.Send(
+                new EmailAddress(to.Email, to.FullName), 
                 Replace(subject, eventStatusModel),
-                Markdig.Markdown.ToHtml(Replace(message, eventStatusModel)));
+                Markdig.Markdown.ToHtml(Replace(message, eventStatusModel)),
+                replyTo != null ? new EmailAddress(replyTo.Email, replyTo.FullName) : null);
         }
 
         private static string Replace(string value, EventStatusModel model)

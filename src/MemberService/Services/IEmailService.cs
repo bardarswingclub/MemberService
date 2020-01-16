@@ -1,12 +1,13 @@
 ﻿using MemberService.Emails.Event;
 using System.Threading.Tasks;
+using MemberService.Data;
 
 namespace MemberService.Services
 {
     public interface IEmailService
     {
-        Task SendLoginEmail(string email, Emails.Account.LoginModel model);
+        Task SendLoginEmail(string email, string name, Emails.Account.LoginModel model);
 
-        Task SendCustomEmail(string email, string subject, string message, EventStatusModel eventStatusModel);
+        Task SendCustomEmail(User to, string subject, string message, EventStatusModel eventStatusModel, User replyTo = null);
     }
 }
