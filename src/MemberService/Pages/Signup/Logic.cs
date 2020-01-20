@@ -125,7 +125,7 @@ namespace MemberService.Pages.Signup
         }
 
         public static bool CanEdit(this EventSignup e)
-            => e.Status == Status.Pending || e.Status == Status.Recommended;
+            => e.Status == Status.Pending || e.Status == Status.Recommended || e.Status == Status.WaitingList;
 
         public static bool MustPayNonMembersPrice(this User user, EventSignupOptions options)
             => options.PriceForNonMembers > 0 && !user.HasPayedMembershipThisYear();
