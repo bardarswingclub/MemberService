@@ -38,7 +38,7 @@ namespace MemberService.Tests.Signup
         [TestCase(Status.Pending, ExpectedResult = true)]
         [TestCase(Status.Recommended, ExpectedResult = true)]
         [TestCase(Status.Approved, ExpectedResult = false)]
-        [TestCase(Status.WaitingList, ExpectedResult = false)]
+        [TestCase(Status.WaitingList, ExpectedResult = true)]
         [TestCase(Status.AcceptedAndPayed, ExpectedResult = false)]
         [TestCase(Status.Denied, ExpectedResult = false)]
         [TestCase(Status.RejectedOrNotPayed, ExpectedResult = false)]
