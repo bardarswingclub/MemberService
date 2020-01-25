@@ -53,10 +53,30 @@
                         </td>
                     }
                     <td>
+                        @if (participant.Presence.Any())
+                        {
+                            var presence = participant.Presence.DefaultIfEmpty(false).Average(p => p ? 100 : 0);
+                            <span class="@(presence < 50 ? "text-danger" : "text-muted")">
+                                @presence.ToString("N0")%
+                            </span>
+                        }
                         @if (participant.Status == Status.Approved)
                         {
                             <span class="text-danger">Ikke betalt</span>
                         }
+                    </td>
+                </tr>
+            }
+            @if (role.Participants.SelectMany(p => p.Presence).Any())
+            {
+                <tr>
+                    <td class="pr-5">Oppmøte utav @role.Participants.Count deltakere</td>
+                    @for (var i = 0; i < Model.Count; i++)
+                    {
+                        <td class="pl-2 pr-2">@(role.Participants.Count(p => p.Presence[i]))</td>
+                    }
+                    <td class="pl-3" style="width: 100%">
+                        @role.Participants.SelectMany(p => p.Presence).DefaultIfEmpty(false).Average(p => p ? 100 : 0).ToString("N0")%
                     </td>
                 </tr>
             }
