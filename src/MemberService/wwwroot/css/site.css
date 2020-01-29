@@ -154,3 +154,9 @@ details[open] summary .non-open-summary {
     background: #f8f9fa !important;
     border-bottom-color: #fff;
 }
+
+.nowrap-tabs {
+    overflow: auto hidden;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+}

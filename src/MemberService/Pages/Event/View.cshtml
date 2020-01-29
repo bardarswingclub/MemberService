@@ -66,13 +66,13 @@
 </form>
 
 <form method="get" class="btn-toolbar mb-2">
-    <div class="input-group">
+    <div class="input-group mr-2 mb-2">
         <div class="input-group-prepend">
             <label class="input-group-text @(Model.Filter.SignedUpBefore.HasValue ? "bg-info text-white" : "")" asp-for="Filter.SignedUpBefore">Påmeldt før</label>
         </div>
         <input type="date" asp-for="Filter.SignedUpBefore" class="form-control" onchange="this.form.submit()" />
     </div>
-    <div class="input-group ml-2">
+    <div class="input-group mr-2 mb-2">
         <div class="input-group-prepend">
             <label class="input-group-text @(Model.Filter.Priority.HasValue ? "bg-info text-white" : "")" asp-for="Filter.Priority">Prioritet</label>
         </div>
@@ -84,13 +84,13 @@
             <option value="4">4</option>
         </select>
     </div>
-    <div class="input-group ml-2">
+    <div class="input-group mr-2 mb-2">
         <div class="input-group-prepend">
             <label class="input-group-text @(!string.IsNullOrWhiteSpace(Model.Filter.Name) ? "bg-info text-white" : "")" asp-for="Filter.Name">Navn</label>
         </div>
         <input type="text" asp-for="Filter.Name" class="form-control" onchange="this.form.submit()" />
     </div>
-    <div class="input-group ml-2">
+    <div class="input-group mr-2 mb-2">
         <div class="input-group-prepend">
             <span class="input-group-text @(Model.Filter.ExcludeAcceptedElsewhere || Model.Filter.ExcludeApprovedElsewhere || Model.Filter.ExcludeRecommendedElsewhere ? "bg-info text-white" : "")">Utenom</span>
         </div>
@@ -112,7 +112,7 @@
             <span class="input-group-text @(Model.Filter.ExcludeAcceptedElsewhere || Model.Filter.ExcludeApprovedElsewhere || Model.Filter.ExcludeRecommendedElsewhere ? "bg-info text-white" : "")">på andre kurs</span>
         </div>
     </div>
-    <div class="input-group ml-2">
+    <div class="input-group mr-2 mb-2">
         <div class="input-group-prepend">
             <span class="input-group-text @(Model.Filter.OnlyWaitingListElsewhere || Model.Filter.OnlyRejectedElsewhere || Model.Filter.OnlyDeniedElsewhere ? "bg-info text-white" : "")">Bare</span>
         </div>
@@ -134,14 +134,14 @@
             <span class="input-group-text @(Model.Filter.OnlyWaitingListElsewhere || Model.Filter.OnlyRejectedElsewhere || Model.Filter.OnlyDeniedElsewhere ? "bg-info text-white" : "")">på andre kurs</span>
         </div>
     </div>
-    <div class="btn-group ml-2 sr-only">
+    <div class="btn-group sr-only">
         <button type="submit" class="btn btn-success">Filtrer</button>
     </div>
 </form>
 
 <div class="card">
-    <div class="card-header">
-        <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
+    <div class="card-header nowrap-tabs">
+        <ul class="nav nav-tabs card-header-tabs flex-nowrap" id="myTab" role="tablist">
             @foreach (var signups in Model.Signups)
             {
                 <li class="nav-item">
