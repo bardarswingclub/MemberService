@@ -30,11 +30,23 @@
             {
                 <a asp-controller="Members" asp-action="Details" asp-route-id="@partner.Id" target="_blank">@partner.FullName</a>
             }
-            else if(!string.IsNullOrEmpty(Model.PartnerEmail))
+            else if (!string.IsNullOrEmpty(Model.PartnerEmail))
             {
                 <span class="text-muted">(ukjent partner)</span>
             }
         </div>
+        @if (Model.Event.SemesterId.HasValue)
+        {
+            <div class="form-group mt-4">
+                <label asp-for="EventId"></label>
+                <select class="form-control" asp-for="EventId">
+                    @foreach (var ev in Model.Event.Semester.Courses)
+                    {
+                        <option value="@ev.Id" selected="@(ev.Id == Model.Id)">@ev.Title</option>
+                    }
+                </select>
+            </div>
+        }
     </div>
     <div class="card-footer">
         <button type="submit" class="btn btn-success btn-block">Lagre endringer</button>

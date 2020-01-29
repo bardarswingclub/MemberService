@@ -255,16 +255,26 @@ namespace MemberService.Pages.Event
                 .Include(e => e.User)
                 .Include(e => e.Event)
                     .ThenInclude(e => e.SignupOptions)
+                .Include(e => e.Event)
+                .ThenInclude(e => e.Semester)
                 .Include(e => e.Partner)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(e => e.Id == id);
+
+            if (signup.Event.SemesterId.HasValue)
+            {
+                signup.Event.Semester.Courses = await _database.Events
+                    .Where(e => e.SemesterId == signup.Event.SemesterId)
+                    .AsNoTracking()
+                    .ToListAsync();
+            }
 
             return View(signup);
         }
 
         [HttpPost]
         [Authorize(nameof(Policy.IsAdmin))]
-        public async Task<IActionResult> EditSignup(Guid id, [FromForm] DanceRole role, [FromForm] string partnerEmail)
+        public async Task<IActionResult> EditSignup(Guid id, [FromForm] DanceRole role, [FromForm] string partnerEmail, [FromForm] Guid? eventId)
         {
             var signup = await _database.EventSignups
                 .Include(e => e.AuditLog)
@@ -274,15 +284,31 @@ namespace MemberService.Pages.Event
 
             if (ModelState.IsValid)
             {
-                signup.AuditLog.Add($"Admin edited\n\n{signup.Role} -> {role}\n\n{signup.PartnerEmail} -> {partnerEmail}", user);
+                partnerEmail = partnerEmail?.Trim().Normalize().ToUpperInvariant();
+                var log = "Admin edited";
+                if (signup.Role != role)
+                {
+                    signup.Role = role;
+                    log += $"\n\n{signup.Role} -> {role}";
+                }
 
-                signup.Role = role;
-                signup.PartnerEmail = partnerEmail?.Trim().Normalize().ToUpperInvariant();
+                if (signup.PartnerEmail != partnerEmail)
+                {
+                    signup.PartnerEmail = partnerEmail;
+                    log += $"\n\n{signup.PartnerEmail} -> {partnerEmail}";
+                }
 
+                if (eventId.HasValue && signup.EventId != eventId)
+                {
+                    signup.EventId = eventId.Value;
+                    log += $"\n\n{signup.EventId} -> {eventId}";
+                }
+
+                signup.AuditLog.Add(log, user);
                 await _database.SaveChangesAsync();
             }
 
-            return RedirectToAction(nameof(View), new { id = signup.EventId });
+            return RedirectToAction(nameof(View), new { id = eventId ?? signup.EventId });
         }
 
         private async Task<User> GetCurrentUser()
