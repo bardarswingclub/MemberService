@@ -210,6 +210,9 @@ namespace MemberService.Services
             {
                 payment.Refunded = charge.Refunded || charge.Status == "failed";
                 payment.EventSignup = GetEventSignup(charge, user.EventSignups);
+                payment.IncludesMembership = charge.Metadata.TryGetValue("inc_membership", out var m) && m == "yes";
+                payment.IncludesTraining = charge.Metadata.TryGetValue("inc_training", out var t) && t == "yes";
+                payment.IncludesClasses = charge.Metadata.TryGetValue("inc_classes", out var c) && c == "yes";
 
                 SetEventSignupStatus(payment, user);
 
