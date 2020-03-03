@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Semester.Survey
 {
-    [Authorize(nameof(Policy.IsInstructor))]
+    [Authorize]
     [Route("/Semester/{semesterId}/Questions/{action=Index}/{questionId?}")]
     public class QuestionsController : Controller
     {
@@ -31,6 +31,7 @@ namespace MemberService.Pages.Semester.Survey
         }
 
         [HttpGet]
+        [Permission.To(Permission.Action.View, Permission.Resource.Survey)]
         public async Task<IActionResult> Index(Guid semesterId, string filter="all")
         {
             var model = await _database
@@ -57,6 +58,7 @@ namespace MemberService.Pages.Semester.Survey
         }
 
         [HttpGet]
+        [Permission.To(Permission.Action.Edit, Permission.Resource.Survey)]
         public async Task<IActionResult> Edit(Guid semesterId)
         {
             var model = await _database
@@ -84,7 +86,7 @@ namespace MemberService.Pages.Semester.Survey
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
+        [Permission.To(Permission.Action.Edit, Permission.Resource.Survey)]
         public async Task<IActionResult> Create(Guid semesterId, [FromForm] string description)
         {
             var semester = await _database.Semesters.FirstOrDefaultAsync(e => e.Id == semesterId);
@@ -101,7 +103,7 @@ namespace MemberService.Pages.Semester.Survey
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
+        [Permission.To(Permission.Action.Edit, Permission.Resource.Survey)]
         public async Task<IActionResult> Add(
             Guid semesterId,
             [FromForm] QuestionType type)
@@ -125,7 +127,7 @@ namespace MemberService.Pages.Semester.Survey
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
+        [Permission.To(Permission.Action.Edit, Permission.Resource.Survey)]
         public async Task<IActionResult> Save(
             Guid semesterId,
             Guid questionId,

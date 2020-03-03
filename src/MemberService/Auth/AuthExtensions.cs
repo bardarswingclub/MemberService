@@ -1,5 +1,4 @@
-﻿using MemberService.Auth.Requirements;
-using MemberService.Data;
+﻿using MemberService.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,20 +11,9 @@ namespace MemberService.Auth
         {
             services
                 .AddSingleton<IAuthorizationHandler, AdminHandler>()
-                .AddSingleton<IAuthorizationHandler, CrudHandler>();
+                .AddScoped<IAuthorizationHandler, Permission.Handler>();
 
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy(nameof(Policy.IsAdmin), Policy.IsAdmin);
-
-                options.AddPolicy(nameof(Policy.IsCoordinator), Policy.IsCoordinator);
-
-                options.AddPolicy(nameof(Policy.IsInstructor), Policy.IsInstructor);
-
-                options.AddPolicy(nameof(Policy.CanListMembers), Policy.CanListMembers);
-
-                options.AddPolicy(nameof(Policy.CrudRoute), Policy.CrudRoute);
-            });
+            services.AddAuthorization(Permission.AddPolicies);
 
             services.AddScoped<IUserClaimsPrincipalFactory<User>, UserClaimsPrincipalFactory>();
         }

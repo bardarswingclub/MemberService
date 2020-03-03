@@ -6,6 +6,7 @@ using Clave.Expressionify;
 using Clave.ExtensionMethods;
 using MemberService.Auth;
 using MemberService.Data;
+using MemberService.Data.ValueTypes;
 using MemberService.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -14,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Members
 {
-    [Authorize(nameof(Policy.CanListMembers))]
+    [Authorize]
     public class MembersController : Controller
     {
         private readonly MemberContext _memberContext;
@@ -31,6 +32,7 @@ namespace MemberService.Pages.Members
             _paymentService = paymentService;
         }
 
+        [Permission.To(Permission.Action.List, Permission.Resource.Member)]
         public async Task<IActionResult> Index(
             string memberFilter,
             string trainingFilter,
@@ -67,6 +69,7 @@ namespace MemberService.Pages.Members
             });
         }
 
+        [Permission.To(Permission.Action.View, Permission.Resource.Member)]
         public async Task<IActionResult> Details(string id)
         {
             var user = await _memberContext.Users
@@ -87,7 +90,7 @@ namespace MemberService.Pages.Members
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsAdmin))]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> ToggleRole(string id, [FromForm] string role, [FromForm] bool value)
         {
             if (await _userManager.FindByIdAsync(id) is User user)
@@ -109,7 +112,7 @@ namespace MemberService.Pages.Members
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsAdmin))]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> SetExemptions(string id, [FromForm] bool exemptFromTrainingFee, [FromForm] bool exemptFromClassesFee)
         {
             if (await _memberContext.FindAsync<User>(id) is User user)
@@ -126,7 +129,7 @@ namespace MemberService.Pages.Members
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsAdmin))]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> AddManualPayment(string id, [FromForm] ManualPaymentModel model)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);

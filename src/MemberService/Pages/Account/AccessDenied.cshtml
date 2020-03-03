@@ -1,10 +1,10 @@
 ﻿@page
 @model AccessDeniedModel
 @{
-    ViewData["Title"] = "Forbudt";
+    ViewData["Title"] = "Ingen tilgang";
 }
 
-<header>
-    <h1 class="text-danger">@ViewData["Title"]</h1>
-    <p class="text-danger">Du har ikke tilgang hit.</p>
-</header>
+<div class="alert alert-danger">
+    <h1 class="alert-heading">@ViewData["Title"]</h1>
+    <p>Du har ikke tilgang hit. </p>
+</div>

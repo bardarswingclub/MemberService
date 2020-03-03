@@ -1,11 +1,9 @@
 ﻿using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using MemberService.Data.ValueTypes;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace MemberService.Auth.Requirements
+namespace MemberService.Auth
 {
     public class AdminHandler : IAuthorizationHandler
     {

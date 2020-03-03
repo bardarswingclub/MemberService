@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using MemberService.Data.ValueTypes;
 using Microsoft.AspNetCore.Identity;
@@ -57,7 +58,7 @@ namespace MemberService.Data
             return false;
         }
 
-        public static bool IsInAnyRole(this ClaimsPrincipal user, params string[] roles)
+        public static bool IsInAnyRole(this IPrincipal user, params string[] roles)
             => roles.Any(user.IsInRole);
 
         public static string GetFullName(this ClaimsPrincipal user) => user.FindFirstValue("FullName") ?? user.Identity.Name;

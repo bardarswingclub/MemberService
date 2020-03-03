@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Event.Survey
 {
-    [Authorize(nameof(Policy.IsInstructor))]
+    [Authorize]
     [Route("/Event/{id}/Questions/{action=Index}/{questionId?}")]
     public class QuestionsController : Controller
     {
@@ -31,6 +31,7 @@ namespace MemberService.Pages.Event.Survey
         }
 
         [HttpGet]
+        [Permission.To(Permission.Action.View, Permission.Resource.Survey)]
         public async Task<IActionResult> Index(Guid id, string filter="all")
         {
             var model = await _database
@@ -68,6 +69,7 @@ namespace MemberService.Pages.Event.Survey
         }
 
         [HttpGet]
+        [Permission.To(Permission.Action.Edit, Permission.Resource.Survey)]
         public async Task<IActionResult> Edit(Guid id)
         {
             var model = await _database
@@ -100,7 +102,7 @@ namespace MemberService.Pages.Event.Survey
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
+        [Permission.To(Permission.Action.Edit, Permission.Resource.Survey)]
         public async Task<IActionResult> Create(Guid id)
         {
             var ev = await _database.Events.FirstOrDefaultAsync(e => e.Id == id);
@@ -117,7 +119,7 @@ namespace MemberService.Pages.Event.Survey
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
+        [Permission.To(Permission.Action.Edit, Permission.Resource.Survey)]
         public async Task<IActionResult> Add(
             Guid id,
             [FromForm] QuestionType type)
@@ -141,7 +143,7 @@ namespace MemberService.Pages.Event.Survey
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
+        [Permission.To(Permission.Action.Edit, Permission.Resource.Survey)]
         public async Task<IActionResult> Save(
             Guid id,
             Guid questionId,

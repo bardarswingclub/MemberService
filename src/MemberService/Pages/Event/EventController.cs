@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using MemberService.Auth;
-using MemberService.Auth.Requirements;
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
 using MemberService.Emails.Event;
@@ -17,11 +16,9 @@ using Microsoft.Extensions.Logging;
 
 namespace MemberService.Pages.Event
 {
-    [Authorize(nameof(Policy.IsInstructor))]
+    [Authorize]
     public class EventController : Controller
     {
-        private readonly IAuthorizationService _authorizationService;
-
         private readonly MemberContext _database;
 
         private readonly UserManager<User> _userManager;
@@ -33,14 +30,12 @@ namespace MemberService.Pages.Event
         private readonly ILogger<EventController> _logger;
 
         public EventController(
-            IAuthorizationService authorizationService,
             MemberContext database,
             UserManager<User> userManager,
             IEmailService emailService,
             ILoginService linker,
             ILogger<EventController> logger)
         {
-            _authorizationService = authorizationService;
             _database = database;
             _userManager = userManager;
             _emailService = emailService;
@@ -49,26 +44,18 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
+        [Permission.To(Permission.Action.List, Permission.Resource.Event)]
         public async Task<IActionResult> Index(bool archived = false)
         {
             var model = await _database.GetEvents(archived);
-
-            await _authorizationService.AuthorizeAsync(User, model, Operations.List);
 
             return View(model);
         }
 
         [HttpGet]
-        [Authorize(nameof(Policy.IsCoordinator))]
+        [Permission.To(Permission.Action.Create, Permission.Resource.Event)]
         public async Task<IActionResult> Create(EventType type = EventType.Class, Guid? semesterId = null)
         {
-            var authorized = await _authorizationService.AuthorizeAsync(User, type, Operations.List);
-
-            if (!authorized.Succeeded)
-            {
-                return new ForbidResult();
-            }
-
             if (semesterId.HasValue)
             {
                 var semester = await _database.Semesters.FindAsync(semesterId.Value);
@@ -92,7 +79,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
+        [Permission.To(Permission.Action.Create, Permission.Resource.Event)]
         public async Task<IActionResult> Create([FromForm] EventInputModel model)
         {
             if (!ModelState.IsValid)
@@ -118,6 +105,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
+        [Permission.To(Permission.Action.View, Permission.Resource.Event)]
         public async Task<IActionResult> View(
             Guid id,
             [FromQuery]EventFilterModel filter)
@@ -145,7 +133,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
+        [Permission.To(Permission.Action.Manage, Permission.Resource.Event)]
         public async Task<IActionResult> View(Guid id, [FromForm] EventSaveModel input)
         {
             var currentUser = await GetCurrentUser();
@@ -213,7 +201,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
-        [Authorize(nameof(Policy.IsCoordinator))]
+        [Permission.To(Permission.Action.Edit, Permission.Resource.Event)]
         public async Task<IActionResult> Edit(Guid id)
         {
             var model = await _database.GetEventInputModel(id);
@@ -227,7 +215,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
+        [Permission.To(Permission.Action.Edit, Permission.Resource.Event)]
         public async Task<IActionResult> Edit(Guid id, [FromForm] EventInputModel model)
         {
             if (!ModelState.IsValid)
@@ -241,7 +229,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
+        [Permission.To(Permission.Action.Edit, Permission.Resource.Event)]
         public async Task<IActionResult> SetStatus(Guid id, [FromForm] string status)
         {
             var ev = await _database.EditEvent(id, e => e.SetEventStatus(status));
@@ -262,7 +250,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
-        [Authorize(nameof(Policy.IsAdmin))]
+        [Permission.To(Permission.Action.Edit, Permission.Resource.Signup)]
         public async Task<IActionResult> EditSignup(Guid id)
         {
             var signup = await _database.EventSignups
@@ -287,7 +275,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsAdmin))]
+        [Permission.To(Permission.Action.Edit, Permission.Resource.Signup)]
         public async Task<IActionResult> EditSignup(Guid id, [FromForm] DanceRole role, [FromForm] string partnerEmail, [FromForm] Guid? eventId)
         {
             var signup = await _database.EventSignups

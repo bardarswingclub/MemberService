@@ -8,12 +8,11 @@ using MemberService.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using NodaTime.Extensions;
 using NodaTime.Text;
 
 namespace MemberService.Pages.Semester
 {
-    [Authorize(nameof(Policy.IsInstructor))]
+    [Authorize]
     public class SemesterController : Controller
     {
         private readonly MemberContext _database;
@@ -25,6 +24,7 @@ namespace MemberService.Pages.Semester
         }
 
         [HttpGet]
+        [Permission.To(Permission.Action.View, Permission.Resource.Semester)]
         public async Task<IActionResult> Index(bool archived=false)
         {
             var semester = await _database.Semesters
@@ -43,7 +43,7 @@ namespace MemberService.Pages.Semester
         }
 
         [HttpGet]
-        [Authorize(nameof(Policy.IsCoordinator))]
+        [Permission.To(Permission.Action.Create, Permission.Resource.Semester)]
         public IActionResult Create()
         {
             var now = TimeProvider.UtcToday;
@@ -63,7 +63,7 @@ namespace MemberService.Pages.Semester
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
+        [Permission.To(Permission.Action.Create, Permission.Resource.Semester)]
         public async Task<IActionResult> Create([FromForm]SemesterInputModel input)
         {
             if (!ModelState.IsValid)
@@ -92,6 +92,7 @@ namespace MemberService.Pages.Semester
         }
 
         [HttpGet]
+        [Permission.To(Permission.Action.Edit, Permission.Resource.Semester)]
         public async Task<IActionResult> Edit()
         {
             var semester = await _database.Semesters
@@ -113,6 +114,7 @@ namespace MemberService.Pages.Semester
         }
 
         [HttpPost]
+        [Permission.To(Permission.Action.Edit, Permission.Resource.Semester)]
         public async Task<IActionResult> Edit([FromForm] SemesterInputModel input)
         {
             if (!ModelState.IsValid)

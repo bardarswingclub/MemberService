@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using MemberService.Data;
-using MemberService.Pages.Event;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
