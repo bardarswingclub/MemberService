@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Event.Presence
 {
-    [Authorize(nameof(Policy.IsInstructor))]
+    [Authorize(nameof(Policy.CrudRoute))]
     [Route("/Event/{id}/Presence/{action}")]
     public class PresenceController : Controller
     {
@@ -37,7 +37,7 @@ namespace MemberService.Pages.Event.Presence
                     .ThenInclude(s => s.Presence)
                 .AsNoTracking()
                 .Expressionify()
-                .FirstOrDefaultAsync(s => s.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id);
 
             return View(new PresenceModel(model));
         }
@@ -47,7 +47,7 @@ namespace MemberService.Pages.Event.Presence
         {
             var model = await _database
                 .Events
-                .FirstOrDefaultAsync(s => s.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id);
 
             model.LessonCount++;
 

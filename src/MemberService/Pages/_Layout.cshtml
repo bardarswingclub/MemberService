@@ -38,7 +38,7 @@
                         <li class="nav-item">
                             <a class="nav-link text-white" asp-controller="Home" asp-action="Index">Påmelding</a>
                         </li>
-                        @if (User.IsInAnyRole(Roles.INSTRUCTOR, Roles.COORDINATOR, Roles.ADMIN))
+                        @if (User.IsInAnyRole(Roles.Instructor, Roles.Coordinator, Roles.Admin))
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-controller="Members" asp-action="Index">Medlemmer</a>
@@ -50,7 +50,7 @@
                                 <a class="nav-link text-white" asp-controller="Event" asp-action="Index">Arrangementer</a>
                             </li>
                         }
-                        @if (User.IsInRole(Roles.ADMIN))
+                        @if (User.IsInRole(Roles.Admin))
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-controller="Admin" asp-action="Index">Admin</a>

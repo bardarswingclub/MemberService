@@ -19,7 +19,7 @@
     {
         <h4 class="alert-heading">
             Påmeldingen er åpen!
-            @if (User.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR))
+            @if (User.IsInAnyRole(Roles.Admin, Roles.Coordinator))
             {
                 <button type="submit" name="status" value="close" class="btn btn-outline-danger float-right">Steng påmeldingen nå</button>
             }
@@ -37,7 +37,7 @@
     {
         <h4 class="alert-heading">
             Påmeldingen har stengt!
-            @if (User.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR))
+            @if (User.IsInAnyRole(Roles.Admin, Roles.Coordinator))
             {
                 <button type="submit" name="status" value="open" class="btn btn-outline-success float-right">Gjennåpne påmeldingen nå</button>
             }
@@ -52,7 +52,7 @@
     {
         <h4 class="alert-heading">
             Påmeldingen har ikke åpnet ennå!
-            @if (User.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR))
+            @if (User.IsInAnyRole(Roles.Admin, Roles.Coordinator))
             {
                 <button type="submit" name="status" value="open" class="btn btn-outline-success float-right">Åpne påmeldingen nå</button>
             }
@@ -165,7 +165,7 @@
         {
             <form method="post" class="tab-pane @(signups.Active ? "active" : "")" id="@signups.Key" role="tabpanel" aria-labelledby="@signups.Key-tab" disabled="@Model.Archived">
 
-                @if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN))
+                @if (User.IsInAnyRole(Roles.Coordinator, Roles.Admin))
                 {
                     <div class="row mb-5">
                         <partial name="_SignupActions" for="@signups" />

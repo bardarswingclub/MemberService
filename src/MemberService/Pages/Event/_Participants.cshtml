@@ -22,7 +22,7 @@
             </td>
             <td>
                 <span class="badge badge-primary badge-pill">@(signup.Priority). pri</span>
-                @if (User.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR))
+                @if (User.IsInAnyRole(Roles.Admin, Roles.Coordinator))
                 {
                     <a href="#" class="" data-toggle="modal" data-target="#modal-@signup.Id">
                         @signup.SignedUpAt.ToOsloDate()
@@ -33,7 +33,7 @@
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="exampleModalScrollableTitle">
                                         Historikk for @signup.FullName
-                                        @if (User.IsInRole(Roles.ADMIN))
+                                        @if (User.IsInRole(Roles.Admin))
                                         {
                                             <a asp-action="EditSignup" asp-route-id="@signup.Id">Rediger</a>
                                         }

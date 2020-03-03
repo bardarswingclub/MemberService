@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using MemberService.Auth;
+using MemberService.Auth.Requirements;
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
 using MemberService.Emails.Event;
@@ -19,6 +20,8 @@ namespace MemberService.Pages.Event
     [Authorize(nameof(Policy.IsInstructor))]
     public class EventController : Controller
     {
+        private readonly IAuthorizationService _authorizationService;
+
         private readonly MemberContext _database;
 
         private readonly UserManager<User> _userManager;
@@ -30,12 +33,14 @@ namespace MemberService.Pages.Event
         private readonly ILogger<EventController> _logger;
 
         public EventController(
+            IAuthorizationService authorizationService,
             MemberContext database,
             UserManager<User> userManager,
             IEmailService emailService,
             ILoginService linker,
             ILogger<EventController> logger)
         {
+            _authorizationService = authorizationService;
             _database = database;
             _userManager = userManager;
             _emailService = emailService;
@@ -48,6 +53,8 @@ namespace MemberService.Pages.Event
         {
             var model = await _database.GetEvents(archived);
 
+            await _authorizationService.AuthorizeAsync(User, model, Operations.List);
+
             return View(model);
         }
 
@@ -55,6 +62,13 @@ namespace MemberService.Pages.Event
         [Authorize(nameof(Policy.IsCoordinator))]
         public async Task<IActionResult> Create(EventType type = EventType.Class, Guid? semesterId = null)
         {
+            var authorized = await _authorizationService.AuthorizeAsync(User, type, Operations.List);
+
+            if (!authorized.Succeeded)
+            {
+                return new ForbidResult();
+            }
+
             if (semesterId.HasValue)
             {
                 var semester = await _database.Semesters.FindAsync(semesterId.Value);

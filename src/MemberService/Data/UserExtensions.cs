@@ -12,33 +12,33 @@ namespace MemberService.Data
         {
             foreach(var email in emails)
             {
-                await userManager.EnsureUserHasRole(email.Trim(), Roles.ADMIN);
+                await userManager.EnsureUserHasRole(email.Trim(), Roles.Admin);
             }
         }
 
         public static async Task SeedRoles(this RoleManager<MemberRole> roleManager)
         {
-            if (!await roleManager.RoleExistsAsync(Roles.ADMIN))
+            if (!await roleManager.RoleExistsAsync(Roles.Admin))
             {
                 await roleManager.CreateAsync(new MemberRole
                 {
-                    Name = Roles.ADMIN
+                    Name = Roles.Admin
                 });
             }
 
-            if (!await roleManager.RoleExistsAsync(Roles.COORDINATOR))
+            if (!await roleManager.RoleExistsAsync(Roles.Coordinator))
             {
                 await roleManager.CreateAsync(new MemberRole
                 {
-                    Name = Roles.COORDINATOR
+                    Name = Roles.Coordinator
                 });
             }
 
-            if (!await roleManager.RoleExistsAsync(Roles.INSTRUCTOR))
+            if (!await roleManager.RoleExistsAsync(Roles.Instructor))
             {
                 await roleManager.CreateAsync(new MemberRole
                 {
-                    Name = Roles.INSTRUCTOR
+                    Name = Roles.Instructor
                 });
             }
         }

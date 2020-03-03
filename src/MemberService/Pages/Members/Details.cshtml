@@ -50,11 +50,11 @@
             Rettigheter
         </h3>
         <div class="card-body">
-            @if (User.IsInRole(Roles.ADMIN))
+            @if (User.IsInRole(Roles.Admin))
             {
-                <partial name="_Role" model="(Model, Roles.ADMIN)" />
-                <partial name="_Role" model="(Model, Roles.COORDINATOR)" />
-                <partial name="_Role" model="(Model, Roles.INSTRUCTOR)" />
+                <partial name="_Role" model="(Model, Roles.Admin)" />
+                <partial name="_Role" model="(Model, Roles.Coordinator)" />
+                <partial name="_Role" model="(Model, Roles.Instructor)" />
                 <hr />
                 <form asp-controller="Members" asp-action="SetExemptions" asp-route-id="@Model.Id" method="post" class="form">
                     <div class="form-check">
@@ -110,7 +110,7 @@
     <div class="card shadow-sm">
         <h3 class="card-header">
             Betalinger
-            @if (User.IsInRole(Roles.ADMIN))
+            @if (User.IsInRole(Roles.Admin))
             {
                 <form asp-action="UpdatePayments" asp-route-id="@Model.Id" method="POST" class="float-right">
 
@@ -136,7 +136,7 @@
                             <abbr title="@payment.PayedAtUtc.ToOsloDateTime()">@payment.PayedAtUtc.ToOsloDate()</abbr>
                         </td>
                         <td>
-                            @if (User.IsInRole(Roles.ADMIN) && payment.StripeChargeId != null)
+                            @if (User.IsInRole(Roles.Admin) && payment.StripeChargeId != null)
                             {
                                 <a href="https://dashboard.stripe.com/payments/@payment.StripeChargeId" target="_blank">
                                     @payment.Description
@@ -152,7 +152,7 @@
                 }
             </tbody>
         </table>
-        @if (User.IsInRole(Roles.ADMIN))
+        @if (User.IsInRole(Roles.Admin))
         {
             <div class="card-footer">
                 <button class="btn btn-link" data-toggle="collapse" data-target="#addManualPayment" aria-expanded="false" aria-controls="addManualPayment">

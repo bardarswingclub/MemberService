@@ -2,10 +2,14 @@ namespace MemberService.Data.ValueTypes
 {
     public static class Roles
     {
-        public const string ADMIN = "Admin";
+        public const string Admin = nameof(Admin);
 
-        public const string COORDINATOR = "Coordinator";
+        public const string Coordinator = nameof(Coordinator);
 
-        public const string INSTRUCTOR = "Instructor";
+        public const string Instructor = nameof(Instructor);
+
+        public const string FestKom = nameof(FestKom);
+
+        public const string Organizer = nameof(Organizer);
     }
 }
