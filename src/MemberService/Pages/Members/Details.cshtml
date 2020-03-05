@@ -50,7 +50,7 @@
             Rettigheter
         </h3>
         <div class="card-body">
-            @if (User.IsInRole(Roles.Admin))
+            @if (User.IsAdmin())
             {
                 <partial name="_Role" model="(Model, Roles.Admin)" />
                 <partial name="_Role" model="(Model, Roles.Coordinator)" />
@@ -111,7 +111,7 @@
     <div class="card shadow-sm">
         <h3 class="card-header">
             Betalinger
-            @if (User.IsInRole(Roles.Admin))
+            @if (User.IsAdmin())
             {
                 <form asp-action="UpdatePayments" asp-route-id="@Model.Id" method="POST" class="float-right">
 
@@ -137,7 +137,7 @@
                             <abbr title="@payment.PayedAtUtc.ToOsloDateTime()">@payment.PayedAtUtc.ToOsloDate()</abbr>
                         </td>
                         <td>
-                            @if (User.IsInRole(Roles.Admin) && payment.StripeChargeId != null)
+                            @if (User.IsAdmin() && payment.StripeChargeId != null)
                             {
                                 <a href="https://dashboard.stripe.com/payments/@payment.StripeChargeId" target="_blank">
                                     @payment.Description
@@ -153,7 +153,7 @@
                 }
             </tbody>
         </table>
-        @if (User.IsInRole(Roles.Admin))
+        @if (User.IsAdmin())
         {
             <div class="card-footer">
                 <button class="btn btn-link" data-toggle="collapse" data-target="#addManualPayment" aria-expanded="false" aria-controls="addManualPayment">

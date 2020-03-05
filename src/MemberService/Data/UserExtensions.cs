@@ -61,6 +61,9 @@ namespace MemberService.Data
         public static bool IsInAnyRole(this IPrincipal user, params string[] roles)
             => roles.Any(user.IsInRole);
 
+        public static bool IsAdmin(this IPrincipal user)
+            => user.IsInRole(Roles.Admin);
+
         public static string GetFullName(this ClaimsPrincipal user) => user.FindFirstValue("FullName") ?? user.Identity.Name;
     }
 }

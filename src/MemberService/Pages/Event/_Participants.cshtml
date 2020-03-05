@@ -33,7 +33,7 @@
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="exampleModalScrollableTitle">
                                         Historikk for @signup.FullName
-                                        @if (User.IsInRole(Roles.Admin))
+                                        @if (User.IsAdmin())
                                         {
                                             <a asp-action="EditSignup" asp-route-id="@signup.Id">Rediger</a>
                                         }

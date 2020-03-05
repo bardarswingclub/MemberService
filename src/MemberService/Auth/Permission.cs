@@ -50,7 +50,7 @@ namespace MemberService.Auth
             public ToAttribute(Action action, Resource resource) : base(PolicyName(action, resource)) { }
         }
 
-        public class Handler : AuthorizationHandler<Requirement>
+        public class Handler : AuthorizationHandler<Requirement >
         {
             private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -79,7 +79,7 @@ namespace MemberService.Auth
                     (Resource.Event, Action.Edit) => user.IsInAnyRole(Roles.Coordinator, Roles.FestKom),
                     (Resource.Event, Action.Create) => user.IsInAnyRole(Roles.Coordinator, Roles.FestKom),
 
-                    (Resource.Signup, Action.Edit) => user.IsInRole(Roles.Admin),
+                    (Resource.Signup, Action.Edit) => user.IsAdmin(),
 
                     (Resource.Member, Action.List) => user.IsInAnyRole(Roles.Instructor, Roles.Coordinator, Roles.FestKom),
                     (Resource.Member, Action.View) => user.IsInAnyRole(Roles.Instructor, Roles.Coordinator, Roles.FestKom),

@@ -7,14 +7,14 @@
     </div>
     <select name="Status" class="custom-select" data-action="set-email">
         <option selected="selected" value="" data-subject="Info om {TITLE}" data-body="@EmailBodies.Default">- Velg en handling -</option>
-        @if (User.IsInRole(Roles.Admin) || Model.Status != Status.AcceptedAndPayed)
+        @if (User.IsAdmin() || Model.Status != Status.AcceptedAndPayed)
         {
             <option value="2" data-subject="Info om {TITLE}" data-body="@EmailBodies.Default">Anbefall plass</option>
             <option value="4" data-subject="Du har fått plass på {TITLE}" data-body="@EmailBodies.Approved">Gi plass</option>
             <option value="3" data-subject="Du er på ventelisten til {TITLE}" data-body="@EmailBodies.WaitingList">Sett på venteliste</option>
         }
         <option value="7" data-subject="Du har ikke fått plass på {TITLE}" data-body="@EmailBodies.Denied">Får ikke plass</option>
-        @if (User.IsInRole(Roles.Admin))
+        @if (User.IsAdmin())
         {
             <optgroup label="ADMIN"></optgroup>
             <option value="1" data-subject="Info om {TITLE}" data-body="@EmailBodies.Default">Påmeldt</option>

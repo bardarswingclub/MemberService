@@ -9,7 +9,7 @@ namespace MemberService.Auth
     {
         public Task HandleAsync(AuthorizationHandlerContext context)
         {
-            if (!context.User.IsInRole(Roles.Admin))
+            if (!context.User.IsAdmin())
             {
                 return Task.CompletedTask;
             }
