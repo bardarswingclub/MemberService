@@ -43,6 +43,7 @@ namespace MemberService
                 .AddScoped<Stripe.Checkout.SessionService>()
                 .AddScoped<Stripe.CustomerService>()
                 .AddScoped<Stripe.PaymentIntentService>()
+                .AddScoped<Stripe.RefundService>()
                 .AddScoped<IPaymentService, PaymentService>()
                 .AddScoped<ILoginService, LoginService>()
                 .AddScoped<IPartialRenderer, PartialRenderer>()

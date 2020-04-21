@@ -1,0 +1,40 @@
+﻿@model decimal
+
+@{
+    ViewData["Title"] = "Korona-informasjon";
+    Layout = "~/Pages/_CoverLayout.cshtml";
+}
+
+<div class="card shadow mt-5">
+    <h3 class="card-header">
+        Korona-informasjon
+    </h3>
+    <div class="card-body">
+        <p>
+            På grunn av koronaepidemien bestemte styret i Bårdar Swing Club at alle kurs og arrangementer fra og med 11. mars skulle avlyses. Vi forholder oss nå til anbefalingene til helsemyndighetene og kommer derfor ikke til å arrangere noen flere kurs dette semesteret.
+        </p>
+
+        <p>
+            Styret har videre bestemt at siden kursene ble avlyst halvveis i semesteret så kan alle som har betalt kurs- eller treningsavgift få refundert halve avgiften.
+            Medlemskap i klubben gjelder for hele kalenderåret, så dette vil ikke bli refundert da det kan brukes også til høsten, når vi håper at det vil være et større tilbud tilgjengelig for klubbens medlemer.
+        </p>
+
+        <p>
+            Styret har regnet på hvordan dette kommer til å påvirke klubbens økonomi og kommet frem til at det ikke vil ha noe stor negativ konsekvens.
+        </p>
+
+        @if (Model > 0)
+        {
+            <form asp-action="Refund" method="post">
+                <button class="btn btn-primary btn-block">Refunder @Model.FormatMoney()</button>
+            </form>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <h4 class="alert-heading">Du har ikke krav på refusjon</h4>
+                <span>Du kan bare få refundert kurs- og treningsavgift for våren 2020</span>
+            </div>
+        }
+    </div>
+</div>
