@@ -10,7 +10,6 @@ using Stripe;
 
 namespace MemberService.Pages.Corona
 {
-    [Authorize]
     public class CoronaController : Controller
     {
         private readonly MemberContext _database;
@@ -30,21 +29,28 @@ namespace MemberService.Pages.Corona
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var user = await _database.Users
-                .Include(u => u.Payments)
-                .SingleUser(GetUserId());
-
-            var refund = user.GetCoronaRefundablePayments();
-
-            var model = new CoronaModel
+            if (User.Identity.IsAuthenticated)
             {
-                Refund = refund
-            };
+                var user = await _database.Users
+                    .Include(u => u.Payments)
+                    .SingleUser(GetUserId());
 
-            return View(model);
+                var refund = user.GetCoronaRefundablePayments();
+
+                var model = new CoronaModel
+                {
+                    Refund = refund,
+                    Authenticated = true
+                };
+
+                return View(model);
+            }
+
+            return View(new CoronaModel());
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Refund()
         {
             var user = await _database.Users

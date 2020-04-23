@@ -11,5 +11,7 @@ namespace MemberService.Pages.Corona
         public decimal Sum => Refund.Sum(p => p.Amount);
 
         public bool IncludesClasses => Refund.Any(p => p.payment.IncludesClasses);
+
+        public bool Authenticated { get; set; }
     }
 }

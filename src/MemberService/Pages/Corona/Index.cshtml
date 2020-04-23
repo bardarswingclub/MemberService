@@ -22,8 +22,14 @@
         <p>
             Ifølge styrets beregninger vil ikke refusjon av halve avgiften ha en stor negativ konsekvens for klubbens økonomi. Vi legger opp til at folk selv ber om refusjon av halve kursavgiften.
         </p>
-
-        @if (Model.Sum > 0)
+        @if (!Model.Authenticated)
+        {
+            <div class="alert alert-info">
+                <h4 class="alert-heading">Refusjon tilgjengelig kun for medlemmer</h4>
+                <a class="alert-link" asp-page="/Account/Login" asp-route-returnurl="/Corona">Logg inn</a>
+            </div>
+        }
+        else if (Model.Sum > 0)
         {
             <form asp-action="Refund" method="post" class="alert alert-info">
                 <p>
@@ -36,7 +42,8 @@
         {
             <div class="alert alert-info">
                 <h4 class="alert-heading">Ingen refusjon tilgjengelig</h4>
-                <span>Du har ikke betalt kurs- eller treningsavgift for våren 2020 og kan derfor ikke få refundert avgiften.</span>
+                <p>Du har ikke betalt kurs- eller treningsavgift for våren 2020 og kan derfor ikke få refundert avgiften.</p>
+                <p>Eller kanskje du allerede har fått refundert kurs- eller treningsavgiften?</p>
             </div>
         }
     </div>
