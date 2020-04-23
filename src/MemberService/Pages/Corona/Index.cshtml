@@ -1,4 +1,4 @@
-﻿@model decimal
+﻿@model MemberService.Pages.Corona.CoronaModel
 
 @{
     ViewData["Title"] = "Korona-informasjon";
@@ -11,29 +11,32 @@
     </h3>
     <div class="card-body">
         <p>
-            På grunn av koronaepidemien bestemte styret i Bårdar Swing Club at alle kurs og arrangementer fra og med 11. mars skulle avlyses. Vi forholder oss nå til anbefalingene til helsemyndighetene og kommer derfor ikke til å arrangere noen flere kurs dette semesteret.
+            På grunn av koronapandemien bestemte styret i Bårdar Swing Club 11. mars at alle kurs og arrangementer ble avlyst inntil videre. Dette på grunnlag av myndighetenes restriksjoner for å unngå smittespredning.
         </p>
-
         <p>
-            Styret har videre bestemt at siden kursene ble avlyst halvveis i semesteret så kan alle som har betalt kurs- eller treningsavgift få refundert halve avgiften.
-            Medlemskap i klubben gjelder for hele kalenderåret, så dette vil ikke bli refundert da det kan brukes også til høsten, når vi håper at det vil være et større tilbud tilgjengelig for klubbens medlemer.
+            7. april innførte regjeringen forbud mot kulturarrangementer fram til 15. juni. Det fører dessverre til at ingen av våre kurs og arrangementer dette vårsemesteret kan gjennomføres.
         </p>
-
         <p>
-            Styret har regnet på hvordan dette kommer til å påvirke klubbens økonomi og kommet frem til at det ikke vil ha noe stor negativ konsekvens.
+            Fordi kursene ble avlyst halvveis i semesteret har styret bestemt at alle som har betalt kurs- eller treningsavgift kan få refundert halve avgiften. Medlemskapsavgiften for klubben gjelder for hele kalenderåret, så dette vil ikke bli refundert da det også kan brukes til høsten. Vi håper at vi da kan komme tilbake med et tilbud til klubbens medlemmer. Vi viser også til klubbens Facebook-gruppe der medlemmer legger ut tips til online dansekurs og annet.
+        </p>
+        <p>
+            Ifølge styrets beregninger vil ikke refusjon av halve avgiften ha en stor negativ konsekvens for klubbens økonomi. Vi legger opp til at folk selv ber om refusjon av halve kursavgiften.
         </p>
 
-        @if (Model > 0)
+        @if (Model.Sum > 0)
         {
-            <form asp-action="Refund" method="post">
-                <button class="btn btn-primary btn-block">Refunder @Model.FormatMoney()</button>
+            <form asp-action="Refund" method="post" class="alert alert-info">
+                <p>
+                    Du har betalt for @(Model.IncludesClasses ? "kurs" : "trening") og kan dermed få refundert halve @(Model.IncludesClasses ? "kursavgiften" : "treningsavgiften").
+                </p>
+                <button class="btn btn-primary btn-block">Refunder @Model.Sum.FormatMoney()</button>
             </form>
         }
         else
         {
             <div class="alert alert-info">
-                <h4 class="alert-heading">Du har ikke krav på refusjon</h4>
-                <span>Du kan bare få refundert kurs- og treningsavgift for våren 2020</span>
+                <h4 class="alert-heading">Ingen refusjon tilgjengelig</h4>
+                <span>Du har ikke betalt kurs- eller treningsavgift for våren 2020 og kan derfor ikke få refundert avgiften.</span>
             </div>
         }
     </div>

@@ -34,9 +34,14 @@ namespace MemberService.Pages.Corona
                 .Include(u => u.Payments)
                 .SingleUser(GetUserId());
 
-            var refund = user.CalculateCoronaRefund();
+            var refund = user.GetCoronaRefundablePayments();
 
-            return View(refund);
+            var model = new CoronaModel
+            {
+                Refund = refund
+            };
+
+            return View(model);
         }
 
         [HttpPost]
