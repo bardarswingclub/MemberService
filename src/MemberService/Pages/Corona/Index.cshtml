@@ -1,0 +1,43 @@
+﻿@model MemberService.Pages.Corona.CoronaModel
+
+@{
+    ViewData["Title"] = "Korona-informasjon";
+    Layout = "~/Pages/_CoverLayout.cshtml";
+}
+
+<div class="card shadow mt-5">
+    <h3 class="card-header">
+        Korona-informasjon
+    </h3>
+    <div class="card-body">
+        <p>
+            På grunn av koronapandemien bestemte styret i Bårdar Swing Club 11. mars at alle kurs og arrangementer ble avlyst inntil videre. Dette på grunnlag av myndighetenes restriksjoner for å unngå smittespredning.
+        </p>
+        <p>
+            7. april innførte regjeringen forbud mot kulturarrangementer fram til 15. juni. Det fører dessverre til at ingen av våre kurs og arrangementer dette vårsemesteret kan gjennomføres.
+        </p>
+        <p>
+            Fordi kursene ble avlyst halvveis i semesteret har styret bestemt at alle som har betalt kurs- eller treningsavgift kan få refundert halve avgiften. Medlemskapsavgiften for klubben gjelder for hele kalenderåret, så dette vil ikke bli refundert da det også kan brukes til høsten. Vi håper at vi da kan komme tilbake med et tilbud til klubbens medlemmer. Vi viser også til klubbens Facebook-gruppe der medlemmer legger ut tips til online dansekurs og annet.
+        </p>
+        <p>
+            Ifølge styrets beregninger vil ikke refusjon av halve avgiften ha en stor negativ konsekvens for klubbens økonomi. Vi legger opp til at folk selv ber om refusjon av halve kursavgiften.
+        </p>
+
+        @if (Model.Sum > 0)
+        {
+            <form asp-action="Refund" method="post" class="alert alert-info">
+                <p>
+                    Du har betalt for @(Model.IncludesClasses ? "kurs" : "trening") og kan dermed få refundert halve @(Model.IncludesClasses ? "kursavgiften" : "treningsavgiften").
+                </p>
+                <button class="btn btn-primary btn-block">Refunder @Model.Sum.FormatMoney()</button>
+            </form>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <h4 class="alert-heading">Ingen refusjon tilgjengelig</h4>
+                <span>Du har ikke betalt kurs- eller treningsavgift for våren 2020 og kan derfor ikke få refundert avgiften.</span>
+            </div>
+        }
+    </div>
+</div>
