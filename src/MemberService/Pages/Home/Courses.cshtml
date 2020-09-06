@@ -68,30 +68,40 @@
             }
         }
     </div>
-
-    <div class="card-body">
-        <div class="input-group">
-            <select class="custom-select" id="class-select">
-                <option value="" selected disabled>Velg kurs du har lyst til å delta på</option>
-                @foreach (var item in Model.OpenClasses)
-                {
-                    <option value="@item.Id">@item.Title</option>
-                }
-            </select>
-            <div class="input-group-append">
-                <button type="button" class="btn btn-outline-success" id="add-class-button">Legg til</button>
+    @if (Model.OpenClasses.Any())
+    {
+        <div class="card-body">
+            <div class="input-group">
+                <select class="custom-select" id="class-select">
+                    <option value="" selected disabled>Velg kurs du har lyst til å delta på</option>
+                    @foreach (var item in Model.OpenClasses)
+                    {
+                        <option value="@item.Id">@item.Title</option>
+                    }
+                </select>
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-outline-success" id="add-class-button">Legg til</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="card-footer">
-        <ul>
-            <li>Har du lagt til alle kursene du vil delta på?</li>
-            <li>Har du lagt kursene i prioritert rekkefølge?</li>
-        </ul>
+        <div class="card-footer">
+            <ul>
+                <li>Har du lagt til alle kursene du vil delta på?</li>
+                <li>Har du lagt kursene i prioritert rekkefølge?</li>
+            </ul>
 
-        <button type="submit" class="btn btn-success btn-block">Ja, jeg er ferdig!</button>
-    </div>
+            <button type="submit" class="btn btn-success btn-block">Ja, jeg er ferdig!</button>
+        </div>
+    }
+    else
+    {
+        <div class="card-body">
+            <p class="text-center text-muted font-italic">
+                Det finnes ingen @(Model.Courses.Any() ? "flere" : "") kurs du kan melde deg på
+            </p>
+        </div>
+    }
     <div class="card-footer text-center">
         <a href="/Home/Fees">Jeg vil ikke gå kurs, jeg vil bare bli medlem</a>
     </div>
