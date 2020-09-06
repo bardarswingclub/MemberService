@@ -12,7 +12,7 @@
     </div>
 </div>
 
-<form method="post" class="card shadow mt-5">
+<form method="post" class="card shadow mt-5" id="courses-form">
     <h2 class="card-header text-center">
         Meld deg på kurs
     </h2>
@@ -79,9 +79,6 @@
                         <option value="@item.Id">@item.Title</option>
                     }
                 </select>
-                <div class="input-group-append">
-                    <button type="button" class="btn btn-outline-success" id="add-class-button">Legg til</button>
-                </div>
             </div>
         </div>
 
@@ -127,8 +124,9 @@
                 }
             });
 
-            $("#add-class-button").on('click', function (e) {
-                var select = $("#class-select");
+            var select = $("#class-select");
+
+            function addClass(e) {
 
                 // get the id of the selected class
                 var id = select.val();
@@ -150,7 +148,9 @@
 
                 // enable everything inside the group so they are submitted to the server
                 group.find("input, select").prop("disabled", false);
-            });
+            }
+
+            select.on('change', addClass);
 
             $("[data-action=remove]").on('click', function (e) {
                 // find the input group to remove
@@ -168,24 +168,11 @@
                 // enable the select option again
                 $("option[value=" + id + "]").prop("disabled", false);
             });
+
+            $("#courses-form").on("submit",
+                function(e) {
+
+                });
         })
     </script>
-}
-
-@functions
-{
-    string BadgeColor(Status status)
-    {
-        switch (status)
-        {
-            case Status.Approved:
-            case Status.AcceptedAndPayed:
-                return "badge-success";
-            case Status.Denied:
-            case Status.RejectedOrNotPayed:
-                return "badge-danger";
-            default:
-                return "badge-info";
-        }
-    }
 }
