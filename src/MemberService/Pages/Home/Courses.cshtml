@@ -6,6 +6,12 @@
     Layout = "~/Pages/_CoverLayout.cshtml";
 }
 
+<div class="card shadow mt-5">
+    <div class="card-body markdown">
+        @Html.Markdown(Model.SignupHelpText)
+    </div>
+</div>
+
 <form method="post" class="card shadow mt-5">
     <h2 class="card-header text-center">
         Meld deg på kurs

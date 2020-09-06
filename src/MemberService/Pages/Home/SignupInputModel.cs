@@ -11,5 +11,7 @@ namespace MemberService.Pages.Home
         [DisplayName("Jeg godtar rettningslinjene til Bårdar Swing Club")]
         [EnforceTrue(ErrorMessage = "Du må godta våre rettningslinjer for å delta på kurs")]
         public bool Accept { get; set; }
+
+        public string SignupHelpText { get; set; }
     }
 }

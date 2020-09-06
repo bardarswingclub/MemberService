@@ -160,3 +160,7 @@ details[open] summary .non-open-summary {
     white-space: nowrap;
     flex-wrap: nowrap;
 }
+
+.markdown img {
+    max-width: 100%
+}

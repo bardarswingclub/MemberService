@@ -63,7 +63,12 @@ namespace MemberService.Pages.Home
             var semester = await _database.Semesters
                 .Expressionify()
                 .Where(s => s.IsActive())
-                .Select(s => new SignupInputModel { SignupOpensAt = s.SignupOpensAt })
+                .Select(s => new SignupInputModel
+                {
+                    SignupOpensAt = s.SignupOpensAt,
+                    SignupHelpText = s.SignupHelpText
+
+                })
                 .FirstOrDefaultAsync();
 
             if (semester == null)
@@ -73,7 +78,7 @@ namespace MemberService.Pages.Home
 
             if (semester.SignupOpensAt > TimeProvider.UtcNow)
             {
-                return View("NotOpenYet", semester);
+                return View("NotOpenYet", new NotOpenYetModel{ SignupOpensAt = semester.SignupOpensAt });
             }
 
             return View(semester);
@@ -97,7 +102,6 @@ namespace MemberService.Pages.Home
             var semester = await _database.Semesters
                 .Expressionify()
                 .Where(s => s.IsActive())
-                .Select(s => new SignupInputModel { SignupOpensAt = s.SignupOpensAt })
                 .FirstOrDefaultAsync();
 
             if (semester == null)
@@ -107,7 +111,7 @@ namespace MemberService.Pages.Home
 
             if (semester.SignupOpensAt > TimeProvider.UtcNow)
             {
-                return View("NotOpenYet", semester);
+                return View("NotOpenYet", new NotOpenYetModel { SignupOpensAt = semester.SignupOpensAt });
             }
 
             var courses = await _database.GetCourses(userId, e => e.HasOpened());
@@ -117,14 +121,6 @@ namespace MemberService.Pages.Home
                 .Where(c => c.Signup == null)
                 .OrderBy(c => c.Title)
                 .ToReadOnlyList();
-
-            var futureClasses = await _database.GetCourses(userId, e => e.WillOpen());
-
-            var willOpenAt = futureClasses
-                .WhereNotNull(e => e.OpensAt)
-                .OrderBy(e => e.OpensAt)
-                .Select(e => e.OpensAt)
-                .FirstOrDefault();
 
             var sortable = courses
                 .Select(c => c.Signup)
@@ -138,7 +134,8 @@ namespace MemberService.Pages.Home
                     .ToReadOnlyList(),
                 OpenClasses = availableCourses,
                 OpensAt = semester.SignupOpensAt,
-                Sortable = sortable
+                Sortable = sortable,
+                SignupHelpText = semester.SignupHelpText
             });
         }
 

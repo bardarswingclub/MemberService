@@ -15,13 +15,6 @@ namespace MemberService.Pages.Home
 
         public bool Sortable { get; set; }
 
-        [Expressionify]
-        public static SignupModel Create(Data.Semester s, string userId) => new SignupModel
-        {
-            OpensAt = s.SignupOpensAt,
-            OpenClasses = s.Courses
-                .Select(c => CourseModel.Create(c, userId))
-                .ToList()
-        };
+        public string SignupHelpText { get; set; }
     }
 }

@@ -25,14 +25,6 @@ namespace MemberService.Pages.Home
                 .Select(e => CourseModel.Create(e, userId))
                 .ToListAsync();
 
-        public static Task<SignupModel> GetSignupModel(this MemberContext db, string userId) =>
-            db.Semesters
-                .AsNoTracking()
-                .Expressionify()
-                .Where(s => s.IsActive())
-                .Select(s => SignupModel.Create(s, userId))
-                .FirstOrDefaultAsync();
-
         public static async Task<IndexModel> GetIndexModel(this MemberContext db, string userId) => await db.Semesters
             .Expressionify()
             .Where(s => s.IsActive())

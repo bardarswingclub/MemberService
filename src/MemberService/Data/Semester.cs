@@ -16,5 +16,7 @@ namespace MemberService.Data
         public Survey Survey { get; set; }
 
         public ICollection<Event> Courses { get; set; } = new List<Event>();
+
+        public string SignupHelpText { get; set; }
     }
 }

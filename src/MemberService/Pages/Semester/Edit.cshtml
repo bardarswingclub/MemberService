@@ -52,6 +52,23 @@
         </div>
     </div>
 
+    <div class="col-md-12 mt-1">
+        <div class="card flex-fill">
+            <div class="card-header">
+                Hjeleptekst til påmelding
+            </div>
+            <div class="card-body">
+
+                <div class="form-group">
+                    <label asp-for="SignupHelpText"></label>
+                    <textarea class="form-control" rows="5" asp-for="SignupHelpText"></textarea>
+                </div>
+                <hr />
+                <small class="text-muted">Du kan bruke <a href="https://www.markdownguide.org/basic-syntax/" target="_blank">Markdown</a>, f.eks <code>**<b>bold</b>**</code>, <code>_<i>italics</i>_</code> og <code>[link](https://bardarswingclub.no)</code></small>
+            </div>
+        </div>
+    </div>
+
     <div class="col-12 mt-2">
         <button type="submit" class="btn btn-success">Lagre</button>
     </div>

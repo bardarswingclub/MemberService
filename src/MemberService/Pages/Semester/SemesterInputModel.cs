@@ -19,5 +19,7 @@ namespace MemberService.Pages.Semester
         [Required]
         [RegularExpression(@"^\d\d:\d\d$")]
         public string SignupOpensAtTime { get; set; }
+
+        public string SignupHelpText { get; set; }
     }
 }

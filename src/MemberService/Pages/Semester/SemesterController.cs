@@ -83,7 +83,8 @@ namespace MemberService.Pages.Semester
             _database.Semesters.Add(new Data.Semester
             {
                 Title = input.Title,
-                SignupOpensAt = GetUtc(input.SignupOpensAtDate, input.SignupOpensAtTime)
+                SignupOpensAt = GetUtc(input.SignupOpensAtDate, input.SignupOpensAtTime),
+                SignupHelpText = input.SignupHelpText
             });
 
             await _database.SaveChangesAsync();
@@ -106,7 +107,8 @@ namespace MemberService.Pages.Semester
             {
                 Title = semester.Title,
                 SignupOpensAtDate = date,
-                SignupOpensAtTime = time
+                SignupOpensAtTime = time,
+                SignupHelpText = semester.SignupHelpText
             };
 
             return View(model);
@@ -130,6 +132,7 @@ namespace MemberService.Pages.Semester
 
             semester.Title = input.Title;
             semester.SignupOpensAt = GetUtc(input.SignupOpensAtDate, input.SignupOpensAtTime);
+            semester.SignupHelpText = input.SignupHelpText;
 
             foreach (var course in semester.Courses)
             {
