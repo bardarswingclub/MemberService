@@ -14,5 +14,8 @@ namespace MemberService.Data.ValueTypes
 
         [Display(Name = "Fest", Description = "Fest (en kveld)")]
         Party,
+
+        [Display(Name = "Egentrening", Description = "Egentrening (en time)")]
+        Training,
     }
 }

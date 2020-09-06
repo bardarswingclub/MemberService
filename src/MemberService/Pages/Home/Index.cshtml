@@ -6,7 +6,7 @@
 }
 
 <div class="row justify-content-md-center">
-    <div class="col-md-4">
+    @*<div class="col-md-4">
         <partial name="_SemesterStatus" model="Model" />
     </div>
     <div class="col-md-4">
@@ -14,5 +14,11 @@
     </div>
     <div class="col-md-4">
         <partial name="_EventStatus" for="WorkshopModel" />
+    </div>*@
+    <div class="col-md-6">
+        <partial name="_SemesterStatus" model="Model" />
+    </div>
+    <div class="col-md-6">
+        <partial name="_EventStatus" for="TrainingModel" />
     </div>
 </div>

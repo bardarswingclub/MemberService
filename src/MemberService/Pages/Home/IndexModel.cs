@@ -15,5 +15,7 @@ namespace MemberService.Pages.Home
         public EventsModel PartyModel { get; set; }
 
         public EventsModel WorkshopModel { get; set; }
+
+        public EventsModel TrainingModel { get; set; }
     }
 }

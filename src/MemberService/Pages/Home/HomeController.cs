@@ -55,6 +55,13 @@ namespace MemberService.Pages.Home
                 FutureEvents = futureEvents.Where(e => e.Type == EventType.Workshop).ToList()
             };
 
+            model.TrainingModel = new EventsModel
+            {
+                Title = "Egentrening",
+                OpenEvents = openEvents.Where(e => e.Type == EventType.Training).ToList(),
+                FutureEvents = futureEvents.Where(e => e.Type == EventType.Training).ToList()
+            };
+
             return View(model);
         }
 
