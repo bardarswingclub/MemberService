@@ -128,10 +128,14 @@ namespace MemberService.Pages.Signup
             => e.Status == Status.Pending || e.Status == Status.Recommended || e.Status == Status.WaitingList;
 
         public static bool MustPayNonMembersPrice(this User user, EventSignupOptions options)
-            => options.PriceForNonMembers > 0 && !user.HasPayedMembershipThisYear();
+            => options.PriceForNonMembers > 0 && !user.HasPayedMembershipThisYear()
+                                              && !(options.IncludedInClassesFee && user.HasPayedClassesFeeThisSemester())
+                                              && !(options.IncludedInTrainingFee && user.HasPayedTrainingFeeThisSemester());
 
         public static bool MustPayMembersPrice(this User user, EventSignupOptions options)
-            => options.PriceForMembers > 0 && user.HasPayedMembershipThisYear();
+            => options.PriceForMembers > 0 && user.HasPayedMembershipThisYear()
+                                           && !(options.IncludedInClassesFee && user.HasPayedClassesFeeThisSemester())
+                                           && !(options.IncludedInTrainingFee && user.HasPayedTrainingFeeThisSemester());
 
         public static bool MustPayMembershipFee(this User user, EventSignupOptions options)
             => options.RequiresMembershipFee && !user.HasPayedMembershipThisYear();

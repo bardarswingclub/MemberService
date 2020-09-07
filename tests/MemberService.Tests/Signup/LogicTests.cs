@@ -172,6 +172,98 @@ namespace MemberService.Tests.Signup
             return user.MustPayClassesFee(options);
         }
 
+        [TestCase(false, false, ExpectedResult = true)]
+        [TestCase(false, true, ExpectedResult = true)]
+        [TestCase(true, false, ExpectedResult = true)]
+        [TestCase(true, true, ExpectedResult = false)]
+        public bool TestNonMembershipIncludedInClassesFee(bool includedInClassesFee, bool hasPaidClassesFee)
+        {
+            var options = new EventSignupOptions
+            {
+                IncludedInClassesFee = includedInClassesFee,
+                PriceForNonMembers = 100
+            };
+
+            var user = new User
+            {
+                Payments =
+                {
+                    Payment(classes: hasPaidClassesFee)
+                }
+            };
+
+            return user.MustPayNonMembersPrice(options);
+        }
+
+        [TestCase(false, false, ExpectedResult = true)]
+        [TestCase(false, true, ExpectedResult = true)]
+        [TestCase(true, false, ExpectedResult = true)]
+        [TestCase(true, true, ExpectedResult = false)]
+        public bool TestMembershipIncludedInClassesFee(bool includedInClassesFee, bool hasPaidClassesFee)
+        {
+            var options = new EventSignupOptions
+            {
+                IncludedInClassesFee = includedInClassesFee,
+                PriceForMembers = 100
+            };
+
+            var user = new User
+            {
+                Payments =
+                {
+                    Payment(classes: hasPaidClassesFee, membership: true)
+                }
+            };
+
+            return user.MustPayMembersPrice(options);
+        }
+
+        [TestCase(false, false, ExpectedResult = true)]
+        [TestCase(false, true, ExpectedResult = true)]
+        [TestCase(true, false, ExpectedResult = true)]
+        [TestCase(true, true, ExpectedResult = false)]
+        public bool TestNonMembershipIncludedInTrainingFee(bool includedInTrainingFee, bool hasPaidTrainingFee)
+        {
+            var options = new EventSignupOptions
+            {
+                IncludedInTrainingFee = includedInTrainingFee,
+                PriceForNonMembers = 100
+            };
+
+            var user = new User
+            {
+                Payments =
+                {
+                    Payment(training: hasPaidTrainingFee)
+                }
+            };
+
+            return user.MustPayNonMembersPrice(options);
+        }
+
+        [TestCase(false, false, ExpectedResult = true)]
+        [TestCase(false, true, ExpectedResult = true)]
+        [TestCase(true, false, ExpectedResult = true)]
+        [TestCase(true, true, ExpectedResult = false)]
+        public bool TestMembershipIncludedInTrainingFee(bool includedInTrainingFee, bool hasPaidTrainingFee)
+        {
+            var options = new EventSignupOptions
+            {
+                IncludedInTrainingFee = includedInTrainingFee,
+                PriceForMembers = 100
+            };
+
+            var user = new User
+            {
+                Payments =
+                {
+                    Payment(training: hasPaidTrainingFee, membership: true)
+                }
+            };
+
+            return user.MustPayMembersPrice(options);
+        }
+
         private static Payment Payment(DateTime? paidAt = null, bool refunded = false, bool membership = false, bool training = false, bool classes = false) => new Payment
         {
             IncludesMembership = membership,

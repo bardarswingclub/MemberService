@@ -24,6 +24,10 @@ namespace MemberService.Data
 
         public decimal PriceForNonMembers { get; set; }
 
+        public bool IncludedInTrainingFee { get; set; }
+
+        public bool IncludedInClassesFee { get; set; }
+
         public string SignupHelp { get; set; }
 
         public bool RoleSignup { get; set; }

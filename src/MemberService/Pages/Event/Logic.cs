@@ -39,6 +39,8 @@ namespace MemberService.Pages.Event
                     RequiresClassesFee = model.RequiresClassesFee,
                     PriceForMembers = model.PriceForMembers,
                     PriceForNonMembers = model.PriceForNonMembers,
+                    IncludedInTrainingFee = model.IncludedInTrainingFee,
+                    IncludedInClassesFee = model.IncludedInClassesFee,
                     SignupOpensAt = model.EnableSignupOpensAt ? GetUtc(model.SignupOpensAtDate, model.SignupOpensAtTime) : null,
                     SignupClosesAt = model.EnableSignupClosesAt ? GetUtc(model.SignupClosesAtDate, model.SignupClosesAtTime) : null,
                     SignupHelp = model.SignupHelp,
@@ -51,7 +53,7 @@ namespace MemberService.Pages.Event
             };
 
         public static async Task<EventModel> GetEventModel(
-            this MemberContext context, 
+            this MemberContext context,
             Guid id,
             DateTime? signedUpBefore,
             int? priority,
@@ -67,7 +69,7 @@ namespace MemberService.Pages.Event
                 .Include(e => e.SignupOptions)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(e => e.Id == id);
-            
+
             if (model == null) return null;
 
             var signups = await context.EventSignups
@@ -85,14 +87,14 @@ namespace MemberService.Pages.Event
                 .Filter(excludeAcceptedElsewhere || excludeApprovedElsewhere || excludeRecommendedElsewhere, e => !e.User.EventSignups
                     .Where(s => s.Event.SemesterId == model.SemesterId)
                     .Where(s => s.EventId != e.EventId)
-                    .Any(s => (excludeAcceptedElsewhere && s.Status == Status.AcceptedAndPayed) 
-                              || (excludeApprovedElsewhere && s.Status == Status.Approved) 
+                    .Any(s => (excludeAcceptedElsewhere && s.Status == Status.AcceptedAndPayed)
+                              || (excludeApprovedElsewhere && s.Status == Status.Approved)
                               || (excludeRecommendedElsewhere && s.Status == Status.Recommended)))
                 .Filter(onlyDeniedElsewhere || onlyRejectedElsewhere || onlyWaitingListElsewhere, e => e.User.EventSignups
                     .Where(s => s.Event.SemesterId == model.SemesterId)
                     .Any(s => s.EventId == e.EventId
                               || (onlyDeniedElsewhere && s.Status == Status.Denied)
-                              || (onlyRejectedElsewhere && s.Status == Status.RejectedOrNotPayed) 
+                              || (onlyRejectedElsewhere && s.Status == Status.RejectedOrNotPayed)
                               || (onlyWaitingListElsewhere && s.Status == Status.WaitingList)))
                 .ToListAsync();
 
@@ -136,6 +138,8 @@ namespace MemberService.Pages.Event
                 RequiresMembershipFee = model.SignupOptions.RequiresMembershipFee,
                 RequiresTrainingFee = model.SignupOptions.RequiresTrainingFee,
                 RequiresClassesFee = model.SignupOptions.RequiresClassesFee,
+                IncludedInTrainingFee = model.SignupOptions.IncludedInTrainingFee,
+                IncludedInClassesFee = model.SignupOptions.IncludedInClassesFee,
                 SignupHelp = model.SignupOptions.SignupHelp,
                 RoleSignup = model.SignupOptions.RoleSignup,
                 RoleSignupHelp = model.SignupOptions.RoleSignupHelp,
@@ -155,6 +159,8 @@ namespace MemberService.Pages.Event
             entity.SignupOptions.RequiresClassesFee = model.RequiresClassesFee;
             entity.SignupOptions.PriceForMembers = model.PriceForMembers;
             entity.SignupOptions.PriceForNonMembers = model.PriceForNonMembers;
+            entity.SignupOptions.IncludedInTrainingFee = model.IncludedInTrainingFee;
+            entity.SignupOptions.IncludedInClassesFee = model.IncludedInClassesFee;
             entity.SignupOptions.SignupOpensAt = model.EnableSignupOpensAt ? GetUtc(model.SignupOpensAtDate, model.SignupOpensAtTime) : null;
             entity.SignupOptions.SignupClosesAt = model.EnableSignupClosesAt ? GetUtc(model.SignupClosesAtDate, model.SignupClosesAtTime) : null;
             entity.SignupOptions.SignupHelp = model.SignupHelp;

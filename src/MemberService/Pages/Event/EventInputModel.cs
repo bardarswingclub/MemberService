@@ -49,6 +49,12 @@ namespace MemberService.Pages.Event
         [DisplayName("Pris for ikke-medlemmer")]
         public decimal PriceForNonMembers { get; set; }
 
+        [DisplayName("Gratis hvis man har betalt treningsavgift?")]
+        public bool IncludedInTrainingFee { get; set; }
+
+        [DisplayName("Gratis hvis man har betalt kursavgift?")]
+        public bool IncludedInClassesFee { get; set; }
+
         [DisplayName("Hjelpetekst")]
         public string SignupHelp { get; set; }
 
