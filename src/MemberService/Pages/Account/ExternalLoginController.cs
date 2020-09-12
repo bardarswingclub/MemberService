@@ -15,13 +15,13 @@ namespace MemberService.Pages.Account
         private readonly ILoginService _loginService;
         private readonly SignInManager<User> _signInManager;
         private readonly UserManager<User> _userManager;
-        private readonly ILogger _logger;
+        private readonly ILogger<ExternalLoginController> _logger;
 
         public ExternalLoginController(
             ILoginService loginService,
             SignInManager<User> signInManager,
             UserManager<User> userManager,
-            ILogger logger)
+            ILogger<ExternalLoginController> logger)
         {
             _loginService = loginService;
             _signInManager = signInManager;
@@ -30,7 +30,7 @@ namespace MemberService.Pages.Account
         }
 
         [HttpPost]
-        public IActionResult OnPost(string provider, string returnUrl = null)
+        public IActionResult Index(string provider, string returnUrl = null)
         {
             // Request a redirect to the external login provider.
             var redirectUrl = Url.Action(nameof(Callback), new { returnUrl });
