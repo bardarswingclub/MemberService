@@ -16,20 +16,35 @@
     }
 }
 
-<form method="post" class="card mt-5 shadow">
+<div class="card mt-5 shadow">
     <h3 class="card-header">
         Logg inn / bli medlem
     </h3>
     <div class="card-body">
         <input type="hidden" asp-for="Input.ReturnUrl">
-        <span asp-validation-summary="All" class="text-danger"></span>
-        <div class="form-group">
-            <label asp-for="Input.Email"></label>
-            <input asp-for="Input.Email" class="form-control" placeholder="epost@eksempel.no" autofocus />
-            <span asp-validation-for="Input.Email" class="text-danger"></span>
-        </div>
+        <form method="post">
+            <span asp-validation-summary="All" class="text-danger"></span>
+            <div class="form-group">
+                <label asp-for="Input.Email"></label>
+                <input asp-for="Input.Email" class="form-control" placeholder="epost@eksempel.no" autofocus />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-success btn-block">Gå videre &#x27a4;</button>
+        </form>
+        <hr />
+        @if (Model.ExternalLogins?.Count > 0)
+        {
+            <form id="external-account" asp-controller="ExternalLogin" asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" class="form-horizontal">
+                <p>Hvis du har Hotmail eller Outlook epost kan det hende e-post innlogging ikke fungerer. Prøv heller med å trykke på knappen under</p>
+                <div>
+                    @foreach (var provider in Model.ExternalLogins)
+                    {
+                        <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">Logg inn med @provider.DisplayName</button>
+                    }
+                </div>
+            </form>
+        }
     </div>
-    <div class="card-footer">
-        <button type="submit" class="btn btn-success btn-block">Gå videre &#x27a4;</button>
-    </div>
-</form>
+</div>
+

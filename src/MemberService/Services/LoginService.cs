@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 
 namespace MemberService.Services
 {
@@ -68,6 +70,13 @@ namespace MemberService.Services
                     token,
                     returnUrl
                 });
+        }
+
+        public async Task<IList<AuthenticationScheme>> GetExternalAuthenticationSchemes()
+        {
+            var result = await _signInManager.GetExternalAuthenticationSchemesAsync();
+
+            return result.ToList();
         }
     }
 }

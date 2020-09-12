@@ -114,6 +114,12 @@ namespace MemberService
                 options.AddPolicy(nameof(Policy.IsInstructor), Policy.IsInstructor);
             });
 
+            services.AddAuthentication().AddMicrosoftAccount(options =>
+            {
+                options.ClientId = Configuration["Authentication:Microsoft:ClientId"];
+                options.ClientSecret = Configuration["Authentication:Microsoft:ClientSecret"];
+            });
+
             services.AddScoped<IUserClaimsPrincipalFactory<User>, UserClaimsPrincipalFactory>();
 
             services.UseNamespaceViewLocations();
