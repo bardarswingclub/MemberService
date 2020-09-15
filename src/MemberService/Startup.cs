@@ -91,6 +91,7 @@ namespace MemberService
                 .AddRazorOptions(options =>
             {
                 options.ViewLocationFormats.Add("/{0}.cshtml");
+                options.PageViewLocationFormats.Add("/{0}.cshtml");
             });
 
             if (HostingEnvironment.IsDevelopment())
@@ -114,11 +115,17 @@ namespace MemberService
                 options.AddPolicy(nameof(Policy.IsInstructor), Policy.IsInstructor);
             });
 
-            services.AddAuthentication().AddMicrosoftAccount(options =>
-            {
-                options.ClientId = Configuration["Authentication:Microsoft:ClientId"];
-                options.ClientSecret = Configuration["Authentication:Microsoft:ClientSecret"];
-            });
+            services.AddAuthentication()
+                .AddMicrosoftAccount(options =>
+                {
+                    options.ClientId = Configuration["Authentication:Microsoft:ClientId"];
+                    options.ClientSecret = Configuration["Authentication:Microsoft:ClientSecret"];
+                })
+                .AddFacebook(options =>
+                {
+                    options.AppId = Configuration["Authentication:Facebook:AppId"];
+                    options.AppSecret = Configuration["Authentication:Facebook:AppSecret"];
+                });
 
             services.AddScoped<IUserClaimsPrincipalFactory<User>, UserClaimsPrincipalFactory>();
 

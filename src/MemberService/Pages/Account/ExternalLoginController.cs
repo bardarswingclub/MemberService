@@ -54,7 +54,7 @@ namespace MemberService.Pages.Account
             }
 
             // Sign in the user with this external login provider if the user already has a login.
-            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
+            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: true, bypassTwoFactor: true);
             if (result.Succeeded)
             {
                 _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
@@ -76,7 +76,7 @@ namespace MemberService.Pages.Account
 
                 if (await _userManager.IsEmailConfirmedAsync(user))
                 {
-                    await _signInManager.SignInAsync(user, true, IdentityConstants.ExternalScheme);
+                    await _signInManager.SignInAsync(user, isPersistent: true, IdentityConstants.ExternalScheme);
 
                     if (string.IsNullOrWhiteSpace(user.FullName))
                     {
@@ -90,7 +90,7 @@ namespace MemberService.Pages.Account
 
                 await _userManager.ConfirmEmailAsync(user, code);
 
-                await _signInManager.SignInAsync(user, true, IdentityConstants.ExternalScheme);
+                await _signInManager.SignInAsync(user, isPersistent: true, IdentityConstants.ExternalScheme);
 
                 return RedirectToPage("/Account/Register", new { returnUrl });
             }

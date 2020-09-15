@@ -6,7 +6,7 @@
     Layout = "~/Pages/_CoverLayout.cshtml";
 }
 
-<form method="POST" asp-page="/Account/Login" class="card shadow mt-5">
+<div class="card shadow mt-5">
     <h3 class="card-header">
         @ViewData["Title"]
     </h3>
@@ -18,15 +18,17 @@
             Vi trenger e-post addressen din slik at vi kan kontakte deg.
             Fyll inn under så sender vi deg en bekreftelses e-post med videre instrukser. Du kommer tilbake hit til påmeldingen etterpå.
         </div>
+        <form method="POST" asp-page="/Account/Login">
+            <input type="hidden" name="Input.ReturnUrl" value="/Signup/Event/@Model.Id/@Model.Title.Slugify()">
+            <span asp-validation-summary="All" class="text-danger"></span>
+            <div class="form-group">
+                <label for="Input.Email">E-post</label>
+                <input name="Input.Email" class="form-control" placeholder="epost@eksempel.no" autofocus />
+            </div>
 
-        <input type="hidden" name="Input.ReturnUrl" value="/Signup/Event/@Model.Id/@Model.Title.Slugify()">
-        <span asp-validation-summary="All" class="text-danger"></span>
-        <div class="form-group">
-            <label for="Input.Email">E-post</label>
-            <input name="Input.Email" class="form-control" placeholder="epost@eksempel.no" autofocus />
-        </div>
+            <button type="submit" class="btn btn-success btn-block">Fortsett til påmelding</button>
+        </form>
+        <hr />
+        <vc:external-login return-url="/Signup/Event/@Model.Id/@Model.Title.Slugify()"></vc:external-login>
     </div>
-    <div class="card-footer">
-        <button type="submit" class="btn btn-success btn-block">Fortsett til påmelding</button>
-    </div>
-</form>
+</div>
