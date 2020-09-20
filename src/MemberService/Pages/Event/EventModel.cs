@@ -31,19 +31,11 @@ namespace MemberService.Pages.Event
 
         public bool Archived { get; set; }
 
-        public DateTime? SignupOpensAt { get; set; }
-
-        public DateTime? SignupClosesAt { get; set; }
-
         public EventType Type { get; set; }
 
         public bool RoleSignup { get; set; }
 
         public bool AllowPartnerSignup { get; set; }
-
-        public bool HasClosed { get; set; }
-
-        public bool IsOpen { get; set; }
 
         public EventFilterModel Filter { get; set; }
 
@@ -60,13 +52,9 @@ namespace MemberService.Pages.Event
                     .Select(EventSignupStatusModel.Create)
                     .ToReadOnlyCollection(),
                 Archived = model.Archived,
-                SignupOpensAt = model.SignupOptions.SignupOpensAt,
-                SignupClosesAt = model.SignupOptions.SignupClosesAt,
                 Type = model.Type,
                 RoleSignup = model.SignupOptions.RoleSignup,
-                AllowPartnerSignup = model.SignupOptions.AllowPartnerSignup,
-                IsOpen = model.IsOpen(),
-                HasClosed = model.HasClosed()
+                AllowPartnerSignup = model.SignupOptions.AllowPartnerSignup
             };
         }
     }

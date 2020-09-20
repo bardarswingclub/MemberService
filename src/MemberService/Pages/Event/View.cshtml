@@ -9,135 +9,87 @@
 <vc:semester-header id="@Model.SemesterId"></vc:semester-header>
 <vc:event-header id="@Model.Id"></vc:event-header>
 
-<form class="alert @AlertClass(Model) mt-2" asp-action="SetStatus" asp-route-id="@Model.Id" method="POST">
-    @if (Model.Archived)
-    {
-        <h4 class="alert-heading">Arrangementet er arkivert</h4>
-        <p>Dette arrangementet er arkivert og ikke lenger åpent for redigering</p>
-    }
-    else if (Model.IsOpen)
-    {
-        <h4 class="alert-heading">
-            Påmeldingen er åpen!
-            @if (User.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR))
-            {
-                <button type="submit" name="status" value="close" class="btn btn-outline-danger float-right">Steng påmeldingen nå</button>
-            }
-        </h4>
-        @if (Model.SignupOpensAt.HasValue)
-        {
-            <p>Påmeldingen åpnet @Model.SignupOpensAt.Value.ToOsloDate() klokken @Model.SignupOpensAt.Value.ToOsloTime()</p>
-        }
-        @if (Model.SignupClosesAt.HasValue)
-        {
-            <p>Påmeldingen stenger @Model.SignupClosesAt.Value.ToOsloDate() klokken @Model.SignupClosesAt.Value.ToOsloTime()</p>
-        }
-    }
-    else if (Model.HasClosed)
-    {
-        <h4 class="alert-heading">
-            Påmeldingen har stengt!
-            @if (User.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR))
-            {
-                <button type="submit" name="status" value="open" class="btn btn-outline-success float-right">Gjennåpne påmeldingen nå</button>
-            }
-        </h4>
-        @if (Model.SignupOpensAt.HasValue)
-        {
-            <p>Påmeldingen åpnet @Model.SignupOpensAt.Value.ToOsloDate() klokken @Model.SignupOpensAt.Value.ToOsloTime()</p>
-        }
-        <p>Påmeldingen stengte @Model.SignupClosesAt.Value.ToOsloDate() klokken @Model.SignupClosesAt.Value.ToOsloTime()</p>
-    }
-    else
-    {
-        <h4 class="alert-heading">
-            Påmeldingen har ikke åpnet ennå!
-            @if (User.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR))
-            {
-                <button type="submit" name="status" value="open" class="btn btn-outline-success float-right">Åpne påmeldingen nå</button>
-            }
-        </h4>
-        <p>Påmeldingen åpner @Model.SignupOpensAt.Value.ToOsloDate() klokken @Model.SignupOpensAt.Value.ToOsloTime()</p>
-        @if (Model.SignupClosesAt.HasValue)
-        {
-            <p>Påmeldingen stenger @Model.SignupClosesAt.Value.ToOsloDate() klokken @Model.SignupClosesAt.Value.ToOsloTime()</p>
-        }
-    }
-</form>
-
-<form method="get" class="btn-toolbar mb-2">
-    <div class="input-group mr-2 mb-2">
-        <div class="input-group-prepend">
-            <label class="input-group-text @(Model.Filter.SignedUpBefore.HasValue ? "bg-info text-white" : "")" asp-for="Filter.SignedUpBefore">Påmeldt før</label>
-        </div>
-        <input type="date" asp-for="Filter.SignedUpBefore" class="form-control" onchange="this.form.submit()" />
-    </div>
-    <div class="input-group mr-2 mb-2">
-        <div class="input-group-prepend">
-            <label class="input-group-text @(Model.Filter.Priority.HasValue ? "bg-info text-white" : "")" asp-for="Filter.Priority">Prioritet</label>
-        </div>
-        <select asp-for="Filter.Priority" class="custom-select" onchange="this.form.submit()">
-            <option>Alle</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-        </select>
-    </div>
-    <div class="input-group mr-2 mb-2">
-        <div class="input-group-prepend">
-            <label class="input-group-text @(!string.IsNullOrWhiteSpace(Model.Filter.Name) ? "bg-info text-white" : "")" asp-for="Filter.Name">Navn</label>
-        </div>
-        <input type="text" asp-for="Filter.Name" class="form-control" onchange="this.form.submit()" />
-    </div>
-    <div class="input-group mr-2 mb-2">
-        <div class="input-group-prepend">
-            <span class="input-group-text @(Model.Filter.ExcludeAcceptedElsewhere || Model.Filter.ExcludeApprovedElsewhere || Model.Filter.ExcludeRecommendedElsewhere ? "bg-info text-white" : "")">Utenom</span>
-        </div>
-        <div class="input-group-append">
-            <div class="input-group-text bg-white">
-                <input class="mr-1" type="checkbox" asp-for="Filter.ExcludeAcceptedElsewhere" onchange="this.form.submit()" />
-                <label class="form-check-label" asp-for="Filter.ExcludeAcceptedElsewhere">@Status.AcceptedAndPayed.DisplayName()</label>
+<details class="btn-toolbar card mb-2" open="@(
+    Model.Filter.SignedUpBefore.HasValue ||
+    Model.Filter.Priority.HasValue ||
+    !string.IsNullOrWhiteSpace(Model.Filter.Name) ||
+    Model.Filter.ExcludeAcceptedElsewhere || Model.Filter.ExcludeApprovedElsewhere || Model.Filter.ExcludeRecommendedElsewhere ||
+    Model.Filter.OnlyWaitingListElsewhere || Model.Filter.OnlyRejectedElsewhere || Model.Filter.OnlyDeniedElsewhere)">
+    <summary class="card-header">Filter</summary>
+    <form class="card-body" method="get">
+        <div class="input-group mr-2 mb-2">
+            <div class="input-group-prepend">
+                <label class="input-group-text @(Model.Filter.SignedUpBefore.HasValue ? "bg-info text-white" : "")" asp-for="Filter.SignedUpBefore">Påmeldt før</label>
             </div>
-            <div class="input-group-text bg-white">
-                <input class="mr-1" type="checkbox" asp-for="Filter.ExcludeApprovedElsewhere" onchange="this.form.submit()" />
-                <label class="form-check-label" asp-for="Filter.ExcludeApprovedElsewhere">@Status.Approved.DisplayName()</label>
+            <input type="date" asp-for="Filter.SignedUpBefore" class="form-control" onchange="this.form.submit()"/>
+        </div>
+        <div class="input-group mr-2 mb-2">
+            <div class="input-group-prepend">
+                <label class="input-group-text @(Model.Filter.Priority.HasValue ? "bg-info text-white" : "")" asp-for="Filter.Priority">Prioritet</label>
             </div>
-            <div class="input-group-text bg-white">
-                <input class="mr-1" type="checkbox" asp-for="Filter.ExcludeRecommendedElsewhere" onchange="this.form.submit()" />
-                <label class="form-check-label" asp-for="Filter.ExcludeRecommendedElsewhere">@Status.Recommended.DisplayName()</label>
+            <select asp-for="Filter.Priority" class="custom-select" onchange="this.form.submit()">
+                <option>Alle</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+        </div>
+        <div class="input-group mr-2 mb-2">
+            <div class="input-group-prepend">
+                <label class="input-group-text @(!string.IsNullOrWhiteSpace(Model.Filter.Name) ? "bg-info text-white" : "")" asp-for="Filter.Name">Navn</label>
+            </div>
+            <input type="text" asp-for="Filter.Name" class="form-control" onchange="this.form.submit()"/>
+        </div>
+        <div class="input-group mr-2 mb-2">
+            <div class="input-group-prepend">
+                <span class="input-group-text @(Model.Filter.ExcludeAcceptedElsewhere || Model.Filter.ExcludeApprovedElsewhere || Model.Filter.ExcludeRecommendedElsewhere ? "bg-info text-white" : "")">Utenom</span>
+            </div>
+            <div class="input-group-append">
+                <div class="input-group-text bg-white">
+                    <input class="mr-1" type="checkbox" asp-for="Filter.ExcludeAcceptedElsewhere" onchange="this.form.submit()"/>
+                    <label class="form-check-label" asp-for="Filter.ExcludeAcceptedElsewhere">@Status.AcceptedAndPayed.DisplayName()</label>
+                </div>
+                <div class="input-group-text bg-white">
+                    <input class="mr-1" type="checkbox" asp-for="Filter.ExcludeApprovedElsewhere" onchange="this.form.submit()"/>
+                    <label class="form-check-label" asp-for="Filter.ExcludeApprovedElsewhere">@Status.Approved.DisplayName()</label>
+                </div>
+                <div class="input-group-text bg-white">
+                    <input class="mr-1" type="checkbox" asp-for="Filter.ExcludeRecommendedElsewhere" onchange="this.form.submit()"/>
+                    <label class="form-check-label" asp-for="Filter.ExcludeRecommendedElsewhere">@Status.Recommended.DisplayName()</label>
+                </div>
+            </div>
+            <div class="input-group-append">
+                <span class="input-group-text @(Model.Filter.ExcludeAcceptedElsewhere || Model.Filter.ExcludeApprovedElsewhere || Model.Filter.ExcludeRecommendedElsewhere ? "bg-info text-white" : "")">på andre kurs</span>
             </div>
         </div>
-        <div class="input-group-append">
-            <span class="input-group-text @(Model.Filter.ExcludeAcceptedElsewhere || Model.Filter.ExcludeApprovedElsewhere || Model.Filter.ExcludeRecommendedElsewhere ? "bg-info text-white" : "")">på andre kurs</span>
-        </div>
-    </div>
-    <div class="input-group mr-2 mb-2">
-        <div class="input-group-prepend">
-            <span class="input-group-text @(Model.Filter.OnlyWaitingListElsewhere || Model.Filter.OnlyRejectedElsewhere || Model.Filter.OnlyDeniedElsewhere ? "bg-info text-white" : "")">Bare</span>
-        </div>
-        <div class="input-group-append">
-            <div class="input-group-text bg-white">
-                <input class="mr-1" type="checkbox" asp-for="Filter.OnlyWaitingListElsewhere" onchange="this.form.submit()" />
-                <label class="form-check-label" asp-for="Filter.OnlyWaitingListElsewhere">@Status.WaitingList.DisplayName()</label>
+        <div class="input-group mr-2 mb-2">
+            <div class="input-group-prepend">
+                <span class="input-group-text @(Model.Filter.OnlyWaitingListElsewhere || Model.Filter.OnlyRejectedElsewhere || Model.Filter.OnlyDeniedElsewhere ? "bg-info text-white" : "")">Bare</span>
             </div>
-            <div class="input-group-text bg-white">
-                <input class="mr-1" type="checkbox" asp-for="Filter.OnlyRejectedElsewhere" onchange="this.form.submit()" />
-                <label class="form-check-label" asp-for="Filter.OnlyRejectedElsewhere">@Status.RejectedOrNotPayed.DisplayName()</label>
+            <div class="input-group-append">
+                <div class="input-group-text bg-white">
+                    <input class="mr-1" type="checkbox" asp-for="Filter.OnlyWaitingListElsewhere" onchange="this.form.submit()"/>
+                    <label class="form-check-label" asp-for="Filter.OnlyWaitingListElsewhere">@Status.WaitingList.DisplayName()</label>
+                </div>
+                <div class="input-group-text bg-white">
+                    <input class="mr-1" type="checkbox" asp-for="Filter.OnlyRejectedElsewhere" onchange="this.form.submit()"/>
+                    <label class="form-check-label" asp-for="Filter.OnlyRejectedElsewhere">@Status.RejectedOrNotPayed.DisplayName()</label>
+                </div>
+                <div class="input-group-text bg-white">
+                    <input class="mr-1" type="checkbox" asp-for="Filter.OnlyDeniedElsewhere" onchange="this.form.submit()"/>
+                    <label class="form-check-label" asp-for="Filter.OnlyDeniedElsewhere">@Status.Denied.DisplayName()</label>
+                </div>
             </div>
-            <div class="input-group-text bg-white">
-                <input class="mr-1" type="checkbox" asp-for="Filter.OnlyDeniedElsewhere" onchange="this.form.submit()" />
-                <label class="form-check-label" asp-for="Filter.OnlyDeniedElsewhere">@Status.Denied.DisplayName()</label>
+            <div class="input-group-append">
+                <span class="input-group-text @(Model.Filter.OnlyWaitingListElsewhere || Model.Filter.OnlyRejectedElsewhere || Model.Filter.OnlyDeniedElsewhere ? "bg-info text-white" : "")">på andre kurs</span>
             </div>
         </div>
-        <div class="input-group-append">
-            <span class="input-group-text @(Model.Filter.OnlyWaitingListElsewhere || Model.Filter.OnlyRejectedElsewhere || Model.Filter.OnlyDeniedElsewhere ? "bg-info text-white" : "")">på andre kurs</span>
+        <div class="btn-group sr-only">
+            <button type="submit" class="btn btn-success">Filtrer</button>
         </div>
-    </div>
-    <div class="btn-group sr-only">
-        <button type="submit" class="btn btn-success">Filtrer</button>
-    </div>
-</form>
+    </form>
+</details>
 
 <div class="card">
     <div class="card-header nowrap-tabs">
@@ -264,24 +216,4 @@
         });
 
     </script>
-}
-
-@functions{
-    string AlertClass(EventModel model)
-    {
-        if (model.Archived)
-        {
-            return "alert-warning";
-        }
-        else if (model.IsOpen)
-        {
-            return "alert-success";
-        }
-        else
-        {
-            return model.SignupOpensAt.HasValue
-                ? "alert-warning"
-                : "alert-danger";
-        }
-    }
 }
