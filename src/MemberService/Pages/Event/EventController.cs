@@ -311,6 +311,14 @@ namespace MemberService.Pages.Event
             return RedirectToAction(nameof(View), new { id = eventId ?? signup.EventId });
         }
 
+        [HttpPost]
+        [Authorize(nameof(Policy.IsCoordinator))]
+        public async Task<IActionResult> Copy(Guid id)
+        {
+            var entry = await _database.CloneEvent(id, await GetCurrentUser());
+            return RedirectToAction(nameof(View), new { id = entry.Id });
+        }
+
         private async Task<User> GetCurrentUser()
             => await _database.Users.SingleUser(_userManager.GetUserId(User));
 

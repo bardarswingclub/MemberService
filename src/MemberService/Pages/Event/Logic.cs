@@ -201,9 +201,9 @@ namespace MemberService.Pages.Event
             var entry = await context.Events
                 .Include(e => e.SignupOptions)
                 .Include(e => e.Signups)
-                    .ThenInclude(s => s.User)
+                .ThenInclude(s => s.User)
                 .Include(e => e.Signups)
-                    .ThenInclude(s => s.AuditLog)
+                .ThenInclude(s => s.AuditLog)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
             if (entry == null) return null;
@@ -213,6 +213,71 @@ namespace MemberService.Pages.Event
             await context.SaveChangesAsync();
 
             return entry;
+        }
+
+        public static async Task<Data.Event> CloneEvent(this MemberContext context, Guid id, User user)
+        {
+            var entry = await context.Events
+                .Include(e => e.SignupOptions)
+                .Include(e => e.Survey)
+                .ThenInclude(s => s.Questions)
+                .ThenInclude(q => q.Options)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
+            if (entry == null) return null;
+
+            var signupOptions = entry.SignupOptions;
+            var survey = entry.Survey;
+
+            var newEntry = context.Events.Add(new Data.Event
+            {
+                Title = entry.Title+" copy",
+                Description = entry.Description,
+                Type = entry.Type,
+                CreatedByUser = user,
+                CreatedAt = TimeProvider.UtcNow,
+                SignupOptions = new EventSignupOptions
+                {
+                    SignupOpensAt = signupOptions.SignupOpensAt,
+                    SignupClosesAt = signupOptions.SignupClosesAt,
+                    AllowPartnerSignup = signupOptions.AllowPartnerSignup,
+                    AllowPartnerSignupHelp = signupOptions.AllowPartnerSignupHelp,
+                    AutoAcceptedSignups = signupOptions.AutoAcceptedSignups,
+                    IncludedInClassesFee = signupOptions.IncludedInClassesFee,
+                    IncludedInTrainingFee = signupOptions.IncludedInTrainingFee,
+                    PriceForMembers = signupOptions.PriceForMembers,
+                    PriceForNonMembers = signupOptions.PriceForNonMembers,
+                    RequiresClassesFee = signupOptions.RequiresClassesFee,
+                    RequiresMembershipFee = signupOptions.RequiresMembershipFee,
+                    RequiresTrainingFee = signupOptions.RequiresTrainingFee,
+                    RoleSignup = signupOptions.RoleSignup,
+                    RoleSignupHelp = signupOptions.RoleSignupHelp,
+                    SignupHelp = signupOptions.SignupHelp
+                },
+                Survey = survey == null
+                    ? null
+                    : new Data.Survey
+                    {
+                        Title = survey.Title,
+                        Description = survey.Description,
+                        Questions = survey.Questions.Select(q => new Question
+                        {
+                            Title = q.Title,
+                            Description = q.Description,
+                            Type = q.Type,
+                            Order = q.Order,
+                            Options = q.Options.Select(o => new QuestionOption
+                            {
+                                Title = o.Title,
+                                Description = q.Description
+                            }).ToList()
+                        }).ToList()
+                    }
+            });
+
+            await context.SaveChangesAsync();
+
+            return newEntry.Entity;
         }
 
         internal static DateTime? GetUtc(string date, string time)
