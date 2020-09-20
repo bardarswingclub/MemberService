@@ -13,7 +13,7 @@
     <div class="col-md-12 mt-2">
         <button type="submit" class="btn btn-success">Lagre</button>
         <button class="btn btn-outline-danger" form="archive-form">Arkiver</button>
-        <button class="btn btn-outline-success" form="archive-form">Kopier</button>
+        <button class="btn btn-outline-success" form="copy-form">Kopier</button>
     </div>
 </form>
 
@@ -21,5 +21,5 @@
     <input type="hidden" name="status" value="archive" />
 </form>
 
-<form method="POST" asp-action="Copy" asp-route-id="@Model.Id" id="coy-form">
+<form method="POST" asp-action="Copy" asp-route-id="@Model.Id" id="copy-form">
 </form>
