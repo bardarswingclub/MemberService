@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+
 using MemberService.Data.ValueTypes;
 
 namespace MemberService.Pages.Event
@@ -72,7 +73,5 @@ namespace MemberService.Pages.Event
 
         [DisplayName("Automatisk tildelte plasser")]
         public int AutoAcceptedSignups { get; set; }
-
-        public Guid? SemesterId { get; set; }
     }
 }

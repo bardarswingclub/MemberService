@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Clave.Expressionify;
 using Clave.ExtensionMethods;
+
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
 using MemberService.Pages.Signup;
 using MemberService.Services;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -85,14 +88,14 @@ namespace MemberService.Pages.Home
 
             if (semester.SignupOpensAt > TimeProvider.UtcNow)
             {
-                return View("NotOpenYet", new NotOpenYetModel{ SignupOpensAt = semester.SignupOpensAt });
+                return View("NotOpenYet", new NotOpenYetModel { SignupOpensAt = semester.SignupOpensAt });
             }
 
             return View(semester);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Signup([FromForm] SignupInputModel input)
+        public IActionResult Signup([FromForm] SignupInputModel input)
         {
             if (!ModelState.IsValid)
             {
@@ -182,7 +185,7 @@ namespace MemberService.Pages.Home
                 .Join(items, c => c.Id, c => c.Id)
                 .ToReadOnlyList();
 
-            foreach(var (_, signup) in changedSignups)
+            foreach (var (_, signup) in changedSignups)
             {
                 var eventSignup = user.EventSignups.First(s => s.EventId == signup.Id);
                 eventSignup.Priority = signup.Priority;
