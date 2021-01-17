@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/MemberService/bin/Debug/netcoreapp2.2/MemberService.dll",
+            "program": "${workspaceFolder}/src/MemberService/bin/Debug/netcoreapp3.1/MemberService.dll",
             "args": [],
             "cwd": "${workspaceFolder}/src/MemberService",
             "stopAtEntry": false,

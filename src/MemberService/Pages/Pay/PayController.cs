@@ -1,11 +1,13 @@
 ﻿using MemberService.Data;
 using MemberService.Pages.Home;
 using MemberService.Services;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using System.Threading.Tasks;
 
 namespace MemberService.Pages.Pay
@@ -74,7 +76,7 @@ namespace MemberService.Pages.Pay
         [HttpPost]
         [Authorize]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public async Task<IActionResult> Fee([FromForm] string type)
+        public async Task<IActionResult> Fee([FromForm] string type, string returnUrl = null)
         {
             var user = await GetCurrentUser();
 
@@ -91,7 +93,7 @@ namespace MemberService.Pages.Pay
                 title: fee.Description,
                 description: fee.Description,
                 amount: fee.Amount,
-                successUrl: Url.ActionLink(nameof(FeePaid), "Pay", new { type, sessionId = "{CHECKOUT_SESSION_ID}" }),
+                successUrl: Url.ActionLink(nameof(FeePaid), "Pay", new { type, returnUrl, sessionId = "{CHECKOUT_SESSION_ID}" }),
                 cancelUrl: Request.GetDisplayUrl(),
                 includesMembership: fee.IncludesMembership,
                 includesTraining: fee.IncludesTraining,
@@ -114,7 +116,7 @@ namespace MemberService.Pages.Pay
             });
         }
 
-        public async Task<IActionResult> FeePaid(string sessionId, string type)
+        public async Task<IActionResult> FeePaid(string sessionId, string type, string returnUrl = null)
         {
             var user = await GetCurrentUser();
 
@@ -124,7 +126,12 @@ namespace MemberService.Pages.Pay
 
             TempData["SuccessMessage"] = $"{fee.Description} betalt";
 
-            return RedirectToAction(nameof(HomeController.Fees), "Home");
+            if (string.IsNullOrEmpty(returnUrl))
+            {
+                return RedirectToAction(nameof(HomeController.Fees), "Home");
+            }
+
+            return LocalRedirect(returnUrl);
         }
 
         private async Task<User> GetCurrentUser()

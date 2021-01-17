@@ -1,0 +1,39 @@
+@using MemberService.Pages.AnnualMeeting
+@model Model
+@{
+    ViewData["Title"] = "Årsmøte";
+    Layout = "~/Pages/_CoverLayout.cshtml";
+}
+
+<div class="card shadow mt-5">
+    <h3 class="card-header">
+        Årsmøte 2021
+    </h3>
+    <div class="card-body">
+        <p>
+            Velkommen til årsmøtet i Bårdar Swing Club. Årsmøtet for 2021 vil bli avholdt virtuelt klokken 18:00 den 16.
+            februar.
+        </p>
+
+        <p>
+            Innspill til årsmøtet kan bli sendt til styret@bardarswingclub.no innen 8. februar.
+        </p>
+
+        @if (!Model.IsMember)
+        {
+            <div class="alert alert-info">
+                <h4 class="alert-heading">Årsmøtet er for medlemmer av Bårdar Swing Club</h4>
+                <hr />
+                <p>
+                    For å delta på årsmøtet må du betale medlemskap for 2021. Trykk på knappen under for å betale
+                    medlemskap.
+                </p>
+
+                <form asp-controller="Pay" asp-action="Fee" method="post" asp-route-returnUrl="/AnnualMeeting">
+                    <input type="hidden" name="type" value="@Fee.Membership" />
+                    <button class="btn btn-success">Betal medlemskap</button>
+                </form>
+            </div>
+        }
+    </div>
+</div>
