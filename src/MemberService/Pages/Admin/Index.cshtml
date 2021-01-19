@@ -15,34 +15,6 @@
     </form>
 </div>
 
-
-
-<form asp-action="MassEmail" method="POST" class="card mb-3">
-    <h3 class="card-header">
-        Send epost til alle fjorårets og årets medlemmer
-    </h3>
-    <div class="card-body">
-        <div class="form-group form-check">
-            <input type="checkbox" name="onlyMe" id="onlyMe" value="true">
-            <label for="onlyMe">Send en test til bare deg selv</label>
-        </div>
-        <div class="form-group">
-            <label>Subject</label>
-            <input type="text" class="form-control" name="subject" value="">
-        </div>
-        <div class="form-group">
-            <label>Body</label>
-            <textarea class="form-control" name="body" rows="10"></textarea>
-        </div>
-        <small class="text-muted">
-            Du kan bruke markdown og du kan bruke <code>{NAME}</code> for å flette inn brukerens navn.
-        </small>
-    </div>
-    <div class="card-footer">
-        <button type="submit" class="btn btn-success">Send</button>
-    </div>
-</form>
-
 <h2>Roller</h2>
 
 <div class="card-deck">

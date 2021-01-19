@@ -1,3 +1,4 @@
+@using MemberService.Data.ValueTypes
 @model MembersViewModel
 
 @{
@@ -11,7 +12,8 @@
             <div class="input-group-prepend">
                 <span class="input-group-text">&#x1F50E;</span>
             </div>
-            <input class="form-control" asp-for="Query" type="search" placeholder="f.eks Noens Navn eller eksempel@epost.no">
+            <input class="form-control" asp-for="Query" type="search"
+                placeholder="f.eks Noens Navn eller eksempel@epost.no">
             <div class="input-group-append">
                 <button type="submit" class="btn btn-primary">Søk</button>
             </div>
@@ -23,6 +25,10 @@
                 <option value="All">Alle</option>
                 <option value="Only">&#x2713; Som har betalt medlemskap</option>
                 <option value="Not">&#x2717; Som ikke har betalt medlemskap</option>
+                
+                @if (User.IsInRole(Roles.ADMIN)) {
+                    <option value="LastYear">&#x2713; Som betalte medlemskap ifjor</option>
+                }
             </select>
         </div>
         <div class="col">
@@ -55,36 +61,90 @@
         </div>
     </div>
 </form>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th class="text-center"><abbr title="Medlemskap">M</abbr></th>
-            <th class="text-center"><abbr title="Treningsavgift">T</abbr></th>
-            <th class="text-center"><abbr title="Kurs">K</abbr></th>
-            <th>Navn</th>
-            <th>E-post</th>
-        </tr>
-    </thead>
-    @foreach(var (character, users) in Model.Users){
-        <thead class="thead-light">
+<form asp-action="SendEmail" method="post">
+    <table class="table">
+        <thead>
             <tr>
-                <th colspan="5" class="text-uppercase">@character</th>
+                <th class="text-center"><abbr title="Medlemskap">M</abbr></th>
+                <th class="text-center"><abbr title="Treningsavgift">T</abbr></th>
+                <th class="text-center"><abbr title="Kurs">K</abbr></th>
+                <th>Navn</th>
+                <th>
+                    @if (User.IsInRole(Roles.ADMIN)) {
+                        <input type="checkbox" data-action="select-all">
+                    }
+                    E-post
+                </th>
             </tr>
         </thead>
-        <tbody>
-            @foreach(var user in users){
+        @foreach (var (character, users) in Model.Users)
+        {
+            <thead class="thead-light">
                 <tr>
-                    <td class="font-weight-bold text-center @Color()">@Checkmark(user.HasPayedMembershipThisYear())</td>
-                    <td class="font-weight-bold text-center @Color(user.ExemptFromTrainingFee)">@Checkmark(user.HasPayedTrainingFeeThisSemester())</td>
-                    <td class="font-weight-bold text-center @Color(user.ExemptFromClassesFee)">@Checkmark(user.HasPayedClassesFeeThisSemester())</td>
-                    <td><a asp-action="Details" asp-route-id="@user.Id">@user.FullName</a></td>
-                    <td>@user.Email</td>
+                    <th colspan="5" class="text-uppercase">@character</th>
                 </tr>
-            }
-        </tbody>
+            </thead>
+            <tbody>
+                @foreach (var user in users)
+                {
+                    <tr>
+                        <td class="font-weight-bold text-center @Color()">@Checkmark(user.HasPayedMembershipThisYear())</td>
+                        <td class="font-weight-bold text-center @Color(user.ExemptFromTrainingFee)">
+                            @Checkmark(user.HasPayedTrainingFeeThisSemester())</td>
+                        <td class="font-weight-bold text-center @Color(user.ExemptFromClassesFee)">
+                            @Checkmark(user.HasPayedClassesFeeThisSemester())</td>
+                        <td><a asp-action="Details" asp-route-id="@user.Id">@user.FullName</a></td>
+                        <td>
+                            @if (User.IsInRole(Roles.ADMIN)) {
+                                <input type="checkbox" name="users" value="@user.Id">
+                            }
+                            @user.Email
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        }
+    </table>
+    
+    @if (User.IsInRole(Roles.ADMIN)) {
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-email">Send epost</button>
+
+        <div class="modal fade" id="modal-email" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalScrollableTitle">
+                            Send epost til brukere
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Subject</label>
+                            <input type="text" class="form-control" name="subject" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>Body</label>
+                            <textarea class="form-control" name="body" rows="10"></textarea>
+                        </div>
+                        <small class="text-muted">
+                            Du kan bruke markdown og du kan bruke <code>{NAME}</code> for å flette inn brukerens navn.
+                        </small>
+                    </div>
+                    <div class="modal-footer">
+                        <div class=" form-check">
+                            <input type="checkbox" name="fromMe" id="fromMe" value="true">
+                            <label for="fromMe">Merk eposten fra meg</label>
+                        </div>
+                        <button type="submit" class="btn btn-success">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     }
-</table>
+</form>
 
 @functions{
     string Checkmark(bool paid)
@@ -100,4 +160,18 @@
             ? "text-danger"
             : "text-success";
     }
+}
+
+@section Scripts {
+    <script>        
+        $(function () {
+            $("input[data-action=select-all]").on('click', function () {
+                var table = $(this).parents('table');
+
+                var checked = this.checked;
+
+                table.find('input[type=checkbox]').prop('checked', checked);
+            });
+        });
+    </script>
 }

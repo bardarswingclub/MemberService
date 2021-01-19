@@ -9,9 +9,6 @@ using MemberService.Services;
 using Microsoft.EntityFrameworkCore;
 using Clave.ExtensionMethods;
 using MemberService.Auth;
-using Clave.Expressionify;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Identity;
 
 namespace MemberService.Pages.Admin
 {
@@ -21,21 +18,15 @@ namespace MemberService.Pages.Admin
         private readonly ChargeService _chargeService;
         private readonly IPaymentService _paymentService;
         private readonly MemberContext _memberContext;
-        private readonly UserManager<User> _userManager;
-        private readonly IEmailService _emailService;
 
         public AdminController(
             ChargeService chargeService,
             IPaymentService paymentService,
-            MemberContext memberContext,
-            UserManager<User> userManager,
-            IEmailService emailService)
+            MemberContext memberContext)
         {
             _chargeService = chargeService;
             _paymentService = paymentService;
             _memberContext = memberContext;
-            _userManager = userManager;
-            _emailService = emailService;
         }
 
         public async Task<IActionResult> Index()
@@ -90,46 +81,5 @@ namespace MemberService.Pages.Admin
             TempData["SuccessMessage"] = $"Found {importedCount} payments, created {userCount} new users, saved {paymentCount} new payments and updated {updatedCount} existing payments";
             return RedirectToAction(nameof(Index));
         }
-
-        [HttpPost]
-        public async Task<IActionResult> MassEmail([FromForm] string subject, [FromForm] string body, [FromForm] bool onlyMe)
-        {
-            var members = await _memberContext
-                .Users
-                .Expressionify()
-                .Where(u => onlyMe ? u.Id == GetUserId() : u.HasPayedMembershipLastYear())
-                .ToListAsync();
-
-            var successes = new List<string>();
-            var failures = new List<string>();
-
-            foreach (var user in members)
-            {
-                try
-                {
-                    await _emailService.SendCustomEmail(
-                        to: user,
-                        subject: subject,
-                        message: body);
-                    successes.Add(user.Email);
-                }
-                catch (Exception e)
-                {
-                    failures.Add($"{user.Email} - {e.Message}");
-                }
-            }
-
-            if (members.NotAny())
-            {
-                TempData["InfoMessage"] = "No emails to send";
-            }
-
-            TempData["SuccessMessage"] = string.Join(",\n ", successes);
-            TempData["ErrorMessage"] = string.Join(",\n ", failures);
-            return RedirectToAction(nameof(Index));
-        }
-
-
-        private string GetUserId() => _userManager.GetUserId(User);
     }
 }

@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+
 using Clave.Expressionify;
 using Clave.ExtensionMethods;
+
 using MemberService.Auth;
 using MemberService.Data;
 using MemberService.Services;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -20,15 +24,18 @@ namespace MemberService.Pages.Members
         private readonly MemberContext _memberContext;
         private readonly UserManager<User> _userManager;
         private readonly IPaymentService _paymentService;
+        private readonly IEmailService _emailService;
 
         public MembersController(
             MemberContext memberContext,
             UserManager<User> userManager,
-            IPaymentService paymentService)
+            IPaymentService paymentService,
+            IEmailService emailService)
         {
             _memberContext = memberContext;
             _userManager = userManager;
             _paymentService = paymentService;
+            _emailService = emailService;
         }
 
         public async Task<IActionResult> Index(
@@ -45,6 +52,7 @@ namespace MemberService.Pages.Members
                 .Expressionify()
                 .Where(u => u.EmailConfirmed)
                 .Where(Filter(memberFilter, u => u.HasPayedMembershipThisYear()))
+                .Where(FilterLastYear(memberFilter, u => u.HasPayedMembershipLastYear()))
                 .Where(Filter(trainingFilter, u => u.HasPayedTrainingFeeThisSemester()))
                 .Where(Filter(classesFilter, u => u.HasPayedClassesFeeThisSemester()))
                 .Where(Filter(exemptTrainingFilter, u => u.ExemptFromTrainingFee))
@@ -168,6 +176,61 @@ namespace MemberService.Pages.Members
             return NotFound();
         }
 
+
+        [HttpPost]
+        [Authorize(nameof(Policy.IsAdmin))]
+        public async Task<IActionResult> SendEmail([FromForm] string subject, [FromForm] string body, [FromForm] bool fromMe, [FromForm] string[] users)
+        {
+            var replyTo = fromMe
+                ? await _memberContext.Users.SingleUser(_userManager.GetUserId(User))
+                : null;
+            var successes = new List<string>();
+            var failures = new List<string>();
+
+            foreach (var id in users)
+            {
+                var user = await _memberContext.Users.FirstOrDefaultAsync(u => u.Id == id);
+                if (user is null)
+                {
+                    failures.Add($"{id} is not a user");
+                }
+                else
+                {
+                    try
+                    {
+                        await _emailService.SendCustomEmail(
+                            to: user,
+                            subject: subject,
+                            message: body,
+                            replyTo: replyTo);
+                        successes.Add(user.Email);
+                    }
+                    catch (Exception e)
+                    {
+                        failures.Add($"{user.Email} - {e.Message}");
+                    }
+                }
+            }
+
+            if (users.NotAny())
+            {
+                TempData["InfoMessage"] = "No emails to send";
+            }
+
+            TempData["SuccessMessage"] = string.Join(",\n ", successes);
+            TempData["ErrorMessage"] = string.Join(",\n ", failures);
+
+            var returnTo = Request.Headers["Referer"].ToString();
+            if (string.IsNullOrEmpty(returnTo))
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                return Redirect(returnTo);
+            }
+        }
+
         private static Expression<Func<User, bool>> Filter(string filter, Expression<Func<User, bool>> predicate)
         {
             switch (filter)
@@ -176,6 +239,17 @@ namespace MemberService.Pages.Members
                     return predicate;
                 case "Not":
                     return predicate.Not();
+                default:
+                    return user => true;
+            }
+        }
+
+        private static Expression<Func<User, bool>> FilterLastYear(string filter, Expression<Func<User, bool>> predicate)
+        {
+            switch (filter)
+            {
+                case "LastYear":
+                    return predicate;
                 default:
                     return user => true;
             }
