@@ -31,20 +31,20 @@ namespace MemberService.Services
                 body);
         }
 
-        public async Task SendCustomEmail(User to, string subject, string message, EventStatusModel eventStatusModel, User replyTo = null)
+        public async Task SendCustomEmail(User to, string subject, string message, EventStatusModel eventStatusModel = null, User replyTo = null)
         {
             await _emailer.Send(
-                new EmailAddress(to.Email, to.FullName), 
-                Replace(subject, eventStatusModel),
-                Markdig.Markdown.ToHtml(Replace(message, eventStatusModel)),
+                new EmailAddress(to.Email, to.FullName),
+                Replace(subject, to, eventStatusModel),
+                Markdig.Markdown.ToHtml(Replace(message, to, eventStatusModel)),
                 replyTo != null ? new EmailAddress(replyTo.Email, replyTo.FullName) : null);
         }
 
-        private static string Replace(string value, EventStatusModel model)
+        private static string Replace(string value, User user, EventStatusModel model)
             => value
-                .Replace("{TITLE}", model.Title)
-                .Replace("{NAME}", model.Name)
-                .Replace("{LINK}", model.Link);
+                .Replace("{TITLE}", model?.Title ?? string.Empty)
+                .Replace("{NAME}", user.FullName)
+                .Replace("{LINK}", model?.Link ?? string.Empty);
 
     }
 }

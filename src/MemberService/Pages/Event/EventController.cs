@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+
 using MemberService.Auth;
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
@@ -8,6 +9,7 @@ using MemberService.Emails.Event;
 using MemberService.Pages.Semester;
 using MemberService.Pages.Signup;
 using MemberService.Services;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -106,7 +108,7 @@ namespace MemberService.Pages.Event
         [HttpGet]
         public async Task<IActionResult> View(
             Guid id,
-            [FromQuery]EventFilterModel filter)
+            [FromQuery] EventFilterModel filter)
         {
             var model = await _database.GetEventModel(
                 id,
@@ -154,7 +156,6 @@ namespace MemberService.Pages.Event
                     if (input.SendEmail)
                     {
                         var model = new EventStatusModel(
-                            eventSignup.User.FullName,
                             eventEntry.Title,
                             await SignupLink(eventSignup.User, eventEntry));
 

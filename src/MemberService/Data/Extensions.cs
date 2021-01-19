@@ -1,7 +1,9 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Clave.Expressionify;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,6 +14,10 @@ namespace MemberService.Data
         [Expressionify]
         public static bool HasPayedMembershipThisYear(this User user)
             => user.Payments.Any(p => p.PayedAtUtc > TimeProvider.ThisYearUtc && p.IncludesMembership && !p.Refunded);
+
+        [Expressionify]
+        public static bool HasPayedMembershipLastYear(this User user)
+            => user.Payments.Any(p => p.PayedAtUtc > TimeProvider.LastYearUtc && p.IncludesMembership && !p.Refunded);
 
         [Expressionify]
         public static bool HasPayedTrainingFeeThisSemester(this User user)
