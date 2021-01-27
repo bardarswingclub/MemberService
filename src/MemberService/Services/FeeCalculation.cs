@@ -12,7 +12,7 @@ namespace MemberService.Services
 
     public static class FeeCalculation
     {
-        public const decimal MembershipFee = 300;
+        public const decimal MembershipFee = 100; //TODO: change this back to 300 before 2021-12-31
         public const decimal TrainingFee = 425;
         public const decimal ClassesFee = 900;
 
