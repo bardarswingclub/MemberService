@@ -19,8 +19,8 @@ namespace MemberService.Tests
             status.ShouldBe(FeeStatus.Unpaid);
 
             fee.Description.ShouldBe("Medlemskap");
-            fee.Amount.ShouldBe(300);
-            fee.AmountInCents.ShouldBe(300_00);
+            fee.Amount.ShouldBe(100);
+            fee.AmountInCents.ShouldBe(100_00);
             fee.IncludesMembership.ShouldBeTrue();
             fee.IncludesTraining.ShouldBeFalse();
             fee.IncludesClasses.ShouldBeFalse();
@@ -60,8 +60,8 @@ namespace MemberService.Tests
             status.ShouldBe(FeeStatus.Unpaid);
 
             fee.Description.ShouldBe("Medlemskap");
-            fee.Amount.ShouldBe(300);
-            fee.AmountInCents.ShouldBe(300_00);
+            fee.Amount.ShouldBe(100);
+            fee.AmountInCents.ShouldBe(100_00);
             fee.IncludesMembership.ShouldBeTrue();
             fee.IncludesTraining.ShouldBeFalse();
             fee.IncludesClasses.ShouldBeFalse();
@@ -77,8 +77,8 @@ namespace MemberService.Tests
             status.ShouldBe(FeeStatus.Unpaid);
 
             fee.Description.ShouldBe("Medlemskap og treningsavgift");
-            fee.Amount.ShouldBe(725);
-            fee.AmountInCents.ShouldBe(725_00);
+            fee.Amount.ShouldBe(525);
+            fee.AmountInCents.ShouldBe(525_00);
             fee.IncludesMembership.ShouldBeTrue();
             fee.IncludesTraining.ShouldBeTrue();
             fee.IncludesClasses.ShouldBeFalse();
@@ -120,8 +120,8 @@ namespace MemberService.Tests
             status.ShouldBe(FeeStatus.Unpaid);
 
             fee.Description.ShouldBe("Medlemskap og treningsavgift");
-            fee.Amount.ShouldBe(725);
-            fee.AmountInCents.ShouldBe(725_00);
+            fee.Amount.ShouldBe(525);
+            fee.AmountInCents.ShouldBe(525_00);
             fee.IncludesMembership.ShouldBeTrue();
             fee.IncludesTraining.ShouldBeTrue();
             fee.IncludesClasses.ShouldBeFalse();
@@ -160,8 +160,8 @@ namespace MemberService.Tests
             status.ShouldBe(FeeStatus.Unpaid);
 
             fee.Description.ShouldBe("Medlemskap og kursavgift");
-            fee.Amount.ShouldBe(1200);
-            fee.AmountInCents.ShouldBe(1200_00);
+            fee.Amount.ShouldBe(1000);
+            fee.AmountInCents.ShouldBe(1000_00);
             fee.IncludesMembership.ShouldBeTrue();
             fee.IncludesTraining.ShouldBeTrue();
             fee.IncludesClasses.ShouldBeTrue();
@@ -205,8 +205,8 @@ namespace MemberService.Tests
             status.ShouldBe(FeeStatus.Unpaid);
 
             fee.Description.ShouldBe("Medlemskap og kursavgift");
-            fee.Amount.ShouldBe(1200);
-            fee.AmountInCents.ShouldBe(1200_00);
+            fee.Amount.ShouldBe(1000);
+            fee.AmountInCents.ShouldBe(1000_00);
             fee.IncludesMembership.ShouldBeTrue();
             fee.IncludesTraining.ShouldBeTrue();
             fee.IncludesClasses.ShouldBeTrue();
@@ -272,8 +272,8 @@ namespace MemberService.Tests
             status.ShouldBe(FeeStatus.Unpaid);
 
             fee.Description.ShouldBe("Medlemskap");
-            fee.Amount.ShouldBe(300);
-            fee.AmountInCents.ShouldBe(300_00);
+            fee.Amount.ShouldBe(100);
+            fee.AmountInCents.ShouldBe(100_00);
             fee.IncludesMembership.ShouldBeTrue();
             fee.IncludesTraining.ShouldBeFalse();
             fee.IncludesClasses.ShouldBeFalse();
@@ -307,8 +307,8 @@ namespace MemberService.Tests
             status.ShouldBe(FeeStatus.Unpaid);
 
             fee.Description.ShouldBe("Medlemskap og kursavgift");
-            fee.Amount.ShouldBe(775);
-            fee.AmountInCents.ShouldBe(775_00);
+            fee.Amount.ShouldBe(575);
+            fee.AmountInCents.ShouldBe(575_00);
             fee.IncludesMembership.ShouldBeTrue();
             fee.IncludesTraining.ShouldBeFalse();
             fee.IncludesClasses.ShouldBeTrue();
@@ -352,8 +352,8 @@ namespace MemberService.Tests
             status.ShouldBe(FeeStatus.Unpaid);
 
             fee.Description.ShouldBe("Medlemskap");
-            fee.Amount.ShouldBe(300);
-            fee.AmountInCents.ShouldBe(300_00);
+            fee.Amount.ShouldBe(100);
+            fee.AmountInCents.ShouldBe(100_00);
             fee.IncludesMembership.ShouldBeTrue();
             fee.IncludesTraining.ShouldBeFalse();
             fee.IncludesClasses.ShouldBeFalse();
@@ -424,8 +424,8 @@ namespace MemberService.Tests
             status.ShouldBe(FeeStatus.Unpaid);
 
             fee.Description.ShouldBe("Medlemskap");
-            fee.Amount.ShouldBe(300);
-            fee.AmountInCents.ShouldBe(300_00);
+            fee.Amount.ShouldBe(100);
+            fee.AmountInCents.ShouldBe(100_00);
             fee.IncludesMembership.ShouldBeTrue();
             fee.IncludesTraining.ShouldBeFalse();
             fee.IncludesClasses.ShouldBeFalse();
@@ -444,8 +444,8 @@ namespace MemberService.Tests
             status.ShouldBe(FeeStatus.Unpaid);
 
             fee.Description.ShouldBe("Medlemskap og treningsavgift");
-            fee.Amount.ShouldBe(725);
-            fee.AmountInCents.ShouldBe(725_00);
+            fee.Amount.ShouldBe(525);
+            fee.AmountInCents.ShouldBe(525_00);
             fee.IncludesMembership.ShouldBeTrue();
             fee.IncludesTraining.ShouldBeTrue();
             fee.IncludesClasses.ShouldBeFalse();
