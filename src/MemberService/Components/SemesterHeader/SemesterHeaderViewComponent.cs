@@ -31,6 +31,7 @@ namespace MemberService.Components.SemesterHeader
                 {
                     Id = e.Id,
                     Title = e.Title,
+                    IsActive = e.IsActive(),
                     Events = e.Courses
                         .Where(c => !c.Archived)
                         .Select(c => new Model.Event{
@@ -49,7 +50,9 @@ namespace MemberService.Components.SemesterHeader
         {
             public Guid Id { get; set; }
 
-            public String Title { get; set; }
+            public string Title { get; set; }
+
+            public bool IsActive { get; set; }
 
             public IReadOnlyCollection<Event> Events { get; set; }
 
@@ -57,7 +60,7 @@ namespace MemberService.Components.SemesterHeader
             {
                 public Guid Id { get; set; }
 
-                public String Title { get; set; }
+                public string Title { get; set; }
             }
         }
     }

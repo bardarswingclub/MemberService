@@ -1,0 +1,24 @@
+﻿@model IReadOnlyList<SemesterModel>
+
+@{
+    ViewData["ContainerClass"] = "container-fluid";
+    ViewData["Title"] = "Semester";
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Navn</th>
+            <th>Antall kurs</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var semester in Model)
+        {
+            <tr>
+                <td><a asp-controller="Semester" asp-action="Index" asp-route-id="@semester.Id">@semester.Title</a></td>
+                <td>@semester.Courses.Count</td>
+            </tr>
+        }
+    </tbody>
+</table>

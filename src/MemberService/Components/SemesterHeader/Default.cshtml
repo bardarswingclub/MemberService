@@ -6,7 +6,7 @@
         <a class="link-unstyled" asp-controller="Semester" asp-action="Index" asp-route-id="@Model.Id">@Model.Title</a>
 
         <div class="btn-group">
-            @if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN))
+            @if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN) && Model.IsActive)
             {
                 <a class="btn btn-secondary" asp-controller="Semester" asp-action="Edit">Rediger</a>
                 <a class="btn btn-secondary" asp-controller="Questions" asp-action="Edit" asp-route-semesterId="@Model.Id">Spørsmål</a>
@@ -23,7 +23,7 @@
             </li>
         }
 
-        @if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN))
+        @if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN) && Model.IsActive)
         {
             <li class="nav-item">
                 <a class="nav-link text-success" highlight-active highlight-active-when="controller action" asp-controller="Event" asp-action="Create" asp-route-semesterId="@Model.Id">+ Nytt kurs</a>

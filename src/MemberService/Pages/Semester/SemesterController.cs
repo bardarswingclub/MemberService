@@ -25,7 +25,7 @@ namespace MemberService.Pages.Semester
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(bool archived=false)
+        public async Task<IActionResult> Index(bool archived = false)
         {
             var semester = await _database.Semesters
                 .Expressionify()
@@ -38,6 +38,34 @@ namespace MemberService.Pages.Semester
             {
                 return View("Nothing");
             }
+
+            return View(semester);
+        }
+
+        [HttpGet("{controller}/{action}/{id}")]
+        public async Task<IActionResult> Index(Guid id, bool archived = false)
+        {
+            var semester = await _database.Semesters
+                .Expressionify()
+                .Select(s => SemesterModel.Create(s, Filter(archived)))
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (semester == null)
+            {
+                return NotFound();
+            }
+
+            return View(semester);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> List()
+        {
+            var semester = await _database.Semesters
+                .Expressionify()
+                .OrderByDescending(s => s.SignupOpensAt)
+                .Select(s => SemesterModel.Create(s, e => true))
+                .ToListAsync();
 
             return View(semester);
         }

@@ -32,5 +32,5 @@
 
 @if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN))
 {
-    <a href="?archived=true">Se gamle arrangementer også</a>
+    @:<a href="?archived=true">Se arkiverte arrangementer også</a> | <a asp-controller="Semester" asp-action="List">Se tidligere semester</a>
 }
