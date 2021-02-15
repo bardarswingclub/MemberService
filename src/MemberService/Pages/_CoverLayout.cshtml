@@ -6,7 +6,7 @@
 @RenderSection("AboveCover", false)
 
 <div class="row justify-content-md-center">
-    <div class="col-md-6">
+    <div class="@(ViewData["col-md-x"] ?? "col-md-6")">
         @RenderBody()
     </div>
 </div>
