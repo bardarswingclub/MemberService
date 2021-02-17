@@ -16,10 +16,16 @@
         </p>
 
         <p>
-            Innspill til årsmøtet kan bli sendt til styret@bardarswingclub.no innen 10. februar.
+            <a href="https://www.bardarswingclub.no/uploads/2021/02/Sakspapirer-%C3%85rsm%C3%B8tet-2021.pdf">Sakspapirene til årsmøtet</a>
         </p>
 
-        @if (!Model.IsMember)
+        @if (Model.IsMember)
+        {
+            <div class="alert alert-info">
+                <p>Møtet har ikke startet ennå</p>
+            </div>
+        }
+        else
         {
             <div class="alert alert-info">
                 <h4 class="alert-heading">Årsmøtet er for medlemmer av Bårdar Swing Club</h4>
@@ -36,4 +42,4 @@
             </div>
         }
     </div>
-</div>
+    </div>
