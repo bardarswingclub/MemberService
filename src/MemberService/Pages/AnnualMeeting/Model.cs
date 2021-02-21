@@ -17,6 +17,9 @@ namespace MemberService.Pages.AnnualMeeting
         public bool IsMember { get; set; }
 
         public DateTime MeetingStartsAt { get; set; }
+
         public bool HasStarted { get; set; }
+
+        public bool HasEnded { get; set; }
     }
 }

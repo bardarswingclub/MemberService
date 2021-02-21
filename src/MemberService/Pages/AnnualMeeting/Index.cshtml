@@ -11,44 +11,55 @@
         @Model.Title
     </h3>
     <div class="card-body">
-        @if (Model.IsMember)
+        @if (Model.HasEnded)
         {
-            if (Model.HasStarted)
-            {
-                @Html.Markdown(Model.MeetingInfo)
-            }
-            else
-            {
-                <div class="alert alert-info">
-                    Møtet starter <strong>@Model.MeetingStartsAt.DisplayOslo()</strong>
-                </div>
-
-                @Html.Markdown(Model.MeetingInvitation)
-            }
+            @Html.Markdown(Model.MeetingSummary)
         }
         else
         {
-            @Html.Markdown(Model.MeetingInvitation)
+            @if (Model.IsMember)
+            {
+                if (Model.HasStarted)
+                {
+                    @Html.Markdown(Model.MeetingInfo)
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        Møtet starter <strong>@Model.MeetingStartsAt.DisplayOslo()</strong>
+                    </div>
 
-            <div class="alert alert-info">
-                <h4 class="alert-heading">Årsmøtet er for medlemmer av Bårdar Swing Club</h4>
-                <hr />
-                <p>
-                    For å delta på årsmøtet må du betale medlemskap for 2021. Trykk på knappen under for å betale
-                    medlemskap.
-                </p>
+                    @Html.Markdown(Model.MeetingInvitation)
+                }
+            }
+            else
+            {
+                @Html.Markdown(Model.MeetingInvitation)
 
-                <form asp-controller="Pay" asp-action="Fee" method="post" asp-route-returnUrl="/AnnualMeeting">
-                    <input type="hidden" name="type" value="@Fee.Membership" />
-                    <button class="btn btn-success">Betal medlemskap</button>
-                </form>
-            </div>
+                <div class="alert alert-info">
+                    <h4 class="alert-heading">Årsmøtet er for medlemmer av Bårdar Swing Club</h4>
+                    <hr/>
+                    <p>
+                        For å delta på årsmøtet må du betale medlemskap for 2021. Trykk på knappen under for å betale
+                        medlemskap.
+                    </p>
+
+                    <form asp-controller="Pay" asp-action="Fee" method="post" asp-route-returnUrl="/AnnualMeeting">
+                        <input type="hidden" name="type" value="@Fee.Membership"/>
+                        <button class="btn btn-success">Betal medlemskap</button>
+                    </form>
+                </div>
+            }
         }
     </div>
     @if (User.IsInRole(Roles.ADMIN))
     {
-        <div class="card-footer">
-            <a asp-controller="AnnualMeeting" asp-action="Edit" asp-route-id="@Model.Id" >Rediger</a>
-        </div>
+        <form class="card-footer" asp-controller="AnnualMeeting" asp-action="EndMeeting" method="post" asp-route-id="@Model.Id">
+            <a asp-controller="AnnualMeeting" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Rediger</a>
+            @if (Model.HasStarted && !Model.HasEnded)
+            {
+                <button class="btn btn-outline-danger" type="submit">Avslutt møtet</button>
+            }
+        </form>
     }
 </div>

@@ -45,21 +45,14 @@ namespace MemberService.Pages.AnnualMeeting
 
             if (meeting is null)
             {
-                var pastMeeting = meetings
+                meeting = meetings
                     .OrderByDescending(m => m.MeetingEndsAt)
                     .FirstOrDefault();
 
-                if (pastMeeting is null)
+                if (meeting is null)
                 {
                     return View("NoMeeting");
                 }
-
-                return View(new Model
-                {
-                    Id = pastMeeting.Id,
-                    Title = pastMeeting.Title,
-                    MeetingSummary = pastMeeting.MeetingSummary
-                });
             }
 
             var isMember = await _database.Users
@@ -74,8 +67,10 @@ namespace MemberService.Pages.AnnualMeeting
                 Title = meeting.Title,
                 MeetingInvitation = meeting.MeetingInvitation,
                 MeetingInfo = meeting.MeetingInfo,
+                MeetingSummary = meeting.MeetingSummary,
                 MeetingStartsAt = meeting.MeetingStartsAt,
-                HasStarted = meeting.MeetingStartsAt < TimeProvider.UtcNow
+                HasStarted = meeting.MeetingStartsAt < TimeProvider.UtcNow,
+                HasEnded = meeting.MeetingEndsAt < TimeProvider.UtcNow
             });
         }
 
@@ -117,6 +112,7 @@ namespace MemberService.Pages.AnnualMeeting
 
             return RedirectToAction(nameof(Index));
         }
+
         [HttpGet]
         [Authorize(nameof(Policy.IsAdmin))]
         public async Task<IActionResult> Edit(Guid id)
@@ -168,6 +164,24 @@ namespace MemberService.Pages.AnnualMeeting
             model.MeetingInvitation = input.Invitation;
             model.MeetingInfo = input.Info;
             model.MeetingSummary = input.Summary;
+
+            await _database.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [Authorize(nameof(Policy.IsAdmin))]
+        public async Task<IActionResult> EndMeeting(Guid id)
+        {
+            var model = await _database.AnnualMeetings.FirstOrDefaultAsync(m => m.Id == id);
+
+            if (model is null)
+            {
+                return NotFound();
+            }
+
+            model.MeetingEndsAt = TimeProvider.UtcNow;
 
             await _database.SaveChangesAsync();
 
