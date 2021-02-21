@@ -1,9 +1,8 @@
-using System;
 using System.Threading.Tasks;
-using MemberService.Configs;
+
 using MemberService.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using SendGrid;
+
 using SendGrid.Helpers.Mail;
 
 namespace MemberService.Auth

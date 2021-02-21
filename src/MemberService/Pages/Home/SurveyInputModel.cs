@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using MemberService.Pages.Signup;
 
 namespace MemberService.Pages.Home

@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Clave.Expressionify;
 using MemberService.Data;
@@ -280,7 +278,7 @@ namespace MemberService.Pages.Event
             return newEntry.Entity;
         }
 
-        internal static DateTime? GetUtc(string date, string time)
+        internal static DateTime GetUtc(this string date, string time)
         {
             var dateTime = $"{date}T{time}:00";
 

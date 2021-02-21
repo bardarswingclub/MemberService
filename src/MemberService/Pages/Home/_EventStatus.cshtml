@@ -50,7 +50,7 @@
             <a class="list-group-item list-group-item-action" asp-controller="Signup" asp-action="Event" asp-route-id="@signup.Id" asp-route-slug="@signup.Title.Slugify()">
                 <h5 class="card-title">@signup.Title</h5>
                 <p class="card-text">@signup.Description</p>
-                <small class="badge badge-info float-right text-ellipsis">Åpner @signup.OpensAt.Value.ToOsloDate() klokken @signup.OpensAt.Value.ToOsloTime()</small>
+                <small class="badge badge-info float-right text-ellipsis">Åpner @signup.OpensAt.Value.DisplayOslo()</small>
             </a>
             }
         </div>

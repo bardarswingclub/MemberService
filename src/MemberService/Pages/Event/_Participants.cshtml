@@ -59,7 +59,7 @@
                                                     <a asp-controller="Members" asp-action="Details" asp-route-id="@entry.UserId" target="_blank">@entry.User.FullName</a>
                                                 </td>
                                                 <td>
-                                                    @entry.OccuredAtUtc.ToOsloDate() klokken @entry.OccuredAtUtc.ToOsloTime()
+                                                    @entry.OccuredAtUtc.DisplayOslo()
                                                 </td>
                                             </tr>
                                         }

@@ -1,4 +1,5 @@
-@using MemberService.Pages.AnnualMeeting
+@using NodaTime.Extensions
+@using MemberService.Data.ValueTypes
 @model Model
 @{
     ViewData["Title"] = "Årsmøte";
@@ -7,26 +8,28 @@
 
 <div class="card shadow mt-5">
     <h3 class="card-header">
-        Årsmøte 2021
+        @Model.Title
     </h3>
     <div class="card-body">
-        <p>
-            Velkommen til årsmøtet i Bårdar Swing Club. Årsmøtet for 2021 vil bli avholdt virtuelt klokken 18:00 den 23.
-            februar.
-        </p>
-
-        <p>
-            <a href="https://www.bardarswingclub.no/uploads/2021/02/Sakspapirer-%C3%85rsm%C3%B8tet-2021.pdf">Sakspapirene til årsmøtet</a>
-        </p>
-
         @if (Model.IsMember)
         {
-            <div class="alert alert-info">
-                <p>Møtet har ikke startet ennå</p>
-            </div>
+            if (Model.HasStarted)
+            {
+                @Html.Markdown(Model.MeetingInfo)
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    Møtet starter <strong>@Model.MeetingStartsAt.DisplayOslo()</strong>
+                </div>
+
+                @Html.Markdown(Model.MeetingInvitation)
+            }
         }
         else
         {
+            @Html.Markdown(Model.MeetingInvitation)
+
             <div class="alert alert-info">
                 <h4 class="alert-heading">Årsmøtet er for medlemmer av Bårdar Swing Club</h4>
                 <hr />
@@ -42,4 +45,10 @@
             </div>
         }
     </div>
-    </div>
+    @if (User.IsInRole(Roles.ADMIN))
+    {
+        <div class="card-footer">
+            <a asp-controller="AnnualMeeting" asp-action="Edit" asp-route-id="@Model.Id" >Rediger</a>
+        </div>
+    }
+</div>

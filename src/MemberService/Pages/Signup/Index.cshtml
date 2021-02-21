@@ -53,7 +53,7 @@
             @foreach (var signup in Model.FutureEvents)
             {
                 <a class="list-group-item list-group-item-action" asp-controller="Signup" asp-action="Event" asp-route-id="@signup.Id" asp-route-slug="@signup.Title.Slugify()">
-                    <small class="badge badge-info float-right">@signup.OpensAt.Value.ToOsloDate() klokken @signup.OpensAt.Value.ToOsloTime()</small>
+                    <small class="badge badge-info float-right">@signup.OpensAt.Value.DisplayOslo()</small>
                     <h5 class="card-title">@signup.Title</h5>
                     <p class="card-text">@signup.Description</p>
                 </a>

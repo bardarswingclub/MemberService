@@ -1,11 +1,14 @@
-using System;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MemberService.Pages.AnnualMeeting
+namespace MemberService.Data
 {
-    public class Model
+    public class AnnualMeeting
     {
         public Guid Id { get; set; }
 
+        [Required]
         public string Title { get; set; }
 
         public string MeetingInvitation { get; set; }
@@ -14,9 +17,8 @@ namespace MemberService.Pages.AnnualMeeting
 
         public string MeetingSummary { get; set; }
 
-        public bool IsMember { get; set; }
-
         public DateTime MeetingStartsAt { get; set; }
-        public bool HasStarted { get; set; }
+
+        public DateTime MeetingEndsAt { get; set; }
     }
 }
