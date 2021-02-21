@@ -4,7 +4,6 @@
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>aspnet-MemberService-75CC680B-0120-4A9C-8F8E-5DB317907710</UserSecretsId>
     <LangVersion>latest</LangVersion>
-    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
   <ItemGroup>
