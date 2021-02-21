@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -20,5 +21,7 @@ namespace MemberService.Data
         public DateTime MeetingStartsAt { get; set; }
 
         public DateTime MeetingEndsAt { get; set; }
+
+        public ICollection<AnnualMeetingAttendee> Attendees { get; set; } = new List<AnnualMeetingAttendee>();
     }
 }
