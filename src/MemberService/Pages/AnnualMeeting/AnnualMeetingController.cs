@@ -35,13 +35,22 @@ namespace MemberService.Pages.AnnualMeeting
         [Authorize]
         public async Task<IActionResult> Index()
         {
+            var isAdmin = User.IsInRole(Roles.ADMIN);
+
             var meetings = await _database.AnnualMeetings
+                .Include(m => m.Attendees.Where(a => isAdmin))
+                .ThenInclude(a => a.User)
                 .Expressionify()
                 .OrderBy(m => m.MeetingStartsAt)
                 .ToListAsync();
 
             var meeting = meetings
                 .FirstOrDefault(m => m.MeetingEndsAt > TimeProvider.UtcNow);
+
+            var member = await _database.Users
+                .Expressionify()
+                .Where(u => u.Id == GetUserId())
+                .FirstOrDefaultAsync(u => u.HasPayedMembershipThisYear());
 
             if (meeting is null)
             {
@@ -54,23 +63,40 @@ namespace MemberService.Pages.AnnualMeeting
                     return View("NoMeeting");
                 }
             }
+            else if(meeting.IsLive())
+            {
+                var attendee = meeting.Attendees.GetOrAdd(a => a.UserId == member.Id,
+                    () => new AnnualMeetingAttendee
+                    {
+                        User = member,
+                        CreatedAt = TimeProvider.UtcNow
+                    });
 
-            var isMember = await _database.Users
-                .Expressionify()
-                .Where(u => u.Id == GetUserId())
-                .AnyAsync(u => u.HasPayedMembershipThisYear());
+                attendee.Visits++;
+                attendee.LastVisited = TimeProvider.UtcNow;
+
+                await _database.SaveChangesAsync();
+            }
 
             return View(new Model
             {
                 Id = meeting.Id,
-                IsMember = isMember,
+                IsMember = member != null,
                 Title = meeting.Title,
                 MeetingInvitation = meeting.MeetingInvitation,
                 MeetingInfo = meeting.MeetingInfo,
                 MeetingSummary = meeting.MeetingSummary,
                 MeetingStartsAt = meeting.MeetingStartsAt,
                 HasStarted = meeting.MeetingStartsAt < TimeProvider.UtcNow,
-                HasEnded = meeting.MeetingEndsAt < TimeProvider.UtcNow
+                HasEnded = meeting.MeetingEndsAt < TimeProvider.UtcNow,
+                Attendees = meeting.Attendees.Select(a => new Model.Attendee
+                {
+                    UserId = a.UserId,
+                    Name = a.User.FullName,
+                    Visits = a.Visits,
+                    FirstVisit = a.CreatedAt,
+                    LastVisit = a.LastVisited
+                }).ToList()
             });
         }
 

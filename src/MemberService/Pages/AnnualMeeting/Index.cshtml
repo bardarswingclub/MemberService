@@ -54,6 +54,23 @@
     </div>
     @if (User.IsInRole(Roles.ADMIN))
     {
+        <table class="card-table table">
+            <tr>
+                <th>Navn (@Model.Attendees.Count)</th>
+                <th>Første</th>
+                <th>Siste</th>
+                <th>Antall</th>
+            </tr>
+            @foreach (var attendee in Model.Attendees)
+            {
+                <tr>
+                    <td><a asp-controller="Members" asp-action="Details" asp-route-id="@attendee.UserId" target="_blank">@attendee.Name</a></td>
+                    <td>@attendee.FirstVisit.DisplayOslo()</td>
+                    <td>@attendee.LastVisit.DisplayOslo()</td>
+                    <td>@attendee.Visits</td>
+                </tr>
+            }
+        </table>
         <form class="card-footer" asp-controller="AnnualMeeting" asp-action="EndMeeting" method="post" asp-route-id="@Model.Id">
             <a asp-controller="AnnualMeeting" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Rediger</a>
             @if (Model.HasStarted && !Model.HasEnded)

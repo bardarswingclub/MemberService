@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace MemberService.Pages.AnnualMeeting
 {
@@ -21,5 +22,19 @@ namespace MemberService.Pages.AnnualMeeting
         public bool HasStarted { get; set; }
 
         public bool HasEnded { get; set; }
+        public IReadOnlyList<Attendee> Attendees { get; set; }
+
+        public class Attendee
+        {
+            public string UserId { get; set; }
+
+            public string Name { get; set; }
+
+            public DateTime FirstVisit { get; set; }
+
+            public DateTime LastVisit { get; set; }
+
+            public int Visits { get; set; }
+        }
     }
 }
