@@ -4,6 +4,8 @@ namespace MemberService.Pages.AnnualMeeting
 {
     public class Model
     {
+        public Guid Id { get; set; }
+
         public string Title { get; set; }
 
         public string MeetingInvitation { get; set; }
@@ -15,5 +17,6 @@ namespace MemberService.Pages.AnnualMeeting
         public bool IsMember { get; set; }
 
         public DateTime MeetingStartsAt { get; set; }
+        public bool HasStarted { get; set; }
     }
 }

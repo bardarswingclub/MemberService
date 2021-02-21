@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Clave.Expressionify;
 using MemberService.Auth;
 using MemberService.Data;
+using MemberService.Pages.Event;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -111,7 +113,7 @@ namespace MemberService.Pages.Semester
             _database.Semesters.Add(new Data.Semester
             {
                 Title = input.Title,
-                SignupOpensAt = GetUtc(input.SignupOpensAtDate, input.SignupOpensAtTime),
+                SignupOpensAt = input.SignupOpensAtDate.GetUtc(input.SignupOpensAtTime),
                 SignupHelpText = input.SignupHelpText
             });
 
@@ -159,7 +161,7 @@ namespace MemberService.Pages.Semester
                 .FirstOrDefaultAsync();
 
             semester.Title = input.Title;
-            semester.SignupOpensAt = GetUtc(input.SignupOpensAtDate, input.SignupOpensAtTime);
+            semester.SignupOpensAt = input.SignupOpensAtDate.GetUtc(input.SignupOpensAtTime);
             semester.SignupHelpText = input.SignupHelpText;
 
             foreach (var course in semester.Courses)
@@ -183,15 +185,6 @@ namespace MemberService.Pages.Semester
             }
 
             return e => e.Archived == false;
-        }
-
-        internal static DateTime GetUtc(string date, string time)
-        {
-            var dateTime = $"{date}T{time}:00";
-
-            var localDateTime = LocalDateTimePattern.GeneralIso.Parse(dateTime).GetValueOrThrow();
-
-            return localDateTime.InZoneLeniently(TimeProvider.TimeZoneOslo).ToDateTimeUtc();
         }
     }
 }

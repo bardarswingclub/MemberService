@@ -15,7 +15,7 @@
 
         @if (User.IsInRole(Roles.ADMIN))
         {
-            <a class="btn btn-block btn-success">Opprett årsmøte</a>
+            <a asp-controller="AnnualMeeting" asp-action="Create" class="btn btn-block btn-success">Opprett årsmøte</a>
         }
     </div>
 </div>

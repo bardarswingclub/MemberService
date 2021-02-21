@@ -278,7 +278,7 @@ namespace MemberService.Pages.Event
             return newEntry.Entity;
         }
 
-        internal static DateTime? GetUtc(string date, string time)
+        internal static DateTime GetUtc(this string date, string time)
         {
             var dateTime = $"{date}T{time}:00";
 
