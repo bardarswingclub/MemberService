@@ -20,7 +20,7 @@
             else
             {
                 <div class="alert alert-info">
-                    Møtet starter <strong>@Model.MeetingStartsAt.ToOsloDate() klokken @Model.MeetingStartsAt.ToOsloTime()</strong>
+                    Møtet starter <strong>@Model.MeetingStartsAt.DisplayOslo()</strong>
                 </div>
 
                 @Html.Markdown(Model.MeetingInvitation)

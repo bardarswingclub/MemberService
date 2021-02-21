@@ -31,11 +31,11 @@
                         </h4>
                         @if (Model.SignupOpensAt.HasValue)
                         {
-                            <p>Påmeldingen åpnet @Model.SignupOpensAt.Value.ToOsloDate() klokken @Model.SignupOpensAt.Value.ToOsloTime()</p>
+                            <p>Påmeldingen åpnet @Model.SignupOpensAt.Value.DisplayOslo()</p>
                         }
                         @if (Model.SignupClosesAt.HasValue)
                         {
-                            <p>Påmeldingen stenger @Model.SignupClosesAt.Value.ToOsloDate() klokken @Model.SignupClosesAt.Value.ToOsloTime()</p>
+                            <p>Påmeldingen stenger @Model.SignupClosesAt.Value.DisplayOslo()</p>
                         }
                     }
                     else if (Model.HasClosed)
@@ -49,9 +49,9 @@
                         </h4>
                         @if (Model.SignupOpensAt.HasValue)
                         {
-                            <p>Påmeldingen åpnet @Model.SignupOpensAt.Value.ToOsloDate() klokken @Model.SignupOpensAt.Value.ToOsloTime()</p>
+                            <p>Påmeldingen åpnet @Model.SignupOpensAt.Value.DisplayOslo()</p>
                         }
-                        <p>Påmeldingen stengte @Model.SignupClosesAt.Value.ToOsloDate() klokken @Model.SignupClosesAt.Value.ToOsloTime()</p>
+                        <p>Påmeldingen stengte @Model.SignupClosesAt.Value.DisplayOslo()</p>
                     }
                     else
                     {
@@ -62,10 +62,10 @@
                                 <button type="submit" name="status" value="open" class="btn btn-outline-success float-right">Åpne påmeldingen nå</button>
                             }
                         </h4>
-                        <p>Påmeldingen åpner @Model.SignupOpensAt.Value.ToOsloDate() klokken @Model.SignupOpensAt.Value.ToOsloTime()</p>
+                        <p>Påmeldingen åpner @Model.SignupOpensAt.Value.DisplayOslo()</p>
                         @if (Model.SignupClosesAt.HasValue)
                         {
-                            <p>Påmeldingen stenger @Model.SignupClosesAt.Value.ToOsloDate() klokken @Model.SignupClosesAt.Value.ToOsloTime()</p>
+                            <p>Påmeldingen stenger @Model.SignupClosesAt.Value.DisplayOslo()</p>
                         }
                     }
                 </form>

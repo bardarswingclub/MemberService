@@ -23,6 +23,27 @@ namespace MemberService
         public static string FormatMoney(this decimal amount)
             => $"kr {amount:0},-";
 
+        public static string DisplayOslo(this DateTime utc)
+        {
+            var osloDateTime = utc.ToOsloZone();
+            var osloDate = osloDateTime.Date;
+
+            var osloNow = TimeProvider.UtcNow.ToOsloZone().Date;
+            var osloTime = osloDateTime.TimeOfDay.ToString("HH:mm", CultureInfo.InvariantCulture);
+
+            if (osloDate.Year != osloNow.Year)
+            {
+                return $"{osloDate} klokken {osloTime}";
+            }
+
+            if (osloDate.Equals(osloNow))
+            {
+                return osloTime;
+            }
+
+            return $"{osloDate:dd. MMMM} klokken {osloTime}";
+        }
+
         public static string ToOsloDate(this DateTime utc)
             => utc.ToOsloZone().Date.ToString();
 
