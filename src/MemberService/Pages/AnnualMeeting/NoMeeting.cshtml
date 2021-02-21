@@ -1,0 +1,21 @@
+@using MemberService.Data.ValueTypes
+@{
+    ViewData["Title"] = "Årsmøte";
+    Layout = "~/Pages/_CoverLayout.cshtml";
+}
+
+<div class="card shadow mt-5">
+    <h3 class="card-header">
+        Ingen årsmøte planlagt
+    </h3>
+    <div class="card-body">
+        <p>
+            Det er ingen årsmøte planlagt i nærmeste fremtid
+        </p>
+
+        @if (User.IsInRole(Roles.ADMIN))
+        {
+            <a class="btn btn-block btn-success">Opprett årsmøte</a>
+        }
+    </div>
+</div>

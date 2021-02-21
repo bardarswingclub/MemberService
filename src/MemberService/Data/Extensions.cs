@@ -41,6 +41,9 @@ namespace MemberService.Data
         public static bool IsOpen(this Event e)
             => e.HasOpened() && !e.HasClosed();
 
+        public static bool IsLive(this AnnualMeeting m)
+            => m.MeetingStartsAt < TimeProvider.UtcNow && m.MeetingEndsAt > TimeProvider.UtcNow;
+
         [Expressionify]
         public static bool WillOpen(this Event e)
             => !e.HasOpened() && !e.HasClosed();

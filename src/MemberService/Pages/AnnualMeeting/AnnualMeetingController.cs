@@ -29,6 +29,32 @@ namespace MemberService.Pages.AnnualMeeting
         [Authorize]
         public async Task<IActionResult> Index()
         {
+            var meetings = await _database.AnnualMeetings
+                .Expressionify()
+                .OrderBy(m => m.MeetingStartsAt)
+                .ToListAsync();
+
+            var liveMeeting = meetings
+                .FirstOrDefault(m => m.MeetingEndsAt > TimeProvider.UtcNow);
+
+            if (liveMeeting is null)
+            {
+                var pastMeeting = meetings
+                    .OrderByDescending(m => m.MeetingEndsAt)
+                    .FirstOrDefault();
+
+                if (pastMeeting is null)
+                {
+                    return View("NoMeeting");
+                }
+
+                return View(new Model
+                {
+                    Title = pastMeeting.Title,
+                    MeetingSummary = pastMeeting.MeetingSummary
+                });
+            }
+
             var isMember = await _database.Users
                 .Expressionify()
                 .Where(u => u.Id == GetUserId())
@@ -36,7 +62,11 @@ namespace MemberService.Pages.AnnualMeeting
 
             return View(new Model
             {
-                IsMember = isMember
+                IsMember = isMember,
+                Title = liveMeeting.Title,
+                MeetingInvitation = liveMeeting.MeetingInvitation,
+                MeetingInfo = liveMeeting.MeetingInfo,
+                MeetingStartsAt = liveMeeting.MeetingStartsAt
             });
         }
 

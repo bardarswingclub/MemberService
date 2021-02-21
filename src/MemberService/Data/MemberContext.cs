@@ -31,6 +31,8 @@ namespace MemberService.Data
 
         public DbSet<Semester> Semesters { get; set; }
 
+        public DbSet<AnnualMeeting> AnnualMeetings { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
