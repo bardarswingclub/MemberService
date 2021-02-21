@@ -15,12 +15,6 @@ steps:
       version: "5.0.x"
       packageType: sdk
 
-  - task: UseDotNet@2
-    displayName: ".NET Core 3.1.x"
-    inputs:
-      version: "3.1.x"
-      packageType: sdk
-
   - task: Cache@2
     inputs:
       key: 'nuget | "$(Agent.OS)" | **/packages.lock.json,!**/bin/**'
