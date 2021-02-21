@@ -6,7 +6,7 @@ trigger:
 
 variables:
   BuildConfiguration: release
-  NUGET_PACKAGES: $(UserProfile)/.nuget/packages
+  NUGET_PACKAGES: $(Build.SourcesDirectory)/.nuget/packages
 
 steps:
   - task: UseDotNet@2
