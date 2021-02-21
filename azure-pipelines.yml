@@ -11,7 +11,7 @@ steps:
   - task: UseDotNet@2
     displayName: ".NET Core 5 for building"
     inputs:
-      version: "5"
+      version: "5.0.x"
       packageType: sdk
 
   - task: UseDotNet@2
