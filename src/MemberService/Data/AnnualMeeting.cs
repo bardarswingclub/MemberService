@@ -23,5 +23,9 @@ namespace MemberService.Data
         public DateTime MeetingEndsAt { get; set; }
 
         public ICollection<AnnualMeetingAttendee> Attendees { get; set; } = new List<AnnualMeetingAttendee>();
+
+        public Guid? SurveyId { get; set; }
+
+        public Survey Survey { get; set; } = new Survey();
     }
 }

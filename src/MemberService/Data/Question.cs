@@ -21,5 +21,9 @@ namespace MemberService.Data
         public string Description { get; set; }
 
         public ICollection<QuestionOption> Options { get; set; } = new List<QuestionOption>();
+
+        public DateTime? AnswerableFrom { get; set; }
+
+        public DateTime? AnswerableUntil { get; set; }
     }
 }
