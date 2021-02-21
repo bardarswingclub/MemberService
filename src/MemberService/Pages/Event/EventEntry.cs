@@ -7,7 +7,7 @@ using MemberService.Data.ValueTypes;
 
 namespace MemberService.Pages.Event
 {
-    public class EventEntry
+    public partial class EventEntry
     {
         public Guid Id { get; set; }
 

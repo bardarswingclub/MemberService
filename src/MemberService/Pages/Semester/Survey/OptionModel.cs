@@ -5,7 +5,7 @@ using MemberService.Data;
 
 namespace MemberService.Pages.Semester.Survey
 {
-    public class OptionModel
+    public partial class OptionModel
     {
         public Guid Id { get; set; }
 

@@ -5,7 +5,7 @@ using MemberService.Data;
 
 namespace MemberService.Pages.Home
 {
-    public class CourseModel
+    public partial class CourseModel
     {
         public Guid Id { get; set; }
 

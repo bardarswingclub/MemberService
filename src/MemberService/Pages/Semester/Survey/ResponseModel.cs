@@ -4,7 +4,7 @@ using MemberService.Data;
 
 namespace MemberService.Pages.Semester.Survey
 {
-    public class ResponseModel
+    public partial class ResponseModel
     {
         public string Name { get; set; }
 

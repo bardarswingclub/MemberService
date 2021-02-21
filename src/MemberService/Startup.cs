@@ -148,7 +148,6 @@ namespace MemberService
             if (IsDevelopment)
             {
                 app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
             }
             else
             {

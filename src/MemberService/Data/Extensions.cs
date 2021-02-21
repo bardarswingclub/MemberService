@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MemberService.Data
 {
-    public static class Extensions
+    public static partial class Extensions
     {
         [Expressionify]
         public static bool HasPayedMembershipThisYear(this User user)

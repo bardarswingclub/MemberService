@@ -6,7 +6,7 @@ using Clave.Expressionify;
 
 namespace MemberService.Pages.Semester.Survey
 {
-    public class SurveyResultModel
+    public partial class SurveyResultModel
     {
         public Guid Id { get; set; }
 

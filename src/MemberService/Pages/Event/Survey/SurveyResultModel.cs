@@ -7,7 +7,7 @@ using MemberService.Data;
 
 namespace MemberService.Pages.Event.Survey
 {
-    public class SurveyResultModel : EventBaseModel
+    public partial class SurveyResultModel : EventBaseModel
     {
         public Guid Id { get; set; }
 

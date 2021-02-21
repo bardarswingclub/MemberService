@@ -5,7 +5,7 @@ using MemberService.Data.ValueTypes;
 
 namespace MemberService.Pages.Home
 {
-    public class CourseSignupModel
+    public partial class CourseSignupModel
     {
         public int Priority { get; set; }
 

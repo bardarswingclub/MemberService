@@ -7,7 +7,7 @@ using MemberService.Data.ValueTypes;
 
 namespace MemberService.Pages.Semester.Survey
 {
-    public class QuestionModel
+    public partial class QuestionModel
     {
         public Guid Id { get; set; }
 

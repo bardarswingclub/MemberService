@@ -6,7 +6,7 @@ using MemberService.Data.ValueTypes;
 
 namespace MemberService.Pages.Signup
 {
-    public class EventModel
+    public partial class EventModel
     {
         public Guid Id { get; set; }
 

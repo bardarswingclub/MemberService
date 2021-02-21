@@ -5,7 +5,7 @@ using Clave.Expressionify;
 
 namespace MemberService.Pages.Event.Survey
 {
-    public class SurveyModel : EventBaseModel
+    public partial class SurveyModel : EventBaseModel
     {
         public Guid Id { get; set; }
 

@@ -6,7 +6,7 @@ using MemberService.Pages.Signup;
 
 namespace MemberService.Pages.Home
 {
-    public class SurveyModel
+    public partial class SurveyModel
     {
         public string Title { get; set; }
 

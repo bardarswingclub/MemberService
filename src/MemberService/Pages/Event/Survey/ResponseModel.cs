@@ -5,7 +5,7 @@ using MemberService.Data.ValueTypes;
 
 namespace MemberService.Pages.Event.Survey
 {
-    public class ResponseModel
+    public partial class ResponseModel
     {
         public string Name { get; set; }
 

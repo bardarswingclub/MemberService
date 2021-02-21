@@ -7,7 +7,7 @@ using MemberService.Data.ValueTypes;
 
 namespace MemberService.Pages.Signup
 {
-    public class SignupQuestion
+    public partial class SignupQuestion
     {
         public Guid Id { get; set; }
 

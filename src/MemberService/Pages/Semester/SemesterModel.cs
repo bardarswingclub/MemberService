@@ -8,7 +8,7 @@ using MemberService.Pages.Event;
 
 namespace MemberService.Pages.Semester
 {
-    public class SemesterModel
+    public partial class SemesterModel
     {
         public Guid Id { get; set; }
 

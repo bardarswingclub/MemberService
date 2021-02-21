@@ -3,7 +3,7 @@ using MemberService.Data.ValueTypes;
 
 namespace MemberService.Pages.Semester.Survey
 {
-    public class AnswerModel
+    public partial class AnswerModel
     {
         public string Id { get; set; }
 

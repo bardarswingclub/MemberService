@@ -6,7 +6,7 @@ using MemberService.Data;
 
 namespace MemberService.Pages.Signup
 {
-    public class SignupModel
+    public partial class SignupModel
     {
         public Guid Id { get; set; }
 
