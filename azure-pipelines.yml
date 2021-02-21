@@ -18,7 +18,7 @@ steps:
     displayName: ".NET Core 3.1.x"
     inputs:
       version: "3.1.x"
-      packageType: runtime
+      packageType: sdk
 
   - task: DotNetCoreCLI@2
     displayName: Restore
@@ -38,6 +38,7 @@ steps:
       command: test
       projects: "**/*.Tests.csproj"
       arguments: "--configuration $(BuildConfiguration)"
+      nobuild: true
 
   - task: DotNetCoreCLI@2
     displayName: Publish
