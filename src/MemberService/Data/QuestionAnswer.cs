@@ -13,5 +13,7 @@ namespace MemberService.Data
         public Guid ResponseId { get; set; }
 
         public Response Response { get; set; }
+
+        public DateTime? AnsweredAt { get; set; }
     }
 }
