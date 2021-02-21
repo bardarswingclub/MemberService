@@ -26,7 +26,7 @@ namespace MemberService.Pages.Event
         public IReadOnlyList<EventSignup> Signups { get; set; }
 
         [Expressionify]
-        public static EventEntry Create(Data.Event e) => new EventEntry
+        public static EventEntry Create(Data.Event e) => new()
         {
             Id = e.Id,
             Title = e.Title,

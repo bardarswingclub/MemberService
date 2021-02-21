@@ -17,7 +17,7 @@ namespace MemberService.Pages.Event.Survey
 
         [Expressionify]
         public static SurveyModel Create(Data.Event e) =>
-        new SurveyModel
+        new()
         {
             Id = e.Survey.Id,
             EventId = e.Id,

@@ -24,7 +24,7 @@ namespace MemberService.Pages.Semester.Survey
 
         [Expressionify]
         public static SurveyResultModel Create(Data.Semester s, string filter, Expression<Func<ResponseModel, bool>> filterExpression) =>
-            new SurveyResultModel
+            new()
             {
                 Id = s.Survey.Id,
                 SemesterId = s.Id,

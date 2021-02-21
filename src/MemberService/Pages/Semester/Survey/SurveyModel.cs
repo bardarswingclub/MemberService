@@ -17,7 +17,7 @@ namespace MemberService.Pages.Semester.Survey
 
         [Expressionify]
         public static SurveyModel Create(Data.Semester s) =>
-        new SurveyModel
+        new()
         {
             Id = s.Survey.Id,
             SemesterId = s.Id,

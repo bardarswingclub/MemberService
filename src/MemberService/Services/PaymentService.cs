@@ -32,7 +32,7 @@ namespace MemberService.Services
             _memberContext = memberContext;
         }
 
-        private static readonly Dictionary<string, (bool?, bool?, bool?)> DescriptionMap = new Dictionary<string, (bool?, bool?, bool?)>
+        private static readonly Dictionary<string, (bool?, bool?, bool?)> DescriptionMap = new()
         {
             ["medlemskap"] = (true, null, null),
             ["medlemskap+kurs"] = (true, true, true),
@@ -81,7 +81,7 @@ namespace MemberService.Services
                 },
                 LineItems = new List<SessionLineItemOptions>
                 {
-                    new SessionLineItemOptions
+                    new()
                     {
                         Name = title,
                         Description = description,

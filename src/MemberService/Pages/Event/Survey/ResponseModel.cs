@@ -17,7 +17,7 @@ namespace MemberService.Pages.Event.Survey
 
         [Expressionify]
         public static ResponseModel Create(EventSignup es, QuestionAnswer a) =>
-            new ResponseModel
+            new()
             {
                 UserId = es.Response.UserId,
                 Name = es.Response.User.FullName,

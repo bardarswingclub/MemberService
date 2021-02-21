@@ -23,7 +23,7 @@ namespace MemberService.Pages.Event
                 .ToListAsync();
 
         public static Data.Event ToEntity(this EventInputModel model, User user)
-            => new Data.Event
+            => new()
             {
                 Title = model.Title,
                 Description = model.Description,

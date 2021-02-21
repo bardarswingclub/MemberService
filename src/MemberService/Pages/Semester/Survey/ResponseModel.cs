@@ -20,7 +20,7 @@ namespace MemberService.Pages.Semester.Survey
 
         [Expressionify]
         public static ResponseModel Create(Response r, QuestionAnswer a) =>
-            new ResponseModel
+            new()
             {
                 UserId = r.UserId,
                 Name = r.User.FullName,

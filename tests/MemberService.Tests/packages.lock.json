@@ -52,8 +52,8 @@
       },
       "Clave.Expressionify": {
         "type": "Transitive",
-        "resolved": "5.0.0-beta.2",
-        "contentHash": "wbvTd26TfM4pKuOPpGQbXjlil70jrPWOZ8fdadNDLzFdy8gyaEqlxkQlVmGupbEstaRpFvvXN/auFUnChf1AWA==",
+        "resolved": "5.0.0",
+        "contentHash": "6mSlFnKl8vrAVPcrGf1r7utTENCtz2CqzBzRz9394KB2WjedwseKZzEErbWiXQGKT5Olam7I6dW1Lzm7enH0cQ==",
         "dependencies": {
           "Microsoft.EntityFrameworkCore": "5.0.0"
         }
@@ -2384,7 +2384,7 @@
       "memberservice": {
         "type": "Project",
         "dependencies": {
-          "Clave.Expressionify": "5.0.0-beta.2",
+          "Clave.Expressionify": "5.0.0",
           "Clave.ExtensionMethods": "0.1.27",
           "Clave.NamespaceViewLocationExpander": "0.2.6",
           "Markdig": "0.23.0",

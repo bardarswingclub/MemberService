@@ -23,7 +23,7 @@ namespace MemberService.Pages.Event.Survey
 
         [Expressionify]
         public static SurveyResultModel Create(Data.Event e, string filter, Expression<Func<EventSignup, bool>> filterExpression) =>
-            new SurveyResultModel
+            new()
             {
                 Id = e.Survey.Id,
                 EventId = e.Id,

@@ -21,7 +21,7 @@ namespace MemberService.Pages.Signup
 
         [Expressionify]
         public static SignupQuestion Create(Data.Question q)
-            => new SignupQuestion
+            => new()
             {
                 Id = q.Id,
                 Type = q.Type,

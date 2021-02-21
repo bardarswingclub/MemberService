@@ -22,7 +22,7 @@ namespace MemberService.Pages.Signup
 
         [Expressionify]
         public static EventModel Create(Data.Event e, string userId)
-            => new EventModel
+            => new()
             {
                 Id = e.Id,
                 Title = e.Title,

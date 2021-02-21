@@ -18,7 +18,7 @@ namespace MemberService.Pages.Home
 
         [Expressionify]
         public static SurveyModel Create(Data.Semester s, string userId) =>
-            new SurveyModel
+            new()
             {
                 Title = s.Title,
                 Description = s.Survey.Description,

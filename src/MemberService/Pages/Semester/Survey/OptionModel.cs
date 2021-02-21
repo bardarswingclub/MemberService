@@ -17,7 +17,7 @@ namespace MemberService.Pages.Semester.Survey
 
         [Expressionify]
         public static OptionModel Create(QuestionOption o)
-            => new OptionModel
+            => new()
             {
                 Id = o.Id,
                 Title = o.Title,

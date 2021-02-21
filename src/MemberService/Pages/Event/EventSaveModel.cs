@@ -10,11 +10,11 @@ namespace MemberService.Pages.Event
         [Required]
         public Status Status { get; set; }
 
-        public List<Item> Leads { get; set; } = new List<Item>();
+        public List<Item> Leads { get; set; } = new();
 
-        public List<Item> Follows { get; set; } = new List<Item>();
+        public List<Item> Follows { get; set; } = new();
 
-        public List<Item> Solos { get; set; } = new List<Item>();
+        public List<Item> Solos { get; set; } = new();
 
         public bool SendEmail { get; set; }
 

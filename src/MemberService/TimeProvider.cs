@@ -8,11 +8,11 @@ namespace MemberService
     {
         public static DateTimeZone TimeZoneOslo { get; } = DateTimeZoneProviders.Tzdb["Europe/Oslo"];
 
-        public static DateTime ThisYearUtc => new DateTime(UtcNow.Year, 1, 1);
+        public static DateTime ThisYearUtc => new(UtcNow.Year, 1, 1);
 
-        public static DateTime LastYearUtc => new DateTime(UtcNow.Year - 1, 1, 1);
+        public static DateTime LastYearUtc => new(UtcNow.Year - 1, 1, 1);
 
-        public static DateTime ThisSemesterUtc => new DateTime(UtcNow.Year, (UtcNow.Month >= 7 ? 7 : 1), 1);
+        public static DateTime ThisSemesterUtc => new(UtcNow.Year, (UtcNow.Month >= 7 ? 7 : 1), 1);
 
         public static DateTime NextSemesterUtc => new DateTime(UtcNow.Year, (UtcNow.Month >= 7 ? 7 : 1), 1).AddMonths(6);
 

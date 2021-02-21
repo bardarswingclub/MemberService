@@ -13,7 +13,7 @@ namespace MemberService.Pages.Semester.Survey
 
         [Expressionify]
         public static AnswerModel Create(Data.EventSignup s) =>
-            new AnswerModel
+            new()
             {
                 Id = s.UserId,
                 Name = s.User.FullName,

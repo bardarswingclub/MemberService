@@ -30,7 +30,7 @@ namespace MemberService.Pages.Signup
 
         [Expressionify]
         public static SignupModel Create(Data.Event e)
-            => new SignupModel
+            => new()
             {
                 Id = e.Id,
                 Title = e.Title,

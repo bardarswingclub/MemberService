@@ -41,7 +41,7 @@ namespace MemberService.Pages.Event
 
         public static EventModel Create(Data.Event model, IEnumerable<Data.EventSignup> signups)
         {
-            return new EventModel
+            return new()
             {
                 Id = model.Id,
                 SemesterId = model.SemesterId,

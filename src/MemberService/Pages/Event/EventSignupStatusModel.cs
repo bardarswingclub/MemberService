@@ -26,7 +26,7 @@ namespace MemberService.Pages.Event
 
         public static EventSignupStatusModel Create(Status status, IEnumerable<EventSignup> signups)
         {
-            return new EventSignupStatusModel
+            return new()
             {
                 Status = status,
                 Signups = signups

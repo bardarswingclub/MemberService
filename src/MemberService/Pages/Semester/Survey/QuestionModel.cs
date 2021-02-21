@@ -21,7 +21,7 @@ namespace MemberService.Pages.Semester.Survey
 
         [Expressionify]
         public static QuestionModel Create(Question q)
-            => new QuestionModel
+            => new()
             {
                 Id = q.Id,
                 Type = q.Type,

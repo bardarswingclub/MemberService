@@ -26,7 +26,7 @@ namespace MemberService.Pages.Home
         public bool AllowPartnerSignup { get; set; }
 
         [Expressionify]
-        public static CourseSignupModel Create(EventSignup s) => new CourseSignupModel
+        public static CourseSignupModel Create(EventSignup s) => new()
         {
             Priority = s.Priority,
             Title = s.Event.Title,

@@ -31,7 +31,7 @@ namespace MemberService.Pages.Event
         public PartnerSignupModel Partner { get; private set; }
 
         public static EventSignupModel Create(EventSignup s)
-            => new EventSignupModel
+            => new()
             {
                 Id = s.Id,
                 UserId = s.UserId,

@@ -18,7 +18,7 @@ namespace MemberService.Pages.Semester
 
         [Expressionify]
         public static SemesterModel Create(Data.Semester s, Expression<Func<Data.Event, bool>> filter) =>
-            new SemesterModel
+            new()
             {
                 Id = s.Id,
                 Title = s.Title,

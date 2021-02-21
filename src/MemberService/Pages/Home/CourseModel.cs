@@ -30,7 +30,7 @@ namespace MemberService.Pages.Home
         public CourseSignupModel Signup { get; set; }
 
         [Expressionify]
-        public static CourseModel Create(Data.Event e, string userId) => new CourseModel
+        public static CourseModel Create(Data.Event e, string userId) => new()
         {
             Id = e.Id,
             Title = e.Title,

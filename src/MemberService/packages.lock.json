@@ -4,18 +4,18 @@
     ".NETCoreApp,Version=v5.0": {
       "Clave.Expressionify": {
         "type": "Direct",
-        "requested": "[5.0.0-beta.2, )",
-        "resolved": "5.0.0-beta.2",
-        "contentHash": "wbvTd26TfM4pKuOPpGQbXjlil70jrPWOZ8fdadNDLzFdy8gyaEqlxkQlVmGupbEstaRpFvvXN/auFUnChf1AWA==",
+        "requested": "[5.0.0, )",
+        "resolved": "5.0.0",
+        "contentHash": "6mSlFnKl8vrAVPcrGf1r7utTENCtz2CqzBzRz9394KB2WjedwseKZzEErbWiXQGKT5Olam7I6dW1Lzm7enH0cQ==",
         "dependencies": {
           "Microsoft.EntityFrameworkCore": "5.0.0"
         }
       },
       "Clave.Expressionify.Generator": {
         "type": "Direct",
-        "requested": "[5.0.0-beta.2.1, )",
-        "resolved": "5.0.0-beta.2.1",
-        "contentHash": "2X+8/Po57E50xSZ6nGt1KZaRB1QlQNbxO7c2JhmPg9GcxyvOt4Yvb3rDClfKy+Zc1OYIV+XAbOOvgFQFy7KKrA=="
+        "requested": "[5.0.0, )",
+        "resolved": "5.0.0",
+        "contentHash": "nmhMCtbPQwwxQDY0IMD5UywQdHUm1nbSLeCYOpy6bEBDObPNF0d3Ca6fAYAezohyqyVFwmDEiD+FcX/OLztToQ=="
       },
       "Clave.ExtensionMethods": {
         "type": "Direct",

@@ -7,10 +7,10 @@ namespace MemberService.Emails.Event
     public static class EmailBodies
     {
         private static readonly Assembly ExecutingAssembly = Assembly.GetExecutingAssembly();
-        private static readonly Lazy<string> _approved = new Lazy<string>(() => ReadFile("MemberService.Emails.Event.Approved.md"));
-        private static readonly Lazy<string> _denied = new Lazy<string>(() => ReadFile("MemberService.Emails.Event.Denied.md"));
-        private static readonly Lazy<string> _waitingList = new Lazy<string>(() => ReadFile("MemberService.Emails.Event.WaitingList.md"));
-        private static readonly Lazy<string> _default = new Lazy<string>(() => ReadFile("MemberService.Emails.Event.Default.md"));
+        private static readonly Lazy<string> _approved = new(() => ReadFile("MemberService.Emails.Event.Approved.md"));
+        private static readonly Lazy<string> _denied = new(() => ReadFile("MemberService.Emails.Event.Denied.md"));
+        private static readonly Lazy<string> _waitingList = new(() => ReadFile("MemberService.Emails.Event.WaitingList.md"));
+        private static readonly Lazy<string> _default = new(() => ReadFile("MemberService.Emails.Event.Default.md"));
 
         public static string Approved => _approved.Value;
         public static string Denied => _denied.Value;

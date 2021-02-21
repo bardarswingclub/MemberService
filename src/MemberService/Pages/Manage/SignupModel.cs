@@ -18,7 +18,7 @@ namespace MemberService.Pages.Manage
 
         public static SignupModel Create(EventSignup s)
         {
-            return new SignupModel
+            return new()
             {
                 EventId = s.EventId,
                 Title = s.Event.Title,
