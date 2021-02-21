@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,24 +10,19 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-using Stripe;
-
 namespace MemberService.Pages.AnnualMeeting
 {
     public class AnnualMeetingController : Controller
     {
         private readonly MemberContext _database;
         private readonly UserManager<User> _userManager;
-        private readonly RefundService _refundService;
 
         public AnnualMeetingController(
             MemberContext database,
-            UserManager<User> userManager,
-            RefundService refundService)
+            UserManager<User> userManager)
         {
             _database = database;
             _userManager = userManager;
-            _refundService = refundService;
         }
 
         [HttpGet]

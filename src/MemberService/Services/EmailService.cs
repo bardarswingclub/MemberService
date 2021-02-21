@@ -2,7 +2,7 @@
 using MemberService.Emails.Event;
 using System.Threading.Tasks;
 using MemberService.Data;
-using Microsoft.AspNetCore.Identity.UI.Services;
+
 using SendGrid.Helpers.Mail;
 
 namespace MemberService.Services

@@ -8,7 +8,7 @@ using MemberService.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using NodaTime.Extensions;
+
 using NodaTime.Text;
 
 namespace MemberService.Pages.Semester
