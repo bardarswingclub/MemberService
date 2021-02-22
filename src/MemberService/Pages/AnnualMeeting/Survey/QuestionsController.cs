@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -10,6 +9,7 @@ using Clave.ExtensionMethods;
 using MemberService.Auth;
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
+using MemberService.Pages.Event;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -124,22 +124,21 @@ namespace MemberService.Pages.AnnualMeeting.Survey
                 return NotFound();
             }
 
-            question.Title = input.Title;
-            question.Description = input.Description;
-
-            foreach (var (o, option) in input.Options.Join(question.Options, o => o.Id, o => o.Id))
+            if (action == "save")
             {
-                option.Title = o.Title;
-                option.Description = o.Description;
-                option.Order = input.Options.IndexOf(o);
+                question.Title = input.Title;
+                question.Description = input.Description;
+                question.AnswerableFrom = TimeProvider.UtcNow.WithOsloTime(input.From);
+                question.AnswerableUntil = TimeProvider.UtcNow.WithOsloTime(input.Until);
 
-                if (o.Action == "delete")
+                foreach (var (o, option) in input.Options.Join(question.Options, o => o.Id, o => o.Id))
                 {
-                    question.Options.Remove(option);
+                    option.Title = o.Title;
+                    option.Description = o.Description;
+                    option.Order = input.Options.IndexOf(o);
                 }
             }
-
-            if (action == "delete")
+            else if (action == "delete")
             {
                 _database.Questions.Remove(question);
 
@@ -150,6 +149,18 @@ namespace MemberService.Pages.AnnualMeeting.Survey
             else if (action == "add-option")
             {
                 question.Options.Add(new QuestionOption());
+            }
+            else
+            {
+                foreach (var (o, option) in input.Options.Join(question.Options, o => o.Id, o => o.Id))
+                {
+                    option.Order = input.Options.IndexOf(o);
+
+                    if (o.Action == "delete")
+                    {
+                        question.Options.Remove(option);
+                    }
+                }
             }
 
             await _database.SaveChangesAsync();
@@ -173,7 +184,7 @@ namespace MemberService.Pages.AnnualMeeting.Survey
             }
 
             question.AnswerableFrom = TimeProvider.UtcNow;
-            question.AnswerableUntil = TimeProvider.UtcNow.AddMinutes(5);
+            question.AnswerableUntil ??= TimeProvider.UtcNow.AddMinutes(5);
 
             await _database.SaveChangesAsync();
 
@@ -200,26 +211,6 @@ namespace MemberService.Pages.AnnualMeeting.Survey
             await _database.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index), "AnnualMeeting");
-        }
-    }
-
-    public class QuestionInput
-    {
-        public string Title { get; set; }
-
-        public string Description { get; set; }
-
-        public IList<OptionInput> Options { get; set; } = new List<OptionInput>();
-
-        public class OptionInput
-        {
-            public Guid Id { get; set; }
-
-            public string Title { get; set; }
-
-            public string Description { get; set; }
-
-            public string Action { get; set; }
         }
     }
 }

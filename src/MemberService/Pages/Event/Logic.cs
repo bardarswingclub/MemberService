@@ -286,5 +286,12 @@ namespace MemberService.Pages.Event
 
             return localDateTime.InZoneLeniently(TimeProvider.TimeZoneOslo).ToDateTimeUtc();
         }
+
+        internal static DateTime? GetUtcMaybe(this string date, string time)
+        {
+            if (date is null) return default;
+            if (time is null) return default;
+            return GetUtc(date, time);
+        }
     }
 }

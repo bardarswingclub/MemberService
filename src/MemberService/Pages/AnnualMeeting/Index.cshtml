@@ -58,7 +58,7 @@
         <ul class="list-group list-group-flush">
             @foreach (var question in Model.VotingResults.Questions)
             {
-                if (question.VotingHasEnded)
+                if (question.VotingHasStarted && question.VotingHasEnded)
                 {
                     var muted = question.VotingHasEnded;
                     <li class="list-group-item @(muted ? "text-muted" : "")">
@@ -85,7 +85,7 @@
                         </table>
                     </li>
                 }
-                else if(question.VotingHasStarted)
+                else if(question.VotingHasStarted && !question.VotingHasEnded)
                 {
                     var hasVoted = false;
                     <li class="list-group-item">

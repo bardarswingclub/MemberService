@@ -152,6 +152,17 @@ namespace MemberService
             return (date, time);
         }
 
+        public static DateTime? WithOsloTime(this DateTime utc, string time)
+        {
+            if (string.IsNullOrWhiteSpace(time)) return default;
+
+            var result = utc.ToOsloZone();
+
+            var date = result.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+            return date.GetUtc(time);
+        }
+
         public static void RemoveWhere<T>(this ICollection<T> collection, Func<T, bool> predicate)
         {
             foreach (var item in collection.Where(predicate).ToList())
