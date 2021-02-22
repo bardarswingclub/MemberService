@@ -52,6 +52,103 @@
             }
         }
     </div>
+    @if (Model.HasStarted)
+    {
+        var totalCount = Model.VotingResults.Responses.DistinctBy(r => r.UserId).Count();
+        <ul class="list-group list-group-flush">
+            @foreach (var question in Model.VotingResults.Questions)
+            {
+                if (question.VotingHasEnded)
+                {
+                    var muted = question.VotingHasEnded;
+                    <li class="list-group-item @(muted ? "text-muted" : "")">
+                        <h5>@question.Title</h5>
+                        <table class="table table-borderless table-sm">
+                            @foreach (var option in question.Options)
+                            {
+                                var selectedBy = Model.VotingResults.Responses.Where(r => r.OptionId == option.Id).ToList();
+
+                                var selectedByCount = selectedBy.Count;
+                                <tr>
+                                    <td>
+                                        <strong>@option.Title</strong>
+                                    </td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar  @(muted ? "bg-secondary" : "")" role="progressbar" style="width: @Math.Floor(selectedByCount * 100f / totalCount)%; font-weight: bold;" aria-valuenow="@selectedByCount" aria-valuemin="0" aria-valuemax="@totalCount">
+                                                @selectedByCount
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </table>
+                    </li>
+                }
+                else if(question.VotingHasStarted)
+                {
+                    var hasVoted = false;
+                    <li class="list-group-item">
+                        <div class="float-right badge badge-pill badge-dark" data-countdown="@question.AnswerableUntil?.ToString("o")Z" title="@question.AnswerableUntil?.DisplayOslo()">@question.AnswerableUntil?.DisplayOslo()</div>
+                        <h5>
+                            @question.Title
+                        </h5>
+                        <form method="post" asp-action="Vote" asp-route-id="@Model.Id">
+                            @foreach (var option in question.Options)
+                            {
+                                var voted = Model.VotingResults.Responses.Any(r => r.UserId == Model.UserId && r.OptionId == option.Id);
+                                hasVoted |= voted;
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="option" value="@option.Id" id="@option.Id" data-val="true" data-val-required="Velg et av alternativene" checked="@voted"/>
+                                    <label class="form-check-label" for="@option.Id">@option.Title</label>
+                                </div>
+                            }
+
+                            @if (hasVoted)
+                            {
+                                <button type="submit" class="btn btn-outline-success btn-block">Endre stemmen din</button>
+                            }
+                            else
+                            {
+                                <button type="submit" class="btn btn-success btn-block">Stem</button>
+                            }
+                        </form>
+                        @if (User.IsInRole(Roles.ADMIN))
+                        {
+                            <form class="d-flex justify-content-end mt-1" method="post" asp-controller="Questions" asp-action="EndVoting" asp-route-meetingId="@Model.Id" asp-route-questionId="@question.Id">
+                                <div class="btn-group">
+                                    <button type="submit" class="btn btn-outline-warning">Avslutt</button>
+                                    <a class="btn btn-outline-primary" asp-controller="Questions" asp-action="EditQuestion" asp-route-meetingId="@Model.Id" asp-route-questionId="@question.Id">Rediger</a>
+                                </div>
+                            </form>
+                        }
+                    </li>
+                }
+                else if(User.IsInRole(Roles.ADMIN))
+                {
+                    <li class="list-group-item">
+                        <h5>@question.Title</h5>
+                        @foreach (var option in question.Options)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="option" value="@option.Id" id="@option.Id" readonly />
+                                <label class="form-check-label" for="@option.Id">@option.Title</label>
+                            </div>
+                        }
+                        @if (User.IsInRole(Roles.ADMIN))
+                        {
+                            <form class="d-flex justify-content-end mt-1" method="post" asp-controller="Questions" asp-action="StartVoting" asp-route-meetingId="@Model.Id" asp-route-questionId="@question.Id">
+                                <div class="btn-group">
+                                    <button type="submit" class="btn btn-outline-success">Start</button>
+                                    <a class="btn btn-outline-primary" asp-controller="Questions" asp-action="EditQuestion" asp-route-meetingId="@Model.Id" asp-route-questionId="@question.Id">Rediger</a>
+                                </div>
+                            </form>
+                        }
+                    </li>
+                }
+            }
+        </ul>
+    }
     @if (User.IsInRole(Roles.ADMIN))
     {
         <table class="card-table table">
@@ -75,8 +172,35 @@
             <a asp-controller="AnnualMeeting" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Rediger</a>
             @if (Model.HasStarted && !Model.HasEnded)
             {
+                <a asp-controller="Questions" asp-action="Edit" asp-route-meetingId="@Model.Id" class="btn btn-outline-secondary">Spørsmål</a>
+                <a asp-controller="Questions" asp-action="Index" asp-route-meetingId="@Model.Id" class="btn btn-outline-secondary">Svar</a>
                 <button class="btn btn-outline-danger" type="submit">Avslutt møtet</button>
             }
         </form>
     }
 </div>
+
+<script type="module">
+    for (const element of document.querySelectorAll('[data-countdown]')) {
+        const timestamp = element.dataset.countdown;
+        const targetDate = Date.parse(timestamp);
+
+        const intval = setInterval(() => {
+            const diff = (((targetDate - Date.now()) / 1000) | 0);
+            let minutes = (diff / 60) | 0;
+            let seconds = (diff % 60) | 0;
+
+            if (minutes <= 0 && seconds <= 0) {
+                element.textContent = '00:00';
+                element.classList.remove("badge-dark");
+                element.classList.add("badge-danger");
+                clearInterval(intval);
+            } else {
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                element.textContent = `${minutes}:${seconds}`;
+            }
+        }, 500);
+    }
+</script>

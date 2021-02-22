@@ -151,5 +151,13 @@ namespace MemberService
 
             return (date, time);
         }
+
+        public static void RemoveWhere<T>(this ICollection<T> collection, Func<T, bool> predicate)
+        {
+            foreach (var item in collection.Where(predicate).ToList())
+            {
+                collection.Remove(item);
+            }
+        }
     }
 }

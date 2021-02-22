@@ -1,0 +1,87 @@
+﻿@model SurveyResultModel
+
+@{
+    ViewData["ContainerClass"] = "container-fluid";
+    ViewData["Title"] = Model.Title;
+    var totalCount = Model.Responses.DistinctBy(r => r.UserId).Count();
+}
+
+@if (Model.Questions.NotAny())
+{
+    <div class="alert alert-info">
+        <h5 class="alert-heading">
+            Ingeng spørsmål
+        </h5>
+        <p>
+            Legg til spørsmål for å få svar
+        </p>
+    </div>
+}
+else
+{
+    <div class="card-columns card-columns-2 mt-5">
+        @foreach (var question in Model.Questions)
+        {
+            <div class="card mb-5">
+                <div class="card-header">
+                    <h5 class="card-title">@question.Title</h5>
+                    <h6>@question.Description</h6>
+                    <small class="text-muted">
+                        <input type="@question.Type" checked onclick="return false" />
+                        @question.Type.DisplayName()
+                    </small>
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var option in question.Options)
+                    {
+                        var selectedBy = Model.Responses.Where(r => r.OptionId == option.Id).ToList();
+
+                        var selectedByCount = selectedBy.Count;
+
+                        <li class="list-group-item">
+                            <h5 class="d-flex">
+                                <span>
+                                    <input type="@question.Type" checked onclick="return false" />
+                                    @option.Title
+                                </span>
+                            </h5>
+                            <p>@option.Description</p>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: @Math.Floor(selectedByCount * 100f / totalCount)%; font-weight: bold;" aria-valuenow="@selectedByCount" aria-valuemin="0" aria-valuemax="@totalCount">@selectedByCount</div>
+                            </div>
+                            @if (selectedBy.Any())
+                            {
+                                <details>
+                                    <summary>Se hvem</summary>
+                                    <ol>
+                                        @foreach (var user in selectedBy)
+                                        {
+                                            <li>
+                                                <a asp-controller="Members" asp-action="Details" asp-route-id="@user.UserId" target="_blank">@user.Name</a>
+                                            </li>
+                                        }
+                                    </ol>
+                                </details>
+                            }
+                        </li>
+                    }
+                </ul>
+                <div class="card-footer">
+                    <a class="btn btn-outline-primary">Rediger</a>
+                    @if (question.VotingHasEnded)
+                    {
+
+                    }
+                    else if (question.VotingHasStarted)
+                    {
+                        <button class="btn btn-warning">Avslutt avstemming</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-success">Start avstemming</button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}

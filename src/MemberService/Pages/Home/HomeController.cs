@@ -242,7 +242,7 @@ namespace MemberService.Pages.Home
                 {
                     Survey = s.Survey,
                     Questions = s.Survey.Questions,
-                    Responses = s.Survey.Responses.Where(r => r.UserId == userId)
+                    Responses = s.Survey.Responses.Where(r => r.UserId == userId).ToList()
                 })
                 .FirstOrDefaultAsync();
 
@@ -251,17 +251,8 @@ namespace MemberService.Pages.Home
                 return RedirectToAction(nameof(Index));
             }
 
-            var response = model.Responses.FirstOrDefault(r => r.UserId == userId);
-
-            if (response == null)
-            {
-                response = new Response
-                {
-                    UserId = userId
-                };
-                model.Survey.Responses.Add(response);
-            }
-
+            var response = model.Responses.GetOrAdd(r => r.UserId == userId, () => new Response { UserId = userId });
+            
             try
             {
                 response.Answers = model.Survey.Questions

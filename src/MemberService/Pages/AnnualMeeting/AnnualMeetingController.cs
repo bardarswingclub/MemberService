@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -7,6 +8,7 @@ using Clave.Expressionify;
 using MemberService.Auth;
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
+using MemberService.Pages.AnnualMeeting.Survey;
 using MemberService.Pages.Event;
 
 using Microsoft.AspNetCore.Authorization;
@@ -35,11 +37,13 @@ namespace MemberService.Pages.AnnualMeeting
         [Authorize]
         public async Task<IActionResult> Index()
         {
+            var userId = GetUserId();
             var isAdmin = User.IsInRole(Roles.ADMIN);
 
             var meetings = await _database.AnnualMeetings
-                .Include(m => m.Attendees.Where(a => isAdmin))
+                .Include(m => m.Attendees.Where(a => isAdmin || a.UserId == userId))
                 .ThenInclude(a => a.User)
+                .Include(m => m.Survey)
                 .Expressionify()
                 .OrderBy(m => m.MeetingStartsAt)
                 .ToListAsync();
@@ -49,7 +53,7 @@ namespace MemberService.Pages.AnnualMeeting
 
             var member = await _database.Users
                 .Expressionify()
-                .Where(u => u.Id == GetUserId())
+                .Where(u => u.Id == userId)
                 .FirstOrDefaultAsync(u => u.HasPayedMembershipThisYear());
 
             if (meeting is null)
@@ -78,10 +82,16 @@ namespace MemberService.Pages.AnnualMeeting
                 await _database.SaveChangesAsync();
             }
 
+            var results = await _database.AnnualMeetings
+                .Expressionify()
+                .Select(s => SurveyResultModel.Create(s))
+                .FirstOrDefaultAsync(s => s.MeetingId == meeting.Id);
+
             return View(new Model
             {
                 Id = meeting.Id,
                 IsMember = member != null,
+                UserId = member.Id,
                 Title = meeting.Title,
                 MeetingInvitation = meeting.MeetingInvitation,
                 MeetingInfo = meeting.MeetingInfo,
@@ -96,7 +106,8 @@ namespace MemberService.Pages.AnnualMeeting
                     Visits = a.Visits,
                     FirstVisit = a.CreatedAt,
                     LastVisit = a.LastVisited
-                }).ToList()
+                }).ToList(),
+                VotingResults = results
             });
         }
 
@@ -208,6 +219,47 @@ namespace MemberService.Pages.AnnualMeeting
             }
 
             model.MeetingEndsAt = TimeProvider.UtcNow;
+
+            await _database.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Vote(Guid id, [FromForm] Guid option)
+        {
+            var userId = GetUserId();
+
+            var meeting = await _database.AnnualMeetings
+                .Where(m => m.Id == id)
+                .Select(m => new
+                {
+                    SurveyId = m.SurveyId
+                })
+                .FirstOrDefaultAsync();
+
+            if (meeting is null)
+            {
+                return NotFound();
+            }
+
+            var questionOption = await _database.QuestionOptions.FirstOrDefaultAsync(o => o.Id == option);
+
+            var survey = await _database.Surveys
+                .Include(s => s.Responses)
+                .ThenInclude(r => r.Answers)
+                .ThenInclude(a => a.Option)
+                .FirstOrDefaultAsync(s => s.Id == meeting.SurveyId);
+
+            var response = survey.Responses.GetOrAdd(r => r.UserId == GetUserId(), () => new Response { UserId = userId });
+
+            response.Answers.RemoveWhere(a => a.Option.QuestionId == questionOption.QuestionId);
+
+            response.Answers.Add(new QuestionAnswer
+            {
+                AnsweredAt = TimeProvider.UtcNow,
+                OptionId = option
+            });
 
             await _database.SaveChangesAsync();
 

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 
+using MemberService.Pages.AnnualMeeting.Survey;
+
 namespace MemberService.Pages.AnnualMeeting
 {
     public class Model
@@ -22,7 +24,11 @@ namespace MemberService.Pages.AnnualMeeting
         public bool HasStarted { get; set; }
 
         public bool HasEnded { get; set; }
+
         public IReadOnlyList<Attendee> Attendees { get; set; }
+
+        public SurveyResultModel VotingResults { get; set; }
+        public string UserId { get; set; }
 
         public class Attendee
         {

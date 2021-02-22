@@ -1,0 +1,63 @@
+﻿@using MemberService.Data.ValueTypes
+@model SurveyModel
+
+@{
+    ViewData["ContainerClass"] = "container-fluid";
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="card-columns card-columns-2">
+    @foreach (var question in Model.Questions)
+    {
+        var title = question.Title;
+        var options = question.Options;
+        <form method="post" asp-controller="Questions" asp-action="Save" asp-route-id="@Model.MeetingId" asp-route-questionId="@question.Id" class="card mb-5">
+            <div class="card-header">
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label" asp-for="@title">Spørsmål</label>
+                    <div class="col-sm-10">
+                        <input class="form-control" asp-for="@title">
+                    </div>
+                </div>
+                <small class="text-muted">
+                    <input type="@question.Type" checked onclick="return false" />
+                    @question.Type.DisplayName()
+                </small>
+            </div>
+            <ul class="list-group list-group-flush">
+                @for (var i = 0; i < options.Count; i++)
+                {
+                    <li class="list-group-item">
+                        <h5 class="d-flex justify-content-between">
+                            <span>
+                                <input type="@question.Type" checked onclick="return false" />
+                                Alternativ @(i + 1)
+                            </span>
+                            <button type="submit" name="options[@i].Action" value="delete" class="btn btn-outline-danger">Fjern</button>
+                        </h5>
+                        <input type="hidden" asp-for="@options[i].Id" />
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" asp-for="@options[i].Title"></label>
+                            <div class="col-sm-9">
+                                <input class="form-control" asp-for="@options[i].Title">
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+            <div class="card-body">
+                <button type="submit" class="btn btn-outline-success" name="action" value="add-option">Legg til nytt svaralternativ</button>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <button type="submit" class="btn btn-success">Lagre</button>
+                <button type="submit" class="btn btn-outline-danger" name="action" value="delete">Slett</button>
+            </div>
+        </form>
+    }
+</div>
+
+<form method="post" asp-controller="Questions" asp-action="Add" asp-route-id="@Model.MeetingId">
+    <button class="btn btn-success" type="submit" name="type" value="@QuestionType.Radio">
+        Legg til nytt spørsmål
+    </button>
+</form>
