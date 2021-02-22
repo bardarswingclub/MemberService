@@ -1,4 +1,5 @@
-﻿@model SurveyResultModel
+﻿@using MemberService.Data.ValueTypes
+@model SurveyResultModel
 
 @{
     ViewData["ContainerClass"] = "container-fluid";
@@ -6,16 +7,25 @@
     var totalCount = Model.Responses.DistinctBy(r => r.UserId).Count();
 }
 
+<div>
+    <a asp-controller="AnnualMeeting" asp-action="Index">Tilbake til møtet</a>
+</div>
+
 @if (Model.Questions.NotAny())
 {
     <div class="alert alert-info">
         <h5 class="alert-heading">
-            Ingeng spørsmål
+            Ingen spørsmål
         </h5>
         <p>
             Legg til spørsmål for å få svar
         </p>
     </div>
+    <form class="card-body" method="post" asp-controller="Questions" asp-action="Add" asp-route-meetingId="@Model.MeetingId">
+        <button class="btn btn-outline-primary" type="submit" name="type" value="@QuestionType.Radio">
+            Legg til nytt spørsmål
+        </button>
+    </form>
 }
 else
 {
@@ -67,18 +77,22 @@ else
                     }
                 </ul>
                 <div class="card-footer">
-                    <a class="btn btn-outline-primary">Rediger</a>
+                    <a class="btn btn-outline-primary" asp-controller="Questions" asp-action="EditQuestion" asp-route-meetingId="@Model.MeetingId" asp-route-questionId="@question.Id">Rediger</a>
                     @if (question.VotingHasEnded)
                     {
 
                     }
                     else if (question.VotingHasStarted)
                     {
-                        <button class="btn btn-warning">Avslutt avstemming</button>
+                        <form class="d-inline" method="post" asp-controller="Questions" asp-action="EndVoting" asp-route-meetingId="@Model.MeetingId" asp-route-questionId="@question.Id">
+                            <button type="submit" class="btn btn-warning">Avslutt avstemming</button>
+                        </form>
                     }
                     else
                     {
-                        <button class="btn btn-success">Start avstemming</button>
+                        <form class="d-inline" method="post" asp-controller="Questions" asp-action="StartVoting" asp-route-meetingId="@Model.MeetingId" asp-route-questionId="@question.Id">
+                            <button type="submit" class="btn btn-success">Start avstemming</button>
+                        </form>
                     }
                 </div>
             </div>

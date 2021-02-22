@@ -131,7 +131,7 @@
                         @foreach (var option in question.Options)
                         {
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="option" value="@option.Id" id="@option.Id" readonly />
+                                <input class="form-check-input" type="radio" name="option" value="@option.Id" id="@option.Id" disabled />
                                 <label class="form-check-label" for="@option.Id">@option.Title</label>
                             </div>
                         }
@@ -151,6 +151,14 @@
     }
     @if (User.IsInRole(Roles.ADMIN))
     {
+        if (!Model.HasEnded)
+        {
+            <form class="card-body" method="post" asp-controller="Questions" asp-action="Add" asp-route-meetingId="@Model.Id">
+                <button class="btn btn-outline-primary" type="submit" name="type" value="@QuestionType.Radio">
+                    Legg til nytt spørsmål
+                </button>
+            </form>
+        }
         <table class="card-table table">
             <tr>
                 <th>Navn (@Model.Attendees.Count)</th>
@@ -168,15 +176,13 @@
                 </tr>
             }
         </table>
-        <form class="card-footer" asp-controller="AnnualMeeting" asp-action="EndMeeting" method="post" asp-route-id="@Model.Id">
+        <div class="card-footer">
             <a asp-controller="AnnualMeeting" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Rediger</a>
             @if (Model.HasStarted && !Model.HasEnded)
             {
-                <a asp-controller="Questions" asp-action="Edit" asp-route-meetingId="@Model.Id" class="btn btn-outline-secondary">Spørsmål</a>
-                <a asp-controller="Questions" asp-action="Index" asp-route-meetingId="@Model.Id" class="btn btn-outline-secondary">Svar</a>
-                <button class="btn btn-outline-danger" type="submit">Avslutt møtet</button>
+                <a asp-controller="Questions" asp-action="Index" asp-route-meetingId="@Model.Id" class="btn btn-outline-secondary">Stemmer</a>
             }
-        </form>
+        </div>
     }
 </div>
 

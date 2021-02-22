@@ -7,6 +7,9 @@
     var title = Model.Title;
     var options = Model.Options;
 }
+<div>
+    <a asp-controller="AnnualMeeting" asp-action="Index">Tilbake til møtet</a>
+</div>
 
 <div class="card-columns card-columns-2">
     <form method="post" asp-controller="Questions" asp-action="Save" asp-route-id="@Model.MeetingId" asp-route-questionId="@Model.Id" class="card mb-5">

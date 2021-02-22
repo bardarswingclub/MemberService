@@ -102,7 +102,7 @@ namespace MemberService.Pages.AnnualMeeting.Survey
 
             await _database.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Edit), new { meetingId, questionId = question.Id });
+            return RedirectToAction(nameof(EditQuestion), new { meetingId, questionId = question.Id });
         }
 
         [HttpPost]
@@ -142,6 +142,10 @@ namespace MemberService.Pages.AnnualMeeting.Survey
             if (action == "delete")
             {
                 _database.Questions.Remove(question);
+
+                await _database.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index), "AnnualMeeting", new { meetingId });
             }
             else if (action == "add-option")
             {
@@ -150,7 +154,7 @@ namespace MemberService.Pages.AnnualMeeting.Survey
 
             await _database.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Edit), new { meetingId });
+            return RedirectToAction(nameof(EditQuestion), new { meetingId, questionId });
         }
 
         [HttpPost]

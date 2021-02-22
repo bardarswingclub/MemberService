@@ -180,7 +180,7 @@ namespace MemberService.Pages.AnnualMeeting
 
         [HttpPost]
         [Authorize(nameof(Policy.IsAdmin))]
-        public async Task<IActionResult> Edit(Guid id, [FromForm] AnnualMeetingInputModel input)
+        public async Task<IActionResult> Edit(Guid id, [FromForm] AnnualMeetingInputModel input, [FromForm] string submit)
         {
             if (!ModelState.IsValid)
             {
@@ -195,12 +195,19 @@ namespace MemberService.Pages.AnnualMeeting
                 return NotFound();
             }
 
-            model.MeetingStartsAt = input.MeetingStartsAtDate.GetUtc(input.MeetingStartsAtTime);
-            model.MeetingEndsAt = input.MeetingEndsAtDate.GetUtc(input.MeetingEndsAtTime);
-            model.Title = input.Title;
-            model.MeetingInvitation = input.Invitation;
-            model.MeetingInfo = input.Info;
-            model.MeetingSummary = input.Summary;
+            if (submit == "EndMeeting")
+            {
+                model.MeetingEndsAt = TimeProvider.UtcNow;
+            }
+            else
+            {
+                model.MeetingStartsAt = input.MeetingStartsAtDate.GetUtc(input.MeetingStartsAtTime);
+                model.MeetingEndsAt = input.MeetingEndsAtDate.GetUtc(input.MeetingEndsAtTime);
+                model.Title = input.Title;
+                model.MeetingInvitation = input.Invitation;
+                model.MeetingInfo = input.Info;
+                model.MeetingSummary = input.Summary;
+            }
 
             await _database.SaveChangesAsync();
 
