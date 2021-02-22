@@ -246,22 +246,24 @@ namespace MemberService.Pages.AnnualMeeting
             var questionOption = await _database.QuestionOptions.FirstOrDefaultAsync(o => o.Id == option);
 
             var survey = await _database.Surveys
+                .Include(s => s.Questions)
                 .Include(s => s.Responses)
                 .ThenInclude(r => r.Answers)
                 .ThenInclude(a => a.Option)
                 .FirstOrDefaultAsync(s => s.Id == meeting.SurveyId);
 
-            var response = survey.Responses.GetOrAdd(r => r.UserId == GetUserId(), () => new Response { UserId = userId });
+            var question = survey.Questions.FirstOrDefault(q => q.Id == questionOption.QuestionId);
 
-            response.Answers.RemoveWhere(a => a.Option.QuestionId == questionOption.QuestionId);
-
-            response.Answers.Add(new QuestionAnswer
+            if (question.AnswerableFrom < TimeProvider.UtcNow && question.AnswerableUntil > TimeProvider.UtcNow)
             {
-                AnsweredAt = TimeProvider.UtcNow,
-                OptionId = option
-            });
+                var response = survey.Responses.GetOrAdd(r => r.UserId == GetUserId(), () => new Response {UserId = userId});
 
-            await _database.SaveChangesAsync();
+                response.Answers.RemoveWhere(a => a.Option.QuestionId == questionOption.QuestionId);
+
+                response.Answers.Add(new QuestionAnswer {AnsweredAt = TimeProvider.UtcNow, OptionId = option});
+
+                await _database.SaveChangesAsync();
+            }
 
             return RedirectToAction(nameof(Index));
         }
