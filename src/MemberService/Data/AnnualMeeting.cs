@@ -26,6 +26,6 @@ namespace MemberService.Data
 
         public Guid? SurveyId { get; set; }
 
-        public Survey Survey { get; set; } = new Survey();
+        public Survey Survey { get; set; } = new();
     }
 }

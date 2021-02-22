@@ -207,6 +207,8 @@ namespace MemberService.Pages.AnnualMeeting
                 model.MeetingInvitation = input.Invitation;
                 model.MeetingInfo = input.Info;
                 model.MeetingSummary = input.Summary;
+
+                model.Survey ??= new Data.Survey();
             }
 
             await _database.SaveChangesAsync();
