@@ -124,7 +124,7 @@ namespace MemberService.Pages.AnnualMeeting.Survey
                 return NotFound();
             }
 
-            if (action == "save")
+            if (action == "save" || action == "add-option")
             {
                 question.Title = input.Title;
                 question.Description = input.Description;
@@ -138,7 +138,8 @@ namespace MemberService.Pages.AnnualMeeting.Survey
                     option.Order = input.Options.IndexOf(o);
                 }
             }
-            else if (action == "delete")
+
+            if (action == "delete")
             {
                 _database.Questions.Remove(question);
 
@@ -146,11 +147,13 @@ namespace MemberService.Pages.AnnualMeeting.Survey
 
                 return RedirectToAction(nameof(Index), "AnnualMeeting", new { meetingId });
             }
-            else if (action == "add-option")
+
+            if (action == "add-option")
             {
                 question.Options.Add(new QuestionOption());
             }
-            else
+
+            if(string.IsNullOrWhiteSpace(action))
             {
                 foreach (var (o, option) in input.Options.Join(question.Options, o => o.Id, o => o.Id))
                 {
