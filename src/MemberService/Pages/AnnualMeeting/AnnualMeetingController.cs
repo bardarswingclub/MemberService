@@ -67,7 +67,7 @@ namespace MemberService.Pages.AnnualMeeting
                     return View("NoMeeting");
                 }
             }
-            else if(meeting.IsLive())
+            else if(meeting.IsLive() && member != null)
             {
                 var attendee = meeting.Attendees.GetOrAdd(a => a.UserId == member.Id,
                     () => new AnnualMeetingAttendee
@@ -99,7 +99,7 @@ namespace MemberService.Pages.AnnualMeeting
                 MeetingStartsAt = meeting.MeetingStartsAt,
                 HasStarted = meeting.MeetingStartsAt < TimeProvider.UtcNow,
                 HasEnded = meeting.MeetingEndsAt < TimeProvider.UtcNow,
-                Attendees = meeting.Attendees.Select(a => new Model.Attendee
+                Attendees = meeting.Attendees.Where(a => a.User is not null).Select(a => new Model.Attendee
                 {
                     UserId = a.UserId,
                     Name = a.User.FullName,
