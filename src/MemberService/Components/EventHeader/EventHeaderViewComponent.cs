@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+
+using Clave.Expressionify;
+
 using MemberService.Data;
 using MemberService.Pages.Event;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +23,7 @@ namespace MemberService.Components.EventHeader
         public async Task<IViewComponentResult> InvokeAsync(Guid id)
         {
             var model = await _database.Events
+                .Expressionify()
                 .Select(e => new Model
                 {
                     Id = e.Id,
@@ -27,6 +31,7 @@ namespace MemberService.Components.EventHeader
                     Description = e.Description,
                     SignupOpensAt = e.SignupOptions.SignupOpensAt,
                     SignupClosesAt = e.SignupOptions.SignupClosesAt,
+                    IsSemester =  e.SemesterId.HasValue,
                     IsOpen = e.IsOpen(),
                     HasClosed = e.HasClosed()
                 })
@@ -48,6 +53,8 @@ namespace MemberService.Components.EventHeader
             public bool HasClosed { get; set; }
 
             public bool IsOpen { get; set; }
+
+            public bool IsSemester { get; set; }
 
             public DateTime? SignupOpensAt { get; set; }
 

@@ -233,6 +233,7 @@ namespace MemberService.Pages.Event
                 Description = entry.Description,
                 Type = entry.Type,
                 CreatedByUser = user,
+                SemesterId = entry.SemesterId,
                 CreatedAt = TimeProvider.UtcNow,
                 SignupOptions = new EventSignupOptions
                 {
