@@ -8,6 +8,7 @@
         <div class="btn-group">
             @if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN) && Model.IsActive)
             {
+                <a class="btn btn-secondary" asp-controller="Home" asp-action="Courses" asp-route-preview="x">Forhåndsvis påmelding</a>
                 <a class="btn btn-secondary" asp-controller="Semester" asp-action="Edit">Rediger</a>
                 <a class="btn btn-secondary" asp-controller="Questions" asp-action="Edit" asp-route-semesterId="@Model.Id">Spørsmål</a>
             }

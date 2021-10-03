@@ -119,15 +119,17 @@ namespace MemberService.Pages.Home
                 return View("NoSemester");
             }
 
-            if (semester.SignupOpensAt > TimeProvider.UtcNow)
+            var preview = Request.Query.ContainsKey("preview") && User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN);
+
+            if (semester.SignupOpensAt > TimeProvider.UtcNow && !preview)
             {
                 return View("NotOpenYet", new NotOpenYetModel { SignupOpensAt = semester.SignupOpensAt });
             }
 
-            var courses = await _database.GetCourses(userId, e => e.HasOpened());
+            var courses = await _database.GetCourses(userId, e => e.HasOpened() || preview);
 
             var availableCourses = courses
-                .Where(c => c.IsOpen)
+                .Where(c => c.IsOpen || preview)
                 .Where(c => c.Signup == null)
                 .OrderBy(c => c.Title)
                 .ToReadOnlyList();
@@ -252,7 +254,7 @@ namespace MemberService.Pages.Home
             }
 
             var response = model.Responses.GetOrAdd(r => r.UserId == userId, () => new Response { UserId = userId });
-            
+
             try
             {
                 response.Answers = model.Survey.Questions
