@@ -81,6 +81,7 @@ namespace MemberService.Pages.Semester
                         Status = s.Status.ToString()
                     }));*/
             var rows = await _database.Events
+                .Where(e => e.SemesterId == id)
                 .SelectMany(
                 e => e.Signups.Select(
                     s => new
