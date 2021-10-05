@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
 using System.Threading.Tasks;
 using Clave.Expressionify;
 using MemberService.Auth;
@@ -10,8 +11,6 @@ using MemberService.Pages.Event;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
-using NodaTime.Text;
 
 namespace MemberService.Pages.Semester
 {
@@ -58,6 +57,50 @@ namespace MemberService.Pages.Semester
             }
 
             return View(semester);
+        }
+
+        public async Task<object> Export(Guid id)
+        {
+            /*var events = await _database.Events
+                .Include(e => e.Signups)
+                .ThenInclude(s => s.User)
+                .Where(e => e.SemesterId == id)
+                .ToListAsync();
+
+            return events.SelectMany(
+                e => e.Signups.Select(
+                    s => new
+                    {
+                        e.Title,
+                        s.User.Email,
+                        s.User.FullName,
+                        s.Priority,
+                        s.Role,
+                        s.PartnerEmail,
+                        s.SignedUpAt,
+                        Status = s.Status.ToString()
+                    }));*/
+            var rows = await _database.Events
+                .SelectMany(
+                e => e.Signups.Select(
+                    s => new
+                    {
+                        Course = e.Title,
+                        s.User.Email,
+                        s.User.FullName,
+                        s.Priority,
+                        s.Role,
+                        s.PartnerEmail,
+                        s.SignedUpAt,
+                        Status = s.Status.ToString()
+                    }))
+                .ToListAsync();
+
+
+            return new FileContentResult(Encoding.UTF8.GetBytes(rows.ToCsv()), "text/csv")
+            {
+                FileDownloadName = "signups.csv"
+            };
         }
 
         [HttpGet]

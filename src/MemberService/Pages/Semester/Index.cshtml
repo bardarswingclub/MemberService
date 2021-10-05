@@ -35,4 +35,6 @@
     <a href="?archived=true">Se arkiverte kurs også</a>
     @:|
     <a asp-controller="Semester" asp-action="List">Se tidligere semester</a>
+    @:|
+    <a asp-controller="Semester" asp-action="Export" asp-route-id="@Model.Id">Eksporter csv</a>
 }

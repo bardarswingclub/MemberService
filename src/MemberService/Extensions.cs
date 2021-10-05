@@ -15,6 +15,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using MemberService.Data.ValueTypes;
 using MemberService.Pages.Event;
+using System.Text;
 
 namespace MemberService
 {
@@ -169,6 +170,24 @@ namespace MemberService
             {
                 collection.Remove(item);
             }
+        }
+
+        public static string ToCsv<T>(this IEnumerable<T> rows)
+        {
+            var sb = new StringBuilder();
+
+            var props = typeof(T).GetProperties();
+
+            sb.AppendJoin(", ", props.Select(p => p.Name));
+
+            foreach (var row in rows)
+            {
+                sb.AppendLine();
+
+                sb.AppendJoin(", ", props.Select(p => p.GetValue(row)));
+            }
+
+            return sb.ToString();
         }
     }
 }
