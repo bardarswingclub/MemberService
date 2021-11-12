@@ -50,11 +50,17 @@
             Rettigheter
         </h3>
         <div class="card-body">
+            @if (User.IsInRole(Roles.COORDINATOR))
+            {
+                <partial name="_Role" model="(Model, Roles.INSTRUCTOR)" />
+                <hr />
+            }
+
             @if (User.IsInRole(Roles.ADMIN))
             {
-                <partial name="_Role" model="(Model, Roles.ADMIN)" />
-                <partial name="_Role" model="(Model, Roles.COORDINATOR)" />
                 <partial name="_Role" model="(Model, Roles.INSTRUCTOR)" />
+                <partial name="_Role" model="(Model, Roles.COORDINATOR)" />
+                <partial name="_Role" model="(Model, Roles.ADMIN)" />
                 <hr />
                 <form asp-controller="Members" asp-action="SetExemptions" asp-route-id="@Model.Id" method="post" class="form">
                     <div class="form-check">
@@ -69,9 +75,11 @@
             }
             else
             {
-                @Checkmark(Model.ExemptFromTrainingFee) @: Fritatt fra treningsavgift
+                @Checkmark(Model.ExemptFromTrainingFee)
+                @: Fritatt fra treningsavgift
                 <br />
-                @Checkmark(Model.ExemptFromClassesFee) @: Fritatt fra kursavgift
+                @Checkmark(Model.ExemptFromClassesFee)
+                @: Fritatt fra kursavgift
             }
         </div>
     </div>

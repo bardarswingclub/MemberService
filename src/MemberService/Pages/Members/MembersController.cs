@@ -25,17 +25,20 @@ namespace MemberService.Pages.Members
         private readonly UserManager<User> _userManager;
         private readonly IPaymentService _paymentService;
         private readonly IEmailService _emailService;
+        private readonly IAuthorizationService _authorizationService;
 
         public MembersController(
             MemberContext memberContext,
             UserManager<User> userManager,
             IPaymentService paymentService,
-            IEmailService emailService)
+            IEmailService emailService,
+            IAuthorizationService authorizationService)
         {
             _memberContext = memberContext;
             _userManager = userManager;
             _paymentService = paymentService;
             _emailService = emailService;
+            _authorizationService = authorizationService;
         }
 
         public async Task<IActionResult> Index(
@@ -95,16 +98,24 @@ namespace MemberService.Pages.Members
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsAdmin))]
         public async Task<IActionResult> ToggleRole(string id, [FromForm] string role, [FromForm] bool value)
         {
-            if (await _userManager.FindByIdAsync(id) is User user)
+            if (await _userManager.FindByIdAsync(id) is {} user)
             {
-                if (value && !await _userManager.IsInRoleAsync(user, role))
+                var authResult = await _authorizationService.AuthorizeAsync(User, role, nameof(Policy.CanToggleRole));
+
+                if (!authResult.Succeeded)
+                {
+                    return new ForbidResult();
+                }
+
+                bool userAlreadyHasRole = await _userManager.IsInRoleAsync(user, role);
+
+                if (value && !userAlreadyHasRole)
                 {
                     await _userManager.AddToRoleAsync(user, role);
                 }
-                else if (!value && await _userManager.IsInRoleAsync(user, role))
+                else if (!value && userAlreadyHasRole)
                 {
                     await _userManager.RemoveFromRoleAsync(user, role);
                 }

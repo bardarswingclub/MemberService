@@ -1,4 +1,6 @@
-﻿using Clave.NamespaceViewLocationExpander;
+﻿using System;
+
+using Clave.NamespaceViewLocationExpander;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Hosting;
@@ -10,8 +12,12 @@ using Microsoft.Extensions.DependencyInjection;
 using MemberService.Configs;
 using MemberService.Auth;
 using System.Globalization;
+using System.Reflection;
+
 using Microsoft.AspNetCore.Localization;
 using MemberService.Services;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -108,11 +114,10 @@ namespace MemberService
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy(nameof(Policy.IsAdmin), Policy.IsAdmin);
-
-                options.AddPolicy(nameof(Policy.IsCoordinator), Policy.IsCoordinator);
-
-                options.AddPolicy(nameof(Policy.IsInstructor), Policy.IsInstructor);
+                foreach (var (name, policy) in Policy.Policies)
+                {
+                    options.AddPolicy(name, policy);
+                }
             });
 
             services.AddAuthentication()
