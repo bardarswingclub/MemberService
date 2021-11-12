@@ -29,15 +29,15 @@ namespace MemberService.Services
             message.ReplyTo = replyTo;
 
             var response = await _client.SendEmailAsync(message);
-            ValidateResponse(response);
+            await ValidateResponse(response);
         }
 
         // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
-        private void ValidateResponse(Response response)
+        private async Task ValidateResponse(Response response)
         {
             if ((int)response.StatusCode < 200 || (int)response.StatusCode > 299)
             {
-                throw new Exception("Utsending av epost feilet!");
+                throw new Exception("Utsending av epost feilet!", new Exception(await response.Body.ReadAsStringAsync()));
             }
         }
     }
