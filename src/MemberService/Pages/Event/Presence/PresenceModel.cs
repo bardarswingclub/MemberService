@@ -14,10 +14,13 @@ namespace MemberService.Pages.Event.Presence
             Title = e.Title;
             Description = e.Description;
             Count = e.LessonCount;
+            Archived = e.Archived;
             Roles = e.Signups
                 .GroupBy(x => x.Role, x => x, (role, signups) => new PresenceRoleModel(role, signups, e.LessonCount))
                 .ToReadOnlyCollection();
         }
+
+        public bool Archived { get; }
 
         public Guid Id { get; }
 

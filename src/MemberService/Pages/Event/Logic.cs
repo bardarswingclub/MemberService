@@ -125,6 +125,7 @@ namespace MemberService.Pages.Event
                 Title = model.Title,
                 Description = model.Description,
                 Type = model.Type,
+                IsArchived = model.Archived,
                 EnableSignupOpensAt = model.SignupOptions.SignupOpensAt.HasValue,
                 SignupOpensAtDate = signupOpensAtDate,
                 SignupOpensAtTime = signupOpensAtTime,

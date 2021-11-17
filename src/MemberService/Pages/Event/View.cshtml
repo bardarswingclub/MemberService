@@ -117,14 +117,14 @@
         {
             <form method="post" class="tab-pane @(signups.Active ? "active" : "")" id="@signups.Key" role="tabpanel" aria-labelledby="@signups.Key-tab" disabled="@Model.Archived">
 
-                @if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN))
+                @if (!Model.Archived && User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN))
                 {
                     <div class="row mb-5">
                         <partial name="_SignupActions" for="@signups" />
                     </div>
                 }
 
-                <div class="row">
+                <fieldset class="row" disabled="@Model.Archived">
                     @if (Model.RoleSignup)
                     {
                         var leads = new ParticipantsModel(signups.Leads, Model.AllowPartnerSignup);
@@ -185,7 +185,7 @@
                             </table>
                         </div>
                     }
-                </div>
+                </fieldset>
             </form>
         }
     </div>

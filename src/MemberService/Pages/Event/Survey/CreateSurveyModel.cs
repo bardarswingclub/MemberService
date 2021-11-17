@@ -5,7 +5,7 @@ namespace MemberService.Pages.Event.Survey
     public partial class CreateSurveyModel : EventBaseModel
     {
         [Expressionify]
-        public static CreateSurveyModel Create(Data.Event e) => new CreateSurveyModel
+        public static CreateSurveyModel Create(Data.Event e) => new()
         {
             EventId = e.Id,
             SemesterId = e.SemesterId,

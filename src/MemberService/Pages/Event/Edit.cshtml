@@ -8,11 +8,16 @@
 <vc:semester-header id="@Model.SemesterId"></vc:semester-header>
 <vc:event-header id="@Model.Id"></vc:event-header>
 
-<form method="POST" asp-action="Edit" asp-route-id="@Model.Id" class="form-row justify-content-between">
-    <partial name="_EditEvent" model="@Model" />
+<form method="POST" asp-action="Edit" asp-route-id="@Model.Id">
+    <fieldset class="form-row justify-content-between" disabled="@Model.IsArchived">
+        <partial name="_EditEvent" model="@Model" />
+    </fieldset>
     <div class="col-md-12 mt-2">
-        <button type="submit" class="btn btn-success">Lagre</button>
-        <button class="btn btn-outline-danger" form="archive-form">Arkiver</button>
+        @if (!Model.IsArchived)
+        {
+            <button type="submit" class="btn btn-success">Lagre</button>
+            <button class="btn btn-outline-danger" form="archive-form">Arkiver</button>
+        }
         <button class="btn btn-outline-success" form="copy-form">Kopier</button>
     </div>
 </form>

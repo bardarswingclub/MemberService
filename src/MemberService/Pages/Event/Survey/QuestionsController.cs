@@ -52,6 +52,7 @@ namespace MemberService.Pages.Event.Survey
             if (model == null)
             {
                 var createModel = await _database.Events
+                    .Expressionify()
                     .Select(e => CreateSurveyModel.Create(e))
                     .FirstOrDefaultAsync(e => e.EventId == id);
 
@@ -78,6 +79,7 @@ namespace MemberService.Pages.Event.Survey
             if (model == null)
             {
                 var createModel = await _database.Events
+                    .Expressionify()
                     .Select(e => CreateSurveyModel.Create(e))
                     .FirstOrDefaultAsync(e => e.EventId == id);
 

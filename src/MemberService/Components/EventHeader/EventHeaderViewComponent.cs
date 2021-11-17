@@ -33,7 +33,8 @@ namespace MemberService.Components.EventHeader
                     SignupClosesAt = e.SignupOptions.SignupClosesAt,
                     IsSemester =  e.SemesterId.HasValue,
                     IsOpen = e.IsOpen(),
-                    HasClosed = e.HasClosed()
+                    HasClosed = e.HasClosed(),
+                    Archived = e.Archived
                 })
                 .FirstOrDefaultAsync(e => e.Id == id);
 
