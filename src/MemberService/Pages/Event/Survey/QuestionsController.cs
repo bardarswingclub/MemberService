@@ -52,13 +52,7 @@ namespace MemberService.Pages.Event.Survey
             if (model == null)
             {
                 var createModel = await _database.Events
-                    .Select(e => new CreateSurveyModel
-                    {
-                        EventId = e.Id,
-                        SemesterId = e.SemesterId,
-                        EventTitle = e.Title,
-                        EventDescription = e.Description
-                    })
+                    .Select(e => CreateSurveyModel.Create(e))
                     .FirstOrDefaultAsync(e => e.EventId == id);
 
                 return View("Create", createModel);
@@ -84,13 +78,7 @@ namespace MemberService.Pages.Event.Survey
             if (model == null)
             {
                 var createModel = await _database.Events
-                    .Select(e => new CreateSurveyModel
-                    {
-                        EventId = e.Id,
-                        SemesterId = e.SemesterId,
-                        EventTitle = e.Title,
-                        EventDescription = e.Description
-                    })
+                    .Select(e => CreateSurveyModel.Create(e))
                     .FirstOrDefaultAsync(e => e.EventId == id);
 
                 return View("Create", createModel);

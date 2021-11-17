@@ -30,6 +30,7 @@ namespace MemberService.Pages.Event.Survey
                 SemesterId = e.SemesterId,
                 EventTitle = e.Title,
                 EventDescription = e.Description,
+                IsArchived = e.Archived,
                 Title = e.Survey.Title,
                 Filter = filter,
                 Description = e.Survey.Description,

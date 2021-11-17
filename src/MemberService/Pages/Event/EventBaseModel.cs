@@ -14,5 +14,7 @@ namespace MemberService.Pages.Event
 
         [DisplayName("Beskrivelse")]
         public string EventDescription { get; set; }
+
+        public bool IsArchived { get; set; }
     }
 }

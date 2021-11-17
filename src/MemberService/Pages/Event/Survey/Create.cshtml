@@ -12,10 +12,13 @@
     <h5 class="alert-heading">
         Ingen spørreundersøkelse lagd
     </h5>
-    <p>
-        Vil du lage en spørreundersøkelse?
-    </p>
-    <form method="post" asp-controller="Questions" asp-action="Create" asp-route-id="@Model.EventId">
-        <button type="submit" class="btn btn-success btn-lg">Opprett spørreundersøkelse</button>
-    </form>
+    @if (!Model.IsArchived)
+    {
+        <p>
+            Vil du lage en spørreundersøkelse?
+        </p>
+        <form method="post" asp-controller="Questions" asp-action="Create" asp-route-id="@Model.EventId">
+            <button type="submit" class="btn btn-success btn-lg">Opprett spørreundersøkelse</button>
+        </form>
+    }
 </div>
