@@ -10,9 +10,13 @@
 
 <p>Det er ingen aktive semester</p>
 
-<a class="btn btn-success" asp-controller="Semester" asp-action="Create">Opprett semester...</a>
+@if (User.CanCreateSemester())
+{
+    <a class="btn btn-success" asp-controller="Semester" asp-action="Create">Opprett semester...</a>
+}
 
-<br>
+<br />
+<hr />
 <br />
 
 <a asp-controller="Semester" asp-action="List">Se tidligere semester</a>

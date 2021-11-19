@@ -113,7 +113,7 @@
                                 <button type="submit" class="btn btn-success btn-block">Stem</button>
                             }
                         </form>
-                        @if (User.IsInRole(Roles.ADMIN))
+                        @if (User.IsAdministrator())
                         {
                             <form class="d-flex justify-content-end mt-1" method="post" asp-controller="Questions" asp-action="EndVoting" asp-route-meetingId="@Model.Id" asp-route-questionId="@question.Id">
                                 <div class="btn-group">
@@ -124,7 +124,7 @@
                         }
                     </li>
                 }
-                else if(User.IsInRole(Roles.ADMIN))
+                else if(User.IsAdministrator())
                 {
                     <li class="list-group-item">
                         <h5>@question.Title</h5>
@@ -135,21 +135,20 @@
                                 <label class="form-check-label" for="@option.Id">@option.Title</label>
                             </div>
                         }
-                        @if (User.IsInRole(Roles.ADMIN))
-                        {
-                            <form class="d-flex justify-content-end mt-1" method="post" asp-controller="Questions" asp-action="StartVoting" asp-route-meetingId="@Model.Id" asp-route-questionId="@question.Id">
-                                <div class="btn-group">
-                                    <button type="submit" class="btn btn-outline-success">Start</button>
-                                    <a class="btn btn-outline-primary" asp-controller="Questions" asp-action="EditQuestion" asp-route-meetingId="@Model.Id" asp-route-questionId="@question.Id">Rediger</a>
-                                </div>
-                            </form>
-                        }
+
+                        <form class="d-flex justify-content-end mt-1" method="post" asp-controller="Questions" asp-action="StartVoting" asp-route-meetingId="@Model.Id" asp-route-questionId="@question.Id">
+                            <div class="btn-group">
+                                <button type="submit" class="btn btn-outline-success">Start</button>
+                                <a class="btn btn-outline-primary" asp-controller="Questions" asp-action="EditQuestion" asp-route-meetingId="@Model.Id" asp-route-questionId="@question.Id">Rediger</a>
+                            </div>
+                        </form>
+
                     </li>
                 }
             }
         </ul>
     }
-    @if (User.IsInRole(Roles.ADMIN))
+    @if (User.IsAdministrator())
     {
         if (!Model.HasEnded)
         {

@@ -37,19 +37,25 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                     <partial name="_LoginPartial" />
                     <ul class="navbar-nav flex-grow-1">
-                        @if (User.IsInAnyRole(Roles.INSTRUCTOR, Roles.COORDINATOR, Roles.ADMIN))
+                        @if (User.CanViewMembers())
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-controller="Members" asp-action="Index">Medlemmer</a>
                             </li>
+                        }
+                        @if (User.CanViewSemester())
+                        {
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-controller="Semester" asp-action="Index">Kurs</a>
                             </li>
+                        }
+                        @if(User.CanViewEvents())
+                        {
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-controller="Event" asp-action="Index">Arrangementer</a>
                             </li>
                         }
-                        @if (User.IsInRole(Roles.ADMIN))
+                        @if (User.IsAdministrator())
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-controller="Admin" asp-action="Index">Admin</a>

@@ -33,17 +33,7 @@ namespace MemberService.Pages.Event.Survey
         [HttpGet]
         public async Task<IActionResult> Index(Guid id, string filter="all")
         {
-            var model = await _database
-                .Events
-                .Include(e => e.Survey)
-                .ThenInclude(s => s.Questions)
-                .ThenInclude(q => q.Options)
-                .Include(e => e.Signups)
-                .ThenInclude(s => s.Response)
-                .ThenInclude(r => r.Answers)
-                .Include(e => e.Signups)
-                .ThenInclude(s => s.Response)
-                .ThenInclude(r => r.User)
+            var model = await _database.Events
                 .Expressionify()
                 .Where(e => e.SurveyId != null)
                 .Select(e => SurveyResultModel.Create(e, filter, GetFilter(filter)))
@@ -65,12 +55,7 @@ namespace MemberService.Pages.Event.Survey
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var model = await _database
-                .Events
-                .Include(e => e.Survey)
-                .ThenInclude(s => s.Questions)
-                .ThenInclude(q => q.Options)
-                .AsNoTracking()
+            var model = await _database.Events
                 .Expressionify()
                 .Where(e => e.SurveyId != null)
                 .Select(e => SurveyModel.Create(e))

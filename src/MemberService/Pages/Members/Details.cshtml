@@ -55,8 +55,7 @@
                 <partial name="_Role" model="(Model, Roles.INSTRUCTOR)" />
                 <hr />
             }
-
-            @if (User.IsInRole(Roles.ADMIN))
+            else if (User.IsInRole(Roles.ADMIN))
             {
                 <partial name="_Role" model="(Model, Roles.INSTRUCTOR)" />
                 <partial name="_Role" model="(Model, Roles.COORDINATOR)" />

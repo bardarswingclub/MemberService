@@ -251,9 +251,13 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
-        [Authorize(nameof(Policy.IsAdmin))]
         public async Task<IActionResult> EditSignup(Guid id)
         {
+            if (!User.CanEditSignup())
+            {
+                return Forbid();
+            }
+
             var signup = await _database.EventSignups
                 .Expressionify()
                 .Select(e => EditSignupModel.Create(e, _database.Users))
@@ -263,9 +267,13 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsAdmin))]
         public async Task<IActionResult> EditSignup(Guid id, [FromForm] DanceRole role, [FromForm] string partnerEmail, [FromForm] Guid? eventId)
         {
+            if (!User.CanEditSignup())
+            {
+                return Forbid();
+            }
+
             var signup = await _database.EventSignups
                 .Include(e => e.AuditLog)
                 .FirstOrDefaultAsync(e => e.Id == id);
