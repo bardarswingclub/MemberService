@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Event.Survey
 {
-    [Authorize(nameof(Policy.IsInstructor))]
+    [Authorize]
     [Route("/Event/{id}/Questions/{action=Index}/{questionId?}")]
     public class QuestionsController : Controller
     {
@@ -33,6 +33,11 @@ namespace MemberService.Pages.Event.Survey
         [HttpGet]
         public async Task<IActionResult> Index(Guid id, string filter="all")
         {
+            if (!User.CanViewEvent())
+            {
+                return new ForbidResult();
+            }
+
             var model = await _database.Events
                 .Expressionify()
                 .Where(e => e.SurveyId != null)
@@ -55,6 +60,11 @@ namespace MemberService.Pages.Event.Survey
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
+            if (!User.CanEditSurvey())
+            {
+                return new ForbidResult();
+            }
+
             var model = await _database.Events
                 .Expressionify()
                 .Where(e => e.SurveyId != null)
@@ -75,9 +85,13 @@ namespace MemberService.Pages.Event.Survey
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
         public async Task<IActionResult> Create(Guid id)
         {
+            if (!User.CanCreateSurvey())
+            {
+                return new ForbidResult();
+            }
+
             var ev = await _database.Events.FirstOrDefaultAsync(e => e.Id == id);
 
             ev.Survey = new Data.Survey
@@ -92,11 +106,15 @@ namespace MemberService.Pages.Event.Survey
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
         public async Task<IActionResult> Add(
             Guid id,
             [FromForm] QuestionType type)
         {
+            if (!User.CanEditSurvey())
+            {
+                return new ForbidResult();
+            }
+
             var ev = await _database.Events.FirstOrDefaultAsync(s => s.Id == id);
 
             var model = await _database
@@ -116,13 +134,17 @@ namespace MemberService.Pages.Event.Survey
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
         public async Task<IActionResult> Save(
             Guid id,
             Guid questionId,
             QuestionInput input,
             [FromForm] string action)
         {
+            if (!User.CanEditSurvey())
+            {
+                return new ForbidResult();
+            }
+
             var ev = await _database.Events.FirstOrDefaultAsync(s => s.Id == id);
 
             var question = await _database.Questions

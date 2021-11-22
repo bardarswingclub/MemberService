@@ -12,7 +12,7 @@
     <h5 class="alert-heading">
         Ingen spørreundersøkelse lagd
     </h5>
-    @if (!Model.IsArchived)
+    @if (!Model.IsArchived && User.CanCreateSurvey())
     {
         <p>
             Vil du lage en spørreundersøkelse?

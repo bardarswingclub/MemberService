@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Semester
 {
-    [Authorize(nameof(Policy.IsInstructor))]
+    [Authorize]
     public class SemesterController : Controller
     {
         private readonly MemberContext _database;
@@ -28,6 +28,11 @@ namespace MemberService.Pages.Semester
         [HttpGet]
         public async Task<IActionResult> Index(bool archived = false)
         {
+            if (!User.CanViewSemester())
+            {
+                return Forbid();
+            }
+
             var semester = await _database.Semesters
                 .Expressionify()
                 .Where(s => s.IsActive())
@@ -46,6 +51,11 @@ namespace MemberService.Pages.Semester
         [HttpGet("{controller}/{action}/{id}")]
         public async Task<IActionResult> Index(Guid id, bool archived = false)
         {
+            if (!User.CanViewSemester())
+            {
+                return Forbid();
+            }
+
             var semester = await _database.Semesters
                 .Expressionify()
                 .Select(s => SemesterModel.Create(s, Filter(archived)))
@@ -61,6 +71,11 @@ namespace MemberService.Pages.Semester
 
         public async Task<object> Export(Guid id)
         {
+            if (!User.CanViewSemester())
+            {
+                return Forbid();
+            }
+
             var rows = await _database.Events
                 .Where(e => e.SemesterId == id)
                 .SelectMany(
@@ -88,6 +103,11 @@ namespace MemberService.Pages.Semester
         [HttpGet]
         public async Task<IActionResult> List()
         {
+            if (!User.CanViewSemester())
+            {
+                return Forbid();
+            }
+
             var semester = await _database.Semesters
                 .Expressionify()
                 .OrderByDescending(s => s.SignupOpensAt)
@@ -98,9 +118,13 @@ namespace MemberService.Pages.Semester
         }
 
         [HttpGet]
-        [Authorize(nameof(Policy.IsCoordinator))]
         public IActionResult Create()
         {
+            if (!User.CanCreateSemester())
+            {
+                return Forbid();
+            }
+
             var now = TimeProvider.UtcToday;
             var season = now.Month >= 7 ? "Høsten" : "Våren";
             var year = now.Year;
@@ -118,9 +142,13 @@ namespace MemberService.Pages.Semester
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
         public async Task<IActionResult> Create([FromForm]SemesterInputModel input)
         {
+            if (!User.CanCreateSemester())
+            {
+                return Forbid();
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(input);
@@ -150,6 +178,11 @@ namespace MemberService.Pages.Semester
         [HttpGet]
         public async Task<IActionResult> Edit()
         {
+            if (!User.CanEditSemester())
+            {
+                return Forbid();
+            }
+
             var semester = await _database.Semesters
                 .Expressionify()
                 .Where(s => s.IsActive())
@@ -172,6 +205,11 @@ namespace MemberService.Pages.Semester
         [HttpPost]
         public async Task<IActionResult> Edit([FromForm] SemesterInputModel input)
         {
+            if (!User.CanEditSemester())
+            {
+                return Forbid();
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(input);

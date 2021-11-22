@@ -20,7 +20,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MemberService.Pages.Event
 {
-    [Authorize(nameof(Policy.IsInstructor))]
+    [Authorize]
     public class EventController : Controller
     {
         private readonly MemberContext _database;
@@ -50,15 +50,24 @@ namespace MemberService.Pages.Event
         [HttpGet]
         public async Task<IActionResult> Index(bool archived = false)
         {
+            if (!User.CanListEvents())
+            {
+                return Forbid();
+            }
+
             var model = await _database.GetEvents(archived);
 
             return View(model);
         }
 
         [HttpGet]
-        [Authorize(nameof(Policy.IsCoordinator))]
         public async Task<IActionResult> Create(EventType type = EventType.Class, Guid? semesterId = null)
         {
+            if (!User.CanCreateEvent())
+            {
+                return Forbid();
+            }
+
             if (semesterId.HasValue)
             {
                 var semester = await _database.Semesters.FindAsync(semesterId.Value);
@@ -82,9 +91,13 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
         public async Task<IActionResult> Create([FromForm] EventInputModel model)
         {
+            if (!User.CanCreateEvent())
+            {
+                return Forbid();
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -112,6 +125,11 @@ namespace MemberService.Pages.Event
             Guid id,
             [FromQuery] EventFilterModel filter)
         {
+            if (!User.CanViewEvent())
+            {
+                return Forbid();
+            }
+
             var model = await _database.GetEventModel(
                 id,
                 filter?.SignedUpBefore,
@@ -135,9 +153,13 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
         public async Task<IActionResult> View(Guid id, [FromForm] EventSaveModel input)
         {
+            if (!User.CanSetSignupStatus())
+            {
+                return Forbid();
+            }
+
             var currentUser = await GetCurrentUser();
 
             var selected = input.GetSelected();
@@ -202,9 +224,13 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
-        [Authorize(nameof(Policy.IsCoordinator))]
         public async Task<IActionResult> Edit(Guid id)
         {
+            if (!User.CanEditEvent())
+            {
+                return Forbid();
+            }
+
             var model = await _database.GetEventInputModel(id);
 
             if (model == null)
@@ -216,9 +242,13 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
         public async Task<IActionResult> Edit(Guid id, [FromForm] EventInputModel model)
         {
+            if (!User.CanEditEvent())
+            {
+                return Forbid();
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -230,9 +260,13 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
         public async Task<IActionResult> SetStatus(Guid id, [FromForm] string status)
         {
+            if (!User.CanEditEvent())
+            {
+                return Forbid();
+            }
+
             var ev = await _database.EditEvent(id, e => e.SetEventStatus(status));
 
             if (ev.Archived)
@@ -310,9 +344,13 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
         public async Task<IActionResult> Copy(Guid id)
         {
+            if (!User.CanCreateEvent())
+            {
+                return new ForbidResult();
+            }
+
             var entry = await _database.CloneEvent(id, await GetCurrentUser());
             return RedirectToAction(nameof(View), new { id = entry.Id });
         }

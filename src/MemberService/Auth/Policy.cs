@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 
+using MemberService.Auth.Requirements;
 using MemberService.Data.ValueTypes;
 using Microsoft.AspNetCore.Authorization;
 
@@ -10,16 +12,13 @@ namespace MemberService.Auth
     public static class Policy
     {
         public static void IsAdmin(AuthorizationPolicyBuilder policy) =>
-            policy.Requirements.Add(new OneOfAnyRoleRequirement(Roles.ADMIN));
+            policy.Requirements.Add(IsInRole.Admin);
 
         public static void IsCoordinator(AuthorizationPolicyBuilder policy) =>
-            policy.Requirements.Add(new OneOfAnyRoleRequirement(Roles.COORDINATOR, Roles.ADMIN));
+            policy.Requirements.Add(IsInRole.Coordinator);
 
         public static void IsInstructor(AuthorizationPolicyBuilder policy) =>
-            policy.Requirements.Add(new OneOfAnyRoleRequirement(Roles.INSTRUCTOR, Roles.COORDINATOR, Roles.ADMIN));
-
-        public static void CanToggleRole(AuthorizationPolicyBuilder policy) =>
-            policy.Requirements.Add(new CanToggleRoleRequirement());
+            policy.Requirements.Add(IsInRole.Instructor);
 
         public static IEnumerable<(string, Action<AuthorizationPolicyBuilder>)> Policies
             => typeof(Policy)

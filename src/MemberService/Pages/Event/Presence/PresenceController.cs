@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Event.Presence
 {
-    [Authorize(nameof(Policy.IsInstructor))]
+    [Authorize]
     [Route("/Event/{id}/Presence/{action}")]
     public class PresenceController : Controller
     {
@@ -29,6 +29,11 @@ namespace MemberService.Pages.Event.Presence
         [HttpGet]
         public async Task<IActionResult> Index(Guid id)
         {
+            if (!User.CanViewPresence())
+            {
+                return Forbid();
+            }
+
             var model = await _database
                 .Events
                 .Include(e => e.Signups)
@@ -45,6 +50,11 @@ namespace MemberService.Pages.Event.Presence
         [HttpPost]
         public async Task<IActionResult> AddLesson(Guid id)
         {
+            if (!User.CanAddPresenceLesson())
+            {
+                return Forbid();
+            }
+
             var model = await _database
                 .Events
                 .FirstOrDefaultAsync(s => s.Id == id);
@@ -63,6 +73,11 @@ namespace MemberService.Pages.Event.Presence
             [FromForm] int lesson,
             [FromForm] bool present)
         {
+            if (!User.CanSetPresence())
+            {
+                return Forbid();
+            }
+
             var signup = await _database.EventSignups
                     .Where(p => p.EventId == id)
                     .Where(p => p.UserId == userId)
