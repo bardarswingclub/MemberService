@@ -21,7 +21,11 @@
                 <a asp-controller="Members" asp-action="Details" asp-route-id="@signup.UserId" target="_blank">@signup.FullName</a>
             </td>
             <td>
-                <span class="badge badge-primary badge-pill">@(signup.Priority). pri</span>
+                @if (Model.ShowPriority)
+                {
+                    <span class="badge badge-primary badge-pill">@(signup.Priority). pri</span>
+                }
+
                 @if (User.CanViewSignupHistory())
                 {
                     <a href="#" class="" data-toggle="modal" data-target="#modal-@signup.Id">

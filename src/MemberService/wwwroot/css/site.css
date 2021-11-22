@@ -189,3 +189,7 @@ details[open] summary .non-open-summary {
     background-position: .25em center;
     padding-left: 2em;
 }
+
+.overflow-auto {
+    overflow: auto;
+}

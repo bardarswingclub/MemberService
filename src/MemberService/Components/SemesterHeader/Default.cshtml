@@ -3,10 +3,10 @@
 @model MemberService.Components.SemesterHeader.SemesterHeaderViewComponent.Model
 
 <div class="overflow-container dark-tabs" style="background: #cbd3d9;">
-    <h2 class="d-flex justify-content-between">
+    <h2 class="d-flex justify-content-between flex-wrap">
         <a class="link-unstyled" asp-controller="Semester" asp-action="Index" asp-route-id="@Model.Id">@Model.Title</a>
 
-        <div class="btn-group">
+        <div class="btn-group overflow-auto">
             @if (User.CanPreviewSignup() && Model.IsActive)
             {
                 <a class="btn btn-secondary" asp-controller="Home" asp-action="Courses" asp-route-preview="x">Forhåndsvis påmelding</a>
