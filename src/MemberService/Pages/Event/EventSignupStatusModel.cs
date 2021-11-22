@@ -24,15 +24,10 @@ namespace MemberService.Pages.Event
 
         public IReadOnlyList<EventSignupModel> Solos => Signups.Where(s => s.Role == DanceRole.None).ToReadOnlyList();
 
-        public static EventSignupStatusModel Create(Status status, IEnumerable<EventSignup> signups)
+        public static EventSignupStatusModel Create(Status status, IReadOnlyList<EventSignupModel> signups) => new()
         {
-            return new()
-            {
-                Status = status,
-                Signups = signups
-                    .Select(EventSignupModel.Create)
-                    .ToReadOnlyList()
-            };
-        }
+            Status = status,
+            Signups = signups
+        };
     }
 }

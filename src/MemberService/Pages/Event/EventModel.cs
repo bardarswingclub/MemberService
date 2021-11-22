@@ -39,7 +39,7 @@ namespace MemberService.Pages.Event
 
         public EventFilterModel Filter { get; set; }
 
-        public static EventModel Create(Data.Event model, IEnumerable<Data.EventSignup> signups)
+        public static EventModel Create(Data.Event model, IReadOnlyList<EventSignupModel> signups)
         {
             return new()
             {
@@ -48,7 +48,7 @@ namespace MemberService.Pages.Event
                 Title = model.Title,
                 Description = model.Description,
                 Signups = Statuses
-                    .Select(s => (s, signups.Where(x => x.Status == s)))
+                    .Select(s => (s, signups.Where(x => x.Status == s).ToList()))
                     .Select(EventSignupStatusModel.Create)
                     .ToReadOnlyCollection(),
                 Archived = model.Archived,

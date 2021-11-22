@@ -26,8 +26,6 @@ namespace MemberService.Data
 
         public string PartnerEmail { get; set; }
 
-        public User Partner { get; set; }
-
         public int Priority { get; set; }
 
         public Status Status { get; set; }

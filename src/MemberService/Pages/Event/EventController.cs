@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 
+using Clave.Expressionify;
+
 using MemberService.Auth;
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
@@ -253,22 +255,9 @@ namespace MemberService.Pages.Event
         public async Task<IActionResult> EditSignup(Guid id)
         {
             var signup = await _database.EventSignups
-                .Include(e => e.User)
-                .Include(e => e.Event)
-                    .ThenInclude(e => e.SignupOptions)
-                .Include(e => e.Event)
-                .ThenInclude(e => e.Semester)
-                .Include(e => e.Partner)
-                .AsNoTracking()
+                .Expressionify()
+                .Select(e => EditSignupModel.Create(e, _database.Users))
                 .FirstOrDefaultAsync(e => e.Id == id);
-
-            if (signup.Event.SemesterId.HasValue)
-            {
-                signup.Event.Semester.Courses = await _database.Events
-                    .Where(e => e.SemesterId == signup.Event.SemesterId)
-                    .AsNoTracking()
-                    .ToListAsync();
-            }
 
             return View(signup);
         }
@@ -289,20 +278,20 @@ namespace MemberService.Pages.Event
                 var log = "Admin edited";
                 if (signup.Role != role)
                 {
-                    signup.Role = role;
                     log += $"\n\n{signup.Role} -> {role}";
+                    signup.Role = role;
                 }
 
                 if (signup.PartnerEmail != partnerEmail)
                 {
-                    signup.PartnerEmail = partnerEmail;
                     log += $"\n\n{signup.PartnerEmail} -> {partnerEmail}";
+                    signup.PartnerEmail = partnerEmail;
                 }
 
                 if (eventId.HasValue && signup.EventId != eventId)
                 {
-                    signup.EventId = eventId.Value;
                     log += $"\n\n{signup.EventId} -> {eventId}";
+                    signup.EventId = eventId.Value;
                 }
 
                 signup.AuditLog.Add(log, user);

@@ -74,8 +74,6 @@ namespace MemberService.Pages.Event
                 .Include(s => s.User)
                 .Include(s => s.AuditLog)
                 .ThenInclude(l => l.User)
-                .Include(s => s.Partner)
-                .ThenInclude(p => p.EventSignups)
                 .AsNoTracking()
                 .Expressionify()
                 .Where(e => e.EventId == id)
@@ -94,9 +92,11 @@ namespace MemberService.Pages.Event
                               || (onlyDeniedElsewhere && s.Status == Status.Denied)
                               || (onlyRejectedElsewhere && s.Status == Status.RejectedOrNotPayed)
                               || (onlyWaitingListElsewhere && s.Status == Status.WaitingList)))
+
+                .Select(signup => new {signup, partner = context.Users.Include(u => u.EventSignups).FirstOrDefault(u => u.NormalizedEmail == signup.PartnerEmail)})
                 .ToListAsync();
 
-            return EventModel.Create(model, signups);
+            return EventModel.Create(model, signups.Select(s => EventSignupModel.Create(s.signup, s.partner)).ToList());
         }
 
         public static IEnumerable<Guid> GetSelected(this EventSaveModel input)
