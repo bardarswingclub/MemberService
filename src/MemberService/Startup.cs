@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using SendGrid;
+using MemberService.Auth.Requirements;
 
 namespace MemberService
 {
@@ -112,13 +113,15 @@ namespace MemberService
                     .AddControllersWithViews();
             }
 
-            services.AddAuthorization(options =>
-            {
-                foreach (var (name, policy) in Policy.Policies)
+            services
+                .AddScoped<IAuthorizationHandler, RequirementsHandler>()
+                .AddAuthorization(options =>
                 {
-                    options.AddPolicy(name, policy);
-                }
-            });
+                    foreach (var policy in Enum.GetValues<Policy>())
+                    {
+                        options.AddPolicy(policy.ToString(), b => b.AddRequirements(new Requirement(policy)));
+                    }
+                });
 
             services.AddAuthentication()
                 .AddMicrosoftAccount(options =>

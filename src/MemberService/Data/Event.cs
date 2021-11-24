@@ -35,6 +35,8 @@ namespace MemberService.Data
 
         public ICollection<EventSignup> Signups { get; set; } = new List<EventSignup>();
 
+        public ICollection<EventOrganizer> Organizers { get; set; } = new List<EventOrganizer>();
+
         public bool Archived { get; set; }
 
         public EventType Type { get; set; }

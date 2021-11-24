@@ -33,6 +33,8 @@ namespace MemberService.Data
 
         public DbSet<AnnualMeeting> AnnualMeetings { get; set; }
 
+        public DbSet<EventOrganizer> EventOrganizers { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -79,7 +81,6 @@ namespace MemberService.Data
                     .HasForeignKey(s => s.UserId)
                     .HasPrincipalKey(u => u.Id)
                     .IsRequired(true);
-
             });
 
             builder.Entity<Event>(@event =>
@@ -103,6 +104,30 @@ namespace MemberService.Data
                     .WithMany(o => o.Answers)
                     .HasForeignKey(q => q.OptionId)
                     .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            builder.Entity<EventOrganizer>(organizer =>
+            {
+                organizer
+                    .HasKey(nameof(EventOrganizer.EventId), nameof(EventOrganizer.UserId));
+
+                organizer
+                    .HasOne(s => s.User)
+                    .WithMany(u => u.Organizes)
+                    .HasForeignKey(s => s.UserId)
+                    .HasPrincipalKey(u => u.Id)
+                    .IsRequired(true);
+
+                organizer
+                    .HasOne(s => s.Event)
+                    .WithMany(e => e.Organizers)
+                    .HasForeignKey(s => s.EventId)
+                    .HasPrincipalKey(u => u.Id)
+                    .IsRequired(true);
+
+                organizer
+                    .Property(e => e.Type)
+                    .HasEnumStringConversion();
             });
         }
     }

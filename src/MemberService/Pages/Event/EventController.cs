@@ -48,13 +48,9 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
+        [Authorize(nameof(Policy.CanListEvents))]
         public async Task<IActionResult> Index(bool archived = false)
         {
-            if (!User.CanListEvents())
-            {
-                return Forbid();
-            }
-
             var model = await _database.GetEvents(archived);
 
             return View(model);
@@ -121,15 +117,11 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
+        [Authorize(nameof(Policy.CanViewEvent))]
         public async Task<IActionResult> View(
             Guid id,
             [FromQuery] EventFilterModel filter)
         {
-            if (!User.CanViewEvent())
-            {
-                return Forbid();
-            }
-
             var model = await _database.GetEventModel(
                 id,
                 filter?.SignedUpBefore,
@@ -282,6 +274,88 @@ namespace MemberService.Pages.Event
             }
 
             return RedirectToAction(nameof(View), new { id });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditOrganizers(Guid id)
+        {
+            if (!User.CanEditEventOrganizers())
+            {
+                return Forbid();
+            }
+
+            var organizers = await _database.EventOrganizers
+                .Expressionify()
+                .Where(e => e.EventId == id)
+                .ToListAsync();
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddOrganizer(Guid id, [FromForm] string userId, [FromForm] OrganizerType type)
+        {
+            if (!User.CanEditEventOrganizers())
+            {
+                return Forbid();
+            }
+
+            _database.EventOrganizers.Add(new EventOrganizer
+            {
+                UserId = userId,
+                EventId = id,
+                Type = type,
+                UpdatedAt = DateTime.UtcNow,
+                UpdatedByUser = await GetCurrentUser()
+            });
+
+            await _database.SaveChangesAsync();
+
+            return RedirectToAction(nameof(EditOrganizers));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditOrganizer(Guid id, [FromForm] string userId, [FromForm] OrganizerType type)
+        {
+            if (!User.CanEditEventOrganizers())
+            {
+                return Forbid();
+            }
+
+            var organizer = await _database.EventOrganizers
+                .FirstOrDefaultAsync(o => o.UserId == userId && o.EventId == id);
+
+            if (organizer != null)
+            {
+                organizer.UpdatedAt = DateTime.UtcNow;
+                organizer.UpdatedByUser = await GetCurrentUser();
+                organizer.Type = type;
+
+                await _database.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(EditOrganizers));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveOrganizer(Guid id, [FromForm] string userId)
+        {
+            if (!User.CanEditEventOrganizers())
+            {
+                return Forbid();
+            }
+
+            var organizer = await _database.EventOrganizers
+                .FirstOrDefaultAsync(o => o.UserId == userId && o.EventId == id);
+
+            if (organizer != null)
+            {
+                _database.EventOrganizers.Remove(organizer);
+
+                await _database.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(EditOrganizers));
         }
 
         [HttpGet]

@@ -31,13 +31,9 @@ namespace MemberService.Pages.Event.Survey
         }
 
         [HttpGet]
+        [Authorize(nameof(Policy.CanViewEvent))]
         public async Task<IActionResult> Index(Guid id, string filter="all")
         {
-            if (!User.CanViewEvent())
-            {
-                return new ForbidResult();
-            }
-
             var model = await _database.Events
                 .Expressionify()
                 .Where(e => e.SurveyId != null)

@@ -18,7 +18,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Members
 {
-    [Authorize(nameof(Policy.IsInstructor))]
+    [Authorize]
     public class MembersController : Controller
     {
         private readonly MemberContext _memberContext;
