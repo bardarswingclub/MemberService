@@ -177,7 +177,7 @@ namespace MemberService.Pages.Members
         {
             if (await _memberContext.FindAsync<User>(id) is User user)
             {
-                var (payments, updates) = await _paymentService.ImportPayments(user.NormalizedEmail);
+                var (payments, updates) = await _paymentService.ImportPayments(user.Email);
 
                 TempData["SuccessMessage"] = $"Fant {payments} nye betalinger, oppdaterte {updates} eksisterende betalinger";
 
