@@ -4,9 +4,7 @@ using System.Threading.Tasks;
 using MemberService.Auth.Development;
 
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Routing;
 
 namespace MemberService.Auth
 {
@@ -53,8 +51,6 @@ namespace MemberService.Auth
         {
             return useDummyProvider ? typeof(DummyShortTokenProvider<>) : typeof(ShortTokenProvider<>);
         }
-
-        internal static object GetRouteValue(this HttpContext httpContext, string name) => httpContext.GetRouteData().Values[name];
     }
 
 }

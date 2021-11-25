@@ -216,13 +216,9 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
+        [Authorize(nameof(Policy.CanEditEvent))]
         public async Task<IActionResult> Edit(Guid id)
         {
-            if (!User.CanEditEvent())
-            {
-                return Forbid();
-            }
-
             var model = await _database.GetEventInputModel(id);
 
             if (model == null)
@@ -234,13 +230,9 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
+        [Authorize(nameof(Policy.CanEditEvent))]
         public async Task<IActionResult> Edit(Guid id, [FromForm] EventInputModel model)
         {
-            if (!User.CanEditEvent())
-            {
-                return Forbid();
-            }
-
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -252,13 +244,9 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
+        [Authorize(nameof(Policy.CanEditEvent))]
         public async Task<IActionResult> SetStatus(Guid id, [FromForm] string status)
         {
-            if (!User.CanEditEvent())
-            {
-                return Forbid();
-            }
-
             var ev = await _database.EditEvent(id, e => e.SetEventStatus(status));
 
             if (ev.Archived)

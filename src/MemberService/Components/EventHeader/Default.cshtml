@@ -1,6 +1,8 @@
 @using MemberService.Components.EventHeader
 @using MemberService.Data.ValueTypes
 @using MemberService.Auth
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
 @model MemberService.Components.EventHeader.EventHeaderViewComponent.Model
 
 <div class="bg-light overflow-container">
@@ -25,7 +27,7 @@
                     {
                         <h4 class="alert-heading">
                             Påmeldingen er åpen!
-                            @if (User.CanEditEvent())
+                            @if (await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanEditEvent))
                             {
                                 <button type="submit" name="status" value="close" class="btn btn-outline-danger float-right">Steng påmeldingen nå</button>
                             }
@@ -43,7 +45,7 @@
                     {
                         <h4 class="alert-heading">
                             Påmeldingen har stengt!
-                            @if (User.CanEditEvent())
+                            @if (await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanEditEvent))
                             {
                                 <button type="submit" name="status" value="open" class="btn btn-outline-success float-right">Gjennåpne påmeldingen nå</button>
                             }
@@ -58,7 +60,7 @@
                     {
                         <h4 class="alert-heading">
                             Påmeldingen har ikke åpnet ennå!
-                            @if (User.CanEditEvent())
+                            @if (await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanEditEvent))
                             {
                                 <button type="submit" name="status" value="open" class="btn btn-outline-success float-right">Åpne påmeldingen nå</button>
                             }
@@ -93,7 +95,7 @@
                 <a class="nav-link" highlight-active asp-controller="Questions" asp-action="Index" asp-route-id="@Model.Id">Svar</a>
             </li>
         }
-        @if (User.CanEditEvent())
+        @if (await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanEditEvent))
         {
             @if (!Model.IsSemester)
             {

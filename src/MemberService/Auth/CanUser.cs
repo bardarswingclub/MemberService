@@ -9,8 +9,6 @@ namespace MemberService.Auth
     {
         public static bool CanCreateEvent(this ClaimsPrincipal user) => user.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR);
 
-        public static bool CanEditEvent(this ClaimsPrincipal user) => user.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR);
-
         public static bool CanSetSignupStatus(this ClaimsPrincipal user) => user.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR);
 
         public static bool CanPreviewSignup(this ClaimsPrincipal user) => user.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR);

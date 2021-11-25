@@ -8,6 +8,7 @@
         
         CanListEvents,
         CanViewEvent,
+        CanEditEvent,
 
         CanViewMembers
     }

@@ -40,8 +40,11 @@
                     Policy.IsAdmin => user.IsInAnyRole(Roles.ADMIN),
 
                     Policy.CanListEvents => await CanListEvents(context),
-                    Policy.CanViewEvent when resource is HttpContext httpContext && httpContext.GetRouteValue("id") is Guid eventId => await CanViewEvent(context, eventId),
-                    Policy.CanViewEvent when resource is Guid eventId => await CanViewEvent(context, eventId),
+                    Policy.CanViewEvent 
+                        when resource is HttpContext httpContext 
+                        && httpContext.GetRouteValue("id") is string id
+                        && Guid.TryParse(id, out var eventId) 
+                        => await CanViewEvent(context, eventId),
 
                     Policy.CanViewMembers => await CanListEvents(context),
                 };
