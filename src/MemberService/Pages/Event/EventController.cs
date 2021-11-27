@@ -57,13 +57,9 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
+        [Authorize(nameof(Policy.CanCreateEvent))]
         public async Task<IActionResult> Create(EventType type = EventType.Class, Guid? semesterId = null)
         {
-            if (!User.CanCreateEvent())
-            {
-                return Forbid();
-            }
-
             if (semesterId.HasValue)
             {
                 var semester = await _database.Semesters.FindAsync(semesterId.Value);
@@ -87,13 +83,9 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
+        [Authorize(nameof(Policy.CanCreateEvent))]
         public async Task<IActionResult> Create([FromForm] EventInputModel model)
         {
-            if (!User.CanCreateEvent())
-            {
-                return Forbid();
-            }
-
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -145,13 +137,9 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
+        [Authorize(nameof(Policy.CanSetEventSignupStatus))]
         public async Task<IActionResult> View(Guid id, [FromForm] EventSaveModel input)
         {
-            if (!User.CanSetSignupStatus())
-            {
-                return Forbid();
-            }
-
             var currentUser = await GetCurrentUser();
 
             var selected = input.GetSelected();
@@ -265,13 +253,9 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
+        [Authorize(nameof(Policy.CanEditEventOrganizers))]
         public async Task<IActionResult> EditOrganizers(Guid id)
         {
-            if (!User.CanEditEventOrganizers())
-            {
-                return Forbid();
-            }
-
             var organizers = await _database.EventOrganizers
                 .Expressionify()
                 .Where(e => e.EventId == id)
@@ -281,18 +265,13 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddOrganizer(Guid id, [FromForm] string userId, [FromForm] OrganizerType type)
+        [Authorize(nameof(Policy.CanEditEventOrganizers))]
+        public async Task<IActionResult> AddOrganizer(Guid id, [FromForm] string userId)
         {
-            if (!User.CanEditEventOrganizers())
-            {
-                return Forbid();
-            }
-
             _database.EventOrganizers.Add(new EventOrganizer
             {
                 UserId = userId,
                 EventId = id,
-                Type = type,
                 UpdatedAt = DateTime.UtcNow,
                 UpdatedByUser = await GetCurrentUser()
             });
@@ -303,21 +282,20 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditOrganizer(Guid id, [FromForm] string userId, [FromForm] OrganizerType type)
+        [Authorize(nameof(Policy.CanEditEventOrganizers))]
+        public async Task<IActionResult> EditOrganizer(Guid id, [FromForm] EditEventOrganizerInput input)
         {
-            if (!User.CanEditEventOrganizers())
-            {
-                return Forbid();
-            }
-
             var organizer = await _database.EventOrganizers
-                .FirstOrDefaultAsync(o => o.UserId == userId && o.EventId == id);
+                .FindAsync(id, input.UserId);
 
             if (organizer != null)
             {
                 organizer.UpdatedAt = DateTime.UtcNow;
                 organizer.UpdatedByUser = await GetCurrentUser();
-                organizer.Type = type;
+                organizer.CanEdit = input.CanEdit;
+                organizer.CanEditSignup = input.CanEditSignup;
+                organizer.CanSetSignupStatus = input.CanSetSignupStatus;
+                organizer.CanEditOrganizers = input.CanEditOrganizers;
 
                 await _database.SaveChangesAsync();
             }
@@ -326,15 +304,11 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
+        [Authorize(nameof(Policy.CanEditEventOrganizers))]
         public async Task<IActionResult> RemoveOrganizer(Guid id, [FromForm] string userId)
         {
-            if (!User.CanEditEventOrganizers())
-            {
-                return Forbid();
-            }
-
             var organizer = await _database.EventOrganizers
-                .FirstOrDefaultAsync(o => o.UserId == userId && o.EventId == id);
+                .FindAsync(id, userId);
 
             if (organizer != null)
             {
@@ -347,13 +321,9 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
+        [Authorize(nameof(Policy.CanEditEventSignup))]
         public async Task<IActionResult> EditSignup(Guid id)
         {
-            if (!User.CanEditSignup())
-            {
-                return Forbid();
-            }
-
             var signup = await _database.EventSignups
                 .Expressionify()
                 .Select(e => EditSignupModel.Create(e, _database.Users))
@@ -363,13 +333,9 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
+        [Authorize(nameof(Policy.CanEditEventSignup))]
         public async Task<IActionResult> EditSignup(Guid id, [FromForm] DanceRole role, [FromForm] string partnerEmail, [FromForm] Guid? eventId)
         {
-            if (!User.CanEditSignup())
-            {
-                return Forbid();
-            }
-
             var signup = await _database.EventSignups
                 .Include(e => e.AuditLog)
                 .FirstOrDefaultAsync(e => e.Id == id);
@@ -406,13 +372,9 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
+        [Authorize(nameof(Policy.CanCreateEvent))]
         public async Task<IActionResult> Copy(Guid id)
         {
-            if (!User.CanCreateEvent())
-            {
-                return new ForbidResult();
-            }
-
             var entry = await _database.CloneEvent(id, await GetCurrentUser());
             return RedirectToAction(nameof(View), new { id = entry.Id });
         }
@@ -435,5 +397,18 @@ namespace MemberService.Pages.Event
                 id,
                 slug = title.Slugify()
             });
+
+        public record EditEventOrganizerInput
+        {
+            public string UserId { get; init; }
+
+            public bool CanEdit { get; init; }
+
+            public bool CanEditSignup { get; set; }
+
+            public bool CanSetSignupStatus { get; set; }
+
+            public bool CanEditOrganizers { get; set; }
+        }
     }
 }

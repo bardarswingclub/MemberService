@@ -27,13 +27,9 @@ namespace MemberService.Pages.Event.Presence
         }
 
         [HttpGet]
+        [Authorize(nameof(Policy.CanViewEvent))]
         public async Task<IActionResult> Index(Guid id)
         {
-            if (!User.CanViewPresence())
-            {
-                return Forbid();
-            }
-
             var model = await _database
                 .Events
                 .Include(e => e.Signups)
@@ -48,13 +44,9 @@ namespace MemberService.Pages.Event.Presence
         }
 
         [HttpPost]
+        [Authorize(nameof(Policy.CanAddPresenceLesson))]
         public async Task<IActionResult> AddLesson(Guid id)
         {
-            if (!User.CanAddPresenceLesson())
-            {
-                return Forbid();
-            }
-
             var model = await _database
                 .Events
                 .FirstOrDefaultAsync(s => s.Id == id);
@@ -67,17 +59,13 @@ namespace MemberService.Pages.Event.Presence
         }
 
         [HttpPost]
+        [Authorize(nameof(Policy.CanSetPresence))]
         public async Task<IActionResult> SetPresence(
             Guid id,
             [FromForm] string userId,
             [FromForm] int lesson,
             [FromForm] bool present)
         {
-            if (!User.CanSetPresence())
-            {
-                return Forbid();
-            }
-
             var signup = await _database.EventSignups
                     .Where(p => p.EventId == id)
                     .Where(p => p.UserId == userId)

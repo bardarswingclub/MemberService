@@ -5,10 +5,18 @@
         IsAdmin,
         IsCoordinator,
         IsInstructor,
+
+        CanCreateEvent,
         
         CanListEvents,
         CanViewEvent,
         CanEditEvent,
+        CanSetEventSignupStatus,
+        CanEditEventSignup,
+        CanEditEventOrganizers,
+
+        CanSetPresence,
+        CanAddPresenceLesson,
 
         CanViewMembers
     }

@@ -31,7 +31,7 @@
                     <th class="pl-2 pr-2">@(i + 1)</th>
                 }
                 <th class="pl-3" style="width: 100%">
-                    @if (!Model.Archived && User.CanAddPresenceLesson())
+                    @if (!Model.Archived && await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanAddPresenceLesson))
                     {
                         <form method="post" asp-controller="Presence" asp-action="AddLesson" asp-route-id="@Model.Id">
                             <button class="btn btn-primary btn-sm">+</button>
@@ -51,7 +51,7 @@
                             <form method="post" asp-controller="Presence" asp-action="SetPresence" asp-route-id="@Model.Id" data-action="ajax-form">
                                 <input type="hidden" name="userId" value="@participant.UserId" />
                                 <input type="hidden" name="lesson" value="@i" />
-                                <input type="checkbox" disabled="@(Model.Archived || !User.CanSetPresence())" name="present" value="true" checked="@participant.Presence[i]" onchange="$(this.form).submit()" />
+                                <input type="checkbox" disabled="@(Model.Archived || !await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanSetPresence))" name="present" value="true" checked="@participant.Presence[i]" onchange="$(this.form).submit()" />
                             </form>
                         </td>
                     }

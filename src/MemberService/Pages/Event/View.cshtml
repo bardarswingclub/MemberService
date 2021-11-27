@@ -120,7 +120,7 @@
         {
             <form method="post" class="tab-pane @(signups.Active ? "active" : "")" id="@signups.Key" role="tabpanel" aria-labelledby="@signups.Key-tab" disabled="@Model.Archived">
 
-                @if (!Model.Archived && User.CanSetSignupStatus())
+                @if (!Model.Archived && await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanSetEventSignupStatus))
                 {
                     <div class="row mb-5">
                         <partial name="_SignupActions" for="@signups" />
@@ -130,8 +130,8 @@
                 <fieldset class="row" disabled="@Model.Archived">
                     @if (Model.RoleSignup)
                     {
-                        var leads = new ParticipantsModel(signups.Leads, Model.AllowPartnerSignup, Model.SemesterId is Guid);
-                        var follows = new ParticipantsModel(signups.Follows, Model.AllowPartnerSignup, Model.SemesterId is Guid);
+                        var leads = new ParticipantsModel(signups.Leads, Model);
+                        var follows = new ParticipantsModel(signups.Follows, Model);
 
                         <div class="col-lg-6">
                             <h4>Førere</h4>
@@ -172,7 +172,7 @@
                     }
                     else
                     {
-                        var solos = new ParticipantsModel(signups.Solos, Model.AllowPartnerSignup, Model.SemesterId is Guid);
+                        var solos = new ParticipantsModel(signups.Solos, Model);
 
                         <div class="col-lg-12">
 

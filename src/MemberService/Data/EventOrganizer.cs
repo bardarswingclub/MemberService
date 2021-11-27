@@ -15,7 +15,17 @@
 
         public User User { get; set; }
 
-        public OrganizerType Type { get; set; }
+        public bool CanEdit { get; set; }
+
+        public bool CanEditSignup { get; set; }
+
+        public bool CanSetSignupStatus { get; set; }
+
+        public bool CanEditOrganizers { get; set; }
+
+        public bool CanSetPresence { get; set; }
+
+        public bool CanAddPresenceLesson { get; set; }
 
         public DateTime UpdatedAt { get; set; }
 

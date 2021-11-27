@@ -1,14 +1,16 @@
+using System;
 using System.Collections.Generic;
 
 namespace MemberService.Pages.Event
 {
     public class ParticipantsModel
     {
-        public ParticipantsModel(IReadOnlyList<EventSignupModel> signups, bool allowPartnerSignup, bool showPriority)
+        public ParticipantsModel(IReadOnlyList<EventSignupModel> signups, EventModel @event)
         {
             Signups = signups;
-            AllowPartnerSignup = allowPartnerSignup;
-            ShowPriority = showPriority;
+            AllowPartnerSignup = @event.AllowPartnerSignup;
+            ShowPriority = @event.SemesterId is Guid;
+            EventId = @event.Id;
         }
 
         public IReadOnlyList<EventSignupModel> Signups { get; }
@@ -18,5 +20,7 @@ namespace MemberService.Pages.Event
         public bool AllowPartnerSignup { get; }
 
         public bool ShowPriority { get; }
+
+        public Guid EventId { get; }
     }
 }

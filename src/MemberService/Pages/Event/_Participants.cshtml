@@ -26,7 +26,7 @@
                     <span class="badge badge-primary badge-pill">@(signup.Priority). pri</span>
                 }
 
-                @if (User.CanViewSignupHistory())
+                @if (await AuthorizationService.IsAuthorized(User, Model.EventId, Policy.CanSetEventSignupStatus))
                 {
                     <a href="#" class="" data-toggle="modal" data-target="#modal-@signup.Id">
                         @signup.SignedUpAt.ToOsloDate()
@@ -37,7 +37,7 @@
                                 <div class="modal-header">
                                     <h5 class="modal-title">
                                         Historikk for @signup.FullName
-                                        @if (User.CanEditSignup())
+                                        @if (await AuthorizationService.IsAuthorized(User, Model.EventId, Policy.CanEditEventSignup))
                                         {
                                             <a asp-action="EditSignup" asp-route-id="@signup.Id">Rediger</a>
                                         }

@@ -124,10 +124,6 @@ namespace MemberService.Data
                     .HasForeignKey(s => s.EventId)
                     .HasPrincipalKey(u => u.Id)
                     .IsRequired(true);
-
-                organizer
-                    .Property(e => e.Type)
-                    .HasEnumStringConversion();
             });
         }
     }

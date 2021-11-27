@@ -6,7 +6,7 @@
 }
 <h2>
     <a asp-controller="Home" asp-action="Index">@ViewData["Title"]</a>
-    @if (User.CanCreateEvent())
+    @if (await AuthorizationService.IsAuthorized(User, Policy.CanCreateEvent))
     {
         <div class="btn-group float-right">
             <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
