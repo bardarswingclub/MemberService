@@ -50,12 +50,7 @@
             Rettigheter
         </h3>
         <div class="card-body">
-            @if (User.CanToggleInstructorRole())
-            {
-                <partial name="_Role" model="(Model, Roles.INSTRUCTOR)" />
-                <hr />
-            }
-            else if (User.CanToggleAllRoles())
+            @if (User.CanToggleAllRoles())
             {
                 <partial name="_Role" model="(Model, Roles.INSTRUCTOR)" />
                 <partial name="_Role" model="(Model, Roles.COORDINATOR)" />
@@ -72,7 +67,12 @@
                     </div>
                 </form>
             }
-            else
+            else if (User.CanToggleInstructorRole())
+            {
+                <partial name="_Role" model="(Model, Roles.INSTRUCTOR)" />
+                <hr />
+            }
+            else 
             {
                 @Checkmark(Model.ExemptFromTrainingFee)
                 @: Fritatt fra treningsavgift

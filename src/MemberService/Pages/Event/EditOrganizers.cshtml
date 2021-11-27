@@ -1,0 +1,86 @@
+﻿@using MemberService.Data.ValueTypes
+@model EditOrganizersModel
+
+@{
+    ViewData["Title"] = Model.EventTitle;
+    ViewData["ContainerClass"] = "container-fluid";
+}
+
+<vc:semester-header id="@Model.SemesterId"></vc:semester-header>
+<vc:event-header id="@Model.EventId"></vc:event-header>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Navn</th>
+            <th class="text-center">Kan se påmelding</th>
+            <th class="text-center">Kan gi plass</th>
+            <th class="text-center">Kan føre oppmøte</th>
+            <th class="text-center">Kan legge til oppmøtetime</th>
+            <th class="text-center">Kan redigere arrangement</th>
+            <th class="text-center">Kan legge til organisatorer</th>
+            <th class="text-center">Kan redigere påmelding</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var organizer in Model.Organizers)
+        {
+            <tr>
+                <td><a asp-controller="Members" asp-action="Details" asp-route-id="@organizer.Id">@organizer.FullName (@organizer.Email)</a></td>
+                <td class="text-center">✔</td>
+                <td class="text-center"><input type="checkbox" form="edit-@organizer.Id" name="CanSetSignupStatus" value="true" checked="@organizer.CanSetSignupStatus"></td>
+                <td class="text-center"><input type="checkbox" form="edit-@organizer.Id" name="CanSetPresence" value="true" checked="@organizer.CanSetPresence"></td>
+                <td class="text-center"><input type="checkbox" form="edit-@organizer.Id" name="CanAddPresenceLesson" value="true" checked="@organizer.CanAddPresenceLesson"></td>
+                <td class="text-center"><input type="checkbox" form="edit-@organizer.Id" name="CanEdit" value="true" checked="@organizer.CanEdit"></td>
+                <td class="text-center"><input type="checkbox" form="edit-@organizer.Id" name="CanEditOrganizers" value="true" checked="@organizer.CanEditOrganizers"></td>
+                <td class="text-center"><input type="checkbox" form="edit-@organizer.Id" name="CanEditSignup" value="true" checked="@organizer.CanEditSignup"></td>
+                <td>
+                    <form id="edit-@organizer.Id" method="POST" asp-action="EditOrganizer" asp-route-id="@Model.EventId">
+                        <input type="hidden" name="userId" value="@organizer.Id">
+                        <button class="btn btn-outline-success" type="submit">Lagre</button>
+                        <button class="btn btn-outline-danger" type="submit" name="remove" value="true">Fjern</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td>
+                <form id="addUserForm" asp-action="AddOrganizer" asp-route-id="@Model.EventId" method="POST">
+                    <div class="form-row">
+                        <div class="col-md-12">
+                        <select 
+                            class="form-control autoComplete"
+                            name="userId" 
+                            placeholder="Søk etter person"
+                            data-url="/event/users/@Model.EventId" 
+                            autocomplete="off"></select>
+                        </div>
+                    </div>
+                </form>
+            </td>
+                <td class="text-center">✔</td>
+                <td class="text-center"><input type="checkbox" form="addUserForm" value="true" name="CanSetSignupStatus"></td>
+                <td class="text-center"><input type="checkbox" form="addUserForm" value="true" name="CanSetPresence"></td>
+                <td class="text-center"><input type="checkbox" form="addUserForm" value="true" name="CanAddPresenceLesson"></td>
+                <td class="text-center"><input type="checkbox" form="addUserForm" value="true" name="CanEdit"></td>
+                <td class="text-center"><input type="checkbox" form="addUserForm" value="true" name="CanEditOrganizers"></td>
+                <td class="text-center"><input type="checkbox" form="addUserForm" value="true" name="CanEditSignup"></td>
+            <td>
+                <button class="btn btn-success" form="addUserForm">Legg til</button>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+
+
+
+@section scripts 
+{
+    <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
+    <script>
+        $('.autoComplete').autoComplete();
+    </script>
+}

@@ -107,6 +107,15 @@
                 <a class="nav-link" highlight-active asp-controller="Event" asp-action="Edit" asp-route-id="@Model.Id">Rediger</a>
             </li>
         }
+        @if (await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanEditEventOrganizers))
+        {
+            @if (!Model.IsSemester)
+            {
+                <li class="nav-item">
+                    <a class="nav-link" highlight-active asp-controller="Event" asp-action="EditOrganizers" asp-route-id="@Model.Id">Organisatører</a>
+                </li>
+            }
+        }
     </ul>
 </div>
 

@@ -256,51 +256,88 @@ namespace MemberService.Pages.Event
         [Authorize(nameof(Policy.CanEditEventOrganizers))]
         public async Task<IActionResult> EditOrganizers(Guid id)
         {
-            var organizers = await _database.EventOrganizers
+            var model = await _database.Events
                 .Expressionify()
-                .Where(e => e.EventId == id)
+                .Select(e => EditOrganizersModel.Create(e))
+                .FirstOrDefaultAsync(e => e.EventId == id);
+
+            return View(model);
+        }
+
+
+        [HttpGet]
+        [Authorize(nameof(Policy.CanEditEventOrganizers))]
+        public async Task<object> Users(Guid id, string q)
+        {
+            var model = await _database.Users
+                .Expressionify()
+                .Except(_database.EventOrganizers
+                    .Where(o => o.EventId == id)
+                    .Select(o => o.User))
+                .Where(u => u.NameMatches(q))
+                .Select(u => new
+                {
+                    value = u.Id,
+                    text = u.FullName + " (" + u.Email + ")"
+                })
+                .Take(10)
                 .ToListAsync();
 
-            return View();
+            return model;
         }
 
         [HttpPost]
         [Authorize(nameof(Policy.CanEditEventOrganizers))]
-        public async Task<IActionResult> AddOrganizer(Guid id, [FromForm] string userId)
+        public async Task<IActionResult> AddOrganizer(Guid id, [FromForm] EditEventOrganizerInput input)
         {
             _database.EventOrganizers.Add(new EventOrganizer
             {
-                UserId = userId,
+                UserId = input.UserId,
                 EventId = id,
                 UpdatedAt = DateTime.UtcNow,
-                UpdatedByUser = await GetCurrentUser()
+                UpdatedByUser = await GetCurrentUser(),
+                CanEdit = input.CanEdit,
+                CanEditSignup = input.CanEditSignup,
+                CanSetSignupStatus = input.CanSetSignupStatus,
+                CanEditOrganizers = input.CanEditOrganizers,
+                CanSetPresence = input.CanSetPresence,
+                CanAddPresenceLesson = input.CanAddPresenceLesson,
             });
 
             await _database.SaveChangesAsync();
 
-            return RedirectToAction(nameof(EditOrganizers));
+            return RedirectToAction(nameof(EditOrganizers), new { id });
         }
 
         [HttpPost]
         [Authorize(nameof(Policy.CanEditEventOrganizers))]
-        public async Task<IActionResult> EditOrganizer(Guid id, [FromForm] EditEventOrganizerInput input)
+        public async Task<IActionResult> EditOrganizer(Guid id, [FromForm] EditEventOrganizerInput input, [FromForm] bool remove)
         {
             var organizer = await _database.EventOrganizers
                 .FindAsync(id, input.UserId);
 
             if (organizer != null)
             {
-                organizer.UpdatedAt = DateTime.UtcNow;
-                organizer.UpdatedByUser = await GetCurrentUser();
-                organizer.CanEdit = input.CanEdit;
-                organizer.CanEditSignup = input.CanEditSignup;
-                organizer.CanSetSignupStatus = input.CanSetSignupStatus;
-                organizer.CanEditOrganizers = input.CanEditOrganizers;
+                if (remove)
+                {
+                    _database.EventOrganizers.Remove(organizer);
+                }
+                else
+                {
+                    organizer.UpdatedAt = DateTime.UtcNow;
+                    organizer.UpdatedByUser = await GetCurrentUser();
+                    organizer.CanEdit = input.CanEdit;
+                    organizer.CanEditSignup = input.CanEditSignup;
+                    organizer.CanSetSignupStatus = input.CanSetSignupStatus;
+                    organizer.CanEditOrganizers = input.CanEditOrganizers;
+                    organizer.CanSetPresence = input.CanSetPresence;
+                    organizer.CanAddPresenceLesson = input.CanAddPresenceLesson;
+                }
 
                 await _database.SaveChangesAsync();
             }
 
-            return RedirectToAction(nameof(EditOrganizers));
+            return RedirectToAction(nameof(EditOrganizers), new { id });
         }
 
         [HttpPost]
@@ -409,6 +446,10 @@ namespace MemberService.Pages.Event
             public bool CanSetSignupStatus { get; set; }
 
             public bool CanEditOrganizers { get; set; }
+
+            public bool CanSetPresence { get; set; }
+
+            public bool CanAddPresenceLesson { get; set; }
         }
     }
 }
