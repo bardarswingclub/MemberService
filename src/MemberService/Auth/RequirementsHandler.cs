@@ -72,7 +72,7 @@
 
             var userId = _userManager.GetUserId(context.User);
             return await _database.EventOrganizers
-                .AnyAsync(o => o.UserId == userId);
+                .AnyAsync(o => o.UserId == userId && !o.Event.Archived);
             
         }
 

@@ -30,7 +30,7 @@ namespace MemberService.Pages.Event
                 Type = model.Type,
                 CreatedAt = TimeProvider.UtcNow,
                 CreatedByUser = user,
-                SignupOptions = new EventSignupOptions
+                SignupOptions = new()
                 {
                     RequiresMembershipFee = model.RequiresMembershipFee,
                     RequiresTrainingFee = model.RequiresTrainingFee,
@@ -47,6 +47,20 @@ namespace MemberService.Pages.Event
                     AllowPartnerSignup = model.AllowPartnerSignup,
                     AllowPartnerSignupHelp = model.AllowPartnerSignupHelp,
                     AutoAcceptedSignups = model.AutoAcceptedSignups
+                },
+                Organizers = 
+                {
+                    new()
+                    {
+                        User = user,
+                        UpdatedByUser = user,
+                        UpdatedAt = TimeProvider.UtcNow,
+                        CanEdit = true,
+                        CanEditOrganizers = true,
+                        CanSetSignupStatus = true,
+                        CanSetPresence = true,
+                        CanAddPresenceLesson = true
+                    }
                 }
             };
 
@@ -278,7 +292,21 @@ namespace MemberService.Pages.Event
                                 Description = q.Description
                             }).ToList()
                         }).ToList()
+                    },
+                Organizers =
+                {
+                    new()
+                    {
+                        User = user,
+                        UpdatedByUser = user,
+                        UpdatedAt = TimeProvider.UtcNow,
+                        CanEdit = true,
+                        CanEditOrganizers = true,
+                        CanSetSignupStatus = true,
+                        CanSetPresence = true,
+                        CanAddPresenceLesson = true
                     }
+                }
             });
 
             await context.SaveChangesAsync();

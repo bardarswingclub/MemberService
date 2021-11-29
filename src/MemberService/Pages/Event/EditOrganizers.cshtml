@@ -19,7 +19,10 @@
             <th class="text-center">Kan legge til oppmøtetime</th>
             <th class="text-center">Kan redigere arrangement</th>
             <th class="text-center">Kan legge til organisatorer</th>
-            <th class="text-center">Kan redigere påmelding</th>
+            @if (await AuthorizationService.IsAuthorized(User, Model.EventId, Policy.CanEditEventSignup))
+            {
+                <th class="text-center">Kan redigere påmelding</th>
+            }
             <th></th>
         </tr>
     </thead>
@@ -34,7 +37,10 @@
                 <td class="text-center"><input type="checkbox" form="edit-@organizer.Id" name="CanAddPresenceLesson" value="true" checked="@organizer.CanAddPresenceLesson"></td>
                 <td class="text-center"><input type="checkbox" form="edit-@organizer.Id" name="CanEdit" value="true" checked="@organizer.CanEdit"></td>
                 <td class="text-center"><input type="checkbox" form="edit-@organizer.Id" name="CanEditOrganizers" value="true" checked="@organizer.CanEditOrganizers"></td>
-                <td class="text-center"><input type="checkbox" form="edit-@organizer.Id" name="CanEditSignup" value="true" checked="@organizer.CanEditSignup"></td>
+                @if (await AuthorizationService.IsAuthorized(User, Model.EventId, Policy.CanEditEventSignup))
+                {
+                    <td class="text-center"><input type="checkbox" form="edit-@organizer.Id" name="CanEditSignup" value="true" checked="@organizer.CanEditSignup"></td>
+                }
                 <td>
                     <form id="edit-@organizer.Id" method="POST" asp-action="EditOrganizer" asp-route-id="@Model.EventId">
                         <input type="hidden" name="userId" value="@organizer.Id">
@@ -67,7 +73,10 @@
                 <td class="text-center"><input type="checkbox" form="addUserForm" value="true" name="CanAddPresenceLesson"></td>
                 <td class="text-center"><input type="checkbox" form="addUserForm" value="true" name="CanEdit"></td>
                 <td class="text-center"><input type="checkbox" form="addUserForm" value="true" name="CanEditOrganizers"></td>
-                <td class="text-center"><input type="checkbox" form="addUserForm" value="true" name="CanEditSignup"></td>
+                @if (await AuthorizationService.IsAuthorized(User, Model.EventId, Policy.CanEditEventSignup))
+                {
+                    <td class="text-center"><input type="checkbox" form="addUserForm" value="true" name="CanEditSignup"></td>
+                }
             <td>
                 <button class="btn btn-success" form="addUserForm">Legg til</button>
             </td>
