@@ -30,8 +30,8 @@
                     {
                         <span class="float-right badge @BadgeColor(userSignup.Status)">@userSignup.Status.DisplayDescription()</span>
                     }
-                    <h5 class="card-title">@signup.Title</h5>
-                    <p class="card-text">@signup.Description</p>
+                    <h5 class="card-title @(signup.HasClosed ? "line-through" : "")">@signup.Title</h5>
+                    <p class="card-text @(signup.HasClosed ? "line-through" : "")">@signup.Description</p>
                 </a>
             }
         </div>

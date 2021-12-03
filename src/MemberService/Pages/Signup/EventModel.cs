@@ -18,6 +18,8 @@ namespace MemberService.Pages.Signup
 
         public DateTime? OpensAt { get; set; }
 
+        public bool HasClosed { get; set; }
+
         public EventSignup UserSignup { get; set; }
 
         [Expressionify]
@@ -29,6 +31,7 @@ namespace MemberService.Pages.Signup
                 Type = e.Type,
                 Description = e.Description,
                 OpensAt = e.SignupOptions.SignupOpensAt,
+                HasClosed = e.HasClosed(),
                 UserSignup = e.Signups.FirstOrDefault(s => s.UserId == userId)
             };
 

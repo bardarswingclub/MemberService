@@ -40,7 +40,7 @@ namespace MemberService.Pages.Home
 
             var model = await _database.GetIndexModel(userId);
 
-            var openEvents = await _database.GetEvents(userId, e => e.IsOpen());
+            var openEvents = await _database.GetEvents(userId, e => e.HasOpened());
 
             var futureEvents = await _database.GetEvents(userId, e => e.WillOpen());
 
