@@ -13,9 +13,14 @@
                 Opprett nytt arrangement
             </button>
             <div class="dropdown-menu dropdown-menu-right">
-                <a class="dropdown-item" asp-action="Create" asp-route-type="@EventType.Workshop">@EventType.Workshop.DisplayDescription()</a>
-                <a class="dropdown-item" asp-action="Create" asp-route-type="@EventType.Party">@EventType.Party.DisplayDescription()</a>
-                <a class="dropdown-item" asp-action="Create" asp-route-type="@EventType.Training">@EventType.Training.DisplayDescription()</a>
+                @if (User.CanCreateWorkshop())
+                {
+                    <a class="dropdown-item" asp-action="Create" asp-route-type="@EventType.Workshop">@EventType.Workshop.DisplayDescription()</a>
+                }
+                @if(User.CanCreateParty())
+                {
+                    <a class="dropdown-item" asp-action="Create" asp-route-type="@EventType.Party">@EventType.Party.DisplayDescription()</a>
+                }
             </div>
         </div>
     }

@@ -9,6 +9,12 @@ namespace MemberService.Auth
     {
         public static bool IsAdministrator(this ClaimsPrincipal user) => user.IsInRole(Roles.ADMIN);
 
+
+        public static bool CanCreateWorkshop(this ClaimsPrincipal user) => user.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR);
+
+        public static bool CanCreateParty(this ClaimsPrincipal user) => user.IsInAnyRole(Roles.ADMIN, Roles.FESTKOM);
+
+
         public static bool CanEditSemester(this ClaimsPrincipal user) => user.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR);
 
         public static bool CanCreateCourse(this ClaimsPrincipal user) => user.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR);
@@ -28,8 +34,8 @@ namespace MemberService.Auth
         public static bool CanToggleInstructorRole(this ClaimsPrincipal user) => user.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN);
 
 
-        public static bool CanCreateSurvey(this ClaimsPrincipal user) => user.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN);
+        public static bool CanCreateSurvey(this ClaimsPrincipal user) => user.IsInAnyRole(Roles.FESTKOM, Roles.COORDINATOR, Roles.ADMIN);
 
-        public static bool CanEditSurvey(this ClaimsPrincipal user) => user.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN);
+        public static bool CanEditSurvey(this ClaimsPrincipal user) => user.IsInAnyRole(Roles.FESTKOM, Roles.COORDINATOR, Roles.ADMIN);
     }
 }

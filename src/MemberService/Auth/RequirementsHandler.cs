@@ -41,7 +41,7 @@
                     Policy.IsCoordinator => user.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN),
                     Policy.IsAdmin => user.IsInAnyRole(Roles.ADMIN),
 
-                    Policy.CanCreateEvent => user.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN),
+                    Policy.CanCreateEvent => user.IsInAnyRole(Roles.FESTKOM, Roles.COORDINATOR, Roles.ADMIN),
 
                     Policy.CanListEvents => await CanListEvents(context),
                     Policy.CanViewEvent when id is Guid eventId => await CanViewEvent(context, eventId),
@@ -52,6 +52,10 @@
 
                     Policy.CanSetPresence when (id ?? resource) is Guid eventId => await CanSetPresence(context, eventId),
                     Policy.CanAddPresenceLesson when (id ?? resource) is Guid eventId => await CanAddPresenceLesson(context, eventId),
+
+                    Policy.CanCreateSurvey when (id ?? resource) is Guid eventId => await CanEditEvent(context, eventId),
+                    Policy.CanViewSurvey when (id ?? resource) is Guid eventId => await CanViewEvent(context, eventId),
+                    Policy.CanEditSurvey when (id ?? resource) is Guid eventId => await CanEditEvent(context, eventId),
 
                     Policy.CanViewMembers => await CanListEvents(context),
                 };
@@ -65,7 +69,7 @@
 
         private async Task<bool> CanListEvents(AuthorizationHandlerContext context)
         {
-            if (context.User.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR, Roles.INSTRUCTOR))
+            if (context.User.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR, Roles.INSTRUCTOR, Roles.FESTKOM))
             {
                 return true;
             }
@@ -83,7 +87,7 @@
                 return true;
             }
 
-            return await CheckEvent(eventId, context.User, _ => true);
+            return await CheckEventOrganizer(eventId, context.User, _ => true);
         }
 
         private async Task<bool> CanEditEvent(AuthorizationHandlerContext context, Guid eventId)
@@ -93,7 +97,7 @@
                 return true;
             }
 
-            return await CheckEvent(eventId, context.User, p => p.CanEdit);
+            return await CheckEventOrganizer(eventId, context.User, p => p.CanEdit);
         }
 
         private async Task<bool> CanSetEventSignupStatus(AuthorizationHandlerContext context, Guid eventId)
@@ -103,7 +107,7 @@
                 return true;
             }
 
-            return await CheckEvent(eventId, context.User, p => p.CanSetSignupStatus);
+            return await CheckEventOrganizer(eventId, context.User, p => p.CanSetSignupStatus);
         }
 
         private async Task<bool> CanEditEventSignup(AuthorizationHandlerContext context, Guid eventId)
@@ -113,7 +117,7 @@
                 return true;
             }
 
-            return await CheckEvent(eventId, context.User, p => p.CanEditSignup);
+            return await CheckEventOrganizer(eventId, context.User, p => p.CanEditSignup);
         }
 
         private async Task<bool> CanEditEventOrganizers(AuthorizationHandlerContext context, Guid eventId)
@@ -123,7 +127,7 @@
                 return true;
             }
 
-            return await CheckEvent(eventId, context.User, p => p.CanEditOrganizers);
+            return await CheckEventOrganizer(eventId, context.User, p => p.CanEditOrganizers);
         }
 
         private async Task<bool> CanSetPresence(AuthorizationHandlerContext context, Guid eventId)
@@ -133,7 +137,7 @@
                 return true;
             }
 
-            return await CheckEvent(eventId, context.User, p => p.CanSetPresence);
+            return await CheckEventOrganizer(eventId, context.User, p => p.CanSetPresence);
         }
 
         private async Task<bool> CanAddPresenceLesson(AuthorizationHandlerContext context, Guid eventId)
@@ -143,10 +147,10 @@
                 return true;
             }
 
-            return await CheckEvent(eventId, context.User, p => p.CanAddPresenceLesson);
+            return await CheckEventOrganizer(eventId, context.User, p => p.CanAddPresenceLesson);
         }
 
-        private async Task<bool> CheckEvent(Guid eventId, ClaimsPrincipal user, Func<EventOrganizer, bool> check)
+        private async Task<bool> CheckEventOrganizer(Guid eventId, ClaimsPrincipal user, Func<EventOrganizer, bool> check)
         {
             var userId = _userManager.GetUserId(user);
             var permissions = await _database.EventOrganizers.FindAsync(eventId, userId);

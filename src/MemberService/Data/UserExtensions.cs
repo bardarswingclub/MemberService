@@ -18,27 +18,19 @@ namespace MemberService.Data
 
         public static async Task SeedRoles(this RoleManager<MemberRole> roleManager)
         {
-            if (!await roleManager.RoleExistsAsync(Roles.ADMIN))
+            foreach(var role in Roles.All)
             {
-                await roleManager.CreateAsync(new MemberRole
-                {
-                    Name = Roles.ADMIN
-                });
+                await roleManager.CreateRoleIfMissing(role);
             }
+        }
 
-            if (!await roleManager.RoleExistsAsync(Roles.COORDINATOR))
+        private static async Task CreateRoleIfMissing(this RoleManager<MemberRole> roleManager, string role)
+        {
+            if (!await roleManager.RoleExistsAsync(role))
             {
                 await roleManager.CreateAsync(new MemberRole
                 {
-                    Name = Roles.COORDINATOR
-                });
-            }
-
-            if (!await roleManager.RoleExistsAsync(Roles.INSTRUCTOR))
-            {
-                await roleManager.CreateAsync(new MemberRole
-                {
-                    Name = Roles.INSTRUCTOR
+                    Name = role
                 });
             }
         }

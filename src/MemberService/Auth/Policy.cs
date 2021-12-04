@@ -18,6 +18,10 @@
         CanSetPresence,
         CanAddPresenceLesson,
 
+        CanCreateSurvey,
+        CanViewSurvey,
+        CanEditSurvey,
+
         CanViewMembers
     }
 }

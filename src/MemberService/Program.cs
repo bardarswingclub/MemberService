@@ -14,27 +14,26 @@ namespace MemberService
     {
         public static async Task Main(string[] args)
         {
-            using (var host = CreateWebHostBuilder(args).Build())
+            using var host = CreateWebHostBuilder(args).Build();
+
+            var config = host.Services.GetRequiredService<Config>();
+
+            using (var scope = host.Services.CreateScope())
             {
-                var config = host.Services.GetRequiredService<Config>();
+                await scope.ServiceProvider
+                    .GetRequiredService<MemberContext>()
+                    .Database.MigrateAsync();
 
-                using (var scope = host.Services.CreateScope())
-                {
-                    await scope.ServiceProvider
-                        .GetRequiredService<MemberContext>()
-                        .Database.MigrateAsync();
+                await scope.ServiceProvider
+                    .GetRequiredService<RoleManager<MemberRole>>()
+                    .SeedRoles();
 
-                    await scope.ServiceProvider
-                        .GetRequiredService<RoleManager<MemberRole>>()
-                        .SeedRoles();
-
-                    await scope.ServiceProvider
-                        .GetRequiredService<UserManager<User>>()
-                        .SeedUserRoles(config.AdminEmails.Split(","));
-                }
-
-                await host.RunAsync();
+                await scope.ServiceProvider
+                    .GetRequiredService<UserManager<User>>()
+                    .SeedUserRoles(config.AdminEmails.Split(","));
             }
+
+            await host.RunAsync();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>

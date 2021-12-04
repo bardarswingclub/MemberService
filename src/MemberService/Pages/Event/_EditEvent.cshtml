@@ -16,11 +16,17 @@
         <input type="hidden" asp-for="Type"/>
         <span class="form-control-plaintext">@EventType.Class.DisplayDescription()</span>
     }
-    else {
+    else 
+    {
         <select class="form-control" asp-for="Type">
-            <option value="@EventType.Workshop">@EventType.Workshop.DisplayDescription()</option>
-            <option value="@EventType.Party">@EventType.Party.DisplayDescription()</option>
-            <option value="@EventType.Training">@EventType.Training.DisplayDescription()</option>
+            @if (User.CanCreateWorkshop())
+            {
+                <option value="@EventType.Workshop">@EventType.Workshop.DisplayDescription()</option>
+            }
+            @if(User.CanCreateParty())
+            {
+                <option value="@EventType.Party">@EventType.Party.DisplayDescription()</option>
+            }
         </select>
     }
     <span asp-validation-for="Type" class="text-danger"></span>

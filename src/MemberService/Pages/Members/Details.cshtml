@@ -52,9 +52,10 @@
         <div class="card-body">
             @if (User.CanToggleAllRoles())
             {
-                <partial name="_Role" model="(Model, Roles.INSTRUCTOR)" />
-                <partial name="_Role" model="(Model, Roles.COORDINATOR)" />
-                <partial name="_Role" model="(Model, Roles.ADMIN)" />
+                @foreach(var role in Roles.All)
+                {
+                    <partial name="_Role" model="(Model, role)" />
+                }
                 <hr />
                 <form asp-controller="Members" asp-action="SetExemptions" asp-route-id="@Model.Id" method="post" class="form">
                     <div class="form-check">

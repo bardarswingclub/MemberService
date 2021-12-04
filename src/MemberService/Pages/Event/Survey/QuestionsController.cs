@@ -31,7 +31,7 @@ namespace MemberService.Pages.Event.Survey
         }
 
         [HttpGet]
-        [Authorize(nameof(Policy.CanViewEvent))]
+        [Authorize(nameof(Policy.CanViewSurvey))]
         public async Task<IActionResult> Index(Guid id, string filter="all")
         {
             var model = await _database.Events
@@ -54,13 +54,9 @@ namespace MemberService.Pages.Event.Survey
         }
 
         [HttpGet]
+        [Authorize(nameof(Policy.CanEditSurvey))]
         public async Task<IActionResult> Edit(Guid id)
         {
-            if (!User.CanEditSurvey())
-            {
-                return new ForbidResult();
-            }
-
             var model = await _database.Events
                 .Expressionify()
                 .Where(e => e.SurveyId != null)
@@ -81,14 +77,10 @@ namespace MemberService.Pages.Event.Survey
         }
 
         [HttpPost]
+        [Authorize(nameof(Policy.CanCreateSurvey))]
         public async Task<IActionResult> Create(Guid id)
         {
-            if (!User.CanCreateSurvey())
-            {
-                return new ForbidResult();
-            }
-
-            var ev = await _database.Events.FirstOrDefaultAsync(e => e.Id == id);
+            var ev = await _database.Events.FindAsync(id);
 
             ev.Survey = new Data.Survey
             {
@@ -102,16 +94,12 @@ namespace MemberService.Pages.Event.Survey
         }
 
         [HttpPost]
+        [Authorize(nameof(Policy.CanEditSurvey))]
         public async Task<IActionResult> Add(
             Guid id,
             [FromForm] QuestionType type)
         {
-            if (!User.CanEditSurvey())
-            {
-                return new ForbidResult();
-            }
-
-            var ev = await _database.Events.FirstOrDefaultAsync(s => s.Id == id);
+            var ev = await _database.Events.FindAsync(id);
 
             var model = await _database
                 .Surveys
@@ -130,18 +118,14 @@ namespace MemberService.Pages.Event.Survey
         }
 
         [HttpPost]
+        [Authorize(nameof(Policy.CanEditSurvey))]
         public async Task<IActionResult> Save(
             Guid id,
             Guid questionId,
             QuestionInput input,
             [FromForm] string action)
         {
-            if (!User.CanEditSurvey())
-            {
-                return new ForbidResult();
-            }
-
-            var ev = await _database.Events.FirstOrDefaultAsync(s => s.Id == id);
+            var ev = await _database.Events.FindAsync(id);
 
             var question = await _database.Questions
                 .Include(q => q.Options)
