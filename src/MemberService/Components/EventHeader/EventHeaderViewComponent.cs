@@ -34,7 +34,8 @@ namespace MemberService.Components.EventHeader
                     IsSemester =  e.SemesterId.HasValue,
                     IsOpen = e.IsOpen(),
                     HasClosed = e.HasClosed(),
-                    Archived = e.Archived
+                    Archived = e.Archived,
+                    Cancelled = e.Cancelled
                 })
                 .FirstOrDefaultAsync(e => e.Id == id);
 
@@ -50,6 +51,8 @@ namespace MemberService.Components.EventHeader
             public string Description { get; set; }
 
             public bool Archived { get; set; }
+
+            public bool Cancelled { get; set; }
 
             public bool HasClosed { get; set; }
 
