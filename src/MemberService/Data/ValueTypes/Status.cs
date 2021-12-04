@@ -18,7 +18,7 @@ namespace MemberService.Data.ValueTypes
         [Display(Name = "Gitt plass", Description = "Fått plass")]
         Approved = 4,
 
-        [Display(Name = "Godtatt og betalt", Description = "Godtatt")]
+        [Display(Name = "Godtatt og betalt", Description = "Deltar")]
         AcceptedAndPayed = 5,
 
         [Display(Name = "Takket nei til plass", Description = "Takket nei")]

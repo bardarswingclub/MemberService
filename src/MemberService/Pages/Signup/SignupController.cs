@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Signup
 {
@@ -250,9 +251,9 @@ namespace MemberService.Pages.Signup
 
             var signup = user.EventSignups.FirstOrDefault(s => s.EventId == id);
 
-            if (signup?.Status == Status.Approved)
+            if (accept)
             {
-                if (accept)
+                if (signup?.Status == Status.Approved)
                 {
                     if (user.MustPayClassesFee(signupModel.Options)) return Forbid();
                     if (user.MustPayTrainingFee(signupModel.Options)) return Forbid();
@@ -263,13 +264,32 @@ namespace MemberService.Pages.Signup
                     signup.Status = Status.AcceptedAndPayed;
                     signup.AuditLog.Add("Accepted", user);
                 }
-                else
-                {
-                    signup.Status = Status.RejectedOrNotPayed;
-                    signup.AuditLog.Add("Rejected", user);
-                }
+            }
+            else
+            {
+                signup.Status = Status.RejectedOrNotPayed;
+                signup.AuditLog.Add("Rejected", user);
+            }
 
-                await _database.SaveChangesAsync();
+            await _database.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Event), new { id });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Refund(Guid id)
+        {
+            var userId = GetUserId();
+            var signup = await _database.EventSignups
+                .Where(s => s.Event.Cancelled && !s.Event.Archived)
+                .Where(s => !s.Payment.Refunded)
+                .FirstOrDefaultAsync(s => s.EventId == id && s.UserId == userId);
+
+            if (signup?.Status == Status.AcceptedAndPayed)
+            {
+                await _paymentService.Refund(signup.PaymentId);
+
+                TempData["SuccessMessage"] = $"Du vil få pengene tilbake på konto i løpet av noen dager";
             }
 
             return RedirectToAction(nameof(Event), new { id });

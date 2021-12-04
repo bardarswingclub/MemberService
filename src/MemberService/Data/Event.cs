@@ -37,7 +37,11 @@ namespace MemberService.Data
 
         public ICollection<EventOrganizer> Organizers { get; set; } = new List<EventOrganizer>();
 
+        public bool Published { get; set; }
+
         public bool Archived { get; set; }
+
+        public bool Cancelled { get; set; }
 
         public EventType Type { get; set; }
 

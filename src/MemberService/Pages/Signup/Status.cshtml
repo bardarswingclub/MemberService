@@ -16,7 +16,26 @@
     <div class="card-body">
         <p class="lead">@Model.Description</p>
 
-        @if (Model.UserEventSignup.Status == Status.WaitingList)
+        @if (Model.IsCancelled)
+        {
+            <div class="alert alert-warning" role="alert">
+                <h3 class="alert-heading">Avlyst</h3>
+                <p>@Model.Title har blitt avlyst</p>
+            </div>
+
+            @if(!Model.IsArchived && Model.UserEventSignup.Status == Status.AcceptedAndPayed && Model.UserEventSignup.Payment?.Refunded == false)
+            {
+                <div class="alert alert-info" role="alert">
+                    <h3 class="alert-heading">Vil du ha refundert betalingen?</h3>
+                    <p>Du vil få refundert hele beløpet du har betalt</p>
+                        
+                    <form asp-action="refund" asp-route-id="@Model.Id" method="POST">
+                        <button type="submit" class="btn btn-outline-danger btn-block text-center">Jeg vil ha refundert betalingen</button>
+                    </form>
+                </div>
+            }
+        }
+        else if (Model.UserEventSignup.Status == Status.WaitingList)
         {
             <div class="alert alert-info" role="alert">
                 <h3 class="alert-heading">Du er på ventelisten</h3>
@@ -29,6 +48,18 @@
                 <h3 class="alert-heading">Du har fått plass</h3>
                 <p>Du har godtatt plassen og betalt alt som trengs for å delta, så nå er det ingenting mer å gjøre, bare å glede seg!</p>
             </div>
+
+            <details>
+                <summary>Jeg kan ikke delta likevel</summary>
+                <div class="alert alert-info" role="alert">
+                    <h3 class="alert-heading">Vil du ikke ha plassen din?</h3>
+                    <p>Du kan melde deg av hvis du vil, men du vil ikke få refundert betalingen</p>
+                        
+                    <form asp-action="acceptOrReject" asp-route-id="@Model.Id" method="POST">
+                        <button type="submit" name="accept" value="false" class="btn btn-outline-danger btn-block text-center">Jeg melder meg av</button>
+                    </form>
+                </div>
+            </details>
         }
         else if (Model.UserEventSignup.Status == Status.RejectedOrNotPayed)
         {

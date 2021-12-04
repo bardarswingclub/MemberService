@@ -19,6 +19,7 @@
             EventId = e.Id,
             EventTitle = e.Title,
             IsArchived = e.Archived,
+            IsCancelled = e.Cancelled,
             SemesterId = e.SemesterId,
             Organizers = e.Organizers.Select(o => new Organizer
             {

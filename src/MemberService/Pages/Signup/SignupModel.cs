@@ -26,6 +26,10 @@ namespace MemberService.Pages.Signup
 
         public bool HasClosed { get; set; }
 
+        public bool IsArchived { get; set; }
+
+        public bool IsCancelled { get; set; }
+
         public bool IsOpen { get; set; }
 
         [Expressionify]
@@ -38,7 +42,9 @@ namespace MemberService.Pages.Signup
                 Options = e.SignupOptions,
                 IsOpen = e.IsOpen(),
                 HasClosed = e.HasClosed(),
-                Questions = e.Survey.Questions.Select(q => SignupQuestion.Create(q)).ToList()
+                Questions = e.Survey.Questions.Select(q => SignupQuestion.Create(q)).ToList(),
+                IsArchived = e.Archived,
+                IsCancelled = e.Cancelled
             };
     }
 }

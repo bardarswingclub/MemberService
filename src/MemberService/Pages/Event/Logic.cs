@@ -126,6 +126,7 @@ namespace MemberService.Pages.Event
                 Description = model.Description,
                 Type = model.Type,
                 IsArchived = model.Archived,
+                IsCancelled = model.Cancelled,
                 EnableSignupOpensAt = model.SignupOptions.SignupOpensAt.HasValue,
                 SignupOpensAtDate = signupOpensAtDate,
                 SignupOpensAtTime = signupOpensAtTime,
@@ -185,6 +186,11 @@ namespace MemberService.Pages.Event
             {
                 model.SignupOptions.SignupClosesAt ??= TimeProvider.UtcNow;
                 model.Archived = true;
+            }
+            else if (status == "cancel")
+            {
+                model.SignupOptions.SignupClosesAt ??= TimeProvider.UtcNow;
+                model.Cancelled = true;
             }
         }
 

@@ -23,6 +23,11 @@
                         <h4 class="alert-heading">Arrangementet er arkivert</h4>
                         <p>Dette arrangementet er arkivert og ikke lenger åpent for redigering</p>
                     }
+                    else if (Model.Cancelled)
+                    {
+                        <h4 class="alert-heading">Arrangementet er avlyst</h4>
+                        <p>Dette arrangementet er avlyst</p>
+                    }
                     else if (Model.IsOpen)
                     {
                         <h4 class="alert-heading">
@@ -126,15 +131,21 @@
         {
             return "alert-warning";
         }
+        else if (Model.Cancelled)
+        {
+            return "alert-warning";
+        }
         else if (model.IsOpen)
         {
             return "alert-success";
         }
-        else
+        else if (model.SignupOpensAt.HasValue)
         {
-            return model.SignupOpensAt.HasValue
-                ? "alert-warning"
-                : "alert-danger";
+            return "alert-warning";
+        }
+        else
+        { 
+            return "alert-danger";
         }
     }
 }

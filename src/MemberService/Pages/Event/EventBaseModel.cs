@@ -16,5 +16,7 @@ namespace MemberService.Pages.Event
         public string EventDescription { get; set; }
 
         public bool IsArchived { get; set; }
+
+        public bool IsCancelled { get; set; }
     }
 }
