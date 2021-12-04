@@ -15,6 +15,7 @@ namespace MemberService.Services
         private readonly SessionService _sessionService;
         private readonly ChargeService _chargeService;
         private readonly CustomerService _customerService;
+        private readonly RefundService _refundService;
         private readonly UserManager<User> _userManager;
         private readonly MemberContext _memberContext;
 
@@ -23,13 +24,15 @@ namespace MemberService.Services
             ChargeService chargeService,
             CustomerService customerService,
             UserManager<User> userManager,
-            MemberContext memberContext)
+            MemberContext memberContext, 
+            RefundService refundService)
         {
             _sessionService = sessionService;
             _chargeService = chargeService;
             _customerService = customerService;
             _userManager = userManager;
             _memberContext = memberContext;
+            _refundService = refundService;
         }
 
         private static readonly Dictionary<string, (bool?, bool?, bool?)> DescriptionMap = new()
@@ -173,6 +176,28 @@ namespace MemberService.Services
                 paymentUpdatedCount += result == Status.UpdatedPayment ? 1 : 0;
             }
             return (userCreatedCount, paymentCreatedCount, paymentUpdatedCount);
+        }
+
+        public async Task<bool> Refund(string paymentId)
+        {
+            var payment = await _memberContext.Payments.FindAsync(paymentId);
+
+            await _refundService.CreateAsync(new RefundCreateOptions
+            {
+                Amount = (long?)(payment.Amount * 100),
+                Charge = payment.StripeChargeId,
+                Reason = "requested_by_customer",
+                Metadata = new Dictionary<string, string>
+                {
+                    ["Description"] = "Refunded by customer request"
+                }
+            });
+
+            payment.Refunded = true;
+
+            await _memberContext.SaveChangesAsync();
+
+            return true;
         }
 
         private async Task<Status> SavePayment(Charge charge)

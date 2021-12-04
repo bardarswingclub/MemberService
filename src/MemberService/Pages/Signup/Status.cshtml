@@ -29,6 +29,33 @@
                 <h3 class="alert-heading">Du har fått plass</h3>
                 <p>Du har godtatt plassen og betalt alt som trengs for å delta, så nå er det ingenting mer å gjøre, bare å glede seg!</p>
             </div>
+
+            @if (Model.CanGetRefund)
+            {
+                <div class="alert alert-info" role="alert">
+                    <h3 class="alert-heading">Vil du ha refundert betalingen</h3>
+                    <p>Du vil få refundert hele beløpet du har betalt</p>
+                        
+                    <form asp-action="refund" asp-route-id="@Model.Id" method="POST">
+                        <button type="submit" class="btn btn-outline-danger btn-block text-center">Jeg vil ha refundert betalingen</button>
+                    </form>
+                </div>
+            }
+            else
+            {
+                <details>
+                    <summary>Jeg kan ikke delta likevel</summary>
+                    <div class="alert alert-info" role="alert">
+                        <h3 class="alert-heading">Vil du ikke ha plassen din?</h3>
+                        <p>Du kan melde deg av hvis du vil. Du vil få refundert hele beløpet du har betalt</p>
+                        
+                        <form asp-action="acceptOrReject" asp-route-id="@Model.Id" method="POST">
+                            <button type="submit" name="accept" value="false" class="btn btn-outline-danger btn-block text-center">Jeg melder meg av</button>
+                        </form>
+                    </div>
+                </details>
+
+            }
         }
         else if (Model.UserEventSignup.Status == Status.RejectedOrNotPayed)
         {

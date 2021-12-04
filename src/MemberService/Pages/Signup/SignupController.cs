@@ -250,9 +250,9 @@ namespace MemberService.Pages.Signup
 
             var signup = user.EventSignups.FirstOrDefault(s => s.EventId == id);
 
-            if (signup?.Status == Status.Approved)
+            if (accept)
             {
-                if (accept)
+                if (signup?.Status == Status.Approved)
                 {
                     if (user.MustPayClassesFee(signupModel.Options)) return Forbid();
                     if (user.MustPayTrainingFee(signupModel.Options)) return Forbid();
@@ -263,13 +263,29 @@ namespace MemberService.Pages.Signup
                     signup.Status = Status.AcceptedAndPayed;
                     signup.AuditLog.Add("Accepted", user);
                 }
-                else
-                {
-                    signup.Status = Status.RejectedOrNotPayed;
-                    signup.AuditLog.Add("Rejected", user);
-                }
+            }
+            else
+            {
+                signup.Status = Status.RejectedOrNotPayed;
+                signup.AuditLog.Add("Rejected", user);
+            }
 
-                await _database.SaveChangesAsync();
+            await _database.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Event), new { id });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Refund(Guid id)
+        {
+            var user = await _database.GetEditableUser(GetUserId());
+
+            var signup = user.EventSignups.FirstOrDefault(s => s.EventId == id);
+
+            if (signup?.Status == Status.Approved)
+            {
+                signup.Status = Status.RejectedOrNotPayed;
+                await _paymentService.Refund(signup.PaymentId);
             }
 
             return RedirectToAction(nameof(Event), new { id });

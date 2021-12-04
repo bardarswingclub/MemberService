@@ -26,6 +26,8 @@ namespace MemberService.Pages.Signup
 
         public bool HasClosed { get; set; }
 
+        public bool CanGetRefund { get; set; }
+
         public bool IsOpen { get; set; }
 
         [Expressionify]
@@ -38,7 +40,8 @@ namespace MemberService.Pages.Signup
                 Options = e.SignupOptions,
                 IsOpen = e.IsOpen(),
                 HasClosed = e.HasClosed(),
-                Questions = e.Survey.Questions.Select(q => SignupQuestion.Create(q)).ToList()
+                Questions = e.Survey.Questions.Select(q => SignupQuestion.Create(q)).ToList(),
+                CanGetRefund = !e.Archived && true // todo: replace this with something better before 2021-12-31 
             };
     }
 }
