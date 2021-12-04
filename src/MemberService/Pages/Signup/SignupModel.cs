@@ -26,7 +26,9 @@ namespace MemberService.Pages.Signup
 
         public bool HasClosed { get; set; }
 
-        public bool CanGetRefund { get; set; }
+        public bool IsArchived { get; set; }
+
+        public bool IsCancelled { get; set; }
 
         public bool IsOpen { get; set; }
 
@@ -41,7 +43,8 @@ namespace MemberService.Pages.Signup
                 IsOpen = e.IsOpen(),
                 HasClosed = e.HasClosed(),
                 Questions = e.Survey.Questions.Select(q => SignupQuestion.Create(q)).ToList(),
-                CanGetRefund = !e.Archived && true // todo: replace this with something better before 2021-12-31 
+                IsArchived = e.Archived,
+                IsCancelled = e.Cancelled
             };
     }
 }

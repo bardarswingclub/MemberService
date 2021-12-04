@@ -17,6 +17,10 @@
         {
             <button type="submit" class="btn btn-success">Lagre</button>
             <button class="btn btn-outline-danger" form="archive-form">Arkiver</button>
+            @if (!Model.IsCancelled)
+            {
+                <button class="btn btn-outline-danger" form="cancel-form">Avlys</button>
+            }
         }
         <button class="btn btn-outline-success" form="copy-form">Kopier</button>
     </div>
@@ -24,6 +28,10 @@
 
 <form method="POST" asp-action="SetStatus" asp-route-id="@Model.Id" id="archive-form">
     <input type="hidden" name="status" value="archive" />
+</form>
+
+<form method="POST" asp-action="SetStatus" asp-route-id="@Model.Id" id="cancel-form">
+    <input type="hidden" name="status" value="cancel" />
 </form>
 
 <form method="POST" asp-action="Copy" asp-route-id="@Model.Id" id="copy-form">

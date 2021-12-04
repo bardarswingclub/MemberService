@@ -54,6 +54,8 @@ namespace MemberService.Pages.Signup
                 .Include(u => u.EventSignups)
                     .ThenInclude(s => s.Response)
                         .ThenInclude(r => r.Answers)
+                .Include(u => u.EventSignups)
+                    .ThenInclude(u => u.Payment)
                 .AsNoTracking()
                 .SingleUser(userId);
 

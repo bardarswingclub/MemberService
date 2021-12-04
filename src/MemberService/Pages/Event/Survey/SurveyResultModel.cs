@@ -31,6 +31,7 @@ namespace MemberService.Pages.Event.Survey
                 EventTitle = e.Title,
                 EventDescription = e.Description,
                 IsArchived = e.Archived,
+                IsCancelled = e.Cancelled,
                 Title = e.Survey.Title,
                 Filter = filter,
                 Description = e.Survey.Description,

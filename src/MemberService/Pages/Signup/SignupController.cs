@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Signup
 {
@@ -278,14 +279,17 @@ namespace MemberService.Pages.Signup
         [HttpPost]
         public async Task<IActionResult> Refund(Guid id)
         {
-            var user = await _database.GetEditableUser(GetUserId());
+            var userId = GetUserId();
+            var signup = await _database.EventSignups
+                .Where(s => s.Event.Cancelled && !s.Event.Archived)
+                .Where(s => !s.Payment.Refunded)
+                .FirstOrDefaultAsync(s => s.EventId == id && s.UserId == userId);
 
-            var signup = user.EventSignups.FirstOrDefault(s => s.EventId == id);
-
-            if (signup?.Status == Status.Approved)
+            if (signup?.Status == Status.AcceptedAndPayed)
             {
-                signup.Status = Status.RejectedOrNotPayed;
                 await _paymentService.Refund(signup.PaymentId);
+
+                TempData["SuccessMessage"] = $"Du vil få pengene tilbake på konto i løpet av noen dager";
             }
 
             return RedirectToAction(nameof(Event), new { id });
