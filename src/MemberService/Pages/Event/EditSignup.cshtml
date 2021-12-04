@@ -1,13 +1,13 @@
 ﻿@using MemberService.Data.ValueTypes
-@model EventSignup
+@model EditSignupModel
 
 @{
-    ViewData["Title"] = Model.Event.Title;
+    ViewData["Title"] = Model.Title;
 }
 
 <form method="POST" class="card">
     <h3 class="card-header">
-        Endre @Model.User.FullName sin påmelding til @Model.Event.Title
+        Endre @Model.FullName sin påmelding til @Model.Title
     </h3>
     <div class="card-body">
         <div class="alert alert-danger">
@@ -35,12 +35,12 @@
                 <span class="text-muted">(ukjent partner)</span>
             }
         </div>
-        @if (Model.Event.SemesterId.HasValue)
+        @if (Model.Courses.Any())
         {
             <div class="form-group mt-4">
                 <label asp-for="EventId"></label>
                 <select class="form-control" asp-for="EventId">
-                    @foreach (var ev in Model.Event.Semester.Courses)
+                    @foreach (var ev in Model.Courses)
                     {
                         <option value="@ev.Id" selected="@(ev.Id == Model.Id)">@ev.Title</option>
                     }

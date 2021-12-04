@@ -8,13 +8,16 @@
         {
             @: som <strong>@Model.Role.DisplayName().ToLower()</strong>
 
-            @if (Model.AllowPartnerSignup && !string.IsNullOrEmpty(Model.PartnerEmail))
+            @if (Model.AllowPartnerSignup)
             {
-                @: sammen med <strong>@Model.PartnerEmail.ToLower()</strong>
-            }
-            else
-            {
-                @: uten partner.
+                if (!string.IsNullOrEmpty(Model.PartnerEmail))
+                {
+                    @: sammen med <strong>@Model.PartnerEmail.ToLower()</strong>
+                }
+                else
+                {
+                    @: uten partner.
+                }
             }
 
             <a asp-controller="Signup" asp-action="edit" asp-route-id="@Model.EventId">Endre?</a>

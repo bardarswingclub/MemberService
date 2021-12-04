@@ -18,7 +18,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Members
 {
-    [Authorize(nameof(Policy.IsInstructor))]
+    [Authorize]
     public class MembersController : Controller
     {
         private readonly MemberContext _memberContext;
@@ -100,15 +100,13 @@ namespace MemberService.Pages.Members
         [HttpPost]
         public async Task<IActionResult> ToggleRole(string id, [FromForm] string role, [FromForm] bool value)
         {
+            if (!User.CanToggleRole(role))
+            {
+                return Forbid();
+            }
+
             if (await _userManager.FindByIdAsync(id) is {} user)
             {
-                var authResult = await _authorizationService.AuthorizeAsync(User, role, nameof(Policy.CanToggleRole));
-
-                if (!authResult.Succeeded)
-                {
-                    return new ForbidResult();
-                }
-
                 bool userAlreadyHasRole = await _userManager.IsInRoleAsync(user, role);
 
                 if (value && !userAlreadyHasRole)

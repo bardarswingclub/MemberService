@@ -21,19 +21,23 @@
                 <a asp-controller="Members" asp-action="Details" asp-route-id="@signup.UserId" target="_blank">@signup.FullName</a>
             </td>
             <td>
-                <span class="badge badge-primary badge-pill">@(signup.Priority). pri</span>
-                @if (User.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR))
+                @if (Model.ShowPriority)
+                {
+                    <span class="badge badge-primary badge-pill">@(signup.Priority). pri</span>
+                }
+
+                @if (await AuthorizationService.IsAuthorized(User, Model.EventId, Policy.CanSetEventSignupStatus))
                 {
                     <a href="#" class="" data-toggle="modal" data-target="#modal-@signup.Id">
                         @signup.SignedUpAt.ToOsloDate()
                     </a>
-                    <div class="modal fade" id="modal-@signup.Id" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+                    <div class="modal fade" id="modal-@signup.Id" tabindex="-1" role="dialog" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalScrollableTitle">
+                                    <h5 class="modal-title">
                                         Historikk for @signup.FullName
-                                        @if (User.IsInRole(Roles.ADMIN))
+                                        @if (await AuthorizationService.IsAuthorized(User, Model.EventId, Policy.CanEditEventSignup))
                                         {
                                             <a asp-action="EditSignup" asp-route-id="@signup.Id">Rediger</a>
                                         }

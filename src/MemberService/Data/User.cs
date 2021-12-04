@@ -14,6 +14,8 @@ namespace MemberService.Data
 
         public ICollection<EventSignup> EventSignups { get; set; } = new List<EventSignup>();
 
+        public ICollection<EventOrganizer> Organizes { get; set; } = new List<EventOrganizer>();
+
         public bool ExemptFromTrainingFee { get; set; }
 
         public bool ExemptFromClassesFee { get; set; }

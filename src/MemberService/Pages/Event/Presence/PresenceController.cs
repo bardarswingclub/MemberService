@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Event.Presence
 {
-    [Authorize(nameof(Policy.IsInstructor))]
+    [Authorize]
     [Route("/Event/{id}/Presence/{action}")]
     public class PresenceController : Controller
     {
@@ -27,6 +27,7 @@ namespace MemberService.Pages.Event.Presence
         }
 
         [HttpGet]
+        [Authorize(nameof(Policy.CanViewEvent))]
         public async Task<IActionResult> Index(Guid id)
         {
             var model = await _database
@@ -43,6 +44,7 @@ namespace MemberService.Pages.Event.Presence
         }
 
         [HttpPost]
+        [Authorize(nameof(Policy.CanAddPresenceLesson))]
         public async Task<IActionResult> AddLesson(Guid id)
         {
             var model = await _database
@@ -57,6 +59,7 @@ namespace MemberService.Pages.Event.Presence
         }
 
         [HttpPost]
+        [Authorize(nameof(Policy.CanSetPresence))]
         public async Task<IActionResult> SetPresence(
             Guid id,
             [FromForm] string userId,

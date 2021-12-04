@@ -21,13 +21,13 @@
                 <div class="form-group row">
                     <label class="col-sm-2 col-form-label" asp-for="@title">Spørsmål</label>
                     <div class="col-sm-10">
-                        <input class="form-control" asp-for="@title">
+                        <input class="form-control" asp-for="@title" disabled="@(!User.CanEditSurvey())">
                     </div>
                 </div>
                 <div class="form-group row">
                     <label class="col-sm-2 col-form-label" asp-for="@description">Beskrivelse</label>
                     <div class="col-sm-10">
-                        <input class="form-control" asp-for="@description">
+                        <input class="form-control" asp-for="@description" disabled="@(!User.CanEditSurvey())">
                     </div>
                 </div>
                 <small class="text-muted">
@@ -44,44 +44,52 @@
                                 <input type="@question.Type" checked onclick="return false" />
                                 Alternativ @(i + 1)
                             </span>
-                            <button type="submit" name="options[@i].Action" value="delete" class="btn btn-outline-danger">Fjern</button>
+                            @if (User.CanEditSurvey())
+                            {
+                                <button type="submit" name="options[@i].Action" value="delete" class="btn btn-outline-danger">Fjern</button>
+                            }
                         </h5>
                         <input type="hidden" asp-for="@options[i].Id" />
                         <div class="form-group row">
                             <label class="col-sm-3 col-form-label" asp-for="@options[i].Title"></label>
                             <div class="col-sm-9">
-                                <input class="form-control" asp-for="@options[i].Title">
+                                <input class="form-control" asp-for="@options[i].Title" disabled="@(!User.CanEditSurvey())">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-3 col-form-label" asp-for="@options[i].Description"></label>
                             <div class="col-sm-9">
-                                <input class="form-control" asp-for="@options[i].Description">
+                                <input class="form-control" asp-for="@options[i].Description" disabled="@(!User.CanEditSurvey())">
                             </div>
                         </div>
                     </li>
                 }
             </ul>
-            <div class="card-body">
-
-                <button type="submit" class="btn btn-outline-success" name="action" value="add-option">Legg til nytt svaralternativ</button>
-            </div>
-            <div class="card-footer d-flex justify-content-between">
-                <button type="submit" class="btn btn-success">Lagre</button>
-                <button type="submit" class="btn btn-outline-danger" name="action" value="delete">Slett</button>
-            </div>
+            @if (User.CanEditSurvey())
+            {
+                <div class="card-body">
+                    <button type="submit" class="btn btn-outline-success" name="action" value="add-option">Legg til nytt svaralternativ</button>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                    <button type="submit" class="btn btn-success">Lagre</button>
+                    <button type="submit" class="btn btn-outline-danger" name="action" value="delete">Slett</button>
+                </div>
+            }
         </form>
     }
 </div>
 
-<form method="post" asp-controller="Questions" asp-action="Add" asp-route-id="@Model.EventId">
-    <div class="dropdown">
-        <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Legg til nytt spørsmål
-        </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <button type="submit" name="type" value="@QuestionType.Radio" class="dropdown-item">&#x25C9; Ett obligatorisk svar</button>
-            <button type="submit" name="type" value="@QuestionType.CheckBox" class="dropdown-item">&#x2611; Mange valgfrie svar</button>
+@if (User.CanEditSurvey())
+{
+    <form method="post" asp-controller="Questions" asp-action="Add" asp-route-id="@Model.EventId">
+        <div class="dropdown">
+            <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Legg til nytt spørsmål
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <button type="submit" name="type" value="@QuestionType.Radio" class="dropdown-item">&#x25C9; Ett obligatorisk svar</button>
+                <button type="submit" name="type" value="@QuestionType.CheckBox" class="dropdown-item">&#x2611; Mange valgfrie svar</button>
+            </div>
         </div>
-    </div>
-</form>
+    </form>
+}

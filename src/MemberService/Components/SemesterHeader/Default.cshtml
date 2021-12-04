@@ -1,14 +1,18 @@
 @using MemberService.Data.ValueTypes
+@using MemberService.Auth
 @model MemberService.Components.SemesterHeader.SemesterHeaderViewComponent.Model
 
 <div class="overflow-container dark-tabs" style="background: #cbd3d9;">
-    <h2 class="d-flex justify-content-between">
+    <h2 class="d-flex justify-content-between flex-wrap">
         <a class="link-unstyled" asp-controller="Semester" asp-action="Index" asp-route-id="@Model.Id">@Model.Title</a>
 
-        <div class="btn-group">
-            @if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN) && Model.IsActive)
+        <div class="btn-group overflow-auto">
+            @if (User.CanPreviewSignup() && Model.IsActive)
             {
                 <a class="btn btn-secondary" asp-controller="Home" asp-action="Courses" asp-route-preview="x">Forhåndsvis påmelding</a>
+            }
+            @if(User.CanEditSemester() && Model.IsActive)
+            {
                 <a class="btn btn-secondary" asp-controller="Semester" asp-action="Edit">Rediger</a>
                 <a class="btn btn-secondary" asp-controller="Questions" asp-action="Edit" asp-route-semesterId="@Model.Id">Spørsmål</a>
             }
@@ -24,7 +28,7 @@
             </li>
         }
 
-        @if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN) && Model.IsActive)
+        @if (User.CanCreateCourse() && Model.IsActive)
         {
             <li class="nav-item">
                 <a class="nav-link text-success" highlight-active highlight-active-when="controller action" asp-controller="Event" asp-action="Create" asp-route-semesterId="@Model.Id">+ Nytt kurs</a>

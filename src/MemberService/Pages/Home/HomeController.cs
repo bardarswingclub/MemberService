@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Clave.Expressionify;
 using Clave.ExtensionMethods;
 
+using MemberService.Auth;
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
 using MemberService.Pages.Signup;
@@ -119,7 +120,7 @@ namespace MemberService.Pages.Home
                 return View("NoSemester");
             }
 
-            var preview = Request.Query.ContainsKey("preview") && User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN);
+            var preview = Request.Query.ContainsKey("preview") && User.CanPreviewSignup();
 
             if (semester.SignupOpensAt > TimeProvider.UtcNow && !preview)
             {

@@ -31,7 +31,7 @@
                     <th class="pl-2 pr-2">@(i + 1)</th>
                 }
                 <th class="pl-3" style="width: 100%">
-                    @if (!Model.Archived)
+                    @if (!Model.Archived && await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanAddPresenceLesson))
                     {
                         <form method="post" asp-controller="Presence" asp-action="AddLesson" asp-route-id="@Model.Id">
                             <button class="btn btn-primary btn-sm">+</button>
@@ -51,24 +51,21 @@
                             <form method="post" asp-controller="Presence" asp-action="SetPresence" asp-route-id="@Model.Id" data-action="ajax-form">
                                 <input type="hidden" name="userId" value="@participant.UserId" />
                                 <input type="hidden" name="lesson" value="@i" />
-                                <input type="checkbox" disabled="@Model.Archived" name="present" value="true" checked="@participant.Presence[i]" onchange="$(this.form).submit()" />
+                                <input type="checkbox" disabled="@(Model.Archived || !await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanSetPresence))" name="present" value="true" checked="@participant.Presence[i]" onchange="$(this.form).submit()" />
                             </form>
                         </td>
                     }
                     <td>
-                        @if (!Model.Archived)
+                        @if (participant.Presence.Any())
                         {
-                            @if (participant.Presence.Any())
-                            {
-                                var presence = participant.Presence.DefaultIfEmpty(false).Average(p => p ? 100 : 0);
-                                <span class="@(presence < 50 ? "text-danger" : "text-muted")">
-                                    @presence.ToString("N0")%
-                                </span>
-                            }
-                            @if (participant.Status == Status.Approved)
-                            {
-                                <span class="text-danger">Ikke betalt</span>
-                            }
+                            var presence = participant.Presence.DefaultIfEmpty(false).Average(p => p ? 100 : 0);
+                            <span class="@(presence < 50 ? "text-danger" : "text-muted")">
+                                @presence.ToString("N0")%
+                            </span>
+                        }
+                        @if (participant.Status == Status.Approved)
+                        {
+                            <span class="text-danger">Ikke betalt</span>
                         }
                     </td>
                 </tr>

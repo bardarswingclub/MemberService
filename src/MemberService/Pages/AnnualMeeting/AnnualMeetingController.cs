@@ -38,7 +38,7 @@ namespace MemberService.Pages.AnnualMeeting
         public async Task<IActionResult> Index()
         {
             var userId = GetUserId();
-            var isAdmin = User.IsInRole(Roles.ADMIN);
+            var isAdmin = User.IsAdministrator();
 
             var meetings = await _database.AnnualMeetings
                 .Include(m => m.Attendees.Where(a => isAdmin || a.UserId == userId))

@@ -41,50 +41,53 @@
             </div>
             <input type="text" asp-for="Filter.Name" class="form-control" onchange="this.form.submit()"/>
         </div>
-        <div class="input-group mr-2 mb-2">
-            <div class="input-group-prepend">
-                <span class="input-group-text @(Model.Filter.ExcludeAcceptedElsewhere || Model.Filter.ExcludeApprovedElsewhere || Model.Filter.ExcludeRecommendedElsewhere ? "bg-info text-white" : "")">Utenom</span>
-            </div>
-            <div class="input-group-append">
-                <div class="input-group-text bg-white">
-                    <input class="mr-1" type="checkbox" asp-for="Filter.ExcludeAcceptedElsewhere" onchange="this.form.submit()"/>
-                    <label class="form-check-label" asp-for="Filter.ExcludeAcceptedElsewhere">@Status.AcceptedAndPayed.DisplayName()</label>
+        @if (Model.SemesterId is Guid)
+        {
+            <div class="input-group mr-2 mb-2">
+                <div class="input-group-prepend">
+                    <span class="input-group-text @(Model.Filter.ExcludeAcceptedElsewhere || Model.Filter.ExcludeApprovedElsewhere || Model.Filter.ExcludeRecommendedElsewhere ? "bg-info text-white" : "")">Utenom</span>
                 </div>
-                <div class="input-group-text bg-white">
-                    <input class="mr-1" type="checkbox" asp-for="Filter.ExcludeApprovedElsewhere" onchange="this.form.submit()"/>
-                    <label class="form-check-label" asp-for="Filter.ExcludeApprovedElsewhere">@Status.Approved.DisplayName()</label>
+                <div class="input-group-append">
+                    <div class="input-group-text bg-white">
+                        <input class="mr-1" type="checkbox" asp-for="Filter.ExcludeAcceptedElsewhere" onchange="this.form.submit()"/>
+                        <label class="form-check-label" asp-for="Filter.ExcludeAcceptedElsewhere">@Status.AcceptedAndPayed.DisplayName()</label>
+                    </div>
+                    <div class="input-group-text bg-white">
+                        <input class="mr-1" type="checkbox" asp-for="Filter.ExcludeApprovedElsewhere" onchange="this.form.submit()"/>
+                        <label class="form-check-label" asp-for="Filter.ExcludeApprovedElsewhere">@Status.Approved.DisplayName()</label>
+                    </div>
+                    <div class="input-group-text bg-white">
+                        <input class="mr-1" type="checkbox" asp-for="Filter.ExcludeRecommendedElsewhere" onchange="this.form.submit()"/>
+                        <label class="form-check-label" asp-for="Filter.ExcludeRecommendedElsewhere">@Status.Recommended.DisplayName()</label>
+                    </div>
                 </div>
-                <div class="input-group-text bg-white">
-                    <input class="mr-1" type="checkbox" asp-for="Filter.ExcludeRecommendedElsewhere" onchange="this.form.submit()"/>
-                    <label class="form-check-label" asp-for="Filter.ExcludeRecommendedElsewhere">@Status.Recommended.DisplayName()</label>
-                </div>
-            </div>
-            <div class="input-group-append">
-                <span class="input-group-text @(Model.Filter.ExcludeAcceptedElsewhere || Model.Filter.ExcludeApprovedElsewhere || Model.Filter.ExcludeRecommendedElsewhere ? "bg-info text-white" : "")">på andre kurs</span>
-            </div>
-        </div>
-        <div class="input-group mr-2 mb-2">
-            <div class="input-group-prepend">
-                <span class="input-group-text @(Model.Filter.OnlyWaitingListElsewhere || Model.Filter.OnlyRejectedElsewhere || Model.Filter.OnlyDeniedElsewhere ? "bg-info text-white" : "")">Bare</span>
-            </div>
-            <div class="input-group-append">
-                <div class="input-group-text bg-white">
-                    <input class="mr-1" type="checkbox" asp-for="Filter.OnlyWaitingListElsewhere" onchange="this.form.submit()"/>
-                    <label class="form-check-label" asp-for="Filter.OnlyWaitingListElsewhere">@Status.WaitingList.DisplayName()</label>
-                </div>
-                <div class="input-group-text bg-white">
-                    <input class="mr-1" type="checkbox" asp-for="Filter.OnlyRejectedElsewhere" onchange="this.form.submit()"/>
-                    <label class="form-check-label" asp-for="Filter.OnlyRejectedElsewhere">@Status.RejectedOrNotPayed.DisplayName()</label>
-                </div>
-                <div class="input-group-text bg-white">
-                    <input class="mr-1" type="checkbox" asp-for="Filter.OnlyDeniedElsewhere" onchange="this.form.submit()"/>
-                    <label class="form-check-label" asp-for="Filter.OnlyDeniedElsewhere">@Status.Denied.DisplayName()</label>
+                <div class="input-group-append">
+                    <span class="input-group-text @(Model.Filter.ExcludeAcceptedElsewhere || Model.Filter.ExcludeApprovedElsewhere || Model.Filter.ExcludeRecommendedElsewhere ? "bg-info text-white" : "")">på andre kurs</span>
                 </div>
             </div>
-            <div class="input-group-append">
-                <span class="input-group-text @(Model.Filter.OnlyWaitingListElsewhere || Model.Filter.OnlyRejectedElsewhere || Model.Filter.OnlyDeniedElsewhere ? "bg-info text-white" : "")">på andre kurs</span>
+            <div class="input-group mr-2 mb-2">
+                <div class="input-group-prepend">
+                    <span class="input-group-text @(Model.Filter.OnlyWaitingListElsewhere || Model.Filter.OnlyRejectedElsewhere || Model.Filter.OnlyDeniedElsewhere ? "bg-info text-white" : "")">Bare</span>
+                </div>
+                <div class="input-group-append">
+                    <div class="input-group-text bg-white">
+                        <input class="mr-1" type="checkbox" asp-for="Filter.OnlyWaitingListElsewhere" onchange="this.form.submit()"/>
+                        <label class="form-check-label" asp-for="Filter.OnlyWaitingListElsewhere">@Status.WaitingList.DisplayName()</label>
+                    </div>
+                    <div class="input-group-text bg-white">
+                        <input class="mr-1" type="checkbox" asp-for="Filter.OnlyRejectedElsewhere" onchange="this.form.submit()"/>
+                        <label class="form-check-label" asp-for="Filter.OnlyRejectedElsewhere">@Status.RejectedOrNotPayed.DisplayName()</label>
+                    </div>
+                    <div class="input-group-text bg-white">
+                        <input class="mr-1" type="checkbox" asp-for="Filter.OnlyDeniedElsewhere" onchange="this.form.submit()"/>
+                        <label class="form-check-label" asp-for="Filter.OnlyDeniedElsewhere">@Status.Denied.DisplayName()</label>
+                    </div>
+                </div>
+                <div class="input-group-append">
+                    <span class="input-group-text @(Model.Filter.OnlyWaitingListElsewhere || Model.Filter.OnlyRejectedElsewhere || Model.Filter.OnlyDeniedElsewhere ? "bg-info text-white" : "")">på andre kurs</span>
+                </div>
             </div>
-        </div>
+        }
         <div class="btn-group sr-only">
             <button type="submit" class="btn btn-success">Filtrer</button>
         </div>
@@ -117,7 +120,7 @@
         {
             <form method="post" class="tab-pane @(signups.Active ? "active" : "")" id="@signups.Key" role="tabpanel" aria-labelledby="@signups.Key-tab" disabled="@Model.Archived">
 
-                @if (!Model.Archived && User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN))
+                @if (!Model.Archived && await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanSetEventSignupStatus))
                 {
                     <div class="row mb-5">
                         <partial name="_SignupActions" for="@signups" />
@@ -127,8 +130,8 @@
                 <fieldset class="row" disabled="@Model.Archived">
                     @if (Model.RoleSignup)
                     {
-                        var leads = new ParticipantsModel(signups.Leads, Model.AllowPartnerSignup);
-                        var follows = new ParticipantsModel(signups.Follows, Model.AllowPartnerSignup);
+                        var leads = new ParticipantsModel(signups.Leads, Model);
+                        var follows = new ParticipantsModel(signups.Follows, Model);
 
                         <div class="col-lg-6">
                             <h4>Førere</h4>
@@ -169,7 +172,7 @@
                     }
                     else
                     {
-                        var solos = new ParticipantsModel(signups.Solos, Model.AllowPartnerSignup);
+                        var solos = new ParticipantsModel(signups.Solos, Model);
 
                         <div class="col-lg-12">
 

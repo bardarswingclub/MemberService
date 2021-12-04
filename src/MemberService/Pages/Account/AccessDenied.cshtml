@@ -2,9 +2,12 @@
 @model AccessDeniedModel
 @{
     ViewData["Title"] = "Forbudt";
+    Layout = "~/Pages/_CoverLayout.cshtml";
 }
 
-<header>
-    <h1 class="text-danger">@ViewData["Title"]</h1>
-    <p class="text-danger">Du har ikke tilgang hit.</p>
-</header>
+<div class="card mt-5 shadow">
+    <h1 class="text-danger text-center card-header">@ViewData["Title"]</h1>
+    <div class="card-body">
+        <p class="text-center">Du har desverre ikke tilgang til å se denne siden</p>
+    </div>
+</div>

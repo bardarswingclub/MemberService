@@ -6,7 +6,7 @@
 }
 <h2>
     <a asp-controller="Home" asp-action="Index">@ViewData["Title"]</a>
-    @if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN))
+    @if (await AuthorizationService.IsAuthorized(User, Policy.CanCreateEvent))
     {
         <div class="btn-group float-right">
             <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -44,7 +44,4 @@
     </tbody>
 </table>
 
-@if (User.IsInAnyRole(Roles.COORDINATOR, Roles.ADMIN))
-{
-    <a href="?archived=true">Se gamle arrangementer også</a>
-}
+<a href="?archived=true">Se gamle arrangementer også</a>

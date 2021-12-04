@@ -30,7 +30,7 @@
         <li class="nav-item">
 
         </li>
-        @if (User.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR))
+        @if (await AuthorizationService.IsAuthorized(User, id, Policy.CanEditEvent))
         {
             <li class="nav-item">
                 <a class="nav-link @(selected == "questions" ? "active" : "")" asp-controller="Questions" asp-action="Edit" asp-route-eventId="@id">Spørsmål</a>

@@ -4,14 +4,16 @@ using MemberService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MemberService.Data.Migrations
 {
     [DbContext(typeof(MemberContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211122141627_FixedPartner")]
+    partial class FixedPartner
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -128,47 +130,6 @@ namespace MemberService.Data.Migrations
                     b.HasIndex("SurveyId");
 
                     b.ToTable("Events");
-                });
-
-            modelBuilder.Entity("MemberService.Data.EventOrganizer", b =>
-                {
-                    b.Property<Guid>("EventId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<bool>("CanAddPresenceLesson")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("CanEdit")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("CanEditOrganizers")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("CanEditSignup")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("CanSetPresence")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("CanSetSignupStatus")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("EventId", "UserId");
-
-                    b.HasIndex("UpdatedBy");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("EventOrganizers");
                 });
 
             modelBuilder.Entity("MemberService.Data.EventSignup", b =>
@@ -785,31 +746,6 @@ namespace MemberService.Data.Migrations
                     b.Navigation("Survey");
                 });
 
-            modelBuilder.Entity("MemberService.Data.EventOrganizer", b =>
-                {
-                    b.HasOne("MemberService.Data.Event", "Event")
-                        .WithMany("Organizers")
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MemberService.Data.User", "UpdatedByUser")
-                        .WithMany()
-                        .HasForeignKey("UpdatedBy");
-
-                    b.HasOne("MemberService.Data.User", "User")
-                        .WithMany("Organizes")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Event");
-
-                    b.Navigation("UpdatedByUser");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("MemberService.Data.EventSignup", b =>
                 {
                     b.HasOne("MemberService.Data.Event", "Event")
@@ -1028,8 +964,6 @@ namespace MemberService.Data.Migrations
 
             modelBuilder.Entity("MemberService.Data.Event", b =>
                 {
-                    b.Navigation("Organizers");
-
                     b.Navigation("SignupOptions");
 
                     b.Navigation("Signups");
@@ -1082,8 +1016,6 @@ namespace MemberService.Data.Migrations
             modelBuilder.Entity("MemberService.Data.User", b =>
                 {
                     b.Navigation("EventSignups");
-
-                    b.Navigation("Organizes");
 
                     b.Navigation("Payments");
 

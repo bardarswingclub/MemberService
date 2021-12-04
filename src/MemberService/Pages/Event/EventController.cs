@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 
+using Clave.Expressionify;
+
 using MemberService.Auth;
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
@@ -18,7 +20,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MemberService.Pages.Event
 {
-    [Authorize(nameof(Policy.IsInstructor))]
+    [Authorize]
     public class EventController : Controller
     {
         private readonly MemberContext _database;
@@ -46,6 +48,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
+        [Authorize(nameof(Policy.CanListEvents))]
         public async Task<IActionResult> Index(bool archived = false)
         {
             var model = await _database.GetEvents(archived);
@@ -54,7 +57,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
-        [Authorize(nameof(Policy.IsCoordinator))]
+        [Authorize(nameof(Policy.CanCreateEvent))]
         public async Task<IActionResult> Create(EventType type = EventType.Class, Guid? semesterId = null)
         {
             if (semesterId.HasValue)
@@ -80,7 +83,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
+        [Authorize(nameof(Policy.CanCreateEvent))]
         public async Task<IActionResult> Create([FromForm] EventInputModel model)
         {
             if (!ModelState.IsValid)
@@ -106,6 +109,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
+        [Authorize(nameof(Policy.CanViewEvent))]
         public async Task<IActionResult> View(
             Guid id,
             [FromQuery] EventFilterModel filter)
@@ -133,7 +137,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
+        [Authorize(nameof(Policy.CanSetEventSignupStatus))]
         public async Task<IActionResult> View(Guid id, [FromForm] EventSaveModel input)
         {
             var currentUser = await GetCurrentUser();
@@ -200,7 +204,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
-        [Authorize(nameof(Policy.IsCoordinator))]
+        [Authorize(nameof(Policy.CanEditEvent))]
         public async Task<IActionResult> Edit(Guid id)
         {
             var model = await _database.GetEventInputModel(id);
@@ -214,7 +218,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
+        [Authorize(nameof(Policy.CanEditEvent))]
         public async Task<IActionResult> Edit(Guid id, [FromForm] EventInputModel model)
         {
             if (!ModelState.IsValid)
@@ -228,7 +232,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
+        [Authorize(nameof(Policy.CanEditEvent))]
         public async Task<IActionResult> SetStatus(Guid id, [FromForm] string status)
         {
             var ev = await _database.EditEvent(id, e => e.SetEventStatus(status));
@@ -249,32 +253,124 @@ namespace MemberService.Pages.Event
         }
 
         [HttpGet]
-        [Authorize(nameof(Policy.IsAdmin))]
+        [Authorize(nameof(Policy.CanEditEventOrganizers))]
+        public async Task<IActionResult> EditOrganizers(Guid id)
+        {
+            var model = await _database.Events
+                .Expressionify()
+                .Select(e => EditOrganizersModel.Create(e))
+                .FirstOrDefaultAsync(e => e.EventId == id);
+
+            return View(model);
+        }
+
+
+        [HttpGet]
+        [Authorize(nameof(Policy.CanEditEventOrganizers))]
+        public async Task<object> Users(Guid id, string q)
+        {
+            var model = await _database.Users
+                .Expressionify()
+                .Except(_database.EventOrganizers
+                    .Where(o => o.EventId == id)
+                    .Select(o => o.User))
+                .Where(u => u.NameMatches(q))
+                .Select(u => new
+                {
+                    value = u.Id,
+                    text = u.FullName + " (" + u.Email + ")"
+                })
+                .Take(10)
+                .ToListAsync();
+
+            return model;
+        }
+
+        [HttpPost]
+        [Authorize(nameof(Policy.CanEditEventOrganizers))]
+        public async Task<IActionResult> AddOrganizer(Guid id, [FromForm] EditEventOrganizerInput input)
+        {
+            _database.EventOrganizers.Add(new EventOrganizer
+            {
+                UserId = input.UserId,
+                EventId = id,
+                UpdatedAt = DateTime.UtcNow,
+                UpdatedByUser = await GetCurrentUser(),
+                CanEdit = input.CanEdit,
+                CanEditSignup = input.CanEditSignup,
+                CanSetSignupStatus = input.CanSetSignupStatus,
+                CanEditOrganizers = input.CanEditOrganizers,
+                CanSetPresence = input.CanSetPresence,
+                CanAddPresenceLesson = input.CanAddPresenceLesson,
+            });
+
+            await _database.SaveChangesAsync();
+
+            return RedirectToAction(nameof(EditOrganizers), new { id });
+        }
+
+        [HttpPost]
+        [Authorize(nameof(Policy.CanEditEventOrganizers))]
+        public async Task<IActionResult> EditOrganizer(Guid id, [FromForm] EditEventOrganizerInput input, [FromForm] bool remove)
+        {
+            var organizer = await _database.EventOrganizers
+                .FindAsync(id, input.UserId);
+
+            if (organizer != null)
+            {
+                if (remove)
+                {
+                    _database.EventOrganizers.Remove(organizer);
+                }
+                else
+                {
+                    organizer.UpdatedAt = DateTime.UtcNow;
+                    organizer.UpdatedByUser = await GetCurrentUser();
+                    organizer.CanEdit = input.CanEdit;
+                    organizer.CanEditSignup = input.CanEditSignup;
+                    organizer.CanSetSignupStatus = input.CanSetSignupStatus;
+                    organizer.CanEditOrganizers = input.CanEditOrganizers;
+                    organizer.CanSetPresence = input.CanSetPresence;
+                    organizer.CanAddPresenceLesson = input.CanAddPresenceLesson;
+                }
+
+                await _database.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(EditOrganizers), new { id });
+        }
+
+        [HttpPost]
+        [Authorize(nameof(Policy.CanEditEventOrganizers))]
+        public async Task<IActionResult> RemoveOrganizer(Guid id, [FromForm] string userId)
+        {
+            var organizer = await _database.EventOrganizers
+                .FindAsync(id, userId);
+
+            if (organizer != null)
+            {
+                _database.EventOrganizers.Remove(organizer);
+
+                await _database.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(EditOrganizers));
+        }
+
+        [HttpGet]
+        [Authorize(nameof(Policy.CanEditEventSignup))]
         public async Task<IActionResult> EditSignup(Guid id)
         {
             var signup = await _database.EventSignups
-                .Include(e => e.User)
-                .Include(e => e.Event)
-                    .ThenInclude(e => e.SignupOptions)
-                .Include(e => e.Event)
-                .ThenInclude(e => e.Semester)
-                .Include(e => e.Partner)
-                .AsNoTracking()
+                .Expressionify()
+                .Select(e => EditSignupModel.Create(e, _database.Users))
                 .FirstOrDefaultAsync(e => e.Id == id);
-
-            if (signup.Event.SemesterId.HasValue)
-            {
-                signup.Event.Semester.Courses = await _database.Events
-                    .Where(e => e.SemesterId == signup.Event.SemesterId)
-                    .AsNoTracking()
-                    .ToListAsync();
-            }
 
             return View(signup);
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsAdmin))]
+        [Authorize(nameof(Policy.CanEditEventSignup))]
         public async Task<IActionResult> EditSignup(Guid id, [FromForm] DanceRole role, [FromForm] string partnerEmail, [FromForm] Guid? eventId)
         {
             var signup = await _database.EventSignups
@@ -289,20 +385,20 @@ namespace MemberService.Pages.Event
                 var log = "Admin edited";
                 if (signup.Role != role)
                 {
-                    signup.Role = role;
                     log += $"\n\n{signup.Role} -> {role}";
+                    signup.Role = role;
                 }
 
                 if (signup.PartnerEmail != partnerEmail)
                 {
-                    signup.PartnerEmail = partnerEmail;
                     log += $"\n\n{signup.PartnerEmail} -> {partnerEmail}";
+                    signup.PartnerEmail = partnerEmail;
                 }
 
                 if (eventId.HasValue && signup.EventId != eventId)
                 {
-                    signup.EventId = eventId.Value;
                     log += $"\n\n{signup.EventId} -> {eventId}";
+                    signup.EventId = eventId.Value;
                 }
 
                 signup.AuditLog.Add(log, user);
@@ -313,7 +409,7 @@ namespace MemberService.Pages.Event
         }
 
         [HttpPost]
-        [Authorize(nameof(Policy.IsCoordinator))]
+        [Authorize(nameof(Policy.CanCreateEvent))]
         public async Task<IActionResult> Copy(Guid id)
         {
             var entry = await _database.CloneEvent(id, await GetCurrentUser());
@@ -338,5 +434,22 @@ namespace MemberService.Pages.Event
                 id,
                 slug = title.Slugify()
             });
+
+        public record EditEventOrganizerInput
+        {
+            public string UserId { get; init; }
+
+            public bool CanEdit { get; init; }
+
+            public bool CanEditSignup { get; set; }
+
+            public bool CanSetSignupStatus { get; set; }
+
+            public bool CanEditOrganizers { get; set; }
+
+            public bool CanSetPresence { get; set; }
+
+            public bool CanAddPresenceLesson { get; set; }
+        }
     }
 }

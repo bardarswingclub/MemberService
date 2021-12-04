@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+
 using Clave.ExtensionMethods;
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace MemberService.Pages.Event
 {
@@ -30,7 +34,7 @@ namespace MemberService.Pages.Event
 
         public PartnerSignupModel Partner { get; private set; }
 
-        public static EventSignupModel Create(EventSignup s)
+        public static EventSignupModel Create(EventSignup s, User partner)
             => new()
             {
                 Id = s.Id,
@@ -40,10 +44,9 @@ namespace MemberService.Pages.Event
                 Priority = s.Priority,
                 SignedUpAt = s.SignedUpAt,
                 Status = s.Status,
-                Partner = PartnerSignupModel.Create(s.PartnerEmail, s.Partner, s.EventId),
+                Partner = PartnerSignupModel.Create(s.PartnerEmail, partner, s.EventId),
                 Role = s.Role,
-                AuditLog = s.AuditLog
-                    .ToReadOnlyCollection()
+                AuditLog = s.AuditLog.ToList()
             };
     }
 }
