@@ -1,21 +1,18 @@
-﻿using System.Threading.Tasks;
+﻿namespace MemberService.Components.CoronaAlert;
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace MemberService.Components.CoronaAlert
+public class CoronaAlertViewComponent : ViewComponent
 {
-    public class CoronaAlertViewComponent : ViewComponent
+
+    public async Task<IViewComponentResult> InvokeAsync()
     {
-
-        public async Task<IViewComponentResult> InvokeAsync()
+        await Task.CompletedTask;
+        if (!User.Identity.IsAuthenticated)
         {
-            await Task.CompletedTask;
-            if (!User.Identity.IsAuthenticated)
-            {
-                return View();
-            }
-
             return View();
         }
+
+        return View();
     }
 }

@@ -1,33 +1,34 @@
-﻿using System;
+﻿namespace MemberService.Pages.Semester.Survey;
+
+
+
 using Clave.Expressionify;
+
 using MemberService.Data;
 
-namespace MemberService.Pages.Semester.Survey
+public partial class ResponseModel
 {
-    public partial class ResponseModel
-    {
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public string UserId { get; set; }
+    public string UserId { get; set; }
 
-        public bool HasPayedMembershipThisYear { get; set; }
+    public bool HasPayedMembershipThisYear { get; set; }
 
-        public bool HasPayedTrainingFeeThisSemester { get; set; }
+    public bool HasPayedTrainingFeeThisSemester { get; set; }
 
-        public bool HasPayedClassesFeeThisSemester { get; set; }
+    public bool HasPayedClassesFeeThisSemester { get; set; }
 
-        public Guid OptionId { get; set; }
+    public Guid OptionId { get; set; }
 
-        [Expressionify]
-        public static ResponseModel Create(Response r, QuestionAnswer a) =>
-            new()
-            {
-                UserId = r.UserId,
-                Name = r.User.FullName,
-                HasPayedMembershipThisYear = r.User.HasPayedMembershipThisYear(),
-                HasPayedTrainingFeeThisSemester = r.User.HasPayedTrainingFeeThisSemester(),
-                HasPayedClassesFeeThisSemester = r.User.HasPayedClassesFeeThisSemester(),
-                OptionId = a.OptionId
-            };
-    }
+    [Expressionify]
+    public static ResponseModel Create(Response r, QuestionAnswer a) =>
+        new()
+        {
+            UserId = r.UserId,
+            Name = r.User.FullName,
+            HasPayedMembershipThisYear = r.User.HasPayedMembershipThisYear(),
+            HasPayedTrainingFeeThisSemester = r.User.HasPayedTrainingFeeThisSemester(),
+            HasPayedClassesFeeThisSemester = r.User.HasPayedClassesFeeThisSemester(),
+            OptionId = a.OptionId
+        };
 }

@@ -1,10 +1,10 @@
-﻿using MemberService.Data;
-using System.Collections.Generic;
+﻿namespace MemberService.Pages.Admin;
 
-namespace MemberService.Pages.Admin
+using MemberService.Data;
+
+
+
+public class AdminModel
 {
-    public class AdminModel
-    {
-        public IReadOnlyCollection<(MemberRole, IReadOnlyCollection<User>)> Roles { get; set; }
-    }
+    public IReadOnlyCollection<(MemberRole, IReadOnlyCollection<User>)> Roles { get; set; }
 }

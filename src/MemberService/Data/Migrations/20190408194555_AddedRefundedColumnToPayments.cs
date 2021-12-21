@@ -1,23 +1,22 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿namespace MemberService.Data.Migrations;
 
-namespace MemberService.Data.Migrations
+using Microsoft.EntityFrameworkCore.Migrations;
+
+public partial class AddedRefundedColumnToPayments : Migration
 {
-    public partial class AddedRefundedColumnToPayments : Migration
+    protected override void Up(MigrationBuilder migrationBuilder)
     {
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.AddColumn<bool>(
-                name: "Refunded",
-                table: "Payments",
-                nullable: false,
-                defaultValue: false);
-        }
+        migrationBuilder.AddColumn<bool>(
+            name: "Refunded",
+            table: "Payments",
+            nullable: false,
+            defaultValue: false);
+    }
 
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropColumn(
-                name: "Refunded",
-                table: "Payments");
-        }
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.DropColumn(
+            name: "Refunded",
+            table: "Payments");
     }
 }

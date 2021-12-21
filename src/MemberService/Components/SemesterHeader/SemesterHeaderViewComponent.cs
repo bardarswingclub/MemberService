@@ -1,67 +1,63 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿namespace MemberService.Components.SemesterHeader;
+
 using MemberService.Data;
-using MemberService.Pages.Event;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.EntityFrameworkCore;
 
-namespace MemberService.Components.SemesterHeader
+public class SemesterHeaderViewComponent : ViewComponent
 {
-    public class SemesterHeaderViewComponent : ViewComponent
+    private readonly MemberContext _database;
+
+    public SemesterHeaderViewComponent(MemberContext database)
     {
-        private readonly MemberContext _database;
+        _database = database;
+    }
 
-        public SemesterHeaderViewComponent(MemberContext database)
+    public async Task<IViewComponentResult> InvokeAsync(Guid? id)
+    {
+        if (id == null)
         {
-            _database = database;
+            return new ContentViewComponentResult(string.Empty);
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(Guid? id)
-        {
-            if (id == null)
+        var model = await _database.Semesters
+            .Select(e => new Model
             {
-                return new ContentViewComponentResult(string.Empty);
-            }
+                Id = e.Id,
+                Title = e.Title,
+                IsActive = e.IsActive(),
+                Events = e.Courses
+                    .Where(c => !c.Archived)
+                    .Select(c => new Model.Event
+                    {
+                        Id = c.Id,
+                        Title = c.Title
+                    })
+                    .OrderBy(c => c.Title)
+                    .ToList()
+            })
+            .FirstOrDefaultAsync(e => e.Id == id.Value);
 
-            var model = await _database.Semesters
-                .Select(e => new Model
-                {
-                    Id = e.Id,
-                    Title = e.Title,
-                    IsActive = e.IsActive(),
-                    Events = e.Courses
-                        .Where(c => !c.Archived)
-                        .Select(c => new Model.Event{
-                            Id = c.Id,
-                            Title = c.Title
-                        })
-                        .OrderBy(c => c.Title)
-                        .ToList()
-                })
-                .FirstOrDefaultAsync(e => e.Id == id.Value);
+        return View(model);
+    }
 
-            return View(model);
-        }
+    public class Model
+    {
+        public Guid Id { get; set; }
 
-        public class Model
+        public string Title { get; set; }
+
+        public bool IsActive { get; set; }
+
+        public IReadOnlyCollection<Event> Events { get; set; }
+
+        public class Event
         {
             public Guid Id { get; set; }
 
             public string Title { get; set; }
-
-            public bool IsActive { get; set; }
-
-            public IReadOnlyCollection<Event> Events { get; set; }
-
-            public class Event
-            {
-                public Guid Id { get; set; }
-
-                public string Title { get; set; }
-            }
         }
     }
 }

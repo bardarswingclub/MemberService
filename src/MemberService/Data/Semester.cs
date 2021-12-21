@@ -1,22 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace MemberService.Data;
 
-namespace MemberService.Data
+
+
+
+public class Semester
 {
-    public class Semester
-    {
-        public Guid Id { get; set; }
+    public Guid Id { get; set; }
 
-        public string Title { get; set; }
+    public string Title { get; set; }
 
-        public DateTime SignupOpensAt { get; set; }
+    public DateTime SignupOpensAt { get; set; }
 
-        public Guid? SurveyId { get; set; }
+    public Guid? SurveyId { get; set; }
 
-        public Survey Survey { get; set; }
+    public Survey Survey { get; set; }
 
-        public ICollection<Event> Courses { get; set; } = new List<Event>();
+    public ICollection<Event> Courses { get; set; } = new List<Event>();
 
-        public string SignupHelpText { get; set; }
-    }
+    public string SignupHelpText { get; set; }
 }

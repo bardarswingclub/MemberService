@@ -1,5 +1,7 @@
+namespace MemberService.Pages.Account;
+
 using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -8,80 +10,77 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel;
 using MemberService.Services;
 
-namespace MemberService.Pages.Account
+[AllowAnonymous]
+public class LoginModel : PageModel
 {
-    [AllowAnonymous]
-    public class LoginModel : PageModel
+    private readonly ILoginService _loginService;
+    private readonly IEmailService _emailService;
+
+    public LoginModel(
+        ILoginService loginService,
+        IEmailService emailService)
     {
-        private readonly ILoginService _loginService;
-        private readonly IEmailService _emailService;
+        _loginService = loginService;
+        _emailService = emailService;
+    }
 
-        public LoginModel(
-            ILoginService loginService,
-            IEmailService emailService)
+    [BindProperty]
+    public InputModel Input { get; set; }
+
+    [TempData]
+    public string ErrorMessage { get; set; }
+
+    public class InputModel
+    {
+        [Required]
+        [EmailAddress]
+        [DisplayName("E-post")]
+        public string Email { get; set; }
+
+        public string ReturnUrl { get; set; }
+    }
+
+    public async Task<IActionResult> OnGetAsync(string returnUrl, string email = null)
+    {
+        if (_loginService.IsLoggedIn(User))
         {
-            _loginService = loginService;
-            _emailService = emailService;
+            return RedirectToAction("Index", "Home");
         }
 
-        [BindProperty]
-        public InputModel Input { get; set; }
-
-        [TempData]
-        public string ErrorMessage { get; set; }
-
-        public class InputModel
+        if (!string.IsNullOrEmpty(ErrorMessage))
         {
-            [Required]
-            [EmailAddress]
-            [DisplayName("E-post")]
-            public string Email { get; set; }
-
-            public string ReturnUrl { get; set; }
+            ModelState.AddModelError(string.Empty, ErrorMessage);
         }
 
-        public async Task<IActionResult> OnGetAsync(string returnUrl, string email = null)
+        Input = new InputModel
         {
-            if (_loginService.IsLoggedIn(User))
-            {
-                return RedirectToAction("Index", "Home");
-            }
+            ReturnUrl = returnUrl,
+            Email = email
+        };
 
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                ModelState.AddModelError(string.Empty, ErrorMessage);
-            }
+        // Clear the existing external cookie to ensure a clean login process
+        await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
-            Input = new InputModel
-            {
-                ReturnUrl = returnUrl,
-                Email = email
-            };
+        return Page();
+    }
 
-            // Clear the existing external cookie to ensure a clean login process
-            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
-
+    public async Task<IActionResult> OnPostAsync()
+    {
+        if (!ModelState.IsValid)
+        {
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        var email = Input.Email.Trim();
+        var user = await _loginService.GetOrCreateUser(email);
+
+        await _emailService.SendLoginEmail(email, user.FullName, new Emails.Account.LoginModel
         {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
+            Name = user.FullName,
+            CallbackUrl = await _loginService.LoginLink(user, Input.ReturnUrl),
+            Code = await _loginService.LoginCode(user)
+        });
 
-            var email = Input.Email.Trim();
-            var user = await _loginService.GetOrCreateUser(email);
-
-            await _emailService.SendLoginEmail(email, user.FullName, new Emails.Account.LoginModel
-            {
-                Name = user.FullName,
-                CallbackUrl = await _loginService.LoginLink(user, Input.ReturnUrl),
-                Code = await _loginService.LoginCode(user)
-            });
-
-            return RedirectToPage("/Account/LoginConfirmation", null, new { email = email, returnUrl = Input.ReturnUrl });
-        }
+        return RedirectToPage("/Account/LoginConfirmation", null, new { email = email, returnUrl = Input.ReturnUrl });
     }
 }

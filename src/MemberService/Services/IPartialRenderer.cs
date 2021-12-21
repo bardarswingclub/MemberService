@@ -1,9 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿namespace MemberService.Services;
 
-namespace MemberService.Services
+
+
+public interface IPartialRenderer
 {
-    public interface IPartialRenderer
-    {
-        Task<string> RenderPartial<TModel>(string partialName, TModel model);
-    }
+    Task<string> RenderPartial<TModel>(string partialName, TModel model);
 }

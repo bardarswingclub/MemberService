@@ -1,11 +1,10 @@
+namespace MemberService.Pages.Account;
+
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace MemberService.Pages.Account
+public class PrivacyModel : PageModel
 {
-    public class PrivacyModel : PageModel
+    public void OnGet()
     {
-        public void OnGet()
-        {
-        }
     }
 }

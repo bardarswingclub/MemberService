@@ -1,88 +1,91 @@
-﻿using MemberService.Data;
+﻿namespace MemberService.Services;
+
+using MemberService.Data;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+
 using Stripe;
 using Stripe.Checkout;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace MemberService.Services
+
+
+
+
+
+public class PaymentService : IPaymentService
 {
-    public class PaymentService : IPaymentService
+    private readonly SessionService _sessionService;
+    private readonly ChargeService _chargeService;
+    private readonly CustomerService _customerService;
+    private readonly RefundService _refundService;
+    private readonly UserManager<User> _userManager;
+    private readonly MemberContext _memberContext;
+
+    public PaymentService(
+        SessionService sessionService,
+        ChargeService chargeService,
+        CustomerService customerService,
+        UserManager<User> userManager,
+        MemberContext memberContext,
+        RefundService refundService)
     {
-        private readonly SessionService _sessionService;
-        private readonly ChargeService _chargeService;
-        private readonly CustomerService _customerService;
-        private readonly RefundService _refundService;
-        private readonly UserManager<User> _userManager;
-        private readonly MemberContext _memberContext;
+        _sessionService = sessionService;
+        _chargeService = chargeService;
+        _customerService = customerService;
+        _userManager = userManager;
+        _memberContext = memberContext;
+        _refundService = refundService;
+    }
 
-        public PaymentService(
-            SessionService sessionService,
-            ChargeService chargeService,
-            CustomerService customerService,
-            UserManager<User> userManager,
-            MemberContext memberContext, 
-            RefundService refundService)
+    private static readonly Dictionary<string, (bool?, bool?, bool?)> DescriptionMap = new()
+    {
+        ["medlemskap"] = (true, null, null),
+        ["medlemskap+kurs"] = (true, true, true),
+        ["medlemskapgratisKurs"] = (true, true, true),
+        ["medlemskap+trening"] = (true, true, null),
+        ["2018"] = (false, false, false)
+    };
+
+    public async Task<string> CreatePayment(
+        string name,
+        string email,
+        string title,
+        string description,
+        decimal amount,
+        string successUrl,
+        string cancelUrl,
+        bool includesMembership = false,
+        bool includesTraining = false,
+        bool includesClasses = false,
+        Guid? eventSignupId = null)
+    {
+        var customerId = await GetCustomerId(email, name);
+
+        var session = await _sessionService.CreateAsync(new SessionCreateOptions
         {
-            _sessionService = sessionService;
-            _chargeService = chargeService;
-            _customerService = customerService;
-            _userManager = userManager;
-            _memberContext = memberContext;
-            _refundService = refundService;
-        }
-
-        private static readonly Dictionary<string, (bool?, bool?, bool?)> DescriptionMap = new()
-        {
-            ["medlemskap"] = (true, null, null),
-            ["medlemskap+kurs"] = (true, true, true),
-            ["medlemskapgratisKurs"] = (true, true, true),
-            ["medlemskap+trening"] = (true, true, null),
-            ["2018"] = (false, false, false)
-        };
-
-        public async Task<string> CreatePayment(
-            string name,
-            string email,
-            string title,
-            string description,
-            decimal amount,
-            string successUrl,
-            string cancelUrl,
-            bool includesMembership = false,
-            bool includesTraining = false,
-            bool includesClasses = false,
-            Guid? eventSignupId = null)
-        {
-            var customerId = await GetCustomerId(email, name);
-
-            var session = await _sessionService.CreateAsync(new SessionCreateOptions
+            Customer = customerId,
+            PaymentIntentData = new SessionPaymentIntentDataOptions
             {
-                Customer = customerId,
-                PaymentIntentData = new SessionPaymentIntentDataOptions
+                Description = title,
+                Metadata = new Dictionary<string, string>
                 {
-                    Description = title,
-                    Metadata = new Dictionary<string, string>
-                    {
-                        ["name"] = name,
-                        ["email"] = email,
-                        ["amount_owed"] = amount.ToString(),
-                        ["long_desc"] = description,
-                        ["short_desc"] = title,
-                        ["inc_membership"] = includesMembership ? "yes" : "no",
-                        ["inc_training"] = includesTraining ? "yes" : "no",
-                        ["inc_classes"] = includesClasses ? "yes" : "no",
-                        ["event_signup"] = eventSignupId?.ToString()
-                    }
-                },
-                PaymentMethodTypes = new List<string>
+                    ["name"] = name,
+                    ["email"] = email,
+                    ["amount_owed"] = amount.ToString(),
+                    ["long_desc"] = description,
+                    ["short_desc"] = title,
+                    ["inc_membership"] = includesMembership ? "yes" : "no",
+                    ["inc_training"] = includesTraining ? "yes" : "no",
+                    ["inc_classes"] = includesClasses ? "yes" : "no",
+                    ["event_signup"] = eventSignupId?.ToString()
+                }
+            },
+            PaymentMethodTypes = new List<string>
                 {
                     "card",
                 },
-                LineItems = new List<SessionLineItemOptions>
+            LineItems = new List<SessionLineItemOptions>
                 {
                     new()
                     {
@@ -93,231 +96,230 @@ namespace MemberService.Services
                         Quantity = 1
                     }
                 },
-                SuccessUrl = successUrl.Replace("%7BCHECKOUT_SESSION_ID%7D", "{CHECKOUT_SESSION_ID}"),
-                CancelUrl = cancelUrl,
-            });
+            SuccessUrl = successUrl.Replace("%7BCHECKOUT_SESSION_ID%7D", "{CHECKOUT_SESSION_ID}"),
+            CancelUrl = cancelUrl,
+        });
 
-            return session.Id;
+        return session.Id;
+    }
+
+    private async Task<string> GetCustomerId(string email, string name)
+    {
+        if (email == null || name == null)
+        {
+            return null;
         }
 
-        private async Task<string> GetCustomerId(string email, string name)
+        var existingCustomers = await _customerService.ListAsync(new CustomerListOptions
         {
-            if(email == null || name == null)
-            {
-                return null;
-            }
+            Email = email,
+            Limit = 1
+        });
 
-            var existingCustomers = await _customerService.ListAsync(new CustomerListOptions
+        var customer = existingCustomers.FirstOrDefault()
+            ?? await _customerService.CreateAsync(new CustomerCreateOptions
             {
                 Email = email,
-                Limit = 1
+                Name = name
             });
 
-            var customer = existingCustomers.FirstOrDefault()
-                ?? await _customerService.CreateAsync(new CustomerCreateOptions
-                {
-                    Email = email,
-                    Name = name
-                });
+        return customer.Id;
+    }
 
-            return customer.Id;
-        }
-
-        public async Task<(int payments, int updates)> ImportPayments(string email)
+    public async Task<(int payments, int updates)> ImportPayments(string email)
+    {
+        var existingCustomers = await _customerService.ListAsync(new CustomerListOptions
         {
-            var existingCustomers = await _customerService.ListAsync(new CustomerListOptions
-            {
-                Email = email
-            });
+            Email = email
+        });
 
-            var paymentCreatedCount = 0;
-            var paymentUpdatedCount = 0;
-            foreach (var customer in existingCustomers)
-            {
-                var charges = await _chargeService.ListAsync(new ChargeListOptions
-                {
-                    Customer = customer.Id,
-                    Created = new DateRangeOptions
-                    {
-                        GreaterThan = new DateTime(2019, 1, 1)
-                    },
-                });
-
-                var (_, payments, updates) = await SavePayments(charges);
-                paymentCreatedCount += payments;
-                paymentUpdatedCount += updates;
-            }
-
-            return (paymentCreatedCount, paymentUpdatedCount);
-        }
-
-        public async Task<(int users, int payments, int updates)> SavePayment(string sessionId)
+        var paymentCreatedCount = 0;
+        var paymentUpdatedCount = 0;
+        foreach (var customer in existingCustomers)
         {
-            var session = await _sessionService.GetAsync(sessionId);
-
             var charges = await _chargeService.ListAsync(new ChargeListOptions
             {
-                PaymentIntent = session.PaymentIntentId
+                Customer = customer.Id,
+                Created = new DateRangeOptions
+                {
+                    GreaterThan = new DateTime(2019, 1, 1)
+                },
             });
 
-            return await SavePayments(charges);
+            var (_, payments, updates) = await SavePayments(charges);
+            paymentCreatedCount += payments;
+            paymentUpdatedCount += updates;
         }
 
-        public async Task<(int users, int payments, int updates)> SavePayments(IEnumerable<Charge> charges)
+        return (paymentCreatedCount, paymentUpdatedCount);
+    }
+
+    public async Task<(int users, int payments, int updates)> SavePayment(string sessionId)
+    {
+        var session = await _sessionService.GetAsync(sessionId);
+
+        var charges = await _chargeService.ListAsync(new ChargeListOptions
         {
-            var userCreatedCount = 0;
-            var paymentCreatedCount = 0;
-            var paymentUpdatedCount = 0;
-            foreach (var charge in charges)
+            PaymentIntent = session.PaymentIntentId
+        });
+
+        return await SavePayments(charges);
+    }
+
+    public async Task<(int users, int payments, int updates)> SavePayments(IEnumerable<Charge> charges)
+    {
+        var userCreatedCount = 0;
+        var paymentCreatedCount = 0;
+        var paymentUpdatedCount = 0;
+        foreach (var charge in charges)
+        {
+            var result = await SavePayment(charge);
+            userCreatedCount += result == Status.CreatedUser ? 1 : 0;
+            paymentCreatedCount += result == Status.CreatedPayment ? 1 : 0;
+            paymentUpdatedCount += result == Status.UpdatedPayment ? 1 : 0;
+        }
+        return (userCreatedCount, paymentCreatedCount, paymentUpdatedCount);
+    }
+
+    public async Task<bool> Refund(string paymentId)
+    {
+        var payment = await _memberContext.Payments.FindAsync(paymentId);
+
+        await _refundService.CreateAsync(new RefundCreateOptions
+        {
+            Amount = (long?)(payment.Amount * 100),
+            Charge = payment.StripeChargeId,
+            Reason = "requested_by_customer",
+            Metadata = new Dictionary<string, string>
             {
-                var result = await SavePayment(charge);
-                userCreatedCount += result == Status.CreatedUser ? 1 : 0;
-                paymentCreatedCount += result == Status.CreatedPayment ? 1 : 0;
-                paymentUpdatedCount += result == Status.UpdatedPayment ? 1 : 0;
+                ["Description"] = "Refunded by customer request"
             }
-            return (userCreatedCount, paymentCreatedCount, paymentUpdatedCount);
-        }
+        });
 
-        public async Task<bool> Refund(string paymentId)
+        payment.Refunded = true;
+
+        await _memberContext.SaveChangesAsync();
+
+        return true;
+    }
+
+    private async Task<Status> SavePayment(Charge charge)
+    {
+        var email = charge.Customer?.Email ?? charge.Metadata.GetValueOrDefault("email");
+        var name = charge.Customer?.Name ?? charge.Metadata.GetValueOrDefault("name");
+
+        if (email is null) return Status.Nothing;
+
+        var user = await _memberContext.Users
+            .Include(u => u.Payments)
+            .Include(u => u.EventSignups)
+                .ThenInclude(s => s.AuditLog)
+            .FirstOrDefaultAsync(u => u.NormalizedEmail == email.ToUpperInvariant());
+
+        if (user is null)
         {
-            var payment = await _memberContext.Payments.FindAsync(paymentId);
-
-            await _refundService.CreateAsync(new RefundCreateOptions
+            await _userManager.CreateAsync(new User
             {
-                Amount = (long?)(payment.Amount * 100),
-                Charge = payment.StripeChargeId,
-                Reason = "requested_by_customer",
-                Metadata = new Dictionary<string, string>
-                {
-                    ["Description"] = "Refunded by customer request"
-                }
-            });
-
-            payment.Refunded = true;
-
-            await _memberContext.SaveChangesAsync();
-
-            return true;
-        }
-
-        private async Task<Status> SavePayment(Charge charge)
-        {
-            var email = charge.Customer?.Email ?? charge.Metadata.GetValueOrDefault("email");
-            var name = charge.Customer?.Name ?? charge.Metadata.GetValueOrDefault("name");
-
-            if (email is null) return Status.Nothing;
-
-            var user = await _memberContext.Users
-                .Include(u => u.Payments)
-                .Include(u => u.EventSignups)
-                    .ThenInclude(s => s.AuditLog)
-                .FirstOrDefaultAsync(u => u.NormalizedEmail == email.ToUpperInvariant());
-
-            if (user is null)
-            {
-                await _userManager.CreateAsync(new User
-                {
-                    UserName = email,
-                    Email = email,
-                    FullName = name,
-                    Payments =
+                UserName = email,
+                Email = email,
+                FullName = name,
+                Payments =
                     {
                         CreatePayment(charge)
                     }
-                });
-
-                await _memberContext.SaveChangesAsync();
-
-                return Status.CreatedUser;
-            }
-
-            if (user.Payments.FirstOrDefault(p => p.StripeChargeId == charge.Id) is Payment payment)
-            {
-                payment.Refunded = charge.Refunded || charge.Status == "failed";
-                payment.EventSignup = GetEventSignup(charge, user.EventSignups);
-                payment.IncludesMembership = charge.Metadata.TryGetValue("inc_membership", out var m) && m == "yes";
-                payment.IncludesTraining = charge.Metadata.TryGetValue("inc_training", out var t) && t == "yes";
-                payment.IncludesClasses = charge.Metadata.TryGetValue("inc_classes", out var c) && c == "yes";
-
-                SetEventSignupStatus(payment, user);
-
-                var changes = await _memberContext.SaveChangesAsync();
-
-                return changes == 0
-                    ? Status.Nothing
-                    : Status.UpdatedPayment;
-            }
-
-            payment = CreatePayment(charge, user.EventSignups);
-            SetEventSignupStatus(payment, user);
-            user.Payments.Add(payment);
+            });
 
             await _memberContext.SaveChangesAsync();
 
-            return Status.CreatedPayment;
+            return Status.CreatedUser;
         }
 
-        private static void SetEventSignupStatus(Payment payment, User user)
+        if (user.Payments.FirstOrDefault(p => p.StripeChargeId == charge.Id) is Payment payment)
         {
-            if (payment.EventSignup?.Status == Data.ValueTypes.Status.Approved && !payment.Refunded)
+            payment.Refunded = charge.Refunded || charge.Status == "failed";
+            payment.EventSignup = GetEventSignup(charge, user.EventSignups);
+            payment.IncludesMembership = charge.Metadata.TryGetValue("inc_membership", out var m) && m == "yes";
+            payment.IncludesTraining = charge.Metadata.TryGetValue("inc_training", out var t) && t == "yes";
+            payment.IncludesClasses = charge.Metadata.TryGetValue("inc_classes", out var c) && c == "yes";
+
+            SetEventSignupStatus(payment, user);
+
+            var changes = await _memberContext.SaveChangesAsync();
+
+            return changes == 0
+                ? Status.Nothing
+                : Status.UpdatedPayment;
+        }
+
+        payment = CreatePayment(charge, user.EventSignups);
+        SetEventSignupStatus(payment, user);
+        user.Payments.Add(payment);
+
+        await _memberContext.SaveChangesAsync();
+
+        return Status.CreatedPayment;
+    }
+
+    private static void SetEventSignupStatus(Payment payment, User user)
+    {
+        if (payment.EventSignup?.Status == Data.ValueTypes.Status.Approved && !payment.Refunded)
+        {
+            payment.EventSignup.Status = Data.ValueTypes.Status.AcceptedAndPayed;
+            payment.EventSignup.AuditLog.Add("Paid", user, payment.PayedAtUtc);
+        }
+    }
+
+    private static Payment CreatePayment(Charge charge, ICollection<EventSignup> eventSignups = null)
+    {
+        var (includesMembership, includesTraining, includesClasses) = GetIncludedFees(charge.Description);
+
+        return new Payment
+        {
+            Amount = charge.Amount / 100m,
+            Description = charge.Description,
+            PayedAtUtc = charge.Created,
+            StripeChargeId = charge.Id,
+            IncludesMembership = charge.Metadata.TryGetValue("inc_membership", out var m) && m == "yes" || includesMembership,
+            IncludesTraining = charge.Metadata.TryGetValue("inc_training", out var t) && t == "yes" || includesTraining,
+            IncludesClasses = charge.Metadata.TryGetValue("inc_classes", out var c) && c == "yes" || includesClasses,
+            Refunded = charge.Refunded || charge.Status == "failed",
+            EventSignup = GetEventSignup(charge, eventSignups)
+        };
+    }
+
+    private static (bool, bool, bool) GetIncludedFees(string description)
+    {
+        var membership = false;
+        var training = false;
+        var classes = false;
+        foreach (var (d, (m, t, c)) in DescriptionMap)
+        {
+            if (description.Contains(d, StringComparison.OrdinalIgnoreCase))
             {
-                payment.EventSignup.Status = Data.ValueTypes.Status.AcceptedAndPayed;
-                payment.EventSignup.AuditLog.Add("Paid", user, payment.PayedAtUtc);
+                membership = m ?? membership;
+                training = t ?? training;
+                classes = c ?? classes;
             }
         }
 
-        private static Payment CreatePayment(Charge charge, ICollection<EventSignup> eventSignups = null)
-        {
-            var (includesMembership, includesTraining, includesClasses) = GetIncludedFees(charge.Description);
+        return (membership, training, classes);
+    }
 
-            return new Payment
-            {
-                Amount = charge.Amount / 100m,
-                Description = charge.Description,
-                PayedAtUtc = charge.Created,
-                StripeChargeId = charge.Id,
-                IncludesMembership = charge.Metadata.TryGetValue("inc_membership", out var m) && m == "yes" || includesMembership,
-                IncludesTraining = charge.Metadata.TryGetValue("inc_training", out var t) && t == "yes" || includesTraining,
-                IncludesClasses = charge.Metadata.TryGetValue("inc_classes", out var c) && c == "yes" || includesClasses,
-                Refunded = charge.Refunded || charge.Status == "failed",
-                EventSignup = GetEventSignup(charge, eventSignups)
-            };
-        }
+    private static EventSignup GetEventSignup(Charge charge, ICollection<EventSignup> eventSignups)
+    {
+        var id = charge.Metadata.GetValueOrDefault("event_signup")?.ToGuid();
 
-        private static (bool, bool, bool) GetIncludedFees(string description)
-        {
-            var membership = false;
-            var training = false;
-            var classes = false;
-            foreach (var (d, (m, t, c)) in DescriptionMap)
-            {
-                if (description.Contains(d, StringComparison.OrdinalIgnoreCase))
-                {
-                    membership = m ?? membership;
-                    training = t ?? training;
-                    classes = c ?? classes;
-                }
-            }
+        if (id == null)
+            return null;
 
-            return (membership, training, classes);
-        }
+        return eventSignups?.FirstOrDefault(e => e.Id == id);
+    }
 
-        private static EventSignup GetEventSignup(Charge charge, ICollection<EventSignup> eventSignups)
-        {
-            var id = charge.Metadata.GetValueOrDefault("event_signup")?.ToGuid();
-
-            if (id == null)
-                return null;
-
-            return eventSignups?.FirstOrDefault(e => e.Id == id);
-        }
-
-        private enum Status
-        {
-            Nothing,
-            CreatedUser,
-            CreatedPayment,
-            UpdatedPayment
-        }
+    private enum Status
+    {
+        Nothing,
+        CreatedUser,
+        CreatedPayment,
+        UpdatedPayment
     }
 }

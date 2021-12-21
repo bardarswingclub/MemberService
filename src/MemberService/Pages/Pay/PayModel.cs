@@ -1,13 +1,12 @@
-﻿namespace MemberService.Pages.Pay
+﻿namespace MemberService.Pages.Pay;
+
+public class PayModel
 {
-    public class PayModel
-    {
-        public string Id { get; set; }
+    public string Id { get; set; }
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public string Description { get; set; }
+    public string Description { get; set; }
 
-        public decimal Amount { get; set; }
-    }
+    public decimal Amount { get; set; }
 }

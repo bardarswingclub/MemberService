@@ -1,10 +1,10 @@
-using System.Collections.Generic;
+namespace MemberService.Data;
+
+
+
 using Microsoft.AspNetCore.Identity;
 
-namespace MemberService.Data
+public class MemberRole : IdentityRole
 {
-    public class MemberRole : IdentityRole
-    {
-        public ICollection<UserRole> UserRoles { get; set; }
-    }
+    public ICollection<UserRole> UserRoles { get; set; }
 }

@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+﻿namespace MemberService.Pages.Home;
+
+
+
 using MemberService.Pages.Signup;
 
-namespace MemberService.Pages.Home
+public class SurveyInputModel
 {
-    public class SurveyInputModel
-    {
-        public IList<Answer> Answers { get; set; } = new List<Answer>();
-    }
+    public IList<Answer> Answers { get; set; } = new List<Answer>();
 }

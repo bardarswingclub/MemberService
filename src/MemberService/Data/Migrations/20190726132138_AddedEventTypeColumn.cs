@@ -1,24 +1,24 @@
-﻿using MemberService.Data.ValueTypes;
+﻿namespace MemberService.Data.Migrations;
+
+using MemberService.Data.ValueTypes;
+
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace MemberService.Data.Migrations
+public partial class AddedEventTypeColumn : Migration
 {
-    public partial class AddedEventTypeColumn : Migration
+    protected override void Up(MigrationBuilder migrationBuilder)
     {
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.AddColumn<string>(
-                name: "Type",
-                table: "Events",
-                nullable: false,
-                defaultValue: EventType.Workshop.ToString());
-        }
+        migrationBuilder.AddColumn<string>(
+            name: "Type",
+            table: "Events",
+            nullable: false,
+            defaultValue: EventType.Workshop.ToString());
+    }
 
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropColumn(
-                name: "Type",
-                table: "Events");
-        }
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.DropColumn(
+            name: "Type",
+            table: "Events");
     }
 }

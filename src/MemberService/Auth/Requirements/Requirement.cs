@@ -1,8 +1,7 @@
-﻿namespace MemberService.Auth.Requirements
-{
-    using Microsoft.AspNetCore.Authorization;
+﻿namespace MemberService.Auth.Requirements;
 
-    public record Requirement(Policy Policy) : IAuthorizationRequirement
-    {
-    }
+using Microsoft.AspNetCore.Authorization;
+
+public record Requirement(Policy Policy) : IAuthorizationRequirement
+{
 }

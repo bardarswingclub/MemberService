@@ -1,15 +1,12 @@
-﻿using System;
+﻿namespace MemberService.Auth;
+
 using Microsoft.AspNetCore.Identity;
 
-namespace MemberService.Auth
+public class LongTokenProviderOptions : DataProtectionTokenProviderOptions
 {
-    public class LongTokenProviderOptions : DataProtectionTokenProviderOptions
+    public LongTokenProviderOptions()
     {
-        public LongTokenProviderOptions()
-        {
-            Name = "LongTokenProvider";
-            TokenLifespan = TimeSpan.FromDays(7);
-        }
+        Name = "LongTokenProvider";
+        TokenLifespan = TimeSpan.FromDays(7);
     }
-
 }
