@@ -1,16 +1,15 @@
+namespace MemberService.Data.ValueTypes;
+
 using System.ComponentModel.DataAnnotations;
 
-namespace MemberService.Data.ValueTypes
+public enum DanceRole
 {
-    public enum DanceRole
-    {
-        [Display(Name = "Solo")]
-        None,
+    [Display(Name = "Solo")]
+    None,
 
-        [Display(Name = "Fører")]
-        Lead,
+    [Display(Name = "Fører")]
+    Lead,
 
-        [Display(Name = "Følger")]
-        Follow
-    }
+    [Display(Name = "Følger")]
+    Follow
 }

@@ -1,21 +1,20 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿namespace MemberService.Data.ValueTypes;
 
-namespace MemberService.Data.ValueTypes
+using System.ComponentModel.DataAnnotations;
+
+public enum EventType
 {
-    public enum EventType
-    {
-        Unknown,
+    Unknown,
 
-        [Display(Name = "Kurs", Description = "Kurs (et semester)")]
-        Class,
+    [Display(Name = "Kurs", Description = "Kurs (et semester)")]
+    Class,
 
-        [Display(Name = "Workshop", Description = "Workshop (en helg)")]
-        Workshop,
+    [Display(Name = "Workshop", Description = "Workshop (en helg)")]
+    Workshop,
 
-        [Display(Name = "Fest", Description = "Fest (en kveld)")]
-        Party,
+    [Display(Name = "Fest", Description = "Fest (en kveld)")]
+    Party,
 
-        [Display(Name = "Egentrening", Description = "Egentrening (en time)")]
-        Training,
-    }
+    [Display(Name = "Egentrening", Description = "Egentrening (en time)")]
+    Training,
 }

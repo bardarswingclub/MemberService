@@ -1,15 +1,14 @@
+namespace MemberService.Data.ValueTypes;
+
 using System.ComponentModel.DataAnnotations;
 
-namespace MemberService.Data.ValueTypes
+public enum QuestionType
 {
-    public enum QuestionType
-    {
-        Unknown,
+    Unknown,
 
-        [Display(Name = "Et obligatorisk svar")]
-        Radio,
+    [Display(Name = "Et obligatorisk svar")]
+    Radio,
 
-        [Display(Name = "Valgfritt svar")]
-        CheckBox
-    }
+    [Display(Name = "Valgfritt svar")]
+    CheckBox
 }

@@ -1,35 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿namespace MemberService.Pages.Semester.Survey;
+
+
+
+
+
 using Clave.Expressionify;
+
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
 
-namespace MemberService.Pages.Semester.Survey
+public partial class QuestionModel
 {
-    public partial class QuestionModel
-    {
-        public Guid Id { get; set; }
+    public Guid Id { get; set; }
 
-        public QuestionType Type { get; set; }
+    public QuestionType Type { get; set; }
 
-        public string Title { get; set; }
+    public string Title { get; set; }
 
-        public string Description { get; set; }
+    public string Description { get; set; }
 
-        public IReadOnlyList<OptionModel> Options { get; set; }
+    public IReadOnlyList<OptionModel> Options { get; set; }
 
-        [Expressionify]
-        public static QuestionModel Create(Question q)
-            => new()
-            {
-                Id = q.Id,
-                Type = q.Type,
-                Title = q.Title,
-                Description = q.Description,
-                Options = q.Options
-                    .Select(o => OptionModel.Create(o))
-                    .ToList()
-            };
-    }
+    [Expressionify]
+    public static QuestionModel Create(Question q)
+        => new()
+        {
+            Id = q.Id,
+            Type = q.Type,
+            Title = q.Title,
+            Description = q.Description,
+            Options = q.Options
+                .Select(o => OptionModel.Create(o))
+                .ToList()
+        };
 }

@@ -1,27 +1,26 @@
-﻿namespace MemberService.Auth
+﻿namespace MemberService.Auth;
+
+public enum Policy
 {
-    public enum Policy
-    {
-        IsAdmin,
-        IsCoordinator,
-        IsInstructor,
+    IsAdmin,
+    IsCoordinator,
+    IsInstructor,
 
-        CanCreateEvent,
-        
-        CanListEvents,
-        CanViewEvent,
-        CanEditEvent,
-        CanSetEventSignupStatus,
-        CanEditEventSignup,
-        CanEditEventOrganizers,
+    CanCreateEvent,
 
-        CanSetPresence,
-        CanAddPresenceLesson,
+    CanListEvents,
+    CanViewEvent,
+    CanEditEvent,
+    CanSetEventSignupStatus,
+    CanEditEventSignup,
+    CanEditEventOrganizers,
 
-        CanCreateSurvey,
-        CanViewSurvey,
-        CanEditSurvey,
+    CanSetPresence,
+    CanAddPresenceLesson,
 
-        CanViewMembers
-    }
+    CanCreateSurvey,
+    CanViewSurvey,
+    CanEditSurvey,
+
+    CanViewMembers
 }

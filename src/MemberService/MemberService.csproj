@@ -4,6 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <UserSecretsId>aspnet-MemberService-75CC680B-0120-4A9C-8F8E-5DB317907710</UserSecretsId>
     <LangVersion>latest</LangVersion>
+	<ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,8 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Clave.Expressionify" Version="6.0.0" />
-    <PackageReference Include="Clave.Expressionify.Generator" Version="6.0.0">
+    <PackageReference Include="Clave.Expressionify" Version="6.1.0" />
+    <PackageReference Include="Clave.Expressionify.Generator" Version="6.1.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

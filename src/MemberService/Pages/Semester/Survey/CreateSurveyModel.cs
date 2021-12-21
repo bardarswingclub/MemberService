@@ -1,11 +1,10 @@
-﻿using System;
+﻿namespace MemberService.Pages.Semester.Survey;
 
-namespace MemberService.Pages.Semester.Survey
+
+
+public class CreateSurveyModel
 {
-    public class CreateSurveyModel
-    {
-        public Guid SemesterId { get; set; }
+    public Guid SemesterId { get; set; }
 
-        public string SemesterTitle { get; set; }
-    }
+    public string SemesterTitle { get; set; }
 }

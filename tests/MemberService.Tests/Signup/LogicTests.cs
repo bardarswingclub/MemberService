@@ -1,287 +1,286 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace MemberService.Tests.Signup;
+
 using Clave.ExtensionMethods.Magic;
+
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
 using MemberService.Pages.Signup;
+
 using NUnit.Framework;
 
-namespace MemberService.Tests.Signup
+[TestFixture]
+public class LogicTests
 {
-    [TestFixture]
-    public class LogicTests
+    [TestCase(0, 0, DanceRole.Follow, ExpectedResult = false)]
+    [TestCase(10, 0, DanceRole.Follow, ExpectedResult = true)]
+    [TestCase(10, 10, DanceRole.Follow, ExpectedResult = true)]
+    [TestCase(0, 0, DanceRole.Lead, ExpectedResult = false)]
+    [TestCase(10, 0, DanceRole.Lead, ExpectedResult = true)]
+    [TestCase(10, 10, DanceRole.Lead, ExpectedResult = false)]
+    public bool TestShouldAutoAccept(int autoAcceptCount, int signupCount, DanceRole role)
     {
-        [TestCase(0, 0, DanceRole.Follow, ExpectedResult = false)]
-        [TestCase(10, 0, DanceRole.Follow, ExpectedResult = true)]
-        [TestCase(10, 10, DanceRole.Follow, ExpectedResult = true)]
-        [TestCase(0, 0, DanceRole.Lead, ExpectedResult = false)]
-        [TestCase(10, 0, DanceRole.Lead, ExpectedResult = true)]
-        [TestCase(10, 10, DanceRole.Lead, ExpectedResult = false)]
-        public bool TestShouldAutoAccept(int autoAcceptCount, int signupCount, DanceRole role)
+        var model = new Data.Event
         {
-            var model = new Data.Event
+            SignupOptions = new EventSignupOptions
             {
-                SignupOptions = new EventSignupOptions
-                {
-                    AutoAcceptedSignups = autoAcceptCount
-                },
-                Signups =
+                AutoAcceptedSignups = autoAcceptCount
+            },
+            Signups =
                 {
                     GenerateSignups(signupCount)
                 }
-            };
+        };
 
-            return model.ShouldAutoAccept(role);
-        }
+        return model.ShouldAutoAccept(role);
+    }
 
-        [TestCase(Status.Unknown, ExpectedResult = false)]
-        [TestCase(Status.Pending, ExpectedResult = true)]
-        [TestCase(Status.Recommended, ExpectedResult = true)]
-        [TestCase(Status.Approved, ExpectedResult = false)]
-        [TestCase(Status.WaitingList, ExpectedResult = true)]
-        [TestCase(Status.AcceptedAndPayed, ExpectedResult = false)]
-        [TestCase(Status.Denied, ExpectedResult = false)]
-        [TestCase(Status.RejectedOrNotPayed, ExpectedResult = false)]
-        public bool TestCanEdit(Status status)
+    [TestCase(Status.Unknown, ExpectedResult = false)]
+    [TestCase(Status.Pending, ExpectedResult = true)]
+    [TestCase(Status.Recommended, ExpectedResult = true)]
+    [TestCase(Status.Approved, ExpectedResult = false)]
+    [TestCase(Status.WaitingList, ExpectedResult = true)]
+    [TestCase(Status.AcceptedAndPayed, ExpectedResult = false)]
+    [TestCase(Status.Denied, ExpectedResult = false)]
+    [TestCase(Status.RejectedOrNotPayed, ExpectedResult = false)]
+    public bool TestCanEdit(Status status)
+    {
+        var model = new EventSignup
         {
-            var model = new EventSignup
-            {
-                Status = status
-            };
+            Status = status
+        };
 
-            return model.CanEdit();
-        }
+        return model.CanEdit();
+    }
 
-        [TestCase(0, false, ExpectedResult = false)]
-        [TestCase(0, true, ExpectedResult = false)]
-        [TestCase(100, false, ExpectedResult = true)]
-        [TestCase(100, true, ExpectedResult = false)]
-        public bool TestMustPayNonMembersPrice(int price, bool hasPaidMembership)
+    [TestCase(0, false, ExpectedResult = false)]
+    [TestCase(0, true, ExpectedResult = false)]
+    [TestCase(100, false, ExpectedResult = true)]
+    [TestCase(100, true, ExpectedResult = false)]
+    public bool TestMustPayNonMembersPrice(int price, bool hasPaidMembership)
+    {
+        var options = new EventSignupOptions
         {
-            var options = new EventSignupOptions
-            {
-                PriceForNonMembers = price
-            };
+            PriceForNonMembers = price
+        };
 
-            var user = new User
-            {
-                Payments =
+        var user = new User
+        {
+            Payments =
                 {
                     Payment(membership: hasPaidMembership)
                 }
-            };
+        };
 
-            return user.MustPayNonMembersPrice(options);
-        }
+        return user.MustPayNonMembersPrice(options);
+    }
 
-        [TestCase(0, false, ExpectedResult = false)]
-        [TestCase(0, true, ExpectedResult = false)]
-        [TestCase(100, false, ExpectedResult = false)]
-        [TestCase(100, true, ExpectedResult = true)]
-        public bool TestMustPayMembersPrice(int price, bool hasPaidMembership)
+    [TestCase(0, false, ExpectedResult = false)]
+    [TestCase(0, true, ExpectedResult = false)]
+    [TestCase(100, false, ExpectedResult = false)]
+    [TestCase(100, true, ExpectedResult = true)]
+    public bool TestMustPayMembersPrice(int price, bool hasPaidMembership)
+    {
+        var options = new EventSignupOptions
         {
-            var options = new EventSignupOptions
-            {
-                PriceForMembers = price
-            };
+            PriceForMembers = price
+        };
 
-            var user = new User
-            {
-                Payments =
+        var user = new User
+        {
+            Payments =
                 {
                     Payment(membership: hasPaidMembership)
                 }
-            };
+        };
 
-            return user.MustPayMembersPrice(options);
-        }
+        return user.MustPayMembersPrice(options);
+    }
 
-        [TestCase(false, false, ExpectedResult = false)]
-        [TestCase(false, true, ExpectedResult = false)]
-        [TestCase(true, false, ExpectedResult = true)]
-        [TestCase(true, true, ExpectedResult = false)]
-        public bool TestMustPayMembersFee(bool requiresMembership, bool hasPaidMembership)
+    [TestCase(false, false, ExpectedResult = false)]
+    [TestCase(false, true, ExpectedResult = false)]
+    [TestCase(true, false, ExpectedResult = true)]
+    [TestCase(true, true, ExpectedResult = false)]
+    public bool TestMustPayMembersFee(bool requiresMembership, bool hasPaidMembership)
+    {
+        var options = new EventSignupOptions
         {
-            var options = new EventSignupOptions
-            {
-                RequiresMembershipFee = requiresMembership
-            };
+            RequiresMembershipFee = requiresMembership
+        };
 
-            var user = new User
-            {
-                Payments =
+        var user = new User
+        {
+            Payments =
                 {
                     Payment(membership: hasPaidMembership)
                 }
-            };
+        };
 
-            return user.MustPayMembershipFee(options);
-        }
+        return user.MustPayMembershipFee(options);
+    }
 
-        [TestCase(false, false, false, ExpectedResult = false)]
-        [TestCase(false, false, true, ExpectedResult = false)]
-        [TestCase(false, true, false, ExpectedResult = false)]
-        [TestCase(false, true, true, ExpectedResult = false)]
-        [TestCase(true, false, false, ExpectedResult = true)]
-        [TestCase(true, false, true, ExpectedResult = false)]
-        [TestCase(true, true, false, ExpectedResult = false)]
-        [TestCase(true, true, true, ExpectedResult = false)]
-        public bool TestMustPayTrainingFee(bool requiresTrainingFee, bool hasPaidTrainingFee, bool exemptFromTrainingFee)
+    [TestCase(false, false, false, ExpectedResult = false)]
+    [TestCase(false, false, true, ExpectedResult = false)]
+    [TestCase(false, true, false, ExpectedResult = false)]
+    [TestCase(false, true, true, ExpectedResult = false)]
+    [TestCase(true, false, false, ExpectedResult = true)]
+    [TestCase(true, false, true, ExpectedResult = false)]
+    [TestCase(true, true, false, ExpectedResult = false)]
+    [TestCase(true, true, true, ExpectedResult = false)]
+    public bool TestMustPayTrainingFee(bool requiresTrainingFee, bool hasPaidTrainingFee, bool exemptFromTrainingFee)
+    {
+        var options = new EventSignupOptions
         {
-            var options = new EventSignupOptions
-            {
-                RequiresTrainingFee = requiresTrainingFee
-            };
+            RequiresTrainingFee = requiresTrainingFee
+        };
 
-            var user = new User
-            {
-                ExemptFromTrainingFee = exemptFromTrainingFee,
-                Payments =
+        var user = new User
+        {
+            ExemptFromTrainingFee = exemptFromTrainingFee,
+            Payments =
                 {
                     Payment(training: hasPaidTrainingFee)
                 }
-            };
+        };
 
-            return user.MustPayTrainingFee(options);
-        }
+        return user.MustPayTrainingFee(options);
+    }
 
-        [TestCase(false, false, false, ExpectedResult = false)]
-        [TestCase(false, false, true, ExpectedResult = false)]
-        [TestCase(false, true, false, ExpectedResult = false)]
-        [TestCase(false, true, true, ExpectedResult = false)]
-        [TestCase(true, false, false, ExpectedResult = true)]
-        [TestCase(true, false, true, ExpectedResult = false)]
-        [TestCase(true, true, false, ExpectedResult = false)]
-        [TestCase(true, true, true, ExpectedResult = false)]
-        public bool TestMustPayClassesFee(bool requiresClassesFee, bool hasPaidClassesFee, bool exemptFromClassesFee)
+    [TestCase(false, false, false, ExpectedResult = false)]
+    [TestCase(false, false, true, ExpectedResult = false)]
+    [TestCase(false, true, false, ExpectedResult = false)]
+    [TestCase(false, true, true, ExpectedResult = false)]
+    [TestCase(true, false, false, ExpectedResult = true)]
+    [TestCase(true, false, true, ExpectedResult = false)]
+    [TestCase(true, true, false, ExpectedResult = false)]
+    [TestCase(true, true, true, ExpectedResult = false)]
+    public bool TestMustPayClassesFee(bool requiresClassesFee, bool hasPaidClassesFee, bool exemptFromClassesFee)
+    {
+        var options = new EventSignupOptions
         {
-            var options = new EventSignupOptions
-            {
-                RequiresClassesFee = requiresClassesFee
-            };
+            RequiresClassesFee = requiresClassesFee
+        };
 
-            var user = new User
-            {
-                ExemptFromClassesFee = exemptFromClassesFee,
-                Payments =
+        var user = new User
+        {
+            ExemptFromClassesFee = exemptFromClassesFee,
+            Payments =
                 {
                     Payment(classes: hasPaidClassesFee)
                 }
-            };
+        };
 
-            return user.MustPayClassesFee(options);
-        }
+        return user.MustPayClassesFee(options);
+    }
 
-        [TestCase(false, false, ExpectedResult = true)]
-        [TestCase(false, true, ExpectedResult = true)]
-        [TestCase(true, false, ExpectedResult = true)]
-        [TestCase(true, true, ExpectedResult = false)]
-        public bool TestNonMembershipIncludedInClassesFee(bool includedInClassesFee, bool hasPaidClassesFee)
+    [TestCase(false, false, ExpectedResult = true)]
+    [TestCase(false, true, ExpectedResult = true)]
+    [TestCase(true, false, ExpectedResult = true)]
+    [TestCase(true, true, ExpectedResult = false)]
+    public bool TestNonMembershipIncludedInClassesFee(bool includedInClassesFee, bool hasPaidClassesFee)
+    {
+        var options = new EventSignupOptions
         {
-            var options = new EventSignupOptions
-            {
-                IncludedInClassesFee = includedInClassesFee,
-                PriceForNonMembers = 100
-            };
+            IncludedInClassesFee = includedInClassesFee,
+            PriceForNonMembers = 100
+        };
 
-            var user = new User
-            {
-                Payments =
+        var user = new User
+        {
+            Payments =
                 {
                     Payment(classes: hasPaidClassesFee)
                 }
-            };
+        };
 
-            return user.MustPayNonMembersPrice(options);
-        }
+        return user.MustPayNonMembersPrice(options);
+    }
 
-        [TestCase(false, false, ExpectedResult = true)]
-        [TestCase(false, true, ExpectedResult = true)]
-        [TestCase(true, false, ExpectedResult = true)]
-        [TestCase(true, true, ExpectedResult = false)]
-        public bool TestMembershipIncludedInClassesFee(bool includedInClassesFee, bool hasPaidClassesFee)
+    [TestCase(false, false, ExpectedResult = true)]
+    [TestCase(false, true, ExpectedResult = true)]
+    [TestCase(true, false, ExpectedResult = true)]
+    [TestCase(true, true, ExpectedResult = false)]
+    public bool TestMembershipIncludedInClassesFee(bool includedInClassesFee, bool hasPaidClassesFee)
+    {
+        var options = new EventSignupOptions
         {
-            var options = new EventSignupOptions
-            {
-                IncludedInClassesFee = includedInClassesFee,
-                PriceForMembers = 100
-            };
+            IncludedInClassesFee = includedInClassesFee,
+            PriceForMembers = 100
+        };
 
-            var user = new User
-            {
-                Payments =
+        var user = new User
+        {
+            Payments =
                 {
                     Payment(classes: hasPaidClassesFee, membership: true)
                 }
-            };
+        };
 
-            return user.MustPayMembersPrice(options);
-        }
+        return user.MustPayMembersPrice(options);
+    }
 
-        [TestCase(false, false, ExpectedResult = true)]
-        [TestCase(false, true, ExpectedResult = true)]
-        [TestCase(true, false, ExpectedResult = true)]
-        [TestCase(true, true, ExpectedResult = false)]
-        public bool TestNonMembershipIncludedInTrainingFee(bool includedInTrainingFee, bool hasPaidTrainingFee)
+    [TestCase(false, false, ExpectedResult = true)]
+    [TestCase(false, true, ExpectedResult = true)]
+    [TestCase(true, false, ExpectedResult = true)]
+    [TestCase(true, true, ExpectedResult = false)]
+    public bool TestNonMembershipIncludedInTrainingFee(bool includedInTrainingFee, bool hasPaidTrainingFee)
+    {
+        var options = new EventSignupOptions
         {
-            var options = new EventSignupOptions
-            {
-                IncludedInTrainingFee = includedInTrainingFee,
-                PriceForNonMembers = 100
-            };
+            IncludedInTrainingFee = includedInTrainingFee,
+            PriceForNonMembers = 100
+        };
 
-            var user = new User
-            {
-                Payments =
+        var user = new User
+        {
+            Payments =
                 {
                     Payment(training: hasPaidTrainingFee)
                 }
-            };
+        };
 
-            return user.MustPayNonMembersPrice(options);
-        }
+        return user.MustPayNonMembersPrice(options);
+    }
 
-        [TestCase(false, false, ExpectedResult = true)]
-        [TestCase(false, true, ExpectedResult = true)]
-        [TestCase(true, false, ExpectedResult = true)]
-        [TestCase(true, true, ExpectedResult = false)]
-        public bool TestMembershipIncludedInTrainingFee(bool includedInTrainingFee, bool hasPaidTrainingFee)
+    [TestCase(false, false, ExpectedResult = true)]
+    [TestCase(false, true, ExpectedResult = true)]
+    [TestCase(true, false, ExpectedResult = true)]
+    [TestCase(true, true, ExpectedResult = false)]
+    public bool TestMembershipIncludedInTrainingFee(bool includedInTrainingFee, bool hasPaidTrainingFee)
+    {
+        var options = new EventSignupOptions
         {
-            var options = new EventSignupOptions
-            {
-                IncludedInTrainingFee = includedInTrainingFee,
-                PriceForMembers = 100
-            };
+            IncludedInTrainingFee = includedInTrainingFee,
+            PriceForMembers = 100
+        };
 
-            var user = new User
-            {
-                Payments =
+        var user = new User
+        {
+            Payments =
                 {
                     Payment(training: hasPaidTrainingFee, membership: true)
                 }
-            };
-
-            return user.MustPayMembersPrice(options);
-        }
-
-        private static Payment Payment(DateTime? paidAt = null, bool refunded = false, bool membership = false, bool training = false, bool classes = false) => new Payment
-        {
-            IncludesMembership = membership,
-            IncludesTraining = training,
-            IncludesClasses = classes,
-            PayedAtUtc = paidAt ?? TimeProvider.UtcNow,
-            Refunded = refunded
         };
 
-        private static IEnumerable<EventSignup> GenerateSignups(int count)
+        return user.MustPayMembersPrice(options);
+    }
+
+    private static Payment Payment(DateTime? paidAt = null, bool refunded = false, bool membership = false, bool training = false, bool classes = false) => new Payment
+    {
+        IncludesMembership = membership,
+        IncludesTraining = training,
+        IncludesClasses = classes,
+        PayedAtUtc = paidAt ?? TimeProvider.UtcNow,
+        Refunded = refunded
+    };
+
+    private static IEnumerable<EventSignup> GenerateSignups(int count)
+    {
+        for (var i = 0; i < count; i++)
         {
-            for (var i = 0; i < count; i++)
+            yield return new EventSignup
             {
-                yield return new EventSignup
-                {
-                    Role = DanceRole.Lead
-                };
-            }
+                Role = DanceRole.Lead
+            };
         }
     }
 }

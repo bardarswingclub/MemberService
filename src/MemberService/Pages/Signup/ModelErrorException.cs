@@ -1,14 +1,13 @@
-﻿using System;
+﻿namespace MemberService.Pages.Signup;
 
-namespace MemberService.Pages.Signup
+
+
+public class ModelErrorException : Exception
 {
-    public class ModelErrorException : Exception
-    {
-        public string Key { get; }
+    public string Key { get; }
 
-        public ModelErrorException(string key, string message) : base(message)
-        {
-            Key = key;
-        }
+    public ModelErrorException(string key, string message) : base(message)
+    {
+        Key = key;
     }
 }

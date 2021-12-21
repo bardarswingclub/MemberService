@@ -1,12 +1,6 @@
-﻿using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.Authorization;
+﻿namespace MemberService.Pages;
 using Microsoft.AspNetCore.Mvc.Razor;
 
-
-namespace MemberService.Pages
+public abstract class BaseView<T> : RazorPage<T>
 {
-    public abstract class BaseView<T> : RazorPage<T>
-    {
-    }
 }

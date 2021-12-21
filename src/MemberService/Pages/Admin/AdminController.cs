@@ -1,85 +1,84 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿namespace MemberService.Pages.Admin;
+
+
+
 using MemberService.Data;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
-using System.Linq;
+
 using Microsoft.AspNetCore.Authorization;
 using MemberService.Services;
 using Microsoft.EntityFrameworkCore;
 using Clave.ExtensionMethods;
 using MemberService.Auth;
 
-namespace MemberService.Pages.Admin
+[Authorize(nameof(Policy.IsAdmin))]
+public class AdminController : Controller
 {
-    [Authorize(nameof(Policy.IsAdmin))]
-    public class AdminController : Controller
+    private readonly ChargeService _chargeService;
+    private readonly IPaymentService _paymentService;
+    private readonly MemberContext _memberContext;
+
+    public AdminController(
+        ChargeService chargeService,
+        IPaymentService paymentService,
+        MemberContext memberContext)
     {
-        private readonly ChargeService _chargeService;
-        private readonly IPaymentService _paymentService;
-        private readonly MemberContext _memberContext;
+        _chargeService = chargeService;
+        _paymentService = paymentService;
+        _memberContext = memberContext;
+    }
 
-        public AdminController(
-            ChargeService chargeService,
-            IPaymentService paymentService,
-            MemberContext memberContext)
+    public async Task<IActionResult> Index()
+    {
+        var userRoles = await _memberContext.UserRoles
+            .Include(x => x.User)
+            .Include(x => x.Role)
+            .ToListAsync();
+
+        var roles = userRoles
+            .GroupByProp(x => x.Role, x => x.Id)
+            .Select(x => (x.Key, x.Select(u => u.User).ToReadOnlyCollection()))
+            .ToReadOnlyCollection();
+
+        return View(new AdminModel
         {
-            _chargeService = chargeService;
-            _paymentService = paymentService;
-            _memberContext = memberContext;
-        }
+            Roles = roles
+        });
+    }
 
-        public async Task<IActionResult> Index()
+    [HttpPost]
+    public async Task<IActionResult> Import([FromForm] DateTime? after)
+    {
+        string lastCharge = null;
+        var importedCount = 0;
+        var userCount = 0;
+        var paymentCount = 0;
+        var updatedCount = 0;
+        while (true)
         {
-            var userRoles = await _memberContext.UserRoles
-                .Include(x => x.User)
-                .Include(x => x.Role)
-                .ToListAsync();
-
-            var roles = userRoles
-                .GroupByProp(x => x.Role, x => x.Id)
-                .Select(x => (x.Key, x.Select(u => u.User).ToReadOnlyCollection()))
-                .ToReadOnlyCollection();
-
-            return View(new AdminModel
+            var charges = await _chargeService.ListAsync(new ChargeListOptions
             {
-                Roles = roles
-            });
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Import([FromForm] DateTime? after)
-        {
-            string lastCharge = null;
-            var importedCount = 0;
-            var userCount = 0;
-            var paymentCount = 0;
-            var updatedCount = 0;
-            while (true)
-            {
-                var charges = await _chargeService.ListAsync(new ChargeListOptions
+                Created = new DateRangeOptions
                 {
-                    Created = new DateRangeOptions
-                    {
-                        GreaterThan = after ?? new DateTime(2019, 1, 1)
-                    },
-                    Limit = 100,
-                    StartingAfter = lastCharge
-                });
+                    GreaterThan = after ?? new DateTime(2019, 1, 1)
+                },
+                Limit = 100,
+                StartingAfter = lastCharge
+            });
 
-                importedCount += charges.Count();
-                var (users, payments, updates) = await _paymentService.SavePayments(charges);
-                userCount += users;
-                paymentCount += payments;
-                updatedCount += updates;
+            importedCount += charges.Count();
+            var (users, payments, updates) = await _paymentService.SavePayments(charges);
+            userCount += users;
+            paymentCount += payments;
+            updatedCount += updates;
 
-                if (!charges.HasMore) break;
+            if (!charges.HasMore) break;
 
-                lastCharge = charges.Data.Last().Id;
-            }
-
-            TempData["SuccessMessage"] = $"Found {importedCount} payments, created {userCount} new users, saved {paymentCount} new payments and updated {updatedCount} existing payments";
-            return RedirectToAction(nameof(Index));
+            lastCharge = charges.Data.Last().Id;
         }
+
+        TempData["SuccessMessage"] = $"Found {importedCount} payments, created {userCount} new users, saved {paymentCount} new payments and updated {updatedCount} existing payments";
+        return RedirectToAction(nameof(Index));
     }
 }

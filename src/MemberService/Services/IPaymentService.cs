@@ -1,31 +1,31 @@
-﻿using Stripe;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿namespace MemberService.Services;
 
-namespace MemberService.Services
+using Stripe;
+
+
+
+
+
+public interface IPaymentService
 {
-    public interface IPaymentService
-    {
-        Task<string> CreatePayment(
-            string name,
-            string email,
-            string title,
-            string description,
-            decimal amount,
-            string successUrl,
-            string cancelUrl,
-            bool includesMembership = false,
-            bool includesTraining = false,
-            bool includesClasses = false,
-            Guid? eventSignupId = null);
+    Task<string> CreatePayment(
+        string name,
+        string email,
+        string title,
+        string description,
+        decimal amount,
+        string successUrl,
+        string cancelUrl,
+        bool includesMembership = false,
+        bool includesTraining = false,
+        bool includesClasses = false,
+        Guid? eventSignupId = null);
 
-        Task<(int users, int payments, int updates)> SavePayments(IEnumerable<Charge> charges);
+    Task<(int users, int payments, int updates)> SavePayments(IEnumerable<Charge> charges);
 
-        Task<(int users, int payments, int updates)> SavePayment(string sessionId);
+    Task<(int users, int payments, int updates)> SavePayment(string sessionId);
 
-        Task<(int payments, int updates)> ImportPayments(string email);
+    Task<(int payments, int updates)> ImportPayments(string email);
 
-        Task<bool> Refund(string paymentId);
-    }
+    Task<bool> Refund(string paymentId);
 }

@@ -1,21 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace MemberService.Pages.Home;
+
+
+
+
 using MemberService.Pages.Signup;
 
-namespace MemberService.Pages.Home
+public class IndexModel
 {
-    public class IndexModel
-    {
-        public DateTime? SignupOpensAt { get; set; }
+    public DateTime? SignupOpensAt { get; set; }
 
-        public IReadOnlyCollection<CourseSignupModel> Signups { get; set; } = new List<CourseSignupModel>();
+    public IReadOnlyCollection<CourseSignupModel> Signups { get; set; } = new List<CourseSignupModel>();
 
-        public string UserId { get; set; }
+    public string UserId { get; set; }
 
-        public EventsModel PartyModel { get; set; }
+    public EventsModel PartyModel { get; set; }
 
-        public EventsModel WorkshopModel { get; set; }
+    public EventsModel WorkshopModel { get; set; }
 
-        public EventsModel TrainingModel { get; set; }
-    }
+    public EventsModel TrainingModel { get; set; }
 }

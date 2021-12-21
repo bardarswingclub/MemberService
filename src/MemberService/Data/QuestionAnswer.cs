@@ -1,19 +1,18 @@
-using System;
+namespace MemberService.Data;
 
-namespace MemberService.Data
+
+
+public class QuestionAnswer
 {
-    public class QuestionAnswer
-    {
-        public Guid Id { get; set; }
+    public Guid Id { get; set; }
 
-        public Guid OptionId { get; set; }
+    public Guid OptionId { get; set; }
 
-        public QuestionOption Option { get; set; }
+    public QuestionOption Option { get; set; }
 
-        public Guid ResponseId { get; set; }
+    public Guid ResponseId { get; set; }
 
-        public Response Response { get; set; }
+    public Response Response { get; set; }
 
-        public DateTime? AnsweredAt { get; set; }
-    }
+    public DateTime? AnsweredAt { get; set; }
 }

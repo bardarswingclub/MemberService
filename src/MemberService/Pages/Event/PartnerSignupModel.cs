@@ -1,67 +1,67 @@
-using System;
-using System.Linq;
+namespace MemberService.Pages.Event;
+
+
+
+
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
 
-namespace MemberService.Pages.Event
+public class PartnerSignupModel
 {
-    public class PartnerSignupModel
+    public PartnerSignupModel(string email)
     {
-        public PartnerSignupModel(string email)
-        {
-            Email = email;
-        }
-
-        public string Email { get; }
-
-        public static PartnerSignupModel Create(string email, User partner, Guid eventId)
-        {
-            if (partner?.EventSignups.FirstOrDefault(e => e.EventId == eventId) is EventSignup signup)
-            {
-                return new SignedUpPartnerSignupModel(signup);
-            }
-
-            if (partner is User)
-            {
-                return new KnownPartnerSignupModel(partner);
-            }
-
-            if (email is string)
-            {
-                return new PartnerSignupModel(email);
-            }
-
-            return null;
-        }
+        Email = email;
     }
 
-    public class KnownPartnerSignupModel : PartnerSignupModel
+    public string Email { get; }
+
+    public static PartnerSignupModel Create(string email, User partner, Guid eventId)
     {
-        public KnownPartnerSignupModel(User partner) : base(partner.Email)
+        if (partner?.EventSignups.FirstOrDefault(e => e.EventId == eventId) is EventSignup signup)
         {
-            Id = partner?.Id;
-            Name = partner?.FullName;
+            return new SignedUpPartnerSignupModel(signup);
         }
 
-        public string Id { get; }
-
-        public string Name { get; }
-
-    }
-
-    public class SignedUpPartnerSignupModel : KnownPartnerSignupModel
-    {
-        public SignedUpPartnerSignupModel(EventSignup signup) : base(signup.User)
+        if (partner is User)
         {
-            Role = signup.Role;
-            Status = signup.Status;
-            PartnerEmail = signup.PartnerEmail?.Trim();
+            return new KnownPartnerSignupModel(partner);
         }
 
-        public DanceRole Role { get; }
+        if (email is string)
+        {
+            return new PartnerSignupModel(email);
+        }
 
-        public Status Status { get; }
-
-        public string PartnerEmail { get; }
+        return null;
     }
+}
+
+public class KnownPartnerSignupModel : PartnerSignupModel
+{
+    public KnownPartnerSignupModel(User partner) : base(partner.Email)
+    {
+        Id = partner?.Id;
+        Name = partner?.FullName;
+    }
+
+    public string Id { get; }
+
+    public string Name { get; }
+
+}
+
+public class SignedUpPartnerSignupModel : KnownPartnerSignupModel
+{
+    public SignedUpPartnerSignupModel(EventSignup signup) : base(signup.User)
+    {
+        Role = signup.Role;
+        Status = signup.Status;
+        PartnerEmail = signup.PartnerEmail?.Trim();
+    }
+
+    public DanceRole Role { get; }
+
+    public Status Status { get; }
+
+    public string PartnerEmail { get; }
 }

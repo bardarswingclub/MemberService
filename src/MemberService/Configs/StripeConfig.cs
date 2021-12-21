@@ -1,9 +1,8 @@
-namespace MemberService.Configs
-{
-    public class StripeConfig
-    {
-        public string PublicKey { get; set; }
+namespace MemberService.Configs;
 
-        public string SecretKey { get; set; }
-    }
+public class StripeConfig
+{
+    public string PublicKey { get; set; }
+
+    public string SecretKey { get; set; }
 }

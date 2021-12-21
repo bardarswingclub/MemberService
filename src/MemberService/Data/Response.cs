@@ -1,23 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace MemberService.Data;
+
+
+
 using System.ComponentModel.DataAnnotations;
 
-namespace MemberService.Data
+public class Response
 {
-    public class Response
-    {
-        public Guid Id { get; set; }
+    public Guid Id { get; set; }
 
-        [Required]
-        public Guid SurveyId { get; set; }
+    [Required]
+    public Guid SurveyId { get; set; }
 
-        public Survey Survey { get; set; }
+    public Survey Survey { get; set; }
 
-        [Required]
-        public string UserId { get; set; }
+    [Required]
+    public string UserId { get; set; }
 
-        public User User { get; set; }
+    public User User { get; set; }
 
-        public ICollection<QuestionAnswer> Answers { get; set; } = new List<QuestionAnswer>();
-    }
+    public ICollection<QuestionAnswer> Answers { get; set; } = new List<QuestionAnswer>();
 }

@@ -1,44 +1,45 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿namespace MemberService.Services;
+
+
+
+
 using MemberService.Configs;
+
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
-namespace MemberService.Services
+public class SendGridEmailer : IEmailer
 {
-    public class SendGridEmailer : IEmailer
+    private readonly EmailConfig _config;
+    private readonly SendGridClient _client;
+
+    public SendGridEmailer(SendGridClient client, Config config)
     {
-        private readonly EmailConfig _config;
-        private readonly SendGridClient _client;
+        _client = client;
+        _config = config.Email;
+    }
 
-        public SendGridEmailer(SendGridClient client, Config config)
+    public async Task Send(EmailAddress to, string subject, string body, EmailAddress replyTo = null)
+    {
+        var message = MailHelper.CreateSingleEmail(
+            new EmailAddress(_config.From, "Bårdar Swing Club"),
+            to,
+            subject,
+            "Epostleseren din er ikke støttet, prøv en annen!",
+            body);
+
+        message.ReplyTo = replyTo;
+
+        var response = await _client.SendEmailAsync(message);
+        await ValidateResponse(response);
+    }
+
+    // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
+    private async Task ValidateResponse(Response response)
+    {
+        if ((int)response.StatusCode < 200 || (int)response.StatusCode > 299)
         {
-            _client = client;
-            _config = config.Email;
-        }
-
-        public async Task Send(EmailAddress to, string subject, string body, EmailAddress replyTo=null)
-        {
-            var message = MailHelper.CreateSingleEmail(
-                new EmailAddress(_config.From, "Bårdar Swing Club"),
-                to,
-                subject,
-                "Epostleseren din er ikke støttet, prøv en annen!",
-                body);
-
-            message.ReplyTo = replyTo;
-
-            var response = await _client.SendEmailAsync(message);
-            await ValidateResponse(response);
-        }
-
-        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
-        private async Task ValidateResponse(Response response)
-        {
-            if ((int)response.StatusCode < 200 || (int)response.StatusCode > 299)
-            {
-                throw new Exception("Utsending av epost feilet!", new Exception(await response.Body.ReadAsStringAsync()));
-            }
+            throw new Exception("Utsending av epost feilet!", new Exception(await response.Body.ReadAsStringAsync()));
         }
     }
 }
