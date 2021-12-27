@@ -193,3 +193,15 @@ details[open] summary .non-open-summary {
 .overflow-auto {
     overflow: auto;
 }
+
+.overflow-hidden {
+    overflow: hidden;
+}
+
+.cancelled-label {
+    position: absolute;
+    transform: rotate(45deg);
+    color: white;
+    padding: .1em 10em;
+    right: -9.5em;
+}

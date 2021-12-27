@@ -35,6 +35,8 @@ namespace MemberService.Pages.Event.Presence
                 .Include(e => e.Signups)
                     .ThenInclude(s => s.User)
                 .Include(e => e.Signups)
+                    .ThenInclude(s => s.Payment)
+                .Include(e => e.Signups)
                     .ThenInclude(s => s.Presence)
                 .AsNoTracking()
                 .Expressionify()

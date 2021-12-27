@@ -67,6 +67,10 @@
                         {
                             <span class="text-danger">Ikke betalt</span>
                         }
+                        @if (participant.Refunded)
+                        {
+                            <span class="text-danger">Refundert</span>
+                        }
                     </td>
                 </tr>
             }

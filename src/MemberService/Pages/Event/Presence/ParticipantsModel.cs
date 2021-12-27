@@ -14,6 +14,7 @@ namespace MemberService.Pages.Event.Presence
             UserId = s.UserId;
             FullName = s.User.FullName;
             Status = s.Status;
+            Refunded = s.Payment?.Refunded ?? false;
             Presence = CreateList(s.Presence, count);
         }
 
@@ -24,6 +25,8 @@ namespace MemberService.Pages.Event.Presence
         public string FullName { get; }
 
         public Status Status { get; }
+
+        public bool Refunded { get; }
 
         public IReadOnlyList<bool> Presence { get; }
 

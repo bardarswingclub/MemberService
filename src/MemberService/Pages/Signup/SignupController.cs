@@ -59,7 +59,7 @@ namespace MemberService.Pages.Signup
             {
                 model.UserEventSignup = eventSignup;
 
-                if (eventSignup.Status != Status.Approved)
+                if (eventSignup.Status != Status.Approved || model.IsCancelled)
                 {
                     return View("Status", model);
                 }

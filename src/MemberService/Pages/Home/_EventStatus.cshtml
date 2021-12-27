@@ -25,7 +25,11 @@
         <div class="list-group list-group-flush">
             @foreach (var signup in Model.OpenEvents)
             {
-                <a class="list-group-item list-group-item-action" asp-controller="Signup" asp-action="Event" asp-route-id="@signup.Id" asp-route-slug="@signup.Title.Slugify()">
+                <a class="list-group-item list-group-item-action overflow-hidden" asp-controller="Signup" asp-action="Event" asp-route-id="@signup.Id" asp-route-slug="@signup.Title.Slugify()">
+                    @if (signup.IsCancelled)
+                    {
+                        <span class="cancelled-label bg-danger">Avlyst</span>
+                    }
                     @if (signup.UserSignup is EventSignup userSignup)
                     {
                         <span class="float-right badge @BadgeColor(userSignup.Status)">@userSignup.Status.DisplayDescription()</span>
