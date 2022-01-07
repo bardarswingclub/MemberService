@@ -10,9 +10,9 @@ variables:
 
 steps:
   - task: UseDotNet@2
-    displayName: ".NET Core 5 for building"
+    displayName: ".NET Core 6 for building"
     inputs:
-      version: "5.0.x"
+      version: "6.0.x"
       packageType: sdk
 
   - task: Cache@2
