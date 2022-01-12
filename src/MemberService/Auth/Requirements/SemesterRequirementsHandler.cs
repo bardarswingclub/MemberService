@@ -50,19 +50,19 @@ public class SemesterRequirementsHandler : IAuthorizationHandler
         {
             Policy.CanCreateEvent => await CheckCurrentSemesterRole(user, R.Coordinator),
 
-            Policy.CanViewEvent when id is Guid eventId => await CheckEventSemesterRole(eventId, user, R.ViewOnly, R.Instructor, R.Coordinator),
+            Policy.CanViewEvent when id is Guid eventId => await CheckEventSemesterRole(eventId, user, R.Instructor, R.Coordinator),
             Policy.CanEditEvent when id is Guid eventId => await CheckEventSemesterRole(eventId, user, R.Coordinator),
             Policy.CanSetEventSignupStatus when id is Guid eventId => await CheckEventSemesterRole(eventId, user, R.Coordinator),
 
             Policy.CanSetPresence when id is Guid eventId => await CheckEventSemesterRole(eventId, user, R.Instructor, R.Coordinator),
             Policy.CanAddPresenceLesson when id is Guid eventId => await CheckEventSemesterRole(eventId, user, R.Instructor, R.Coordinator),
 
-            Policy.CanViewSurvey when id is Guid eventId => await CheckSemesterRole(eventId, user, R.ViewOnly, R.Instructor, R.Coordinator),
+            Policy.CanViewSurvey when id is Guid eventId => await CheckSemesterRole(eventId, user, R.Instructor, R.Coordinator),
 
-            Policy.CanViewMembers => await CheckCurrentSemesterRole(user, R.ViewOnly, R.Instructor, R.Coordinator),
+            Policy.CanViewMembers => await CheckCurrentSemesterRole(user, R.Instructor, R.Coordinator),
 
-            Policy.CanViewSemester when id is Guid semesterId => await CheckSemesterRole(semesterId, user, R.ViewOnly, R.Instructor, R.Coordinator),
-            Policy.CanViewSemester => await CheckCurrentSemesterRole(user, R.ViewOnly, R.Instructor, R.Coordinator),
+            Policy.CanViewSemester when id is Guid semesterId => await CheckSemesterRole(semesterId, user, R.Instructor, R.Coordinator),
+            Policy.CanEditSemesterRoles => await CheckCurrentSemesterRole(user, R.Coordinator),
             _ => false,
         };
 

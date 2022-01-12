@@ -26,4 +26,5 @@ public enum Policy
 
     CanViewSemester,
     CanCreateSemester,
+    CanEditSemesterRoles
 }

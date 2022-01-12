@@ -37,6 +37,9 @@ public class EventOrganizer : IEntityTypeConfiguration<EventOrganizer>
     public void Configure(EntityTypeBuilder<EventOrganizer> organizer)
     {
         organizer
+            .ToTable(nameof(MemberContext.EventOrganizers), b => b.IsTemporal());
+
+        organizer
             .HasKey(nameof(EventId), nameof(UserId));
 
         organizer

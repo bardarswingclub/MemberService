@@ -53,6 +53,8 @@ public class RoleRequirementsHandler : IAuthorizationHandler
 
             Policy.CanViewSemester => user.IsInAnyRole(R.ADMIN, R.COORDINATOR, R.INSTRUCTOR),
             Policy.CanCreateSemester => user.IsInAnyRole(R.ADMIN, R.COORDINATOR),
+            Policy.CanEditSemesterRoles => user.IsInAnyRole(R.ADMIN),
+
             _ => false,
         };
 }
