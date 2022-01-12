@@ -62,7 +62,10 @@ public class SemesterRequirementsHandler : IAuthorizationHandler
             Policy.CanViewMembers => await CheckCurrentSemesterRole(user, R.Instructor, R.Coordinator),
 
             Policy.CanViewSemester when id is Guid semesterId => await CheckSemesterRole(semesterId, user, R.Instructor, R.Coordinator),
+            Policy.CanViewSemester => await CheckCurrentSemesterRole(user, R.Instructor, R.Coordinator),
             Policy.CanEditSemesterRoles => await CheckCurrentSemesterRole(user, R.Coordinator),
+            Policy.CanPreviewSemesterSignup => await CheckCurrentSemesterRole(user, R.Coordinator),
+
             _ => false,
         };
 

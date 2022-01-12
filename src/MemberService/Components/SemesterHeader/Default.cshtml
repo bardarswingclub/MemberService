@@ -7,18 +7,23 @@
         <a class="link-unstyled" asp-controller="Semester" asp-action="Index" asp-route-id="@Model.Id">@Model.Title</a>
 
         <div class="btn-group overflow-auto">
-            @if (User.CanPreviewSignup() && Model.IsActive)
+            @if (await AuthorizationService.IsAuthorized(User, Policy.CanPreviewSemesterSignup) && Model.IsActive)
             {
                 <a class="btn btn-secondary" asp-controller="Home" asp-action="Courses" asp-route-preview="x">Forhåndsvis påmelding</a>
             }
-            @if(User.CanEditSemester() && Model.IsActive)
+
+            @if (await AuthorizationService.IsAuthorized(User, Policy.CanEditSemester) && Model.IsActive)
             {
                 <a class="btn btn-secondary" asp-controller="Semester" asp-action="Edit">Rediger</a>
                 <a class="btn btn-secondary" asp-controller="Questions" asp-action="Edit" asp-route-semesterId="@Model.Id">Spørsmål</a>
             }
-            <a class="btn btn-secondary" asp-controller="Questions" asp-action="Index" asp-route-semesterId="@Model.Id">Svar</a>
 
-            <a class="btn btn-secondary" asp-page="/Semester/Roles">Roller</a>
+            <a class="btn btn-secondary" asp-controller="Questions" asp-action="Index" asp-route-semesterId="@Model.Id">Svar</a>
+            
+            @if (await AuthorizationService.IsAuthorized(User, Policy.CanEditSemesterRoles) && Model.IsActive)
+            {
+                <a class="btn btn-secondary" asp-page="/Semester/Roles">Roller</a>
+            }
         </div>
     </h2>
 

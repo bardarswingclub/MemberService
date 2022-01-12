@@ -154,13 +154,9 @@ public class SemesterController : Controller
     }
 
     [HttpGet]
+    [Authorize(nameof(Policy.CanEditSemester))]
     public async Task<IActionResult> Edit()
     {
-        if (!User.CanEditSemester())
-        {
-            return Forbid();
-        }
-
         var semester = await _database.Semesters
             .Expressionify()
             .Where(s => s.IsActive())
@@ -181,13 +177,9 @@ public class SemesterController : Controller
     }
 
     [HttpPost]
+    [Authorize(nameof(Policy.CanEditSemester))]
     public async Task<IActionResult> Edit([FromForm] SemesterInputModel input)
     {
-        if (!User.CanEditSemester())
-        {
-            return Forbid();
-        }
-
         if (!ModelState.IsValid)
         {
             return View(input);

@@ -14,11 +14,6 @@ public static class CanUser
 
     public static bool CanCreateParty(this ClaimsPrincipal user) => user.IsInAnyRole(Roles.ADMIN, Roles.FESTKOM);
 
-
-    public static bool CanEditSemester(this ClaimsPrincipal user) => user.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR);
-
-    public static bool CanPreviewSignup(this ClaimsPrincipal user) => user.IsInAnyRole(Roles.ADMIN, Roles.COORDINATOR);
-
     public static bool CanToggleRole(this ClaimsPrincipal user, string role = null)
         => user.CanToggleAllRoles()
         || role == Roles.INSTRUCTOR && user.CanToggleInstructorRole();

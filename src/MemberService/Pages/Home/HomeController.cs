@@ -25,13 +25,16 @@ public class HomeController : Controller
 {
     private readonly MemberContext _database;
     private readonly UserManager<User> _userManager;
+    private readonly IAuthorizationService _authorizationService;
 
     public HomeController(
         MemberContext database,
-        UserManager<User> userManager)
+        UserManager<User> userManager,
+        IAuthorizationService authorizationService)
     {
         _database = database;
         _userManager = userManager;
+        _authorizationService = authorizationService;
     }
 
     [AllowAnonymous]
@@ -120,7 +123,7 @@ public class HomeController : Controller
             return View("NoSemester");
         }
 
-        var preview = Request.Query.ContainsKey("preview") && User.CanPreviewSignup();
+        var preview = Request.Query.ContainsKey("preview") && await _authorizationService.IsAuthorized(User, Policy.CanPreviewSemesterSignup);
 
         if (semester.SignupOpensAt > TimeProvider.UtcNow && !preview)
         {
