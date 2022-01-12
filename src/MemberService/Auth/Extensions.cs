@@ -50,4 +50,9 @@ public static class Extensions
     {
         return useDummyProvider ? typeof(DummyShortTokenProvider<>) : typeof(ShortTokenProvider<>);
     }
+
+    public static Guid? GetGuidResource(this AuthorizationHandlerContext context)
+    {
+        return context.Resource as Guid? ?? ((context.Resource as HttpContext)?.GetRouteValue("id") is string x && Guid.TryParse(x, out var y) ? y : (Guid?)default);
+    }
 }

@@ -28,13 +28,9 @@ public class SemesterController : Controller
     }
 
     [HttpGet]
+    [Authorize(nameof(Policy.CanViewSemester))]
     public async Task<IActionResult> Index(bool archived = false)
     {
-        if (!User.CanViewSemester())
-        {
-            return Forbid();
-        }
-
         var semester = await _database.Semesters
             .Expressionify()
             .Where(s => s.IsActive())
@@ -51,13 +47,9 @@ public class SemesterController : Controller
     }
 
     [HttpGet("{controller}/{action}/{id}")]
+    [Authorize(nameof(Policy.CanViewSemester))]
     public async Task<IActionResult> Index(Guid id, bool archived = false)
     {
-        if (!User.CanViewSemester())
-        {
-            return Forbid();
-        }
-
         var semester = await _database.Semesters
             .Expressionify()
             .Select(s => SemesterModel.Create(s, Filter(archived)))
@@ -71,13 +63,9 @@ public class SemesterController : Controller
         return View(semester);
     }
 
+    [Authorize(nameof(Policy.CanViewSemester))]
     public async Task<object> Export(Guid id)
     {
-        if (!User.CanViewSemester())
-        {
-            return Forbid();
-        }
-
         var rows = await _database.Events
             .Where(e => e.SemesterId == id)
             .SelectMany(
@@ -103,13 +91,9 @@ public class SemesterController : Controller
     }
 
     [HttpGet]
+    [Authorize(nameof(Policy.CanViewSemester))]
     public async Task<IActionResult> List()
     {
-        if (!User.CanViewSemester())
-        {
-            return Forbid();
-        }
-
         var semester = await _database.Semesters
             .Expressionify()
             .OrderByDescending(s => s.SignupOpensAt)
@@ -120,13 +104,9 @@ public class SemesterController : Controller
     }
 
     [HttpGet]
+    [Authorize(nameof(Policy.CanCreateSemester))]
     public IActionResult Create()
     {
-        if (!User.CanCreateSemester())
-        {
-            return Forbid();
-        }
-
         var now = TimeProvider.UtcToday;
         var season = now.Month >= 7 ? "Høsten" : "Våren";
         var year = now.Year;
@@ -144,13 +124,9 @@ public class SemesterController : Controller
     }
 
     [HttpPost]
+    [Authorize(nameof(Policy.CanCreateSemester))]
     public async Task<IActionResult> Create([FromForm] SemesterInputModel input)
     {
-        if (!User.CanCreateSemester())
-        {
-            return Forbid();
-        }
-
         if (!ModelState.IsValid)
         {
             return View(input);

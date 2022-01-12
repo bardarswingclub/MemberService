@@ -17,6 +17,8 @@ public class User : IdentityUser
 
     public ICollection<EventOrganizer> Organizes { get; set; } = new List<EventOrganizer>();
 
+    public ICollection<SemesterRole> SemesterRoles { get; set; } = new List<SemesterRole>();
+
     public bool ExemptFromTrainingFee { get; set; }
 
     public bool ExemptFromClassesFee { get; set; }

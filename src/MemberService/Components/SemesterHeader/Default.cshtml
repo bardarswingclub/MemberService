@@ -28,7 +28,7 @@
             </li>
         }
 
-        @if (User.CanCreateCourse() && Model.IsActive)
+        @if (await AuthorizationService.IsAuthorized(User, Policy.CanCreateEvent) && Model.IsActive)
         {
             <li class="nav-item">
                 <a class="nav-link text-success" highlight-active highlight-active-when="controller action" asp-controller="Event" asp-action="Create" asp-route-semesterId="@Model.Id">+ Nytt kurs</a>

@@ -22,5 +22,8 @@ public enum Policy
     CanViewSurvey,
     CanEditSurvey,
 
-    CanViewMembers
+    CanViewMembers,
+
+    CanViewSemester,
+    CanCreateSemester,
 }

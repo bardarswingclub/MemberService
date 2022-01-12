@@ -2,7 +2,10 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 
-public class EventOrganizer
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+public class EventOrganizer : IEntityTypeConfiguration<EventOrganizer>
 {
     public Guid EventId { get; set; }
 
@@ -30,4 +33,24 @@ public class EventOrganizer
 
     [ForeignKey(nameof(UpdatedBy))]
     public User UpdatedByUser { get; set; }
+
+    public void Configure(EntityTypeBuilder<EventOrganizer> organizer)
+    {
+        organizer
+            .HasKey(nameof(EventId), nameof(UserId));
+
+        organizer
+            .HasOne(s => s.User)
+            .WithMany(u => u.Organizes)
+            .HasForeignKey(s => s.UserId)
+            .HasPrincipalKey(u => u.Id)
+            .IsRequired(true);
+
+        organizer
+            .HasOne(s => s.Event)
+            .WithMany(e => e.Organizers)
+            .HasForeignKey(s => s.EventId)
+            .HasPrincipalKey(u => u.Id)
+            .IsRequired(true);
+    }
 }

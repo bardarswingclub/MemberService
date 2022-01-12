@@ -96,7 +96,9 @@ else
 }
 
 services
-    .AddScoped<IAuthorizationHandler, RequirementsHandler>()
+    .AddScoped<IAuthorizationHandler, RoleRequirementsHandler>()
+    .AddScoped<IAuthorizationHandler, EventRequirementsHandler>()
+    .AddScoped<IAuthorizationHandler, SemesterRequirementsHandler>()
     .AddAuthorization(options =>
     {
         foreach (var policy in Enum.GetValues<Policy>())
