@@ -15,10 +15,10 @@
             @if (await AuthorizationService.IsAuthorized(User, Policy.CanEditSemester) && Model.IsActive)
             {
                 <a class="btn btn-secondary" asp-controller="Semester" asp-action="Edit">Rediger</a>
-                <a class="btn btn-secondary" asp-controller="Questions" asp-action="Edit" asp-route-semesterId="@Model.Id">Spørsmål</a>
+                <a class="btn btn-secondary" asp-controller="Questions" asp-action="Edit" asp-route-id="@Model.Id">Spørsmål</a>
             }
 
-            <a class="btn btn-secondary" asp-controller="Questions" asp-action="Index" asp-route-semesterId="@Model.Id">Svar</a>
+            <a class="btn btn-secondary" asp-controller="Questions" asp-action="Index" asp-route-id="@Model.Id">Svar</a>
             
             @if (await AuthorizationService.IsAuthorized(User, Policy.CanEditSemesterRoles) && Model.IsActive)
             {
