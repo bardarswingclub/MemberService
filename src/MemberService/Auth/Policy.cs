@@ -3,8 +3,8 @@
 public enum Policy
 {
     IsAdmin,
-    IsCoordinator,
-    IsInstructor,
+
+    CanToggleRoles,
 
     CanCreateEvent,
 
@@ -26,6 +26,7 @@ public enum Policy
 
     CanViewSemester,
     CanCreateSemester,
+    CanCreateSemesterEvent,
     CanEditSemester,
     CanEditSemesterRoles,
     CanPreviewSemesterSignup

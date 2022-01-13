@@ -32,11 +32,7 @@ public class SemesterController : Controller
     public async Task<IActionResult> Index(bool archived = false)
     {
         var semester = await _database.Semesters
-            .Expressionify()
-            .Where(s => s.IsActive())
-            .OrderByDescending(s => s.SignupOpensAt)
-            .Select(s => SemesterModel.Create(s, Filter(archived)))
-            .FirstOrDefaultAsync();
+            .Current(s => SemesterModel.Create(s, Filter(archived)));
 
         if (semester == null)
         {
@@ -157,11 +153,7 @@ public class SemesterController : Controller
     [Authorize(nameof(Policy.CanEditSemester))]
     public async Task<IActionResult> Edit()
     {
-        var semester = await _database.Semesters
-            .Expressionify()
-            .Where(s => s.IsActive())
-            .OrderByDescending(s => s.SignupOpensAt)
-            .FirstOrDefaultAsync();
+        var semester = await _database.Semesters.Current();
 
         var (date, time) = semester.SignupOpensAt.GetLocalDateAndTime();
 

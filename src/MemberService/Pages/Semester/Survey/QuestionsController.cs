@@ -18,8 +18,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-[Authorize(nameof(Policy.IsInstructor))]
-[Route("/Semester/{semesterId}/Questions/{action=Index}/{questionId?}")]
+[Authorize]
+[Route("/Semester/{id}/Questions/{action=Index}/{questionId?}")]
 public class QuestionsController : Controller
 {
     private readonly MemberContext _database;
@@ -34,14 +34,15 @@ public class QuestionsController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(Guid semesterId, string filter = "all")
+    [Authorize(nameof(Policy.CanViewSurvey))]
+    public async Task<IActionResult> Index(Guid id, string filter = "all")
     {
         var model = await _database
             .Semesters
             .Expressionify()
             .Where(s => s.SurveyId != null)
             .Select(s => SurveyResultModel.Create(s, filter, GetFilter(filter)))
-            .FirstOrDefaultAsync(s => s.SemesterId == semesterId);
+            .FirstOrDefaultAsync(s => s.SemesterId == id);
 
         if (model == null)
         {
@@ -51,7 +52,7 @@ public class QuestionsController : Controller
                     SemesterId = s.Id,
                     SemesterTitle = s.Title
                 })
-                .FirstOrDefaultAsync(e => e.SemesterId == semesterId);
+                .FirstOrDefaultAsync(e => e.SemesterId == id);
 
             return View("Create", createModel);
         }
@@ -60,7 +61,8 @@ public class QuestionsController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Edit(Guid semesterId)
+    [Authorize(nameof(Policy.CanEditSurvey))]
+    public async Task<IActionResult> Edit(Guid id)
     {
         var model = await _database
             .Semesters
@@ -68,7 +70,7 @@ public class QuestionsController : Controller
             .Expressionify()
             .Where(s => s.SurveyId != null)
             .Select(s => SurveyModel.Create(s))
-            .FirstOrDefaultAsync(s => s.SemesterId == semesterId);
+            .FirstOrDefaultAsync(s => s.SemesterId == id);
 
         if (model == null)
         {
@@ -78,7 +80,7 @@ public class QuestionsController : Controller
                     SemesterId = s.Id,
                     SemesterTitle = s.Title
                 })
-                .FirstOrDefaultAsync(e => e.SemesterId == semesterId);
+                .FirstOrDefaultAsync(e => e.SemesterId == id);
 
             return View("Create", createModel);
         }
@@ -87,10 +89,10 @@ public class QuestionsController : Controller
     }
 
     [HttpPost]
-    [Authorize(nameof(Policy.IsCoordinator))]
-    public async Task<IActionResult> Create(Guid semesterId, [FromForm] string description)
+    [Authorize(nameof(Policy.CanCreateSurvey))]
+    public async Task<IActionResult> Create(Guid id, [FromForm] string description)
     {
-        var semester = await _database.Semesters.FirstOrDefaultAsync(e => e.Id == semesterId);
+        var semester = await _database.Semesters.FirstOrDefaultAsync(e => e.Id == id);
 
         semester.Survey = new Data.Survey
         {
@@ -100,16 +102,16 @@ public class QuestionsController : Controller
 
         await _database.SaveChangesAsync();
 
-        return RedirectToAction(nameof(Edit), new { semesterId });
+        return RedirectToAction(nameof(Edit), new { id });
     }
 
     [HttpPost]
-    [Authorize(nameof(Policy.IsCoordinator))]
+    [Authorize(nameof(Policy.CanEditSurvey))]
     public async Task<IActionResult> Add(
-        Guid semesterId,
+        Guid id,
         [FromForm] QuestionType type)
     {
-        var semester = await _database.Semesters.FirstOrDefaultAsync(s => s.Id == semesterId);
+        var semester = await _database.Semesters.FirstOrDefaultAsync(s => s.Id == id);
 
         var model = await _database
             .Surveys
@@ -124,18 +126,18 @@ public class QuestionsController : Controller
 
         await _database.SaveChangesAsync();
 
-        return RedirectToAction(nameof(Edit), new { semesterId });
+        return RedirectToAction(nameof(Edit), new { id });
     }
 
     [HttpPost]
-    [Authorize(nameof(Policy.IsCoordinator))]
+    [Authorize(nameof(Policy.CanEditSurvey))]
     public async Task<IActionResult> Save(
-        Guid semesterId,
+        Guid id,
         Guid questionId,
         QuestionInput input,
         [FromForm] string action)
     {
-        var semester = await _database.Semesters.FirstOrDefaultAsync(s => s.Id == semesterId);
+        var semester = await _database.Semesters.FirstOrDefaultAsync(s => s.Id == id);
 
         var question = await _database.Questions
             .Include(q => q.Options)
@@ -173,7 +175,7 @@ public class QuestionsController : Controller
 
         await _database.SaveChangesAsync();
 
-        return RedirectToAction(nameof(Edit), new { semesterId });
+        return RedirectToAction(nameof(Edit), new { id });
     }
 
     private static Expression<Func<ResponseModel, bool>> GetFilter(string filter) =>

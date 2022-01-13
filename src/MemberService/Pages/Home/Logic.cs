@@ -29,9 +29,7 @@ public static class Logic
             .ToListAsync();
 
     public static async Task<IndexModel> GetIndexModel(this MemberContext db, string userId) => await db.Semesters
-        .Expressionify()
-        .Where(s => s.IsActive())
-        .Select(s => new IndexModel
+        .Current(s => new IndexModel
         {
             UserId = userId,
             SignupOpensAt = s.SignupOpensAt,
@@ -41,6 +39,5 @@ public static class Logic
                 .OrderBy(es => es.Priority)
                 .Select(es => CourseSignupModel.Create(es))
                 .ToList()
-        })
-        .FirstOrDefaultAsync() ?? new IndexModel();
+        }) ?? new IndexModel();
 }

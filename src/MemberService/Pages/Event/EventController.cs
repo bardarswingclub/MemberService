@@ -58,24 +58,8 @@ public class EventController : Controller
 
     [HttpGet]
     [Authorize(nameof(Policy.CanCreateEvent))]
-    public async Task<IActionResult> Create(EventType type = EventType.Class, Guid? semesterId = null)
+    public IActionResult Create(EventType type)
     {
-        if (semesterId.HasValue)
-        {
-            var semester = await _database.Semesters.FindAsync(semesterId.Value);
-
-            var (date, time) = semester.SignupOpensAt.GetLocalDateAndTime();
-
-            return View(new EventInputModel
-            {
-                Type = type,
-                SemesterId = semesterId,
-                SignupOpensAtDate = date,
-                SignupOpensAtTime = time,
-                EnableSignupOpensAt = true,
-            });
-        }
-
         return View(new EventInputModel
         {
             Type = type
@@ -93,15 +77,56 @@ public class EventController : Controller
 
         var entity = model.ToEntity(await GetCurrentUser());
 
-        if (model.SemesterId.HasValue)
-        {
-            var semester = await _database.Semesters.FindAsync(model.SemesterId.Value);
-            semester.Courses.Add(entity);
-        }
-        else
+        if (entity.Type == EventType.Party && User.CanCreateParty())
         {
             _database.Events.Add(entity);
         }
+        else if (entity.Type == EventType.Workshop && User.CanCreateWorkshop())
+        {
+            _database.Events.Add(entity);
+        }
+        else
+        {
+            return Forbid();
+        }
+
+        await _database.SaveChangesAsync();
+
+        return RedirectToAction(nameof(View), new { id = entity.Id });
+    }
+
+    [HttpGet]
+    [Authorize(nameof(Policy.CanCreateSemesterEvent))]
+    public async Task<IActionResult> CreateClass()
+    {
+        var semester = await _database.Semesters.Current();
+
+        var (date, time) = semester.SignupOpensAt.GetLocalDateAndTime();
+
+        return View(new EventInputModel
+        {
+            Type = EventType.Class,
+            SemesterId = semester.Id,
+            SignupOpensAtDate = date,
+            SignupOpensAtTime = time,
+            EnableSignupOpensAt = true,
+        });
+    }
+
+    [HttpPost]
+    [Authorize(nameof(Policy.CanCreateSemesterEvent))]
+    public async Task<IActionResult> CreateClass([FromForm] EventInputModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var entity = model.ToEntity(await GetCurrentUser());
+
+        var semester = await _database.Semesters.Current();
+
+        semester.Courses.Add(entity);
 
         await _database.SaveChangesAsync();
 

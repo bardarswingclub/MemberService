@@ -33,10 +33,7 @@ public class RolesModel : PageModel
     public async Task<IActionResult> OnGetAsync()
     {
         var semester = await _database.Semesters
-            .Expressionify()
-            .Where(s => s.IsActive())
-            .OrderByDescending(s => s.SignupOpensAt)
-            .Select(s => new 
+            .Current(s => new 
             {
                 Id = s.Id,
                 Title = s.Title,
@@ -49,8 +46,7 @@ public class RolesModel : PageModel
                         Role = r.Role
                     })
                     .ToList()
-            })
-            .FirstOrDefaultAsync();
+            });
 
         Title = semester.Title;
         Id = semester.Id;
@@ -62,11 +58,7 @@ public class RolesModel : PageModel
     public async Task<IActionResult> OnPostAddAsync([FromForm] string userId, [FromForm] SemesterRole.RoleType role)
     {
         var id = await _database.Semesters
-            .Expressionify()
-            .Where(s => s.IsActive())
-            .OrderByDescending(s => s.SignupOpensAt)
-            .Select(s => s.Id)
-            .FirstOrDefaultAsync();
+            .Current(s => s.Id);
 
         _database.SemesterRoles.Add(new SemesterRole
         {
@@ -113,11 +105,7 @@ public class RolesModel : PageModel
     public async Task<IActionResult> OnGetUsersAsync(string q)
     {
         var id = await _database.Semesters
-            .Expressionify()
-            .Where(s => s.IsActive())
-            .OrderByDescending(s => s.SignupOpensAt)
-            .Select(s => s.Id)
-            .FirstOrDefaultAsync();
+            .Current(s => s.Id);
 
         var model = await _database.Users
             .Expressionify()

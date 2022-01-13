@@ -17,7 +17,11 @@ public class RoleRequirementsHandler : IAuthorizationHandler
 
         foreach (var requirement in pendingRequirements)
         {
-            if (IsAuthorized(user, requirement))
+            if (user.IsInRole(R.ADMIN))
+            {
+                context.Succeed(requirement);
+            }
+            else if (IsAuthorized(user, requirement))
             {
                 context.Succeed(requirement);
             }
@@ -29,33 +33,32 @@ public class RoleRequirementsHandler : IAuthorizationHandler
     private static bool IsAuthorized(System.Security.Claims.ClaimsPrincipal user, Requirement requirement)
         => requirement.Policy switch
         {
-            Policy.IsInstructor => user.IsInAnyRole(R.INSTRUCTOR, R.COORDINATOR, R.ADMIN),
-            Policy.IsCoordinator => user.IsInAnyRole(R.COORDINATOR, R.ADMIN),
             Policy.IsAdmin => user.IsInAnyRole(R.ADMIN),
 
-            Policy.CanCreateEvent => user.IsInAnyRole(R.FESTKOM, R.COORDINATOR, R.ADMIN),
+            Policy.CanToggleRoles => user.IsInAnyRole(R.ADMIN),
 
-            Policy.CanListEvents => user.IsInAnyRole(R.ADMIN, R.COORDINATOR, R.INSTRUCTOR, R.FESTKOM),
-            Policy.CanViewEvent => user.IsInAnyRole(R.ADMIN, R.COORDINATOR, R.INSTRUCTOR),
-            Policy.CanEditEvent => user.IsInAnyRole(R.ADMIN, R.COORDINATOR),
-            Policy.CanSetEventSignupStatus => user.IsInAnyRole(R.ADMIN, R.COORDINATOR),
-            Policy.CanEditEventSignup => user.IsInAnyRole(R.ADMIN),
-            Policy.CanEditEventOrganizers => user.IsInAnyRole(R.ADMIN),
+            Policy.CanCreateEvent => user.IsInAnyRole(R.FESTKOM, R.COORDINATOR),
 
-            Policy.CanSetPresence => user.IsInAnyRole(R.ADMIN, R.COORDINATOR, R.INSTRUCTOR),
-            Policy.CanAddPresenceLesson => user.IsInAnyRole(R.ADMIN, R.COORDINATOR, R.INSTRUCTOR),
+            Policy.CanListEvents => user.IsInAnyRole(R.COORDINATOR, R.INSTRUCTOR, R.FESTKOM),
+            Policy.CanViewEvent => user.IsInAnyRole(R.COORDINATOR, R.INSTRUCTOR),
+            Policy.CanEditEvent => user.IsInAnyRole(R.COORDINATOR),
+            Policy.CanSetEventSignupStatus => user.IsInAnyRole(R.COORDINATOR),
+            Policy.CanEditEventOrganizers => user.IsInAnyRole(R.STYRET),
 
-            Policy.CanCreateSurvey => user.IsInAnyRole(R.ADMIN, R.COORDINATOR),
-            Policy.CanViewSurvey => user.IsInAnyRole(R.ADMIN, R.COORDINATOR, R.INSTRUCTOR),
-            Policy.CanEditSurvey => user.IsInAnyRole(R.ADMIN, R.COORDINATOR),
+            Policy.CanSetPresence => user.IsInAnyRole(R.COORDINATOR, R.INSTRUCTOR),
+            Policy.CanAddPresenceLesson => user.IsInAnyRole(R.COORDINATOR, R.INSTRUCTOR),
 
-            Policy.CanViewMembers => user.IsInAnyRole(R.ADMIN, R.COORDINATOR, R.INSTRUCTOR, R.FESTKOM),
+            Policy.CanCreateSurvey => user.IsInAnyRole(R.COORDINATOR),
+            Policy.CanViewSurvey => user.IsInAnyRole(R.COORDINATOR, R.INSTRUCTOR),
+            Policy.CanEditSurvey => user.IsInAnyRole(R.COORDINATOR),
 
-            Policy.CanViewSemester => user.IsInAnyRole(R.ADMIN, R.COORDINATOR, R.INSTRUCTOR),
-            Policy.CanCreateSemester => user.IsInAnyRole(R.ADMIN, R.COORDINATOR),
-            Policy.CanEditSemester => user.IsInAnyRole(R.ADMIN),
-            Policy.CanEditSemesterRoles => user.IsInAnyRole(R.ADMIN),
-            Policy.CanPreviewSemesterSignup => user.IsInAnyRole(R.ADMIN),
+            Policy.CanViewMembers => user.IsInAnyRole(R.COORDINATOR, R.INSTRUCTOR, R.FESTKOM),
+
+            Policy.CanViewSemester => user.IsInAnyRole(R.STYRET),
+            Policy.CanCreateSemester => user.IsInAnyRole(R.STYRET),
+            Policy.CanEditSemester => user.IsInAnyRole(R.STYRET),
+            Policy.CanEditSemesterRoles => user.IsInAnyRole(R.STYRET),
+            Policy.CanPreviewSemesterSignup => user.IsInAnyRole(R.STYRET),
 
             _ => false,
         };

@@ -1,8 +1,6 @@
 namespace MemberService.Data;
 
-
-
-
+using System.Linq.Expressions;
 
 using Clave.Expressionify;
 
@@ -68,4 +66,19 @@ public static partial class Extensions
         => property.HasConversion(
                 v => v.ToString(),
                 v => Enum.Parse<TEnum>(v));
+
+    public static async Task<Semester> Current(this DbSet<Semester> semesters)
+    {
+        return await semesters.Current(t => t);
+    }
+
+    public static async Task<T> Current<T>(this DbSet<Semester> semesters, Expression<Func<Semester, T>> select)
+    {
+        return await semesters
+            .Expressionify()
+            .Where(s => s.IsActive())
+            .OrderByDescending(s => s.SignupOpensAt)
+            .Select(select)
+            .FirstOrDefaultAsync();
+    }
 }

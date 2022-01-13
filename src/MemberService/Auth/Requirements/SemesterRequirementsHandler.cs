@@ -48,7 +48,7 @@ public class SemesterRequirementsHandler : IAuthorizationHandler
     private async Task<bool> IsAuthorized(ClaimsPrincipal user, Guid? id, Requirement requirement)
         => requirement.Policy switch
         {
-            Policy.CanCreateEvent => await CheckCurrentSemesterRole(user, R.Coordinator),
+            Policy.CanCreateSemesterEvent => await CheckCurrentSemesterRole(user, R.Coordinator),
 
             Policy.CanViewEvent when id is Guid eventId => await CheckEventSemesterRole(eventId, user, R.Instructor, R.Coordinator),
             Policy.CanEditEvent when id is Guid eventId => await CheckEventSemesterRole(eventId, user, R.Coordinator),

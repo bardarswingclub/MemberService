@@ -1,7 +1,5 @@
 namespace MemberService.Data.ValueTypes;
 
-
-
 public static class Roles
 {
     public const string ADMIN = "Admin";
@@ -11,6 +9,8 @@ public static class Roles
     public const string INSTRUCTOR = "Instructor";
 
     public const string FESTKOM = "Festkom";
+
+    public const string STYRET = "Styret";
 
     public static string[] All { get; } = typeof(Roles)
         .GetFields()

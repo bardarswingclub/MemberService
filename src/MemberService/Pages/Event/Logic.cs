@@ -31,7 +31,7 @@ public static class Logic
         {
             Title = model.Title,
             Description = model.Description,
-            Type = model.Type,
+            Type = model.SemesterId.HasValue ? EventType.Class : model.Type,
             CreatedAt = TimeProvider.UtcNow,
             CreatedByUser = user,
             SignupOptions = new()
