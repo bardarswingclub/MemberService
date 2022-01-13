@@ -159,6 +159,44 @@ details[open] summary .non-open-summary {
     overflow: auto hidden;
     white-space: nowrap;
     flex-wrap: nowrap;
+    border-bottom: none;
+}
+
+.nowrap-tabs .nav-item {
+    margin-bottom: 0;
+}
+
+.nowrap-tabs .nav-item .nav-link:not(.active) {
+    border-bottom: 1px solid #dee2e6;
+}
+
+
+.overflow-container.nowrap-tabs::before {
+    content: ' ';
+    margin-left: -15px;
+    border-bottom: 1px solid #dee2e6;
+    width: 15px;
+}
+
+.overflow-container.nowrap-tabs::after {
+    content: ' ';
+    border-bottom: 1px solid #dee2e6;
+    flex: 1 0 auto;
+    margin-right: -15px;
+}
+
+.card-header.nowrap-tabs .card-header-tabs::before {
+    content: ' ';
+    margin-left: -0.625rem;
+    border-bottom: 1px solid #dee2e6;
+    width: 0.625rem;
+}
+
+.card-header.nowrap-tabs .card-header-tabs::after {
+    content: ' ';
+    border-bottom: 1px solid #dee2e6;
+    flex: 1 0 auto;
+    margin-right: -0.625rem;
 }
 
 .markdown img {
