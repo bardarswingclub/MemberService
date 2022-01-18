@@ -15,10 +15,16 @@
             @if (await AuthorizationService.IsAuthorized(User, Policy.CanEditSemester) && Model.IsActive)
             {
                 <a class="btn btn-secondary" asp-controller="Semester" asp-action="Edit">Rediger</a>
-                <a class="btn btn-secondary" asp-controller="Questions" asp-action="Edit" asp-route-id="@Model.Id">Spørsmål</a>
             }
 
-            <a class="btn btn-secondary" asp-controller="Questions" asp-action="Index" asp-route-id="@Model.Id">Svar</a>
+            @if (Model.SurveyId.HasValue)
+            {
+                <a class="btn btn-secondary" asp-page="/Semester/Survey" asp-route-id="@Model.Id">Spørreundersøkelse</a>             
+            }
+            else if (await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanCreateSurvey) && Model.IsActive)
+            {
+                <a class="btn btn-secondary" asp-controller="Survey" asp-action="CreateSemesterSurvey" asp-route-id="@Model.Id">Spørreundersøkelse</a>  
+            }
             
             @if (await AuthorizationService.IsAuthorized(User, Policy.CanEditSemesterRoles) && Model.IsActive)
             {

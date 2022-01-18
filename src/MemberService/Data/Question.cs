@@ -5,7 +5,10 @@ namespace MemberService.Data;
 
 using MemberService.Data.ValueTypes;
 
-public class Question
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+public class Question : IEntityTypeConfiguration<Question>
 {
     public Guid Id { get; set; }
 
@@ -26,4 +29,11 @@ public class Question
     public DateTime? AnswerableFrom { get; set; }
 
     public DateTime? AnswerableUntil { get; set; }
+
+    public void Configure(EntityTypeBuilder<Question> question)
+    {
+        question
+            .Property(q => q.Type)
+            .HasEnumStringConversion();
+    }
 }

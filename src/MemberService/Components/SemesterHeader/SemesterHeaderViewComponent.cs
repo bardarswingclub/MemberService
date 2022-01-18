@@ -17,7 +17,7 @@ public class SemesterHeaderViewComponent : ViewComponent
 
     public async Task<IViewComponentResult> InvokeAsync(Guid? id)
     {
-        if (id == null)
+        if (id is null)
         {
             return new ContentViewComponentResult(string.Empty);
         }
@@ -28,6 +28,7 @@ public class SemesterHeaderViewComponent : ViewComponent
                 Id = e.Id,
                 Title = e.Title,
                 IsActive = e.IsActive(),
+                SurveyId = e.SurveyId,
                 Events = e.Courses
                     .Where(c => !c.Archived)
                     .Select(c => new Model.Event
@@ -50,6 +51,8 @@ public class SemesterHeaderViewComponent : ViewComponent
         public string Title { get; set; }
 
         public bool IsActive { get; set; }
+
+        public Guid? SurveyId { get; set; }
 
         public IReadOnlyCollection<Event> Events { get; set; }
 

@@ -1,14 +1,22 @@
-﻿@model MemberService.Pages.Event.Survey.SurveyResultModel
+﻿@page "{id}"
+@model MemberService.Pages.Event.SurveyModel
 
 @{
-    ViewData["Title"] = Model.EventTitle;
     ViewData["ContainerClass"] = "container-fluid";
+    ViewData["Title"] = Model.Title;
     var totalCount = Model.Responses.DistinctBy(r => r.UserId).Count();
 }
-
-<vc:semester-header id="@Model.SemesterId"></vc:semester-header>
 <vc:event-header id="@Model.EventId"></vc:event-header>
 
+<h2>
+    Spørreundersøkelse
+    @if (await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanEditSurvey))
+    {
+        <a class="float-right btn btn-outline-primary" asp-controller="Survey" asp-action="Edit" asp-route-id="@Model.Id">
+            Rediger
+        </a>
+    }    
+</h2>
 
 @if (Model.Questions.NotAny())
 {
@@ -23,7 +31,7 @@
 }
 else
 {
-    <form method="get" asp-controller="Questions" asp-action="Index" asp-route-id="@Model.Id" class="btn-group" role="group" aria-label="Basic example">
+    <form method="get" class="btn-group" role="group">
         <button type="submit" name="filter" value="all" class="btn btn-secondary @(Model.Filter == "all" ? "active" : "")">
             Alle
             @*<span class="badge badge-light">@Model.SignupsByAll</span>*@

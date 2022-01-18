@@ -4,7 +4,6 @@
 @{
     ViewData["Title"] = Model.Title;
     ViewData["ContainerClass"] = "container-fluid";
-    var canEdit = await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanEditSurvey);
 }
 
 <vc:semester-header id="@Model.SemesterId"></vc:semester-header>
@@ -22,13 +21,13 @@
                 <div class="form-group row">
                     <label class="col-sm-2 col-form-label" asp-for="@title">Spørsmål</label>
                     <div class="col-sm-10">
-                        <input class="form-control" asp-for="@title" disabled="@(!canEdit)">
+                        <input class="form-control" asp-for="@title">
                     </div>
                 </div>
                 <div class="form-group row">
                     <label class="col-sm-2 col-form-label" asp-for="@description">Beskrivelse</label>
                     <div class="col-sm-10">
-                        <input class="form-control" asp-for="@description" disabled="@(!canEdit)">
+                        <input class="form-control" asp-for="@description">
                     </div>
                 </div>
                 <small class="text-muted">
@@ -45,52 +44,45 @@
                                 <input type="@question.Type" checked onclick="return false" />
                                 Alternativ @(i + 1)
                             </span>
-                            @if (canEdit)
-                            {
-                                <button type="submit" name="options[@i].Action" value="delete" class="btn btn-outline-danger">Fjern</button>
-                            }
+
+                            <button type="submit" name="options[@i].Action" value="delete" class="btn btn-outline-danger">Fjern</button>
                         </h5>
                         <input type="hidden" asp-for="@options[i].Id" />
                         <div class="form-group row">
                             <label class="col-sm-3 col-form-label" asp-for="@options[i].Title"></label>
                             <div class="col-sm-9">
-                                <input class="form-control" asp-for="@options[i].Title" disabled="@(!canEdit)">
+                                <input class="form-control" asp-for="@options[i].Title">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-3 col-form-label" asp-for="@options[i].Description"></label>
                             <div class="col-sm-9">
-                                <input class="form-control" asp-for="@options[i].Description" disabled="@(!canEdit)">
+                                <input class="form-control" asp-for="@options[i].Description">
                             </div>
                         </div>
                     </li>
                 }
             </ul>
-            @if (canEdit)
-            {
-                <div class="card-body">
-                    <button type="submit" class="btn btn-outline-success" name="action" value="add-option">Legg til nytt svaralternativ</button>
-                </div>
-                <div class="card-footer d-flex justify-content-between">
-                    <button type="submit" class="btn btn-success">Lagre</button>
-                    <button type="submit" class="btn btn-outline-danger" name="action" value="delete">Slett</button>
-                </div>
-            }
+
+            <div class="card-body">
+                <button type="submit" class="btn btn-outline-success" name="action" value="add-option">Legg til nytt svaralternativ</button>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <button type="submit" class="btn btn-success">Lagre</button>
+                <button type="submit" class="btn btn-outline-danger" name="action" value="delete">Slett</button>
+            </div>
         </form>
     }
 </div>
 
-@if (canEdit)
-{
-    <form method="post" asp-controller="Survey" asp-action="Add" asp-route-id="@Model.Id">
-        <div class="dropdown">
-            <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Legg til nytt spørsmål
-            </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <button type="submit" name="type" value="@QuestionType.Radio" class="dropdown-item">&#x25C9; Ett obligatorisk svar</button>
-                <button type="submit" name="type" value="@QuestionType.CheckBox" class="dropdown-item">&#x2611; Mange valgfrie svar</button>
-            </div>
+<form method="post" asp-controller="Survey" asp-action="Add" asp-route-id="@Model.Id">
+    <div class="dropdown">
+        <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Legg til nytt spørsmål
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <button type="submit" name="type" value="@QuestionType.Radio" class="dropdown-item">&#x25C9; Ett obligatorisk svar</button>
+            <button type="submit" name="type" value="@QuestionType.CheckBox" class="dropdown-item">&#x2611; Mange valgfrie svar</button>
         </div>
-    </form>
-}
+    </div>
+</form>

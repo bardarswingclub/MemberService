@@ -54,7 +54,7 @@ public class EventRequirementsHandler : IAuthorizationHandler
 
             Policy.CanCreateSurvey when id is Guid eventId => await CheckEventOrganizer(eventId, user, p => p.CanEdit),
             Policy.CanViewSurvey when id is Guid eventId => await CheckEventOrganizer(eventId, user, _ => true),
-            Policy.CanEditSurvey when id is Guid eventId => await CheckEventOrganizer(eventId, user, p => p.CanEdit),
+            Policy.CanEditSurvey when id is Guid surveyId => await CheckSurveyEventOrganizer(surveyId, user, p => p.CanEdit),
 
             Policy.CanViewMembers => await CanListEvents(user),
             _ => false,
@@ -65,7 +65,15 @@ public class EventRequirementsHandler : IAuthorizationHandler
         var userId = _userManager.GetUserId(user);
         return await _database.EventOrganizers
             .AnyAsync(o => o.UserId == userId && !o.Event.Archived);
+    }
 
+    private async Task<bool> CheckSurveyEventOrganizer(Guid surveyId, ClaimsPrincipal user, Func<EventOrganizer, bool> check)
+    {
+        var @event = await _database.Events.FirstOrDefaultAsync(e => e.SurveyId == surveyId);
+
+        if(@event is null) return false;
+        
+        return await CheckEventOrganizer(@event.Id, user, check);
     }
 
     private async Task<bool> CheckEventOrganizer(Guid eventId, ClaimsPrincipal user, Func<EventOrganizer, bool> check)

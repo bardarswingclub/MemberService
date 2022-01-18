@@ -96,18 +96,21 @@
         </li>
         @if (!Model.IsSemester)
         {
-            <li class="nav-item">
-                <a class="nav-link" highlight-active asp-controller="Questions" asp-action="Index" asp-route-id="@Model.Id">Svar</a>
-            </li>
+            if (Model.SurveyId.HasValue)
+            {
+                <li class="nav-item">
+                    <a class="nav-link" highlight-active asp-page="/Event/Survey" asp-route-id="@Model.Id">Spørreundersøkelse</a>
+                </li>
+            }
+            else if (await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanCreateSurvey))
+            {
+                <li class="nav-item">
+                    <a class="nav-link" highlight-active asp-controller="Survey" asp-action="CreateEventSurvey" asp-route-id="@Model.Id">Spørreundersøkelse</a>
+                </li>
+            }
         }
         @if (await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanEditEvent))
         {
-            @if (!Model.IsSemester)
-            {
-                <li class="nav-item">
-                    <a class="nav-link" highlight-active asp-controller="Questions" asp-action="Edit" asp-route-id="@Model.Id">Spørsmål</a>
-                </li>
-            }
             <li class=nav-item>
                 <a class="nav-link" highlight-active asp-controller="Event" asp-action="Edit" asp-route-id="@Model.Id">Rediger</a>
             </li>

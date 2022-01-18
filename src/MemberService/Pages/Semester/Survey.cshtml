@@ -8,6 +8,16 @@
 }
 <vc:semester-header id="@Model.SemesterId"></vc:semester-header>
 
+<h2>
+    Spørreundersøkelse
+    @if (await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanEditSurvey))
+    {
+        <a class="float-right btn btn-outline-primary" asp-controller="Survey" asp-action="Edit" asp-route-id="@Model.Id">
+            Rediger
+        </a>
+    }    
+</h2>
+
 @if (Model.Questions.NotAny())
 {
     <div class="alert alert-info">
