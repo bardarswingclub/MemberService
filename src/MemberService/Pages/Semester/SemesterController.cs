@@ -1,10 +1,7 @@
 ﻿namespace MemberService.Pages.Semester;
 
-
-
 using System.Linq.Expressions;
 using System.Text;
-
 
 using Clave.Expressionify;
 
@@ -13,6 +10,7 @@ using MemberService.Data;
 using MemberService.Pages.Event;
 
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,11 +18,14 @@ using Microsoft.EntityFrameworkCore;
 public class SemesterController : Controller
 {
     private readonly MemberContext _database;
+    private readonly UserManager<User> _userManager;
 
     public SemesterController(
-        MemberContext database)
+        MemberContext database,
+        UserManager<User> userManager)
     {
         _database = database;
+        _userManager = userManager;
     }
 
     [HttpGet]
@@ -32,7 +33,7 @@ public class SemesterController : Controller
     public async Task<IActionResult> Index(bool archived = false)
     {
         var semester = await _database.Semesters
-            .Current(s => SemesterModel.Create(s, Filter(archived)));
+            .Current(s => SemesterModel.Create(s, GetUserId(), Filter(archived)));
 
         if (semester == null)
         {
@@ -48,7 +49,7 @@ public class SemesterController : Controller
     {
         var semester = await _database.Semesters
             .Expressionify()
-            .Select(s => SemesterModel.Create(s, Filter(archived)))
+            .Select(s => SemesterModel.Create(s, GetUserId(), Filter(archived)))
             .FirstOrDefaultAsync(s => s.Id == id);
 
         if (semester == null)
@@ -93,7 +94,7 @@ public class SemesterController : Controller
         var semester = await _database.Semesters
             .Expressionify()
             .OrderByDescending(s => s.SignupOpensAt)
-            .Select(s => SemesterModel.Create(s, e => true))
+            .Select(s => SemesterModel.Create(s, GetUserId(), e => true))
             .ToListAsync();
 
         return View(semester);
@@ -201,6 +202,7 @@ public class SemesterController : Controller
 
         return RedirectToAction(nameof(Index));
     }
+    private string GetUserId() => _userManager.GetUserId(User);
 
     private static Expression<Func<Data.Event, bool>> Filter(bool all = false)
     {

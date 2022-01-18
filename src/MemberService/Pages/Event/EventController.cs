@@ -51,7 +51,7 @@ public class EventController : Controller
     [Authorize(nameof(Policy.CanListEvents))]
     public async Task<IActionResult> Index(bool archived = false)
     {
-        var model = await _database.GetEvents(archived);
+        var model = await _database.GetEvents(GetUserId(), archived);
 
         return View(model);
     }
@@ -441,8 +441,9 @@ public class EventController : Controller
         return RedirectToAction(nameof(View), new { id = entry.Id });
     }
 
-    private async Task<User> GetCurrentUser()
-        => await _database.Users.SingleUser(_userManager.GetUserId(User));
+    private async Task<User> GetCurrentUser() => await _database.Users.SingleUser(GetUserId());
+
+    private string GetUserId() => _userManager.GetUserId(User);
 
     private async Task<string> SignupLink(User user, Data.Event e)
     {
