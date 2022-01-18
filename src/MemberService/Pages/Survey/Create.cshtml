@@ -1,7 +1,7 @@
-﻿@model MemberService.Pages.Event.Survey.CreateSurveyModel
+﻿@model MemberService.Pages.Survey.CreateSurveyModel
 
 @{
-    ViewData["Title"] = Model.EventTitle;
+    ViewData["Title"] = Model.Title;
     ViewData["ContainerClass"] = "container-fluid";
 }
 
@@ -12,13 +12,22 @@
     <h5 class="alert-heading">
         Ingen spørreundersøkelse lagd
     </h5>
-    @if (!Model.IsArchived && await AuthorizationService.IsAuthorized(User, Model.EventId, Policy.CanCreateSurvey))
+    @if (!Model.IsArchived)
     {
         <p>
             Vil du lage en spørreundersøkelse?
         </p>
-        <form method="post" asp-controller="Questions" asp-action="Create" asp-route-id="@Model.EventId">
-            <button type="submit" class="btn btn-success btn-lg">Opprett spørreundersøkelse</button>
-        </form>
+        @if (Model.EventId.HasValue)
+        {
+            <form method="post" asp-controller="Survey" asp-action="CreateEventSurvey" asp-route-id="@Model.EventId">
+                <button type="submit" class="btn btn-success btn-lg">Opprett spørreundersøkelse</button>
+            </form>
+        }
+        else if (Model.SemesterId.HasValue)
+        {
+            <form method="post" asp-controller="Survey" asp-action="CreateSemesterSurvey" asp-route-id="@Model.SemesterId">
+                <button type="submit" class="btn btn-success btn-lg">Opprett spørreundersøkelse</button>
+            </form>
+        }
     }
 </div>

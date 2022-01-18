@@ -1,17 +1,12 @@
-﻿namespace MemberService.Pages.Event.Survey;
+﻿namespace MemberService.Pages.Survey;
 
-using Clave.Expressionify;
-
-public partial class CreateSurveyModel : EventBaseModel
+public class CreateSurveyModel
 {
-    [Expressionify]
-    public static CreateSurveyModel Create(Data.Event e) => new()
-    {
-        EventId = e.Id,
-        SemesterId = e.SemesterId,
-        EventTitle = e.Title,
-        EventDescription = e.Description,
-        IsArchived = e.Archived,
-        IsCancelled = e.Cancelled,
-    };
+    public Guid? SemesterId { get; set; }
+
+    public Guid? EventId { get; set; }
+
+    public string Title { get; set; }
+
+    public bool IsArchived { get; set; }
 }
