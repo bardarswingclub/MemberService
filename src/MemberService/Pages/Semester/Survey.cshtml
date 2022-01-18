@@ -1,14 +1,22 @@
-﻿@model MemberService.Pages.Event.Survey.SurveyResultModel
+﻿@page "{id}"
+@model MemberService.Pages.Semester.SurveyModel
 
 @{
-    ViewData["Title"] = Model.EventTitle;
     ViewData["ContainerClass"] = "container-fluid";
+    ViewData["Title"] = Model.Title;
     var totalCount = Model.Responses.DistinctBy(r => r.UserId).Count();
 }
-
 <vc:semester-header id="@Model.SemesterId"></vc:semester-header>
-<vc:event-header id="@Model.EventId"></vc:event-header>
 
+<h2>
+    Spørreundersøkelse
+    @if (await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanEditSurvey))
+    {
+        <a class="float-right btn btn-outline-primary" asp-controller="Survey" asp-action="Edit" asp-route-id="@Model.Id">
+            Rediger
+        </a>
+    }    
+</h2>
 
 @if (Model.Questions.NotAny())
 {
@@ -23,17 +31,21 @@
 }
 else
 {
-    <form method="get" asp-controller="Questions" asp-action="Index" asp-route-id="@Model.Id" class="btn-group" role="group" aria-label="Basic example">
+    <form method="get" asp-controller="Questions" asp-action="Index" asp-route-semesterId="@Model.SemesterId" class="btn-group" role="group" aria-label="Basic example">
         <button type="submit" name="filter" value="all" class="btn btn-secondary @(Model.Filter == "all" ? "active" : "")">
             Alle
             @*<span class="badge badge-light">@Model.SignupsByAll</span>*@
         </button>
-        <button type="submit" name="filter" value="approved" class="btn btn-secondary @(Model.Filter == "approved" ? "active" : "")">
-            De som har fått plass
+        <button type="submit" name="filter" value="member" class="btn btn-secondary @(Model.Filter == "member" ? "active" : "")">
+            Medlemmer
             @*<span class="badge badge-light">@Model.SignupsByApproved</span>*@
         </button>
-        <button type="submit" name="filter" value="paid" class="btn btn-secondary @(Model.Filter == "paid" ? "active" : "")">
-            De som har fått plass og betalt
+        <button type="submit" name="filter" value="training" class="btn btn-secondary @(Model.Filter == "training" ? "active" : "")">
+            Betalt treningsavgift
+            @*<span class="badge badge-light">@Model.SignupsByPaid</span>*@
+        </button>
+        <button type="submit" name="filter" value="classes" class="btn btn-secondary @(Model.Filter == "classes" ? "active" : "")">
+            Kursdeltagere
             @*<span class="badge badge-light">@Model.SignupsByPaid</span>*@
         </button>
     </form>
@@ -78,7 +90,22 @@ else
                                             <li>
                                                 <a asp-controller="Members" asp-action="Details" asp-route-id="@signup.UserId" target="_blank">@signup.Name</a>
                                                 <span class="badge badge-primary">
-                                                    @signup.Status.DisplayName()
+                                                    @if (signup.HasPayedClassesFeeThisSemester)
+                                                    {
+                                                        @: Kursdeltaker
+                                                    }
+                                                    else if (signup.HasPayedTrainingFeeThisSemester)
+                                                    {
+                                                        @: Egentrening
+                                                    }
+                                                    else if (signup.HasPayedMembershipThisYear)
+                                                    {
+                                                        @: Medlem
+                                                    }
+                                                    else
+                                                    {
+                                                        @: Ikke medlem
+                                                    }
                                                 </span>
                                             </li>
                                         }

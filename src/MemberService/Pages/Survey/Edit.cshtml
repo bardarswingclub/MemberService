@@ -1,11 +1,14 @@
 ﻿@using MemberService.Data.ValueTypes
-@model SurveyModel
+@model MemberService.Pages.Survey.SurveyModel
 
 @{
-    ViewData["ContainerClass"] = "container-fluid";
     ViewData["Title"] = Model.Title;
+    ViewData["ContainerClass"] = "container-fluid";
 }
+
 <vc:semester-header id="@Model.SemesterId"></vc:semester-header>
+<vc:event-header id="@Model.EventId"></vc:event-header>
+
 
 <div class="card-columns card-columns-2">
     @foreach (var question in Model.Questions)
@@ -13,7 +16,7 @@
         var title = question.Title;
         var description = question.Description;
         var options = question.Options;
-        <form method="post" asp-controller="Questions" asp-action="Save" asp-route-id="@Model.SemesterId" asp-route-questionId="@question.Id" class="card mb-5">
+        <form method="post" asp-controller="Survey" asp-action="Save" asp-route-id="@Model.Id" asp-route-questionId="@question.Id" class="card mb-5">
             <div class="card-header">
                 <div class="form-group row">
                     <label class="col-sm-2 col-form-label" asp-for="@title">Spørsmål</label>
@@ -41,6 +44,7 @@
                                 <input type="@question.Type" checked onclick="return false" />
                                 Alternativ @(i + 1)
                             </span>
+
                             <button type="submit" name="options[@i].Action" value="delete" class="btn btn-outline-danger">Fjern</button>
                         </h5>
                         <input type="hidden" asp-for="@options[i].Id" />
@@ -59,8 +63,8 @@
                     </li>
                 }
             </ul>
-            <div class="card-body">
 
+            <div class="card-body">
                 <button type="submit" class="btn btn-outline-success" name="action" value="add-option">Legg til nytt svaralternativ</button>
             </div>
             <div class="card-footer d-flex justify-content-between">
@@ -71,7 +75,7 @@
     }
 </div>
 
-<form method="post" asp-controller="Questions" asp-action="Add" asp-route-id="@Model.SemesterId">
+<form method="post" asp-controller="Survey" asp-action="Add" asp-route-id="@Model.Id">
     <div class="dropdown">
         <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Legg til nytt spørsmål

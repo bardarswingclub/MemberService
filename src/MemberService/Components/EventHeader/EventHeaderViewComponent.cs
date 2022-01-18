@@ -5,6 +5,7 @@ using Clave.Expressionify;
 using MemberService.Data;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.EntityFrameworkCore;
 
 public class EventHeaderViewComponent : ViewComponent
@@ -16,8 +17,13 @@ public class EventHeaderViewComponent : ViewComponent
         _database = database;
     }
 
-    public async Task<IViewComponentResult> InvokeAsync(Guid id)
+    public async Task<IViewComponentResult> InvokeAsync(Guid? id)
     {
+        if (id is null)
+        {
+            return new ContentViewComponentResult(string.Empty);
+        }
+
         var model = await _database.Events
             .Expressionify()
             .Select(e => new Model
@@ -27,6 +33,7 @@ public class EventHeaderViewComponent : ViewComponent
                 Description = e.Description,
                 SignupOpensAt = e.SignupOptions.SignupOpensAt,
                 SignupClosesAt = e.SignupOptions.SignupClosesAt,
+                SurveyId = e.SurveyId,
                 IsSemester = e.SemesterId.HasValue,
                 IsOpen = e.IsOpen(),
                 HasClosed = e.HasClosed(),
@@ -55,6 +62,8 @@ public class EventHeaderViewComponent : ViewComponent
         public bool IsOpen { get; set; }
 
         public bool IsSemester { get; set; }
+
+        public Guid? SurveyId { get; set; }
 
         public DateTime? SignupOpensAt { get; set; }
 

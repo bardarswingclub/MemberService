@@ -10,7 +10,7 @@
 
 <p>Det er ingen aktive semester</p>
 
-@if (User.CanCreateSemester())
+@if (await AuthorizationService.IsAuthorized(User, Policy.CanCreateSemester))
 {
     <a class="btn btn-success" asp-controller="Semester" asp-action="Create">Opprett semester...</a>
 }

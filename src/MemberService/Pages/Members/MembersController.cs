@@ -98,13 +98,9 @@ public class MembersController : Controller
     }
 
     [HttpPost]
+    [Authorize(nameof(Policy.CanToggleRoles))]
     public async Task<IActionResult> ToggleRole(string id, [FromForm] string role, [FromForm] bool value)
     {
-        if (!User.CanToggleRole(role))
-        {
-            return Forbid();
-        }
-
         if (await _userManager.FindByIdAsync(id) is { } user)
         {
             bool userAlreadyHasRole = await _userManager.IsInRoleAsync(user, role);

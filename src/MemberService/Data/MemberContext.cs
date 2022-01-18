@@ -35,9 +35,13 @@ IdentityRoleClaim<string>, IdentityUserToken<string>>
 
     public DbSet<EventOrganizer> EventOrganizers { get; set; }
 
+    public DbSet<SemesterRole> SemesterRoles { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        builder.ApplyConfigurationsFromAssembly(typeof(MemberContext).Assembly);
 
         builder.Entity<UserRole>(userRole =>
         {
@@ -104,26 +108,6 @@ IdentityRoleClaim<string>, IdentityUserToken<string>>
                 .WithMany(o => o.Answers)
                 .HasForeignKey(q => q.OptionId)
                 .OnDelete(DeleteBehavior.Restrict);
-        });
-
-        builder.Entity<EventOrganizer>(organizer =>
-        {
-            organizer
-                .HasKey(nameof(EventOrganizer.EventId), nameof(EventOrganizer.UserId));
-
-            organizer
-                .HasOne(s => s.User)
-                .WithMany(u => u.Organizes)
-                .HasForeignKey(s => s.UserId)
-                .HasPrincipalKey(u => u.Id)
-                .IsRequired(true);
-
-            organizer
-                .HasOne(s => s.Event)
-                .WithMany(e => e.Organizers)
-                .HasForeignKey(s => s.EventId)
-                .HasPrincipalKey(u => u.Id)
-                .IsRequired(true);
         });
     }
 }

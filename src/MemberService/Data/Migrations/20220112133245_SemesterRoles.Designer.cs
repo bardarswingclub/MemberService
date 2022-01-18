@@ -4,6 +4,7 @@ using MemberService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,13 +12,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MemberService.Data.Migrations
 {
     [DbContext(typeof(MemberContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220112133245_SemesterRoles")]
+    partial class SemesterRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.1")
+                .HasAnnotation("ProductVersion", "6.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -165,16 +167,6 @@ namespace MemberService.Data.Migrations
                     b.Property<bool>("CanSetSignupStatus")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("PeriodEnd")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("PeriodEnd");
-
-                    b.Property<DateTime>("PeriodStart")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("PeriodStart");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -187,18 +179,7 @@ namespace MemberService.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("EventOrganizers", (string)null);
-
-                    b.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb
-                                .HasPeriodStart("PeriodStart")
-                                .HasColumnName("PeriodStart");
-                            ttb
-                                .HasPeriodEnd("PeriodEnd")
-                                .HasColumnName("PeriodEnd");
-                        }
-                    ));
+                    b.ToTable("EventOrganizers");
                 });
 
             modelBuilder.Entity("MemberService.Data.EventSignup", b =>
@@ -581,44 +562,15 @@ namespace MemberService.Data.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("PeriodEnd")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("PeriodEnd");
-
-                    b.Property<DateTime>("PeriodStart")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("PeriodStart");
-
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("SemesterId", "UserId");
-
-                    b.HasIndex("UpdatedBy");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("SemesterRoles", (string)null);
-
-                    b.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb
-                                .HasPeriodStart("PeriodStart")
-                                .HasColumnName("PeriodStart");
-                            ttb
-                                .HasPeriodEnd("PeriodEnd")
-                                .HasColumnName("PeriodEnd");
-                        }
-                    ));
+                    b.ToTable("SemesterRoles");
                 });
 
             modelBuilder.Entity("MemberService.Data.Survey", b =>
@@ -1054,10 +1006,6 @@ namespace MemberService.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MemberService.Data.User", "UpdatedByUser")
-                        .WithMany()
-                        .HasForeignKey("UpdatedBy");
-
                     b.HasOne("MemberService.Data.User", "User")
                         .WithMany("SemesterRoles")
                         .HasForeignKey("UserId")
@@ -1065,8 +1013,6 @@ namespace MemberService.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Semester");
-
-                    b.Navigation("UpdatedByUser");
 
                     b.Navigation("User");
                 });

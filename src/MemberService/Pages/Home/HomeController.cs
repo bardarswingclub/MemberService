@@ -25,13 +25,16 @@ public class HomeController : Controller
 {
     private readonly MemberContext _database;
     private readonly UserManager<User> _userManager;
+    private readonly IAuthorizationService _authorizationService;
 
     public HomeController(
         MemberContext database,
-        UserManager<User> userManager)
+        UserManager<User> userManager,
+        IAuthorizationService authorizationService)
     {
         _database = database;
         _userManager = userManager;
+        _authorizationService = authorizationService;
     }
 
     [AllowAnonymous]
@@ -72,15 +75,11 @@ public class HomeController : Controller
     public async Task<IActionResult> Signup()
     {
         var semester = await _database.Semesters
-            .Expressionify()
-            .Where(s => s.IsActive())
-            .Select(s => new SignupInputModel
+            .Current(s => new SignupInputModel
             {
                 SignupOpensAt = s.SignupOpensAt,
                 SignupHelpText = s.SignupHelpText
-
-            })
-            .FirstOrDefaultAsync();
+            });
 
         if (semester == null)
         {
@@ -110,17 +109,14 @@ public class HomeController : Controller
     {
         var userId = _userManager.GetUserId(User);
 
-        var semester = await _database.Semesters
-            .Expressionify()
-            .Where(s => s.IsActive())
-            .FirstOrDefaultAsync();
+        var semester = await _database.Semesters.Current();
 
         if (semester == null)
         {
             return View("NoSemester");
         }
 
-        var preview = Request.Query.ContainsKey("preview") && User.CanPreviewSignup();
+        var preview = Request.Query.ContainsKey("preview") && await _authorizationService.IsAuthorized(User, Policy.CanPreviewSemesterSignup);
 
         if (semester.SignupOpensAt > TimeProvider.UtcNow && !preview)
         {

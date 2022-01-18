@@ -18,7 +18,7 @@ public partial class SemesterModel
     public IReadOnlyList<EventEntry> Courses { get; set; }
 
     [Expressionify]
-    public static SemesterModel Create(Data.Semester s, Expression<Func<Data.Event, bool>> filter) =>
+    public static SemesterModel Create(Data.Semester s, string userId, Expression<Func<Data.Event, bool>> filter) =>
         new()
         {
             Id = s.Id,
@@ -27,7 +27,7 @@ public partial class SemesterModel
                 .AsQueryable()
                 .Where(filter)
                 .OrderBy(e => e.Title)
-                .Select(e => EventEntry.Create(e))
+                .Select(e => EventEntry.Create(e, userId))
                 .ToList()
         };
 }

@@ -1,0 +1,33 @@
+﻿@model MemberService.Pages.Survey.CreateSurveyModel
+
+@{
+    ViewData["Title"] = Model.Title;
+    ViewData["ContainerClass"] = "container-fluid";
+}
+
+<vc:semester-header id="@Model.SemesterId"></vc:semester-header>
+<vc:event-header id="@Model.EventId"></vc:event-header>
+
+<div class="alert alert-info">
+    <h5 class="alert-heading">
+        Ingen spørreundersøkelse lagd
+    </h5>
+    @if (!Model.IsArchived)
+    {
+        <p>
+            Vil du lage en spørreundersøkelse?
+        </p>
+        @if (Model.EventId.HasValue)
+        {
+            <form method="post" asp-controller="Survey" asp-action="CreateEventSurvey" asp-route-id="@Model.EventId">
+                <button type="submit" class="btn btn-success btn-lg">Opprett spørreundersøkelse</button>
+            </form>
+        }
+        else if (Model.SemesterId.HasValue)
+        {
+            <form method="post" asp-controller="Survey" asp-action="CreateSemesterSurvey" asp-route-id="@Model.SemesterId">
+                <button type="submit" class="btn btn-success btn-lg">Opprett spørreundersøkelse</button>
+            </form>
+        }
+    }
+</div>

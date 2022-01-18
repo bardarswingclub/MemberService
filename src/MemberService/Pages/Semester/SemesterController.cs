@@ -1,10 +1,7 @@
 ﻿namespace MemberService.Pages.Semester;
 
-
-
 using System.Linq.Expressions;
 using System.Text;
-
 
 using Clave.Expressionify;
 
@@ -13,6 +10,7 @@ using MemberService.Data;
 using MemberService.Pages.Event;
 
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,27 +18,22 @@ using Microsoft.EntityFrameworkCore;
 public class SemesterController : Controller
 {
     private readonly MemberContext _database;
+    private readonly UserManager<User> _userManager;
 
     public SemesterController(
-        MemberContext database)
+        MemberContext database,
+        UserManager<User> userManager)
     {
         _database = database;
+        _userManager = userManager;
     }
 
     [HttpGet]
+    [Authorize(nameof(Policy.CanViewSemester))]
     public async Task<IActionResult> Index(bool archived = false)
     {
-        if (!User.CanViewSemester())
-        {
-            return Forbid();
-        }
-
         var semester = await _database.Semesters
-            .Expressionify()
-            .Where(s => s.IsActive())
-            .OrderByDescending(s => s.SignupOpensAt)
-            .Select(s => SemesterModel.Create(s, Filter(archived)))
-            .FirstOrDefaultAsync();
+            .Current(s => SemesterModel.Create(s, GetUserId(), Filter(archived)));
 
         if (semester == null)
         {
@@ -51,16 +44,12 @@ public class SemesterController : Controller
     }
 
     [HttpGet("{controller}/{action}/{id}")]
+    [Authorize(nameof(Policy.CanViewSemester))]
     public async Task<IActionResult> Index(Guid id, bool archived = false)
     {
-        if (!User.CanViewSemester())
-        {
-            return Forbid();
-        }
-
         var semester = await _database.Semesters
             .Expressionify()
-            .Select(s => SemesterModel.Create(s, Filter(archived)))
+            .Select(s => SemesterModel.Create(s, GetUserId(), Filter(archived)))
             .FirstOrDefaultAsync(s => s.Id == id);
 
         if (semester == null)
@@ -71,13 +60,9 @@ public class SemesterController : Controller
         return View(semester);
     }
 
+    [Authorize(nameof(Policy.CanViewSemester))]
     public async Task<object> Export(Guid id)
     {
-        if (!User.CanViewSemester())
-        {
-            return Forbid();
-        }
-
         var rows = await _database.Events
             .Where(e => e.SemesterId == id)
             .SelectMany(
@@ -103,30 +88,22 @@ public class SemesterController : Controller
     }
 
     [HttpGet]
+    [Authorize(nameof(Policy.CanViewSemester))]
     public async Task<IActionResult> List()
     {
-        if (!User.CanViewSemester())
-        {
-            return Forbid();
-        }
-
         var semester = await _database.Semesters
             .Expressionify()
             .OrderByDescending(s => s.SignupOpensAt)
-            .Select(s => SemesterModel.Create(s, e => true))
+            .Select(s => SemesterModel.Create(s, GetUserId(), e => true))
             .ToListAsync();
 
         return View(semester);
     }
 
     [HttpGet]
+    [Authorize(nameof(Policy.CanCreateSemester))]
     public IActionResult Create()
     {
-        if (!User.CanCreateSemester())
-        {
-            return Forbid();
-        }
-
         var now = TimeProvider.UtcToday;
         var season = now.Month >= 7 ? "Høsten" : "Våren";
         var year = now.Year;
@@ -144,13 +121,9 @@ public class SemesterController : Controller
     }
 
     [HttpPost]
+    [Authorize(nameof(Policy.CanCreateSemester))]
     public async Task<IActionResult> Create([FromForm] SemesterInputModel input)
     {
-        if (!User.CanCreateSemester())
-        {
-            return Forbid();
-        }
-
         if (!ModelState.IsValid)
         {
             return View(input);
@@ -178,18 +151,10 @@ public class SemesterController : Controller
     }
 
     [HttpGet]
+    [Authorize(nameof(Policy.CanEditSemester))]
     public async Task<IActionResult> Edit()
     {
-        if (!User.CanEditSemester())
-        {
-            return Forbid();
-        }
-
-        var semester = await _database.Semesters
-            .Expressionify()
-            .Where(s => s.IsActive())
-            .OrderByDescending(s => s.SignupOpensAt)
-            .FirstOrDefaultAsync();
+        var semester = await _database.Semesters.Current();
 
         var (date, time) = semester.SignupOpensAt.GetLocalDateAndTime();
 
@@ -205,13 +170,9 @@ public class SemesterController : Controller
     }
 
     [HttpPost]
+    [Authorize(nameof(Policy.CanEditSemester))]
     public async Task<IActionResult> Edit([FromForm] SemesterInputModel input)
     {
-        if (!User.CanEditSemester())
-        {
-            return Forbid();
-        }
-
         if (!ModelState.IsValid)
         {
             return View(input);
@@ -241,6 +202,7 @@ public class SemesterController : Controller
 
         return RedirectToAction(nameof(Index));
     }
+    private string GetUserId() => _userManager.GetUserId(User);
 
     private static Expression<Func<Data.Event, bool>> Filter(bool all = false)
     {

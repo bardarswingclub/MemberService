@@ -1,0 +1,73 @@
+﻿@page "{handler?}"
+@model MemberService.Pages.Semester.RolesModel
+
+@{
+    ViewData["ContainerClass"] = "container-fluid";
+    ViewData["Title"] = $"Roller - {Model.Title}";
+}
+
+<vc:semester-header id="@Model.Id"></vc:semester-header>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Navn</th>
+            <th>Rolle</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var user in Model.Users)
+        {
+            var role = user.Role;
+            <tr>
+                <td><a asp-controller="Members" asp-action="Details" asp-route-id="@user.Id">@user.FullName (@user.Email)</a></td>
+                <td>
+                    <select class="form-control" form="edit-@user.Id" asp-for=@role asp-items=@(Html.GetEnumSelectList<SemesterRole.RoleType>())></select>
+
+                </td>
+                <td>
+                    <form id="edit-@user.Id" method="POST" asp-page-handler="Edit">
+                        <input type="hidden" name="userId" value="@user.Id">
+                        <button class="btn btn-outline-success" type="submit">Lagre</button>
+                        <button class="btn btn-outline-danger" type="submit" name="remove" value="true">Fjern</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td>
+                <form id="addUserForm" method="POST" asp-page-handler="Add">
+                    <div class="form-row">
+                        <div class="col-md-12">
+                        <select 
+                            class="form-control autoComplete"
+                            name="userId" 
+                            placeholder="Søk etter person"
+                            data-url="/semester/roles/users" 
+                            autocomplete="off"></select>
+                        </div>
+                    </div>
+                </form>
+            </td>
+            <td>
+                <select class="form-control" form="addUserForm" name="role" asp-items=@(Html.GetEnumSelectList<SemesterRole.RoleType>())></select>
+            </td>
+            <td>
+                <button class="btn btn-success" form="addUserForm">Legg til</button>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+
+
+
+@section scripts 
+{
+    <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
+    <script>
+        $('.autoComplete').autoComplete();
+    </script>
+}

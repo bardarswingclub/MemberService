@@ -7,16 +7,29 @@
         <a class="link-unstyled" asp-controller="Semester" asp-action="Index" asp-route-id="@Model.Id">@Model.Title</a>
 
         <div class="btn-group overflow-auto">
-            @if (User.CanPreviewSignup() && Model.IsActive)
+            @if (await AuthorizationService.IsAuthorized(User, Policy.CanPreviewSemesterSignup) && Model.IsActive)
             {
                 <a class="btn btn-secondary" asp-controller="Home" asp-action="Courses" asp-route-preview="x">Forhåndsvis påmelding</a>
             }
-            @if(User.CanEditSemester() && Model.IsActive)
+
+            @if (await AuthorizationService.IsAuthorized(User, Policy.CanEditSemester) && Model.IsActive)
             {
                 <a class="btn btn-secondary" asp-controller="Semester" asp-action="Edit">Rediger</a>
-                <a class="btn btn-secondary" asp-controller="Questions" asp-action="Edit" asp-route-semesterId="@Model.Id">Spørsmål</a>
             }
-            <a class="btn btn-secondary" asp-controller="Questions" asp-action="Index" asp-route-semesterId="@Model.Id">Svar</a>
+
+            @if (Model.SurveyId.HasValue)
+            {
+                <a class="btn btn-secondary" asp-page="/Semester/Survey" asp-route-id="@Model.Id">Spørreundersøkelse</a>             
+            }
+            else if (await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanCreateSurvey) && Model.IsActive)
+            {
+                <a class="btn btn-secondary" asp-controller="Survey" asp-action="CreateSemesterSurvey" asp-route-id="@Model.Id">Spørreundersøkelse</a>  
+            }
+            
+            @if (await AuthorizationService.IsAuthorized(User, Policy.CanEditSemesterRoles) && Model.IsActive)
+            {
+                <a class="btn btn-secondary" asp-page="/Semester/Roles">Roller</a>
+            }
         </div>
     </h2>
 
@@ -28,10 +41,10 @@
             </li>
         }
 
-        @if (User.CanCreateCourse() && Model.IsActive)
+        @if (await AuthorizationService.IsAuthorized(User, Policy.CanCreateSemesterEvent) && Model.IsActive)
         {
             <li class="nav-item">
-                <a class="nav-link text-success" highlight-active highlight-active-when="controller action" asp-controller="Event" asp-action="Create" asp-route-semesterId="@Model.Id">+ Nytt kurs</a>
+                <a class="nav-link text-success" highlight-active highlight-active-when="controller action" asp-controller="Event" asp-action="CreateClass">+ Nytt kurs</a>
             </li>
         }
     </ul>

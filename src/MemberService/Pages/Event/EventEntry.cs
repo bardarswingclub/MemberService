@@ -1,9 +1,5 @@
 ﻿namespace MemberService.Pages.Event;
 
-
-
-
-
 using Clave.Expressionify;
 
 using MemberService.Data;
@@ -25,10 +21,12 @@ public partial class EventEntry
 
     public bool RoleSignup { get; set; }
 
+    public bool CanView { get; set; }
+
     public IReadOnlyList<EventSignup> Signups { get; set; }
 
     [Expressionify]
-    public static EventEntry Create(Data.Event e) => new()
+    public static EventEntry Create(Event e, string userId) => new()
     {
         Id = e.Id,
         Title = e.Title,
@@ -37,6 +35,7 @@ public partial class EventEntry
         SignupOpensAt = e.SignupOptions.SignupOpensAt,
         SignupClosesAt = e.SignupOptions.SignupClosesAt,
         RoleSignup = e.SignupOptions.RoleSignup,
+        CanView = e.Organizers.AsQueryable().Any(o => o.UserId == userId),
         Signups = e.Signups.ToList()
     };
 

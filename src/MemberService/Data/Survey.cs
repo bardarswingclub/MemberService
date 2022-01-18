@@ -11,6 +11,10 @@ public class Survey
 
     public string Description { get; set; }
 
+    public Semester Semester { get; set; }
+
+    public Event Event { get; set; }
+
     public ICollection<Question> Questions { get; set; } = new List<Question>();
 
     public ICollection<Response> Responses { get; set; } = new List<Response>();

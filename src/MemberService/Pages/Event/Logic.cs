@@ -16,14 +16,14 @@ using NodaTime.Text;
 
 public static class Logic
 {
-    public static Task<List<EventEntry>> GetEvents(this MemberContext context, bool archived)
+    public static Task<List<EventEntry>> GetEvents(this MemberContext context, string userId, bool archived)
         => context.Events
             .AsNoTracking()
             .Expressionify()
             .Where(e => archived || e.Archived == false)
             .Where(e => e.SemesterId == null)
             .OrderByDescending(e => e.CreatedAt)
-            .Select(e => EventEntry.Create(e))
+            .Select(e => EventEntry.Create(e, userId))
             .ToListAsync();
 
     public static Data.Event ToEntity(this EventInputModel model, User user)
@@ -31,7 +31,7 @@ public static class Logic
         {
             Title = model.Title,
             Description = model.Description,
-            Type = model.Type,
+            Type = model.SemesterId.HasValue ? EventType.Class : model.Type,
             CreatedAt = TimeProvider.UtcNow,
             CreatedByUser = user,
             SignupOptions = new()

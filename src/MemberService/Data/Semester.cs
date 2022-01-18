@@ -1,8 +1,5 @@
 ﻿namespace MemberService.Data;
 
-
-
-
 public class Semester
 {
     public Guid Id { get; set; }
@@ -18,4 +15,6 @@ public class Semester
     public ICollection<Event> Courses { get; set; } = new List<Event>();
 
     public string SignupHelpText { get; set; }
+
+    public ICollection<SemesterRole> Roles { get; set; } = new List<SemesterRole>();
 }

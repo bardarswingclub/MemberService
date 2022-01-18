@@ -1,7 +1,5 @@
 ﻿namespace MemberService.Pages.Shared;
 
-
-
 using Clave.ExtensionMethods;
 
 using Microsoft.AspNetCore.Mvc;

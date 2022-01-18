@@ -50,7 +50,7 @@
             Rettigheter
         </h3>
         <div class="card-body">
-            @if (User.CanToggleAllRoles())
+            @if (await AuthorizationService.IsAuthorized(User, Policy.CanToggleRoles))
             {
                 @foreach(var role in Roles.All)
                 {
@@ -67,11 +67,6 @@
                         <label class="form-check-label" asp-for="ExemptFromClassesFee">Fritatt fra kursavgift</label>
                     </div>
                 </form>
-            }
-            else if (User.CanToggleInstructorRole())
-            {
-                <partial name="_Role" model="(Model, Roles.INSTRUCTOR)" />
-                <hr />
             }
             else 
             {
