@@ -1,4 +1,5 @@
-﻿@model AnnualMeetingInputModel
+﻿@page
+@model MemberService.Pages.AnnualMeeting.CreateModel
 
 @{
     ViewData["Title"] = "Opprett nytt årsmøte";
@@ -6,7 +7,7 @@
 <h2>@ViewData["Title"]</h2>
 
 
-<form method="POST" asp-action="Create" class="form-row justify-content-between">
+<form method="POST" asp-page="Create" class="form-row justify-content-between">
 
     <div class="col-md-12 mb-1">
         <div class="card flex-fill">

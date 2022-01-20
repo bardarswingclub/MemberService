@@ -1,4 +1,7 @@
+@page
 @using MemberService.Data.ValueTypes
+@model MemberService.Pages.AnnualMeeting.NoMeetingModel
+
 @{
     ViewData["Title"] = "Årsmøte";
     Layout = "~/Pages/_CoverLayout.cshtml";
@@ -13,9 +16,9 @@
             Det er ingen årsmøte planlagt i nærmeste fremtid
         </p>
 
-        @if (User.IsAdministrator())
+        @if (await AuthorizationService.IsAuthorized(User, Policy.CanCreateAnnualMeeting))
         {
-            <a asp-controller="AnnualMeeting" asp-action="Create" class="btn btn-block btn-success">Opprett årsmøte</a>
+            <a asp-page="Create" class="btn btn-block btn-success">Opprett årsmøte</a>
         }
     </div>
 </div>
