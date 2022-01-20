@@ -1,9 +1,5 @@
 namespace MemberService.Pages.AnnualMeeting;
 
-
-
-
-
 using Clave.Expressionify;
 
 using MemberService.Auth;
@@ -63,7 +59,7 @@ public class AnnualMeetingController : Controller
                 return View("NoMeeting");
             }
         }
-        else if (meeting.IsLive() && member != null)
+        else if (meeting.IsLive() && member is not null)
         {
             var attendee = meeting.Attendees.GetOrAdd(a => a.UserId == member.Id,
                 () => new AnnualMeetingAttendee
@@ -86,8 +82,7 @@ public class AnnualMeetingController : Controller
         return View(new Model
         {
             Id = meeting.Id,
-            IsMember = member != null,
-            UserId = member.Id,
+            UserId = member?.Id,
             Title = meeting.Title,
             MeetingInvitation = meeting.MeetingInvitation,
             MeetingInfo = meeting.MeetingInfo,

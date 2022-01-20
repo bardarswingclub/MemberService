@@ -17,7 +17,7 @@ public class Model
 
     public string MeetingSummary { get; set; }
 
-    public bool IsMember { get; set; }
+    public bool IsMember => UserId is not null;
 
     public DateTime MeetingStartsAt { get; set; }
 
