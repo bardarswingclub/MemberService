@@ -1,9 +1,5 @@
 namespace MemberService.Pages.AnnualMeeting.Survey;
 
-
-
-
-
 using Clave.Expressionify;
 using Clave.ExtensionMethods;
 
@@ -16,7 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-[Authorize(nameof(Policy.IsAdmin))]
+[Authorize(nameof(Policy.CanEditAnnualMeeting))]
 [Route("/AnnualMeeting/{meetingId}/Questions/{action=Index}/{questionId?}")]
 public class QuestionsController : Controller
 {
