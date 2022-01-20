@@ -41,7 +41,7 @@
         {
             <tr>
                 <td>
-                    @if (eventEntry.CanView)
+                    @if (eventEntry.CanView || User.IsInAnyRole(Roles.STYRET, Roles.ADMIN))
                     {
                         <a asp-action="View" asp-route-id="@eventEntry.Id">@eventEntry.Title</a>
                     }

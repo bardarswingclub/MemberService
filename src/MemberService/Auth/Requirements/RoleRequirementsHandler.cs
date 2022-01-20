@@ -51,6 +51,7 @@ public class RoleRequirementsHandler : IAuthorizationHandler
 
             Policy.CanViewSemester => user.IsInAnyRole(R.STYRET),
             Policy.CanCreateSemester => user.IsInAnyRole(R.STYRET),
+            Policy.CanCreateSemesterEvent => user.IsInAnyRole(R.STYRET),
             Policy.CanEditSemester => user.IsInAnyRole(R.STYRET),
             Policy.CanEditSemesterRoles => user.IsInAnyRole(R.STYRET),
             Policy.CanPreviewSemesterSignup => user.IsInAnyRole(R.STYRET),
