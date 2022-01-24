@@ -18,7 +18,7 @@
                 <input type="checkbox" asp-for="@Model[i].Selected" />
             </td>
             <td>
-                <a asp-controller="Members" asp-action="Details" asp-route-id="@signup.UserId" target="_blank">@signup.FullName</a>
+                <a asp-page="/Members/Details" asp-route-id="@signup.UserId" target="_blank">@signup.FullName</a>
             </td>
             <td>
                 @if (Model.ShowPriority)
@@ -60,7 +60,7 @@
                                                     @Html.Markdown(entry.Message)
                                                 </td>
                                                 <td>
-                                                    <a asp-controller="Members" asp-action="Details" asp-route-id="@entry.UserId" target="_blank">@entry.User.FullName</a>
+                                                    <a asp-page="/Members/Details" asp-route-id="@entry.UserId" target="_blank">@entry.User.FullName</a>
                                                 </td>
                                                 <td>
                                                     @entry.OccuredAtUtc.DisplayOslo()
@@ -85,7 +85,7 @@
                     @switch(signup.Partner)
                     {
                         case SignedUpPartnerSignupModel partner:
-                            <a asp-controller="Members" asp-action="Details" asp-route-id="@partner.Id" target="_blank">
+                            <a asp-page="/Members/Details" asp-route-id="@partner.Id" target="_blank">
                                 @partner.Name
                             </a>
                             <br>
@@ -115,7 +115,7 @@
                             }
                             break;
                         case KnownPartnerSignupModel knownPartner:
-                            <a asp-controller="Members" asp-action="Details" asp-route-id="@knownPartner.Id" target="_blank">
+                            <a asp-page="/Members/Details" asp-route-id="@knownPartner.Id" target="_blank">
                                 @knownPartner.Name
                             </a>
                             <br>

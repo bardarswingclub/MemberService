@@ -67,7 +67,7 @@ else
                                         @foreach (var user in selectedBy)
                                         {
                                             <li>
-                                                <a asp-controller="Members" asp-action="Details" asp-route-id="@user.UserId" target="_blank">@user.Name</a>
+                                                <a asp-page="/Members/Details" asp-route-id="@user.UserId" target="_blank">@user.Name</a>
                                             </li>
                                         }
                                     </ol>

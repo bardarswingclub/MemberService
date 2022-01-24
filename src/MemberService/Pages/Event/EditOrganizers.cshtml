@@ -30,7 +30,7 @@
         @foreach(var organizer in Model.Organizers)
         {
             <tr>
-                <td><a asp-controller="Members" asp-action="Details" asp-route-id="@organizer.Id">@organizer.FullName (@organizer.Email)</a></td>
+                <td><a asp-page="/Members/Details" asp-route-id="@organizer.Id">@organizer.FullName (@organizer.Email)</a></td>
                 <td class="text-center">✔</td>
                 <td class="text-center"><input type="checkbox" form="edit-@organizer.Id" name="CanSetSignupStatus" value="true" checked="@organizer.CanSetSignupStatus"></td>
                 <td class="text-center"><input type="checkbox" form="edit-@organizer.Id" name="CanSetPresence" value="true" checked="@organizer.CanSetPresence"></td>

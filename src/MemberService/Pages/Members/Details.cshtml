@@ -1,5 +1,6 @@
-﻿@using MemberService.Data.ValueTypes
-@model User
+﻿@page "{id}"
+@using MemberService.Data.ValueTypes
+@model DetailsModel
 
 @{
     ViewData["Title"] = Model.FullName;
@@ -12,7 +13,7 @@
 
 <h5 class="d-flex justify-content-between">
     <span>
-        @if(Model.HasPayedMembershipThisYear())
+        @if(Model.HasPayedMembershipThisYear)
         {
             @: <span style="color: #0a0">&#x2713;</span> Medlemskap betalt
         }
@@ -22,7 +23,7 @@
         }
     </span>
     <span>
-        @if(Model.HasPayedTrainingFeeThisSemester())
+        @if(Model.HasPayedTrainingFeeThisSemester)
         {
             @: <span style="color: #0a0">&#x2713;</span> Treningsavgift
         }
@@ -32,7 +33,7 @@
         }
     </span>
     <span>
-        @if(Model.HasPayedClassesFeeThisSemester())
+        @if(Model.HasPayedClassesFeeThisSemester)
         {
             @: <span style="color: #0a0">&#x2713;</span> Kursavgift
         }
@@ -54,10 +55,18 @@
             {
                 @foreach(var role in Roles.All)
                 {
-                    <partial name="_Role" model="(Model, role)" />
+                    <form asp-page-handler="ToggleRole" asp-route-id="@Model.Id" method="post" class="d-inline">
+                        <input type="hidden" name="role" value="@role">
+                        <div class="form-check">
+                            <input class="form-check-input" id="grant-@role" type="checkbox" name="value" value="true" checked="@Model.Roles.Contains(role)" onchange="form.submit()" />
+                            <label class="form-check-label" for="grant-@role">
+                                @role
+                            </label>
+                        </div>
+                    </form>
                 }
                 <hr />
-                <form asp-controller="Members" asp-action="SetExemptions" asp-route-id="@Model.Id" method="post" class="form">
+                <form asp-page-handler="SetExemptions" asp-route-id="@Model.Id" method="post" class="form">
                     <div class="form-check">
                         <input class="form-check-input" asp-for="ExemptFromTrainingFee" onchange="form.submit()" />
                         <label class="form-check-label" asp-for="ExemptFromTrainingFee">Fritatt fra treningsavgift</label>
@@ -113,9 +122,9 @@
     <div class="card shadow-sm">
         <h3 class="card-header">
             Betalinger
-            @if (User.IsInRole(Roles.ADMIN))
+            @if (await AuthorizationService.IsAuthorized(User, Policy.CanUpdatePayments))
             {
-                <form asp-action="UpdatePayments" asp-route-id="@Model.Id" method="POST" class="float-right">
+                <form asp-page-handler="UpdatePayments" asp-route-id="@Model.Id" method="POST" class="float-right">
 
                     <button class="btn btn-primary">
                         &#8635;
@@ -139,7 +148,7 @@
                             <abbr title="@payment.PayedAtUtc.ToOsloDateTime()">@payment.PayedAtUtc.ToOsloDate()</abbr>
                         </td>
                         <td>
-                            @if (User.IsInRole(Roles.ADMIN) && payment.StripeChargeId != null)
+                            @if (await AuthorizationService.IsAuthorized(User, Policy.CanSeeStripeLink) && payment.StripeChargeId != null)
                             {
                                 <a href="https://dashboard.stripe.com/payments/@payment.StripeChargeId" target="_blank">
                                     @payment.Description
@@ -155,13 +164,13 @@
                 }
             </tbody>
         </table>
-        @if (User.IsInRole(Roles.ADMIN))
+        @if (await AuthorizationService.IsAuthorized(User, Policy.CanAddManualPayment))
         {
             <div class="card-footer">
                 <button class="btn btn-link" data-toggle="collapse" data-target="#addManualPayment" aria-expanded="false" aria-controls="addManualPayment">
                     Legg til manuell betaling
                 </button>
-                <form class="collapse" id="addManualPayment" method="post" asp-action="AddManualPayment" asp-route-id="@Model.Id">
+                <form class="collapse" id="addManualPayment" method="post" asp-page-handler="AddManualPayment" asp-route-id="@Model.Id">
                     <partial name="_ManualPaymentForm" model="new ManualPaymentModel()" />
                 </form>
             </div>

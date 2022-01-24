@@ -1,12 +1,13 @@
+@page
 @using MemberService.Data.ValueTypes
-@model MembersViewModel
+@model IndexModel
 
 @{
     ViewData["Title"] = "Medlemmer";
 }
 <h2>@ViewData["Title"] <span class="text-muted">(@Model.Users.Sum(p => p.Users.Count))</span></h2>
 <hr>
-<form class="form d-print-none" asp-action="Index" method="GET">
+<form class="form d-print-none" method="GET">
     <div class="form-group row mb-3">
         <div class="col input-group">
             <div class="input-group-prepend">
@@ -26,8 +27,8 @@
                 <option value="Only">&#x2713; Som har betalt medlemskap</option>
                 <option value="Not">&#x2717; Som ikke har betalt medlemskap</option>
                 
-                @if (User.IsInRole(Roles.ADMIN)) {
-                    <option value="LastYear">&#x2713; Som betalte medlemskap ifjor</option>
+                @if (await AuthorizationService.IsAuthorized(User, Policy.CanViewOlderMembers)) {
+                    <option value="LastYear">&#x2713; Som betalte medlemskap i fjor eller i år</option>
                 }
             </select>
         </div>
@@ -61,7 +62,7 @@
         </div>
     </div>
 </form>
-<form asp-action="SendEmail" method="post">
+<form asp-page-handler="SendEmail" method="post">
     <table class="table">
         <thead>
             <tr>
@@ -70,7 +71,7 @@
                 <th class="text-center"><abbr title="Kurs">K</abbr></th>
                 <th>Navn</th>
                 <th>
-                    @if (User.IsInRole(Roles.ADMIN)) {
+                    @if (await AuthorizationService.IsAuthorized(User, Policy.CanSendEmailToMembers)) {
                         <input type="checkbox" data-action="select-all">
                     }
                     E-post
@@ -88,14 +89,14 @@
                 @foreach (var user in users)
                 {
                     <tr>
-                        <td class="font-weight-bold text-center @Color()">@Checkmark(user.HasPayedMembershipThisYear())</td>
+                        <td class="font-weight-bold text-center @Color()">@Checkmark(user.HasPayedMembershipThisYear)</td>
                         <td class="font-weight-bold text-center @Color(user.ExemptFromTrainingFee)">
-                            @Checkmark(user.HasPayedTrainingFeeThisSemester())</td>
+                            @Checkmark(user.HasPayedTrainingFeeThisSemester)</td>
                         <td class="font-weight-bold text-center @Color(user.ExemptFromClassesFee)">
-                            @Checkmark(user.HasPayedClassesFeeThisSemester())</td>
-                        <td><a asp-action="Details" asp-route-id="@user.Id">@user.FullName</a></td>
+                            @Checkmark(user.HasPayedClassesFeeThisSemester)</td>
+                        <td><a asp-page="Details" asp-route-id="@user.Id">@user.FullName</a></td>
                         <td>
-                            @if (User.IsInRole(Roles.ADMIN)) {
+                            @if (await AuthorizationService.IsAuthorized(User, Policy.CanSendEmailToMembers)) {
                                 <input type="checkbox" name="users" value="@user.Id">
                             }
                             @user.Email
@@ -106,7 +107,7 @@
         }
     </table>
     
-    @if (User.IsInRole(Roles.ADMIN)) {
+    @if (await AuthorizationService.IsAuthorized(User, Policy.CanSendEmailToMembers)) {
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-email">Send epost</button>
 
         <div class="modal fade" id="modal-email" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">

@@ -168,7 +168,7 @@
             @foreach (var attendee in Model.Attendees)
             {
                 <tr>
-                    <td><a asp-controller="Members" asp-action="Details" asp-route-id="@attendee.UserId" target="_blank">@attendee.Name</a></td>
+                    <td><a asp-page="/Members/Details" asp-route-id="@attendee.UserId" target="_blank">@attendee.Name</a></td>
                     <td>@attendee.FirstVisit.DisplayOslo()</td>
                     <td>@attendee.LastVisit.DisplayOslo()</td>
                     <td>@attendee.Visits</td>

@@ -48,6 +48,11 @@ public class RoleRequirementsHandler : IAuthorizationHandler
             Policy.CanEditSurvey => user.IsInAnyRole(R.STYRET),
 
             Policy.CanViewMembers => user.IsInAnyRole(R.STYRET, R.FESTKOM),
+            Policy.CanViewOlderMembers => user.IsInAnyRole(R.STYRET),
+            Policy.CanSendEmailToMembers => user.IsInAnyRole(R.STYRET),
+            Policy.CanAddManualPayment => user.IsInAnyRole(R.STYRET),
+            Policy.CanUpdatePayments => user.IsInAnyRole(R.STYRET),
+            Policy.CanSeeStripeLink => user.IsInAnyRole(R.STYRET),
 
             Policy.CanViewSemester => user.IsInAnyRole(R.STYRET),
             Policy.CanCreateSemester => user.IsInAnyRole(R.STYRET),
