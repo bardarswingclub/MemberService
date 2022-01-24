@@ -28,7 +28,7 @@
                 @foreach (var user in users)
                 {
                     <li class="list-group-item">
-                        <a asp-controller="Members" asp-action="Details" asp-route-id="@user.Id">
+                        <a asp-page="/Members/Details" asp-route-id="@user.Id">
                             @user.FullName
                             <br />
                             <span class="text-muted">(@user.Email)</span>

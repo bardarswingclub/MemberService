@@ -23,6 +23,11 @@ public enum Policy
     CanEditSurvey,
 
     CanViewMembers,
+    CanViewOlderMembers,
+    CanSendEmailToMembers,
+    CanAddManualPayment,
+    CanUpdatePayments,
+    CanSeeStripeLink,
 
     CanViewSemester,
     CanCreateSemester,

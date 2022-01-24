@@ -84,7 +84,7 @@ else
                                         @foreach (var signup in selectedBy)
                                         {
                                             <li>
-                                                <a asp-controller="Members" asp-action="Details" asp-route-id="@signup.UserId" target="_blank">@signup.Name</a>
+                                                <a asp-page="/Members/Details" asp-route-id="@signup.UserId" target="_blank">@signup.Name</a>
                                                 <span class="badge badge-primary">
                                                     @signup.Status.DisplayName()
                                                 </span>

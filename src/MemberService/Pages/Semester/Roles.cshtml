@@ -21,7 +21,7 @@
         {
             var role = user.Role;
             <tr>
-                <td><a asp-controller="Members" asp-action="Details" asp-route-id="@user.Id">@user.FullName (@user.Email)</a></td>
+                <td><a asp-page="/Members/Details" asp-route-id="@user.Id">@user.FullName (@user.Email)</a></td>
                 <td>
                     <select class="form-control" form="edit-@user.Id" asp-for=@role asp-items=@(Html.GetEnumSelectList<SemesterRole.RoleType>())></select>
 
