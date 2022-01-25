@@ -31,11 +31,11 @@
                     <a href="#" class="" data-toggle="modal" data-target="#modal-@signup.Id">
                         @signup.SignedUpAt.ToOsloDate()
                     </a>
-                    <div class="modal fade" id="modal-@signup.Id" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal fade" id="modal-@signup.Id" tabindex="-1" role="dialog" aria-labelledby="modal-title-@signup.Id" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title">
+                                    <h5 class="modal-title" id="modal-title-@signup.Id">
                                         Historikk for @signup.FullName
                                         @if (await AuthorizationService.IsAuthorized(User, Model.EventId, Policy.CanEditEventSignup))
                                         {
