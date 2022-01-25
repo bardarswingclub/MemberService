@@ -1,8 +1,9 @@
+@page
 @using NodaTime.Extensions
 @using MemberService.Data.ValueTypes
-@model Model
+@model MemberService.Pages.AnnualMeeting.IndexModel
 @{
-    ViewData["Title"] = "Årsmøte";
+    ViewData["Title"] = Model.Title;
     Layout = "~/Pages/_CoverLayout.cshtml";
 }
 
@@ -52,7 +53,7 @@
             }
         }
     </div>
-    @if (Model.HasStarted)
+    @if (Model.HasStarted && Model.IsMember)
     {
         var totalCount = Model.VotingResults.Responses.DistinctBy(r => r.UserId).Count();
         <ul class="list-group list-group-flush">
@@ -93,7 +94,7 @@
                         <h5>
                             @question.Title
                         </h5>
-                        <form method="post" asp-action="Vote" asp-route-id="@Model.Id">
+                        <form method="post" asp-route-id="@Model.Id">
                             @foreach (var option in question.Options)
                             {
                                 var voted = Model.VotingResults.Responses.Any(r => r.UserId == Model.UserId && r.OptionId == option.Id);
@@ -113,7 +114,8 @@
                                 <button type="submit" class="btn btn-success btn-block">Stem</button>
                             }
                         </form>
-                        @if (User.IsAdministrator())
+
+                        @if (await AuthorizationService.IsAuthorized(User, Policy.CanEditAnnualMeeting))
                         {
                             <form class="d-flex justify-content-end mt-1" method="post" asp-controller="Questions" asp-action="EndVoting" asp-route-meetingId="@Model.Id" asp-route-questionId="@question.Id">
                                 <div class="btn-group">
@@ -124,7 +126,7 @@
                         }
                     </li>
                 }
-                else if(User.IsAdministrator())
+                else if(await AuthorizationService.IsAuthorized(User, Policy.CanEditAnnualMeeting))
                 {
                     <li class="list-group-item">
                         <h5>@question.Title</h5>
@@ -148,22 +150,28 @@
             }
         </ul>
     }
-    @if (User.IsAdministrator())
+
+    @if (!Model.HasEnded && await AuthorizationService.IsAuthorized(User, Policy.CanEditAnnualMeeting))
     {
-        if (!Model.HasEnded)
-        {
-            <form class="card-body" method="post" asp-controller="Questions" asp-action="Add" asp-route-meetingId="@Model.Id">
-                <button class="btn btn-outline-primary" type="submit" name="type" value="@QuestionType.Radio">
-                    Legg til nytt spørsmål
-                </button>
-            </form>
-        }
+        <form class="card-body" method="post" asp-controller="Questions" asp-action="Add" asp-route-meetingId="@Model.Id">
+            <button class="btn btn-outline-primary" type="submit" name="type" value="@QuestionType.Radio">
+                Legg til nytt spørsmål
+            </button>
+        </form>
+    }
+
+    @if (await AuthorizationService.IsAuthorized(User, Policy.CanViewAnnualMeetingAttendees))
+    {
+        <hr />
+        <h5 class="card-body">
+            Deltakere
+        </h5>
         <table class="card-table table">
             <tr>
                 <th>Navn (@Model.Attendees.Count)</th>
-                <th>Første</th>
-                <th>Siste</th>
-                <th>Antall</th>
+                <th>Ankom</th>
+                <th>Sist sett</th>
+                <th>Besøkt denne siden</th>
             </tr>
             @foreach (var attendee in Model.Attendees)
             {
@@ -175,11 +183,19 @@
                 </tr>
             }
         </table>
+    }
+
+    @if (await AuthorizationService.IsAuthorized(User, Policy.CanEditAnnualMeeting))
+    {
         <div class="card-footer">
-            <a asp-controller="AnnualMeeting" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Rediger</a>
+            <a asp-page="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Rediger</a>
             @if (Model.HasStarted && !Model.HasEnded)
             {
                 <a asp-controller="Questions" asp-action="Index" asp-route-meetingId="@Model.Id" class="btn btn-outline-secondary">Stemmer</a>
+            }
+            else if (Model.HasEnded && await AuthorizationService.IsAuthorized(User, Policy.CanCreateAnnualMeeting))
+            {
+                <a asp-page="Create" class="btn btn-outline-success">Opprett nytt årsmøte</a>
             }
         </div>
     }

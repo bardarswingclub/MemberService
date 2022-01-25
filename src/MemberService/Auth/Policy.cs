@@ -34,5 +34,9 @@ public enum Policy
     CanCreateSemesterEvent,
     CanEditSemester,
     CanEditSemesterRoles,
-    CanPreviewSemesterSignup
+    CanPreviewSemesterSignup,
+
+    CanCreateAnnualMeeting,
+    CanEditAnnualMeeting,
+    CanViewAnnualMeetingAttendees
 }
