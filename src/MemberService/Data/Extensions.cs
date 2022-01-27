@@ -14,8 +14,12 @@ public static partial class Extensions
         => user.Payments.Any(p => p.PayedAtUtc > TimeProvider.ThisYearUtc && p.IncludesMembership && !p.Refunded);
 
     [Expressionify]
-    public static bool HasPayedMembershipLastYear(this User user)
+    public static bool HasPayedMembershipLastOrThisYear(this User user)
         => user.Payments.Any(p => p.PayedAtUtc > TimeProvider.LastYearUtc && p.IncludesMembership && !p.Refunded);
+
+    [Expressionify]
+    public static bool HasPayedMembershipLastYear(this User user)
+        => user.Payments.Any(p => p.PayedAtUtc > TimeProvider.LastYearUtc && p.PayedAtUtc < TimeProvider.ThisYearUtc && p.IncludesMembership && !p.Refunded);
 
     [Expressionify]
     public static bool HasPayedTrainingFeeThisSemester(this User user)

@@ -1,12 +1,14 @@
 ﻿namespace MemberService.Pages.Members;
 
 using System.Linq.Expressions;
+using System.Text;
 
 using Clave.Expressionify;
 using Clave.ExtensionMethods;
 
 using MemberService.Auth;
 using MemberService.Data;
+using MemberService.Pages.Shared;
 using MemberService.Services;
 
 using Microsoft.AspNetCore.Authorization;
@@ -18,18 +20,18 @@ using Microsoft.EntityFrameworkCore;
 [Authorize(nameof(Policy.CanViewMembers))]
 public class IndexModel : PageModel
 {
-    private readonly MemberContext _memberContext;
+    private readonly MemberContext _database;
     private readonly UserManager<User> _userManager;
     private readonly IEmailService _emailService;
     private readonly IAuthorizationService _authorizationService;
 
     public IndexModel(
-        MemberContext memberContext,
+        MemberContext Database,
         UserManager<User> userManager,
         IEmailService emailService,
         IAuthorizationService authorizationService)
     {
-        _memberContext = memberContext;
+        _database = Database;
         _userManager = userManager;
         _emailService = emailService;
         _authorizationService = authorizationService;
@@ -57,11 +59,27 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnGet()
     {
-        var users = await _memberContext.Users
+        var users = await GetFilteredUsers();
+
+        Users = users
+            .GroupBy(u => u.FullName?.ToUpper().FirstOrDefault() ?? '?', (key, u) => (key, u.ToReadOnlyCollection()))
+            .ToReadOnlyCollection();
+
+        return Page();
+    }
+
+    public async Task<IActionResult> OnGetExport()
+    {
+        var rows = await GetFilteredUsers();
+
+        return CsvResult.Create(rows, "members.csv");
+    }
+
+    private async Task<List<Member>> GetFilteredUsers()
+        => await _database.Users
             .Expressionify()
             .Where(u => u.EmailConfirmed)
-            .Where(Filter(MemberFilter, u => u.HasPayedMembershipThisYear()))
-            .Where(FilterLastYear(MemberFilter, u => u.HasPayedMembershipLastYear()))
+            .Where(FilterMembership(MemberFilter))
             .Where(Filter(TrainingFilter, u => u.HasPayedTrainingFeeThisSemester()))
             .Where(Filter(ClassesFilter, u => u.HasPayedClassesFeeThisSemester()))
             .Where(Filter(ExemptTrainingFilter, u => u.ExemptFromTrainingFee))
@@ -81,26 +99,19 @@ public class IndexModel : PageModel
             })
             .ToListAsync();
 
-        Users = users
-            .GroupBy(u => u.FullName?.ToUpper().FirstOrDefault() ?? '?', (key, u) => (key, u.ToReadOnlyCollection()))
-            .ToReadOnlyCollection();
-
-        return Page();
-    }
-
     public async Task<IActionResult> OnPostSendEmail([FromForm] string subject, [FromForm] string body, [FromForm] bool fromMe, [FromForm] string[] users)
     {
         if (!await _authorizationService.IsAuthorized(User, Policy.CanSendEmailToMembers)) return Forbid();
 
         var replyTo = fromMe
-            ? await _memberContext.Users.SingleUser(_userManager.GetUserId(User))
+            ? await _database.Users.SingleUser(_userManager.GetUserId(User))
             : null;
         var successes = new List<string>();
         var failures = new List<string>();
 
         foreach (var id in users)
         {
-            var user = await _memberContext.Users.FirstOrDefaultAsync(u => u.Id == id);
+            var user = await _database.Users.FirstOrDefaultAsync(u => u.Id == id);
             if (user is null)
             {
                 failures.Add($"{id} is not a user");
@@ -150,11 +161,12 @@ public class IndexModel : PageModel
             _ => user => true,
         };
 
-    private static Expression<Func<User, bool>> FilterLastYear(string filter, Expression<Func<User, bool>> predicate)
+    private static Expression<Func<User, bool>> FilterMembership(string filter)
         => filter switch
         {
-            "LastYear" => predicate,
-            _ => user => true,
+            "LastYear" => u => u.HasPayedMembershipLastYear(),
+            "LastOrThisYear" => u => u.HasPayedMembershipLastOrThisYear(),
+            var f => Filter(f, u => u.HasPayedMembershipThisYear())
         };
 
     private static Expression<Func<User, bool>> Search(string query) 

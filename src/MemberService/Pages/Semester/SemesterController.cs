@@ -8,6 +8,7 @@ using Clave.Expressionify;
 using MemberService.Auth;
 using MemberService.Data;
 using MemberService.Pages.Event;
+using MemberService.Pages.Shared;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -61,7 +62,7 @@ public class SemesterController : Controller
     }
 
     [Authorize(nameof(Policy.CanViewSemester))]
-    public async Task<object> Export(Guid id)
+    public async Task<IActionResult> Export(Guid id)
     {
         var rows = await _database.Events
             .Where(e => e.SemesterId == id)
@@ -81,10 +82,7 @@ public class SemesterController : Controller
             .ToListAsync();
 
 
-        return new FileContentResult(Encoding.UTF8.GetBytes(rows.ToCsv()), "text/csv")
-        {
-            FileDownloadName = "signups.csv"
-        };
+        return CsvResult.Create(rows, "signups.csv");
     }
 
     [HttpGet]

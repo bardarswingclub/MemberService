@@ -7,7 +7,7 @@
 }
 <h2>@ViewData["Title"] <span class="text-muted">(@Model.Users.Sum(p => p.Users.Count))</span></h2>
 <hr>
-<form class="form d-print-none" method="GET">
+<form class="form d-print-none" id="filter-form" method="GET">
     <div class="form-group row mb-3">
         <div class="col input-group">
             <div class="input-group-prepend">
@@ -28,7 +28,8 @@
                 <option value="Not">&#x2717; Som ikke har betalt medlemskap</option>
                 
                 @if (await AuthorizationService.IsAuthorized(User, Policy.CanViewOlderMembers)) {
-                    <option value="LastYear">&#x2713; Som betalte medlemskap i fjor eller i år</option>
+                    <option value="LastYear">&#x2713; Som betalte medlemskap i fjor</option>
+                    <option value="LastOrThisYear">&#x2713; Som betalte medlemskap i fjor eller i år</option>
                 }
             </select>
         </div>
@@ -106,10 +107,18 @@
             </tbody>
         }
     </table>
-    
-    @if (await AuthorizationService.IsAuthorized(User, Policy.CanSendEmailToMembers)) {
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-email">Send epost</button>
 
+    <div class="d-flex justify-content-between">
+        <button type="submit" form="filter-form" name="handler" value="export" class="btn btn-outline-secondary">Exporter som csv fil</button>
+            
+        @if (await AuthorizationService.IsAuthorized(User, Policy.CanSendEmailToMembers))
+        {
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-email">Send epost til valgte brukere</button>
+        }
+    </div>
+    
+    @if (await AuthorizationService.IsAuthorized(User, Policy.CanSendEmailToMembers)) 
+    {    
         <div class="modal fade" id="modal-email" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
             <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
                 <div class="modal-content">
