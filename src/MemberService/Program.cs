@@ -117,6 +117,7 @@ services.AddAuthentication()
     {
         options.AppId = builder.Configuration["Authentication:Facebook:AppId"];
         options.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
+        options.AccessDeniedPath = "/account/accessDenied";
     });
 
 services.AddScoped<IUserClaimsPrincipalFactory<User>, UserClaimsPrincipalFactory>();
