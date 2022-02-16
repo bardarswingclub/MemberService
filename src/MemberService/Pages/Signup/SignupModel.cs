@@ -1,9 +1,5 @@
 namespace MemberService.Pages.Signup;
 
-
-
-
-
 using Clave.Expressionify;
 
 using MemberService.Data;
