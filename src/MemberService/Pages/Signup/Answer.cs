@@ -1,8 +1,5 @@
 namespace MemberService.Pages.Signup;
 
-
-
-
 public class Answer
 {
     public Guid QuestionId { get; set; }

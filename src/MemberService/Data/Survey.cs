@@ -1,8 +1,5 @@
 ﻿namespace MemberService.Data;
 
-
-
-
 public class Survey
 {
     public Guid Id { get; set; }

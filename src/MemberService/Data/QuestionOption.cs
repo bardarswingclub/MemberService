@@ -1,8 +1,5 @@
 namespace MemberService.Data;
 
-
-
-
 public class QuestionOption
 {
     public Guid Id { get; set; }

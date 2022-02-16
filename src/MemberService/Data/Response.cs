@@ -1,7 +1,5 @@
 ﻿namespace MemberService.Data;
 
-
-
 using System.ComponentModel.DataAnnotations;
 
 public class Response

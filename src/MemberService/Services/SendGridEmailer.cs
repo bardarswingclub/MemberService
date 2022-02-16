@@ -1,8 +1,5 @@
 ﻿namespace MemberService.Services;
 
-
-
-
 using MemberService.Configs;
 
 using SendGrid;
@@ -10,7 +7,7 @@ using SendGrid.Helpers.Mail;
 
 public class SendGridEmailer : IEmailer
 {
-    private readonly EmailConfig _config;
+    private readonly Config.EmailConfig _config;
     private readonly SendGridClient _client;
 
     public SendGridEmailer(SendGridClient client, Config config)

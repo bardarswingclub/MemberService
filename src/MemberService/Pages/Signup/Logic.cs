@@ -106,7 +106,8 @@ public static class Logic
                 .Where(a => a.QuestionId == question.Id)
                 .SelectMany(a => a.Selected, (_, optionId) => new QuestionAnswer
                 {
-                    OptionId = optionId
+                    OptionId = optionId,
+                    AnsweredAt = TimeProvider.UtcNow,
                 })
                 .ToReadOnlyCollection();
 
