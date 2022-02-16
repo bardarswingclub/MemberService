@@ -1,9 +1,10 @@
+@page "{id}"
 @using MemberService.Data.ValueTypes
 @using MemberService.Pages.Signup
-@model SignupModel
+@model EditModel
 
 @{
-    ViewData["Title"] = Model.Title;
+    ViewData["Title"] = Model.SignupModel.Title;
     Layout = "~/Pages/_CoverLayout.cshtml";
 }
 
@@ -12,9 +13,9 @@
         @ViewData["Title"]
     </h3>
     <div class="card-body">
-        <p class="lead">@Model.Description</p>
+        <p class="lead">@Model.SignupModel.Description</p>
 
-        <partial name="_SignupResponse" model=Model />
+        <partial name="_SignupResponse" model=Model.SignupModel />
     </div>
     <div class="card-footer">
         <button type="submit" class="btn btn-success btn-block">Lagre endringer</button>
