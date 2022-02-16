@@ -1,7 +1,6 @@
 ﻿namespace MemberService.Pages.Members;
 
 using System.Linq.Expressions;
-using System.Text;
 
 using Clave.Expressionify;
 using Clave.ExtensionMethods;
@@ -136,11 +135,18 @@ public class IndexModel : PageModel
 
         if (users.NotAny())
         {
-            TempData["InfoMessage"] = "No emails to send";
+            TempData.SetInfoMessage("No emails to send");
         }
 
-        TempData["SuccessMessage"] = successes.Any() ? $"Epost sent til disse {successes.Count}: {successes.JoinWithComma()}" : null;
-        TempData["ErrorMessage"] = failures.Any() ? $"Kunne ikke sende epost til disse {failures.Count}: {failures.JoinWithComma()}" : null;
+        if (successes.Any())
+        {
+            TempData.SetSuccessMessage($"Epost sent til disse {successes.Count}: {successes.JoinWithComma()}");
+        }
+
+        if (failures.Any())
+        {
+            TempData.SetErrorMessage($"Kunne ikke sende epost til disse {failures.Count}: {failures.JoinWithComma()}");
+        }
 
         var returnTo = Request.Headers["Referer"].ToString();
         if (string.IsNullOrEmpty(returnTo))

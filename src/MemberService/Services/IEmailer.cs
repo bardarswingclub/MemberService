@@ -1,8 +1,5 @@
 ﻿namespace MemberService.Services;
 
-
-
-
 using SendGrid.Helpers.Mail;
 
 public interface IEmailer

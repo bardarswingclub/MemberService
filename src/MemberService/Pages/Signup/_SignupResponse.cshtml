@@ -1,0 +1,62 @@
+﻿@using MemberService.Data.ValueTypes
+@using MemberService.Pages.Signup
+@model SignupModel
+
+<p>@Html.Markdown(Model.Options.SignupHelp)</p>
+
+@if (Model.Options.RoleSignup)
+{
+    <div class="form-group mt-4">
+        <label asp-for="Input.Role"></label>
+        <select class="form-control" asp-for="Input.Role">
+            <option value="@DanceRole.Lead">Fører</option>
+            <option value="@DanceRole.Follow">Følger</option>
+        </select>
+        <small class="form-text text-muted">
+            @Html.Markdown(Model.Options.RoleSignupHelp)
+        </small>
+        <span asp-validation-for="Input.Role" class="text-danger"></span>
+    </div>
+
+    @if (Model.Options.AllowPartnerSignup)
+    {
+        <div class="form-group mt-4">
+            <label asp-for="Input.PartnerEmail"></label>
+            <input type="text" class="form-control" asp-for="Input.PartnerEmail" placeholder="epost@eksempel.no">
+            <small class="form-text text-muted">
+                @Html.Markdown(Model.Options.AllowPartnerSignupHelp ?? "Fyll inn e-post til partner hvis dere er to som ønsker å gå kurs sammen. Begge to må melde seg på og skrive opp hverandres e-post.")
+            </small>
+            <span asp-validation-for="Input.PartnerEmail" class="text-danger"></span>
+        </div>
+    }
+}
+
+@for (var i=0; i < Model.Questions.Count; i++)
+{
+    if (i != 0)
+    {
+        <hr />
+    }
+
+    var question = Model.Questions[i];
+    <h4>@question.Title</h4>
+    <span data-valmsg-for="Input.Answers[@i].Selected" data-valmsg-replace="true" class="text-danger">@ViewData.ModelState.GetValueOrDefault($"Input.Answers[{i}].Selected")</span>
+    <p>@question.Description</p>
+    <input type="hidden" name="Input.Answers[@i].QuestionId" value="@question.Id"/>
+
+    @foreach (var option in question.Options)
+    {
+        <div class="form-check">
+            @if (question.Type == QuestionType.CheckBox)
+            {
+                <input class="form-check-input" type="checkbox" name="Input.Answers[@i].Selected" value="@option.Id" id="@option.Id" checked="@(Model.UserEventSignup?.Response.Answers.Any(a => a.OptionId == option.Id))"/>
+            }
+            else if (question.Type == QuestionType.Radio)
+            {
+                <input class="form-check-input" type="radio" name="Input.Answers[@i].Selected" value="@option.Id" id="@option.Id" data-val="true" data-val-required="Velg et av alternativene" checked="@(Model.UserEventSignup?.Response.Answers.Any(a => a.OptionId == option.Id))"/>
+            }
+            <label class="form-check-label" for="@option.Id">@option.Title</label>
+            <small class="text-muted form-text">@option.Description</small>
+        </div>
+    }
+}

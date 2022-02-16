@@ -22,12 +22,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.AddConsole();
 
+var configuration = builder.Configuration;
+var config = configuration.Get<Config>();
+
 var services = builder.Services;
+
+services
+    .AddSingleton(config);
 
 services
     .AddScoped(typeof(IEmailer), builder.Environment.IsDevelopment() ? typeof(DummyConsoleEmailer) : typeof(SendGridEmailer))
     .AddScoped<IEmailSender, EmailSender>()
-    .AddScoped<SendGridClient>(e => new SendGridClient(builder.Configuration["Email:SendGridApiKey"]))
+    .AddScoped<SendGridClient>(e => new SendGridClient(config.Email.SendGridApiKey))
     .AddScoped<Stripe.ChargeService>()
     .AddScoped<Stripe.Checkout.SessionService>()
     .AddScoped<Stripe.CustomerService>()
@@ -51,9 +57,7 @@ services
         .GetRequiredService<IUrlHelperFactory>()
         .GetUrlHelper(x.GetRequiredService<IActionContextAccessor>().ActionContext));
 
-services.AddSingleton<global::MemberService.Configs.Config>((global::MemberService.Configs.Config)builder.Configuration.Get<global::MemberService.Configs.Config>());
-
-services.AddDbContext<MemberContext>(o => SqlServerDbContextOptionsExtensions.UseSqlServer(o, (string)builder.Configuration.GetConnectionString((string)"DefaultConnection")));
+services.AddDbContext<MemberContext>(o => o.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
 services
     .AddIdentity<User, MemberRole>(config =>
@@ -110,13 +114,13 @@ services
 services.AddAuthentication()
     .AddMicrosoftAccount(options =>
     {
-        options.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"];
-        options.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"];
+        options.ClientId = config.Authentication.Microsoft.ClientId;
+        options.ClientSecret = config.Authentication.Microsoft.ClientSecret;
     })
     .AddFacebook(options =>
     {
-        options.AppId = builder.Configuration["Authentication:Facebook:AppId"];
-        options.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
+        options.AppId = config.Authentication.Facebook.AppId;
+        options.AppSecret = config.Authentication.Facebook.AppSecret;
         options.AccessDeniedPath = "/account/accessDenied";
     });
 
@@ -133,8 +137,6 @@ services.ConfigureApplicationCookie(options =>
 services.AddApplicationInsightsTelemetry();
 
 var app = builder.Build();
-
-var config = app.Services.GetRequiredService<Config>();
 
 using (var scope = app.Services.CreateScope())
 {

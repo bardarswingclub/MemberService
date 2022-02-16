@@ -28,7 +28,7 @@
                 <div class="alert alert-info" role="alert">
                     <h3 class="alert-heading">Vil du ha refundert betalingen?</h3>
                     <p>Du vil få refundert hele beløpet du har betalt</p>
-                        
+
                     <form asp-action="refund" asp-route-id="@Model.Id" method="POST">
                         <button type="submit" class="btn btn-outline-danger btn-block text-center">Jeg vil ha refundert betalingen</button>
                     </form>
@@ -54,7 +54,7 @@
                 <div class="alert alert-info" role="alert">
                     <h3 class="alert-heading">Vil du ikke ha plassen din?</h3>
                     <p>Du kan melde deg av hvis du vil, men du vil ikke få refundert betalingen</p>
-                        
+
                     <form asp-action="acceptOrReject" asp-route-id="@Model.Id" method="POST">
                         <button type="submit" name="accept" value="false" class="btn btn-outline-danger btn-block text-center">Jeg melder meg av</button>
                     </form>
@@ -130,7 +130,7 @@
             @if (Model.Options.RoleSignup || Model.Questions.Any())
             {
                 <div class="text-center">
-                    <a asp-controller="Signup" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">Rediger påmelding</a>
+                    <a asp-page="/Signup/Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">Rediger påmelding</a>
                 </div>
             }
         }

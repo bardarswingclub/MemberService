@@ -149,7 +149,7 @@ public class DetailsModel : PageModel
 
         var (payments, updates) = await _paymentService.ImportPayments(user.Email);
 
-        TempData["SuccessMessage"] = $"Fant {payments} nye betalinger, oppdaterte {updates} eksisterende betalinger";
+        TempData.SetSuccessMessage($"Fant {payments} nye betalinger, oppdaterte {updates} eksisterende betalinger");
 
         return RedirectToPage(new { id });
     }

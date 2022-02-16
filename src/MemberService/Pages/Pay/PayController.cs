@@ -124,7 +124,7 @@ public class PayController : Controller
 
         await _paymentService.SavePayment(sessionId);
 
-        TempData["SuccessMessage"] = $"{fee.Description} betalt";
+        TempData.SetSuccessMessage($"{fee.Description} betalt");
 
         if (string.IsNullOrEmpty(returnUrl))
         {

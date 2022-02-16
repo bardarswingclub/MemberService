@@ -134,110 +134,12 @@ public class SignupController : Controller
 
         await _database.SaveChangesAsync();
 
-        if (autoAccept)
+        if (!autoAccept)
         {
-            return RedirectToAction(nameof(Event), new { id });
-        }
-        else
-        {
-            return RedirectToAction(nameof(ThankYou), new { id });
-        }
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Edit(Guid id, string redirectTo = null)
-    {
-        var model = await _database.GetSignupModel(id);
-
-        if (model == null)
-        {
-            return NotFound();
+            TempData.SetSuccessMessage($"Du er nå påmeldt {model.Title}");
         }
 
-        model.User = await _database.GetUser(GetUserId());
-
-        if (model.User.GetEditableEvent(id) is EventSignup eventSignup)
-        {
-            model.UserEventSignup = eventSignup;
-            model.Input = new SignupInputModel
-            {
-                Role = eventSignup.Role,
-                PartnerEmail = eventSignup.PartnerEmail
-            };
-
-            return View("Edit", model);
-        }
-
-        return RedirectToAction(nameof(Event), new { id, slug = model.Title.Slugify() });
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Edit(Guid id, [FromForm] SignupInputModel input, string redirectTo = null)
-    {
-        if (!ModelState.IsValid)
-        {
-            return RedirectToAction(nameof(Edit), new { id });
-        }
-
-        var model = await _database.GetEditableEvent(id);
-
-        if (model == null)
-        {
-            return NotFound();
-        }
-
-        var user = await _database.GetEditableUser(GetUserId());
-
-        if (user.GetEditableEvent(id) is EventSignup eventSignup)
-        {
-            eventSignup.AuditLog.Add($"Changed signup\n\n{eventSignup.Role} -> {input.Role}\n\n{eventSignup.PartnerEmail} -> {input.PartnerEmail}", user);
-
-            eventSignup.Role = input.Role;
-            eventSignup.PartnerEmail = input.PartnerEmail?.Trim().Normalize().ToUpperInvariant();
-
-            try
-            {
-                if (model.Survey != null)
-                {
-                    if (eventSignup.Response == null)
-                    {
-                        eventSignup.Response = new Response
-                        {
-                            Survey = model.Survey,
-                            User = user
-                        };
-                    }
-
-                    eventSignup.Response.Answers = model.Survey.Questions
-                        .JoinWithAnswers(input.Answers)
-                        .ToList();
-                }
-            }
-            catch (ModelErrorException error)
-            {
-                ModelState.AddModelError(error.Key, error.Message);
-                return RedirectToAction(nameof(Edit), new { id });
-            }
-
-            await _database.SaveChangesAsync();
-        }
-
-        if (redirectTo == null)
-        {
-            return RedirectToAction(nameof(Event), new { id });
-        }
-        else
-        {
-            return Redirect(redirectTo);
-        }
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> ThankYou(Guid id)
-    {
-        var model = await _database.GetSignupModel(id);
-
-        return View(model);
+        return RedirectToAction(nameof(Event), new { id });
     }
 
     [HttpPost]
@@ -287,7 +189,7 @@ public class SignupController : Controller
         {
             await _paymentService.Refund(signup.PaymentId);
 
-            TempData["SuccessMessage"] = $"Du vil få pengene tilbake på konto i løpet av noen dager";
+            TempData.SetSuccessMessage($"Du vil få pengene tilbake på konto i løpet av noen dager");
         }
 
         return RedirectToAction(nameof(Event), new { id });

@@ -1,9 +1,5 @@
 ﻿namespace MemberService.Pages.Event;
 
-
-
-
-
 using Clave.Expressionify;
 
 using MemberService.Auth;

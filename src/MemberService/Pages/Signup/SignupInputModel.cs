@@ -1,6 +1,5 @@
 namespace MemberService.Pages.Signup;
 
-
 using System.ComponentModel;
 
 using MemberService.Data.ValueTypes;
