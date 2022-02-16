@@ -6,16 +6,6 @@
     Layout = "~/Pages/_CoverLayout.cshtml";
 }
 
-@section AboveCover
-{
-    @if (TempData.ContainsKey("InfoPopup"))
-        {
-            <div class="alert alert-info mb-5 shadow" role="alert">
-                @TempData["InfoPopup"]
-            </div>
-    }
-}
-
 <div class="card mt-5 shadow">
     <h3 class="card-header">
         Logg inn / bli medlem

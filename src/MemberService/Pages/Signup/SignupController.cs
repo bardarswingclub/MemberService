@@ -134,22 +134,12 @@ public class SignupController : Controller
 
         await _database.SaveChangesAsync();
 
-        if (autoAccept)
+        if (!autoAccept)
         {
-            return RedirectToAction(nameof(Event), new { id });
+            TempData.SetSuccessMessage($"Du er nå påmeldt {model.Title}");
         }
-        else
-        {
-            return RedirectToAction(nameof(ThankYou), new { id });
-        }
-    }
 
-    [HttpGet]
-    public async Task<IActionResult> ThankYou(Guid id)
-    {
-        var model = await _database.GetSignupModel(id);
-
-        return View(model);
+        return RedirectToAction(nameof(Event), new { id });
     }
 
     [HttpPost]
@@ -199,7 +189,7 @@ public class SignupController : Controller
         {
             await _paymentService.Refund(signup.PaymentId);
 
-            TempData["SuccessMessage"] = $"Du vil få pengene tilbake på konto i løpet av noen dager";
+            TempData.SetSuccessMessage($"Du vil få pengene tilbake på konto i løpet av noen dager");
         }
 
         return RedirectToAction(nameof(Event), new { id });

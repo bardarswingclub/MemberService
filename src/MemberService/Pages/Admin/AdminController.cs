@@ -78,7 +78,7 @@ public class AdminController : Controller
             lastCharge = charges.Data.Last().Id;
         }
 
-        TempData["SuccessMessage"] = $"Found {importedCount} payments, created {userCount} new users, saved {paymentCount} new payments and updated {updatedCount} existing payments";
+        TempData.SetSuccessMessage($"Found {importedCount} payments, created {userCount} new users, saved {paymentCount} new payments and updated {updatedCount} existing payments");
         return RedirectToAction(nameof(Index));
     }
 }

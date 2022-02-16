@@ -45,13 +45,13 @@ public class ExternalLoginController : Controller
         returnUrl = returnUrl ?? Url.Content("~/");
         if (remoteError != null)
         {
-            TempData["InfoPopup"] = $"Error from external provider: {remoteError}";
+            TempData.SetErrorMessage($"Error from external provider: {remoteError}");
             return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
         }
         var info = await _signInManager.GetExternalLoginInfoAsync();
         if (info == null)
         {
-            TempData["InfoPopup"] = "Error loading external login information.";
+            TempData.SetErrorMessage("Error loading external login information.");
             return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
         }
 

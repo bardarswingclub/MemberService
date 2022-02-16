@@ -15,6 +15,7 @@ using System.Reflection;
 using MemberService.Data.ValueTypes;
 using MemberService.Pages.Event;
 using System.Text;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 public static class Extensions
 {
@@ -186,4 +187,9 @@ public static class Extensions
 
         return sb.ToString();
     }
+
+    public static void SetSuccessMessage(this ITempDataDictionary tempData, string message) => tempData.SetMessage("SuccessMessage", message);
+    public static void SetInfoMessage(this ITempDataDictionary tempData, string message) => tempData.SetMessage("InfoMessage", message);
+    public static void SetErrorMessage(this ITempDataDictionary tempData, string message) => tempData.SetMessage("ErrorMessage", message);
+    private static void SetMessage(this ITempDataDictionary tempData, string key, string message) => tempData[key] = message;
 }
