@@ -21,16 +21,17 @@ public record Config
 
     public record Auth
     {
-        public MicrosoftOptions Microsoft { get; init; }
-        public FacebookOptions Facebook { get; init; }
+        public ClientOptions Microsoft { get; init; }
+        public AppOptions Facebook { get; init; }
+        public ClientOptions Vipps { get; init; }
 
-        public record MicrosoftOptions
+        public record ClientOptions
         {
             public string ClientId { get; init; }
             public string ClientSecret { get; init; }
         }
 
-        public record FacebookOptions
+        public record AppOptions
         {
             public string AppId { get; init; }
             public string AppSecret { get; init; }

@@ -46,13 +46,13 @@ public class ExternalLoginController : Controller
         if (remoteError != null)
         {
             TempData.SetErrorMessage($"Error from external provider: {remoteError}");
-            return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+            return RedirectToPage("/Account/Login", new { ReturnUrl = returnUrl });
         }
         var info = await _signInManager.GetExternalLoginInfoAsync();
         if (info == null)
         {
             TempData.SetErrorMessage("Error loading external login information.");
-            return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+            return RedirectToPage("/Account/Login", new { ReturnUrl = returnUrl });
         }
 
         // Sign in the user with this external login provider if the user already has a login.
