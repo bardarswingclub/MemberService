@@ -44,14 +44,13 @@ public partial class IndexModel : PageModel
     public string SuccessMessage { get; set; }
 
     [BindProperty]
-    public InputModel Input { get; set; }
+    [Required]
+    [DisplayName("Fullt navn")]
+    public string FullName { get; set; }
 
-    public class InputModel
-    {
-        [Required]
-        [DisplayName("Fullt navn")]
-        public string FullName { get; set; }
-    }
+    [BindProperty]
+    [DisplayName("Tiltalsnavn")]
+    public string FriendlyName { get; set; }
 
     public async Task<IActionResult> OnGetAsync()
     {
@@ -80,10 +79,8 @@ public partial class IndexModel : PageModel
             .Select(SignupModel.Create)
             .ToReadOnlyCollection();
 
-        Input = new InputModel
-        {
-            FullName = user.FullName
-        };
+        FullName = user.FullName;
+        FriendlyName = user.FriendlyName;
 
         return Page();
     }
@@ -101,10 +98,8 @@ public partial class IndexModel : PageModel
             return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
         }
 
-        if (Input.FullName != user.FullName)
-        {
-            user.FullName = Input.FullName;
-        }
+        user.FullName = FullName;
+        user.FriendlyName = FriendlyName;
 
         await _userManager.UpdateAsync(user);
         await _signInManager.RefreshSignInAsync(user);

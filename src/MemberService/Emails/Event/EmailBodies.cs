@@ -6,7 +6,6 @@ using System.Reflection;
 
 public static class EmailBodies
 {
-    private static readonly Assembly ExecutingAssembly = Assembly.GetExecutingAssembly();
     private static readonly Lazy<string> _approved = new(() => ReadFile("MemberService.Emails.Event.Approved.md"));
     private static readonly Lazy<string> _denied = new(() => ReadFile("MemberService.Emails.Event.Denied.md"));
     private static readonly Lazy<string> _waitingList = new(() => ReadFile("MemberService.Emails.Event.WaitingList.md"));
@@ -19,10 +18,8 @@ public static class EmailBodies
 
     private static string ReadFile(string path)
     {
-        using (var stream = ExecutingAssembly.GetManifestResourceStream(path))
-        using (var reader = new StreamReader(stream))
-        {
-            return reader.ReadToEnd();
-        }
+        using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
     }
 }

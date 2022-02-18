@@ -16,16 +16,16 @@ public class RegisterModel : PageModel
     private readonly SignInManager<User> _signInManager;
 
     [BindProperty]
-    public InputModel Input { get; set; }
+    [Required]
+    [DisplayName("Fullt navn")]
+    public string FullName { get; set; }
 
-    public class InputModel
-    {
-        [Required]
-        [DisplayName("Fullt navn")]
-        public string FullName { get; set; }
+    [BindProperty]
+    [DisplayName("Tiltalsnavn")]
+    public string FriendlyName { get; set; }
 
-        public string ReturnUrl { get; set; }
-    }
+    [BindProperty]
+    public string ReturnUrl { get; set; }
 
     public RegisterModel(
         UserManager<User> userManager,
@@ -43,11 +43,9 @@ public class RegisterModel : PageModel
             return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
         }
 
-        Input = new InputModel
-        {
-            FullName = user.FullName,
-            ReturnUrl = returnUrl
-        };
+        FullName = user.FullName;
+        FriendlyName = user.FriendlyName;
+        ReturnUrl = returnUrl;
 
         return Page();
     }
@@ -65,16 +63,12 @@ public class RegisterModel : PageModel
             return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
         }
 
-        if (Input.FullName != user.FullName)
-        {
-            user.FullName = Input.FullName;
-        }
+        user.FullName = FullName;
+        user.FriendlyName = FriendlyName;
 
         await _userManager.UpdateAsync(user);
         await _signInManager.RefreshSignInAsync(user);
 
-        return Url.IsLocalUrl(Input.ReturnUrl)
-            ? Redirect(Input.ReturnUrl)
-            : Redirect("/");
+        return LocalRedirect(ReturnUrl);
     }
 }

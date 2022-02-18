@@ -3,6 +3,7 @@
 
 using System.Security.Claims;
 
+using Clave.ExtensionMethods;
 
 using MemberService.Data.ValueTypes;
 
@@ -55,6 +56,8 @@ public static class UserExtensions
         => roles.Any(user.IsInRole);
 
     public static string GetFullName(this ClaimsPrincipal user) => user.FindFirstValue("FullName") ?? user.Identity.Name;
+
+    public static string GetFriendlyName(this ClaimsPrincipal user) => user.FindFirstValue("FriendlyName")?.ToNullIfEmpty() ?? user.GetFullName()?.Split(' ').FirstOrDefault() ?? "danser";
 
     public static string GetEmail(this ClaimsPrincipal user) => user.Identity.Name;
 }

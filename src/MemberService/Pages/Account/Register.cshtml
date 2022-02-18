@@ -14,12 +14,12 @@
             <h5 class="alert-heading">Hei og velkommen til Bårdar Swing Club!</h5>
             Hva heter du? Fyll inn navn under og trykk på fullfør for å gå videre
         </div>
-        <input type="hidden" asp-for="Input.ReturnUrl" />
+        <input type="hidden" asp-for="ReturnUrl" />
         <span asp-validation-summary="All" class="text-danger"></span>
         <div class="form-group">
-            <label asp-for="Input.FullName"></label>
-            <input asp-for="Input.FullName" class="form-control" autofocus />
-            <span asp-validation-for="Input.FullName" class="text-danger"></span>
+            <label asp-for="FullName"></label>
+            <input asp-for="FullName" class="form-control" autofocus />
+            <span asp-validation-for="FullName" class="text-danger"></span>
         </div>
     </div>
     <div class="card-footer">
