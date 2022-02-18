@@ -16,14 +16,14 @@
         <input type="hidden" asp-for="Type"/>
         <span class="form-control-plaintext">@EventType.Class.DisplayDescription()</span>
     }
-    else 
+    else
     {
         <select class="form-control" asp-for="Type">
-            @if (User.CanCreateWorkshop())
+            @if (User.CanCreateWorkshop() || Model.Type == EventType.Workshop)
             {
                 <option value="@EventType.Workshop">@EventType.Workshop.DisplayDescription()</option>
             }
-            @if(User.CanCreateParty())
+            @if(User.CanCreateParty() || Model.Type == EventType.Party)
             {
                 <option value="@EventType.Party">@EventType.Party.DisplayDescription()</option>
             }
