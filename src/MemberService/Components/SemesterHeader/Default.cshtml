@@ -19,13 +19,13 @@
 
             @if (Model.SurveyId.HasValue)
             {
-                <a class="btn btn-secondary" asp-page="/Semester/Survey" asp-route-id="@Model.Id">Spørreundersøkelse</a>             
+                <a class="btn btn-secondary" asp-page="/Semester/Survey" asp-route-id="@Model.Id">Spørreundersøkelse</a>
             }
             else if (await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanCreateSurvey) && Model.IsActive)
             {
-                <a class="btn btn-secondary" asp-controller="Survey" asp-action="CreateSemesterSurvey" asp-route-id="@Model.Id">Spørreundersøkelse</a>  
+                <a class="btn btn-secondary" asp-controller="Survey" asp-action="CreateSemesterSurvey" asp-route-id="@Model.Id">Spørreundersøkelse</a>
             }
-            
+
             @if (await AuthorizationService.IsAuthorized(User, Policy.CanEditSemesterRoles) && Model.IsActive)
             {
                 <a class="btn btn-secondary" asp-page="/Semester/Roles">Roller</a>
@@ -37,7 +37,17 @@
         @foreach (var ev in Model.Events)
         {
             <li class="nav-item">
-                <a class="nav-link" highlight-active highlight-active-when="id" asp-controller="Event" asp-action="View" asp-route-id="@ev.Id">@ev.Title</a>
+                <a class="nav-link" highlight-active highlight-active-when="id" asp-controller="Event" asp-action="View" asp-route-id="@ev.Id">
+                    @ev.Title
+                    @if (ev.Roles && ev.PendingFollows+ev.PendingLeads > 0)
+                    {
+                        <sup class="badge badge-pill badge-danger badge-up">@ev.PendingLeads + @ev.PendingFollows</sup>
+                    }
+                    else if(ev.Pending > 0)
+                    {
+                        <sup class="badge badge-pill badge-danger badge-up">@ev.Pending</sup>
+                    }
+                </a>
             </li>
         }
 

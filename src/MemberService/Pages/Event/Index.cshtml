@@ -9,20 +9,17 @@
     @if (await AuthorizationService.IsAuthorized(User, Policy.CanCreateEvent))
     {
         <div class="btn-group float-right">
-            <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-            aria-expanded="false">
+            <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Opprett nytt arrangement
             </button>
             <div class="dropdown-menu dropdown-menu-right">
                 @if (User.CanCreateWorkshop())
                 {
-                    <a class="dropdown-item" asp-action="Create"
-                asp-route-type="@EventType.Workshop">@EventType.Workshop.DisplayDescription()</a>
+                    <a class="dropdown-item" asp-action="Create" asp-route-type="@EventType.Workshop">@EventType.Workshop.DisplayDescription()</a>
                 }
                 @if (User.CanCreateParty())
                 {
-                    <a class="dropdown-item" asp-action="Create"
-                asp-route-type="@EventType.Party">@EventType.Party.DisplayDescription()</a>
+                    <a class="dropdown-item" asp-action="Create" asp-route-type="@EventType.Party">@EventType.Party.DisplayDescription()</a>
                 }
             </div>
         </div>

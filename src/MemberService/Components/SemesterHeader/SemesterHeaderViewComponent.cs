@@ -1,6 +1,7 @@
 ﻿namespace MemberService.Components.SemesterHeader;
 
 using MemberService.Data;
+using MemberService.Data.ValueTypes;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
@@ -34,7 +35,11 @@ public class SemesterHeaderViewComponent : ViewComponent
                     .Select(c => new Model.Event
                     {
                         Id = c.Id,
-                        Title = c.Title
+                        Title = c.Title,
+                        Roles = c.SignupOptions.RoleSignup,
+                        PendingLeads = c.Signups.Count(s => s.Status == Status.Pending && s.Role == DanceRole.Lead),
+                        PendingFollows = c.Signups.Count(s => s.Status == Status.Pending && s.Role == DanceRole.Lead),
+                        Pending = c.Signups.Count(s => s.Status == Status.Pending)
                     })
                     .OrderBy(c => c.Title)
                     .ToList()
@@ -61,6 +66,12 @@ public class SemesterHeaderViewComponent : ViewComponent
             public Guid Id { get; set; }
 
             public string Title { get; set; }
+
+            public bool Roles { get; set; }
+
+            public int PendingLeads { get; set; }
+            public int PendingFollows { get; set; }
+            public int Pending { get; set; }
         }
     }
 }

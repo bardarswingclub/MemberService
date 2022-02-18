@@ -79,6 +79,12 @@ h1, h2, h3, h4, h5, h6 {
   font-family: "Voltaire";
 }
 
+.badge-up {
+    font-size: .5em;
+    margin-left: -1em;
+    vertical-align: super;
+}
+
 .line-through {
     text-decoration: line-through;
 }
