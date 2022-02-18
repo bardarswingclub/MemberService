@@ -16,19 +16,10 @@ public class ExternalLoginViewComponent : ViewComponent
 
     public async Task<IViewComponentResult> InvokeAsync(string returnUrl = null)
     {
-        var model = new Model
-        {
-            ReturnUrl = returnUrl,
-            ExternalLogins = await _loginService.GetExternalAuthenticationSchemes()
-        };
+        var model = new Model(returnUrl, await _loginService.GetExternalAuthenticationSchemes());
 
         return View(model);
     }
 
-    public class Model
-    {
-        public string ReturnUrl { get; set; }
-
-        public IList<AuthenticationScheme> ExternalLogins { get; set; }
-    }
+    public record Model(string ReturnUrl, IList<AuthenticationScheme> ExternalLogins);
 }

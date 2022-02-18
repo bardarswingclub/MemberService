@@ -31,7 +31,7 @@ public class LoginService : ILoginService
         return _signInManager.IsSignedIn(user);
     }
 
-    public async Task<User> GetOrCreateUser(string email)
+    public async Task<User> GetOrCreateUser(string email, string fullName = null)
     {
         if (await _userManager.FindByEmailAsync(email) is User user)
         {
@@ -39,7 +39,11 @@ public class LoginService : ILoginService
         }
         else
         {
-            var newUser = new User { UserName = email, Email = email };
+            var newUser = new User {
+                UserName = email,
+                Email = email,
+                FullName = fullName
+            };
             var result = await _userManager.CreateAsync(newUser);
             if (result.Succeeded)
             {

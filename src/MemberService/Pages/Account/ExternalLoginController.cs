@@ -61,7 +61,7 @@ public class ExternalLoginController : Controller
         {
             _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
 
-            var user = await _loginService.GetOrCreateUser(info.Principal.FindFirstValue(ClaimTypes.Email));
+            var user = await _loginService.GetOrCreateUser(info.Principal.FindFirstValue(ClaimTypes.Email), info.Principal.FindFirstValue(ClaimTypes.Name));
 
             if (string.IsNullOrWhiteSpace(user.FullName))
             {
@@ -72,7 +72,7 @@ public class ExternalLoginController : Controller
         }
         else
         {
-            var user = await _loginService.GetOrCreateUser(info.Principal.FindFirstValue(ClaimTypes.Email));
+            var user = await _loginService.GetOrCreateUser(info.Principal.FindFirstValue(ClaimTypes.Email), info.Principal.FindFirstValue(ClaimTypes.Name));
 
             await _userManager.AddLoginAsync(user, info);
 

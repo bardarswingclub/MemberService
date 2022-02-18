@@ -81,6 +81,6 @@ public class LoginModel : PageModel
             Code = await _loginService.LoginCode(user)
         });
 
-        return RedirectToPage("/Account/LoginConfirmation", null, new { email = email, returnUrl = Input.ReturnUrl });
+        return RedirectToPage("/Account/LoginConfirmation", null, new { email, returnUrl = Input.ReturnUrl });
     }
 }

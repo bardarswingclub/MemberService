@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authentication;
 
 public interface ILoginService
 {
-    Task<User> GetOrCreateUser(string email);
+    Task<User> GetOrCreateUser(string email, string fullName = null);
     bool IsLoggedIn(System.Security.Claims.ClaimsPrincipal user);
     Task<string> LoginCode(User user);
     Task<string> LoginLink(User user, string returnUrl);

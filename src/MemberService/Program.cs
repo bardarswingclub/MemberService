@@ -125,9 +125,12 @@ services
         options.Scope.Clear();
         options.Scope.Add("openid");
         options.Scope.Add("email");
+        options.Scope.Add("name");
         options.Scope.Add("api_version_2");
         options.GetClaimsFromUserInfoEndpoint = true;
         options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
+        options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+        options.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "given_name");
     });
 
 services
