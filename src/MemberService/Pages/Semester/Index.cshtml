@@ -12,6 +12,7 @@
     <thead>
         <tr>
             <th>Navn</th>
+            <th>Ubehandlet</th>
             <th>Påmeldte</th>
             <th>Deltakere</th>
             <th>Status</th>
@@ -22,6 +23,7 @@
         {
             <tr>
                 <td><a asp-controller="Event" asp-action="View" asp-route-id="@eventEntry.Id">@eventEntry.Title</a></td>
+                <td>@eventEntry.RolesCount(Status.Pending)</td>
                 <td>@eventEntry.RolesCount()</td>
                 <td>@eventEntry.RolesCount(Status.AcceptedAndPayed)</td>
                 <td>@eventEntry.Status()</td>
@@ -36,4 +38,3 @@
 <a asp-controller="Semester" asp-action="List">Se tidligere semester</a>
 |
 <a asp-controller="Semester" asp-action="Export" asp-route-id="@Model.Id">Eksporter csv</a>
-
