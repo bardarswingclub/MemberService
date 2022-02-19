@@ -38,7 +38,7 @@ public class SemesterHeaderViewComponent : ViewComponent
                         Title = c.Title,
                         Roles = c.SignupOptions.RoleSignup,
                         PendingLeads = c.Signups.Count(s => s.Status == Status.Pending && s.Role == DanceRole.Lead),
-                        PendingFollows = c.Signups.Count(s => s.Status == Status.Pending && s.Role == DanceRole.Lead),
+                        PendingFollows = c.Signups.Count(s => s.Status == Status.Pending && s.Role == DanceRole.Follow),
                         Pending = c.Signups.Count(s => s.Status == Status.Pending)
                     })
                     .OrderBy(c => c.Title)
