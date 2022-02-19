@@ -8,6 +8,7 @@ using MemberService.Configs;
 using MemberService.Data;
 using MemberService.Services;
 
+using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -134,7 +135,12 @@ services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = $"/account/accessDenied";
 });
 
-services.AddApplicationInsightsTelemetry();
+services
+    .AddApplicationInsightsTelemetry()
+    .ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module, o) =>
+    {
+        module.EnableSqlCommandTextInstrumentation = true;
+    });
 
 var app = builder.Build();
 
