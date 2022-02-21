@@ -126,7 +126,7 @@ public class HomeController : Controller
         var courses = await _database.GetCourses(userId, e => e.HasOpened() || preview);
 
         var availableCourses = courses
-            .Where(c => c.IsOpen || preview)
+            .Where(c => c.HasOpened || preview)
             .Where(c => c.Signup == null)
             .OrderBy(c => c.Title)
             .ToReadOnlyList();
@@ -141,7 +141,7 @@ public class HomeController : Controller
             Courses = courses
                 .OrderBy(c => c.Signup?.Priority)
                 .ToReadOnlyList(),
-            OpenClasses = availableCourses,
+            OpenedClasses = availableCourses,
             OpensAt = semester.SignupOpensAt,
             Sortable = sortable,
             SignupHelpText = semester.SignupHelpText
@@ -163,10 +163,10 @@ public class HomeController : Controller
         var userId = _userManager.GetUserId(User);
         var user = await _database.GetEditableUser(userId);
 
-        var openClasses = await _database.GetCourses(userId, e => e.HasOpened());
+        var openedClasses = await _database.GetCourses(userId, e => e.HasOpened());
 
-        var classesNotSignedUpFor = openClasses
-            .Where(c => c.Signup == null)
+        var classesNotSignedUpFor = openedClasses
+            .Where(c => c.Signup is null && !c.HasClosed)
             .Select(c => c.Id)
             .ToReadOnlyList();
 
@@ -179,7 +179,7 @@ public class HomeController : Controller
             user.AddEventSignup(signup.Id, signup.Role, signup.PartnerEmail, false, signup.Priority);
         }
 
-        var changedSignups = openClasses
+        var changedSignups = openedClasses
             .WhereNotNull(c => c.Signup)
             .Join(items, c => c.Id, c => c.Id)
             .ToReadOnlyList();
@@ -190,7 +190,7 @@ public class HomeController : Controller
             eventSignup.Priority = signup.Priority;
         }
 
-        var removedSignups = openClasses
+        var removedSignups = openedClasses
             .WhereNotNull(c => c.Signup)
             .Where(c => items.NotAny(i => i.Id == c.Id))
             .ToReadOnlyList();

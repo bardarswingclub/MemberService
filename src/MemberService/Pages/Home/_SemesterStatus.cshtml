@@ -70,14 +70,14 @@
     else
     {
         <div class="card-body text-center pt-5 pb-5">
-            @if (Model.UserId != null)
+            @if (Model.UserId is not null)
             {
                 <p style="font-size: 1.2em">
-                    Du har ikke meldt deg på noen kurs ennå
+                    Du kan melde deg på kurs nå!
                 </p>
             }
             <a asp-action="Signup" class="btn btn-primary">Meld deg på kurs</a>
-            @if (Model.UserId == null)
+            @if (Model.UserId is null)
             {
                 <p class="mt-5 mb-0">
                     Allerede påmeldt? <a asp-page="/Account/Login">Logg inn</a> for å se status

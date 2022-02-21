@@ -19,7 +19,9 @@ public partial class CourseModel
 
     public DateTime? OpensAt { get; set; }
 
-    public bool IsOpen { get; set; }
+    public bool HasOpened { get; set; }
+
+    public bool HasClosed { get; set; }
 
     public bool RoleSignup { get; set; }
 
@@ -39,7 +41,8 @@ public partial class CourseModel
         Description = e.Description,
         SignupHelp = e.SignupOptions.SignupHelp,
         OpensAt = e.SignupOptions.SignupOpensAt,
-        IsOpen = e.IsOpen(),
+        HasOpened = e.HasOpened(),
+        HasClosed = e.HasClosed(),
         RoleSignup = e.SignupOptions.RoleSignup,
         RoleSignupHelp = e.SignupOptions.RoleSignupHelp,
         AllowPartnerSignup = e.SignupOptions.AllowPartnerSignup,

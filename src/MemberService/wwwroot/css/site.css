@@ -242,10 +242,9 @@ details[open] summary .non-open-summary {
     overflow: hidden;
 }
 
-.cancelled-label {
+.diagonal-label {
     position: absolute;
     transform: rotate(45deg);
-    color: white;
     padding: .1em 10em;
     right: -9.5em;
 }

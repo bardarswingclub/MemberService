@@ -68,15 +68,21 @@
             }
         }
     </div>
-    @if (Model.OpenClasses.Any())
+    @if (Model.OpenedClasses.Any())
     {
         <div class="card-body">
             <div class="input-group">
                 <select class="custom-select" id="class-select">
                     <option value="" selected disabled>Velg kurs du har lyst til å delta på</option>
-                    @foreach (var item in Model.OpenClasses)
+                    @foreach (var item in Model.OpenedClasses)
                     {
-                        <option value="@item.Id">@item.Title</option>
+                        <option value="@item.Id" disabled=@item.HasClosed>
+                            @item.Title
+                            @if (item.HasClosed)
+                            {
+                                @:(Påmelding stengt)
+                            }
+                        </option>
                     }
                 </select>
             </div>

@@ -5,9 +5,9 @@
 @if (Model.OpenEvents.NotAny() && Model.FutureEvents.NotAny())
 {
     <div class="card shadow mt-5">
-        <h3 class="card-header text-center">
+        <h2 class="card-header text-center">
             @Model.Title
-        </h3>
+        </h2>
         <div class="card-body pt-3 pb-3">
             <p class="lead text-center text-muted font-italic">
                 Det er for tiden ingen åpne påmeldinger.
@@ -19,23 +19,29 @@
 @if (Model.OpenEvents.Any())
 {
     <div class="card shadow mt-5">
-        <h3 class="card-header">
+        <h2 class="card-header text-center">
             @Model.Title
-        </h3>
+        </h2>
         <div class="list-group list-group-flush">
             @foreach (var signup in Model.OpenEvents)
             {
                 <a class="list-group-item list-group-item-action overflow-hidden" asp-controller="Signup" asp-action="Event" asp-route-id="@signup.Id" asp-route-slug="@signup.Title.Slugify()">
                     @if (signup.IsCancelled)
                     {
-                        <span class="cancelled-label bg-danger">Avlyst</span>
+                        <span class="diagonal-label bg-danger text-white">Avlyst</span>
                     }
+
                     @if (signup.UserSignup is EventSignup userSignup)
                     {
                         <span class="float-right badge @BadgeColor(userSignup.Status)">@userSignup.Status.DisplayDescription()</span>
                     }
-                    <h5 class="card-title @(signup.HasClosed ? "line-through" : "")">@signup.Title</h5>
-                    <p class="card-text @(signup.HasClosed ? "line-through" : "")">@signup.Description</p>
+                    else if (signup.HasClosed && !signup.IsCancelled)
+                    {
+                        <span class="diagonal-label bg-warning">Stengt</span>
+                    }
+
+                    <h5 class="card-title @(signup.HasClosed ? "text-muted" : "")">@signup.Title</h5>
+                    <p class="card-text @(signup.HasClosed ? "text-muted" : "")">@signup.Description</p>
                 </a>
             }
         </div>
@@ -45,9 +51,9 @@
 @if (Model.FutureEvents.Any())
 {
     <div class="card shadow mt-5">
-        <h3 class="card-header">
+        <h2 class="card-header text-center">
             Kommende @Model.Title
-        </h3>
+        </h2>
         <div class="list-group list-group-flush">
             @foreach (var signup in Model.FutureEvents)
             {
