@@ -18,7 +18,16 @@
                 <input type="checkbox" asp-for="@Model[i].Selected" />
             </td>
             <td>
-                <a asp-page="/Members/Details" asp-route-id="@signup.UserId" target="_blank">@signup.FullName</a>
+                <a asp-page="/Members/Details" asp-route-id="@signup.UserId" target="_blank">
+                    @if (string.IsNullOrWhiteSpace(signup.FullName))
+                    {
+                        <span class="text-muted">@signup.Email</span>
+                    }
+                    else
+                    {
+                        @signup.FullName
+                    }
+                </a>
             </td>
             <td>
                 @if (Model.ShowPriority)

@@ -109,7 +109,18 @@
                             @Checkmark(user.HasPayedTrainingFeeThisSemester)</td>
                         <td class="font-weight-bold text-center @Color(user.ExemptFromClassesFee)">
                             @Checkmark(user.HasPayedClassesFeeThisSemester)</td>
-                        <td><a asp-page="Details" asp-route-id="@user.Id">@user.FullName</a></td>
+                        <td>
+                            <a asp-page="Details" asp-route-id="@user.Id">
+                                @if (string.IsNullOrWhiteSpace(user.FullName))
+                                {
+                                    <span class="text-muted">@user.Email</span>
+                                }
+                                else
+                                {
+                                    @user.FullName
+                                }
+                            </a>
+                        </td>
                         <td>
                             @if (await AuthorizationService.IsAuthorized(User, Policy.CanSendEmailToMembers)) {
                                 <input type="checkbox" name="users" value="@user.Id">
@@ -158,10 +169,7 @@
                         </small>
                     </div>
                     <div class="modal-footer">
-                        <div class=" form-check">
-                            <input type="checkbox" name="fromMe" id="fromMe" value="true">
-                            <label for="fromMe">Merk eposten fra meg</label>
-                        </div>
+                        <span class=text-muted>Svar blir sendt til <strong>@User.GetEmail()</strong></span>
                         <button type="submit" class="btn btn-success">Send</button>
                     </div>
                 </div>

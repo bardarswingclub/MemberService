@@ -108,13 +108,11 @@ public class IndexModel : PageModel
             .ToListAsync();
     }
 
-    public async Task<IActionResult> OnPostSendEmail([FromForm] string subject, [FromForm] string body, [FromForm] bool fromMe, [FromForm] string[] users)
+    public async Task<IActionResult> OnPostSendEmail([FromForm] string subject, [FromForm] string body, [FromForm] string[] users)
     {
         if (!await _authorizationService.IsAuthorized(User, Policy.CanSendEmailToMembers)) return Forbid();
 
-        var replyTo = fromMe
-            ? await _database.Users.SingleUser(_userManager.GetUserId(User))
-            : null;
+        var replyTo = await _database.Users.SingleUser(_userManager.GetUserId(User));
         var successes = new List<string>();
         var failures = new List<string>();
 
