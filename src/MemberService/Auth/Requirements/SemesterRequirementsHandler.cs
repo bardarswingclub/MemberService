@@ -50,6 +50,8 @@ public class SemesterRequirementsHandler : IAuthorizationHandler
         {
             Policy.CanCreateSemesterEvent => await CheckCurrentSemesterRole(user, R.Coordinator),
 
+            Policy.CanToggleUserFeeExcemption => await CheckCurrentSemesterRole(user, R.Coordinator),
+
             Policy.CanViewEvent when id is Guid eventId => await CheckEventSemesterRole(eventId, user, R.Instructor, R.Coordinator),
             Policy.CanEditEvent when id is Guid eventId => await CheckEventSemesterRole(eventId, user, R.Coordinator),
             Policy.CanSetEventSignupStatus when id is Guid eventId => await CheckEventSemesterRole(eventId, user, R.Coordinator),
@@ -70,7 +72,7 @@ public class SemesterRequirementsHandler : IAuthorizationHandler
         };
 
     private async Task<bool> CheckEventSemesterRole(Guid eventId, ClaimsPrincipal user, params SemesterRole.RoleType[] roleTypes)
-    {        
+    {
         var @event = await _database.Events.FindAsync(eventId);
 
         if (@event?.SemesterId is not Guid semesterId) return false;
