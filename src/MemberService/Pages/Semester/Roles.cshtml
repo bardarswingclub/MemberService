@@ -13,6 +13,8 @@
         <tr>
             <th>Navn</th>
             <th>Rolle</th>
+            <th>Fritatt fra treningsavgift</th>
+            <th>Fritatt fra kursavgift</th>
             <th></th>
         </tr>
     </thead>
@@ -20,16 +22,23 @@
         @foreach(var user in Model.Users)
         {
             var role = user.Role;
+            var exemptFromTrainingFee = user.ExemptFromTrainingFee;
+            var exemptFromClassesFee = user.ExemptFromClassesFee;
             <tr>
                 <td><a asp-page="/Members/Details" asp-route-id="@user.Id">@user.FullName (@user.Email)</a></td>
                 <td>
-                    <select class="form-control" form="edit-@user.Id" asp-for=@role asp-items=@(Html.GetEnumSelectList<SemesterRole.RoleType>())></select>
-
+                    <select class="form-control" form="edit-@user.Id" asp-for=@role asp-items=@(Html.GetEnumSelectList<SemesterRole.RoleType>()) onchange="form.submit()"></select>
+                </td>
+                <td>
+                    <input form="edit-@user.Id" asp-for=@exemptFromTrainingFee onchange="form.submit()">
+                </td>
+                <td>
+                    <input form="edit-@user.Id" asp-for=@exemptFromClassesFee onchange="form.submit()">
                 </td>
                 <td>
                     <form id="edit-@user.Id" method="POST" asp-page-handler="Edit">
                         <input type="hidden" name="userId" value="@user.Id">
-                        <button class="btn btn-outline-success" type="submit">Lagre</button>
+                        <button class="sr-only" type="submit">Lagre</button>
                         <button class="btn btn-outline-danger" type="submit" name="remove" value="true">Fjern</button>
                     </form>
                 </td>
@@ -42,11 +51,11 @@
                 <form id="addUserForm" method="POST" asp-page-handler="Add">
                     <div class="form-row">
                         <div class="col-md-12">
-                        <select 
+                        <select
                             class="form-control autoComplete"
-                            name="userId" 
+                            name="userId"
                             placeholder="Søk etter person"
-                            data-url="/semester/roles/users" 
+                            data-url="/semester/roles/users"
                             autocomplete="off"></select>
                         </div>
                     </div>
@@ -54,6 +63,12 @@
             </td>
             <td>
                 <select class="form-control" form="addUserForm" name="role" asp-items=@(Html.GetEnumSelectList<SemesterRole.RoleType>())></select>
+            </td>
+            <td>
+
+            </td>
+            <td>
+
             </td>
             <td>
                 <button class="btn btn-success" form="addUserForm">Legg til</button>
@@ -64,7 +79,7 @@
 
 
 
-@section scripts 
+@section scripts
 {
     <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
     <script>

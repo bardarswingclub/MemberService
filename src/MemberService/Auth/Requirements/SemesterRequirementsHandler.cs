@@ -50,7 +50,7 @@ public class SemesterRequirementsHandler : IAuthorizationHandler
         {
             Policy.CanCreateSemesterEvent => await CheckCurrentSemesterRole(user, R.Coordinator),
 
-            Policy.CanToggleUserFeeExcemption => await CheckCurrentSemesterRole(user, R.Coordinator),
+            Policy.CanToggleUserFeeExemption => await CheckCurrentSemesterRole(user, R.Coordinator),
 
             Policy.CanViewEvent when id is Guid eventId => await CheckEventSemesterRole(eventId, user, R.Instructor, R.Coordinator),
             Policy.CanEditEvent when id is Guid eventId => await CheckEventSemesterRole(eventId, user, R.Coordinator),

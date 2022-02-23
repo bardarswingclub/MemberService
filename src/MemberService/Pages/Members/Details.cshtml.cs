@@ -104,7 +104,7 @@ public class DetailsModel : PageModel
 
     public async Task<IActionResult> OnPostSetExemptions(string id)
     {
-        if (!await _authorizationService.IsAuthorized(User, Policy.CanToggleUserFeeExcemption)) return Forbid();
+        if (!await _authorizationService.IsAuthorized(User, Policy.CanToggleUserFeeExemption)) return Forbid();
 
         if (await _memberContext.Users.FindAsync(id) is not User user) return NotFound();
 

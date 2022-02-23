@@ -68,7 +68,7 @@
                 <hr />
             }
 
-            @if (await AuthorizationService.IsAuthorized(User, Policy.CanToggleUserFeeExcemption))
+            @if (await AuthorizationService.IsAuthorized(User, Policy.CanToggleUserFeeExemption))
             {
                 <form asp-page-handler="SetExemptions" asp-route-id="@Model.Id" method="post" class="form">
                     <div class="form-check">
@@ -81,7 +81,7 @@
                     </div>
                 </form>
             }
-            else 
+            else
             {
                 @Checkmark(Model.ExemptFromTrainingFee)
                 @: Fritatt fra treningsavgift

@@ -5,7 +5,7 @@ public enum Policy
     IsAdmin,
 
     CanToggleRoles,
-    CanToggleUserFeeExcemption,
+    CanToggleUserFeeExemption,
 
     CanCreateEvent,
 

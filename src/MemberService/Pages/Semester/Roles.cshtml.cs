@@ -33,7 +33,7 @@ public class RolesModel : PageModel
     public async Task<IActionResult> OnGetAsync()
     {
         var semester = await _database.Semesters
-            .Current(s => new 
+            .Current(s => new
             {
                 Id = s.Id,
                 Title = s.Title,
@@ -43,7 +43,9 @@ public class RolesModel : PageModel
                         Id = r.UserId,
                         FullName = r.User.FullName,
                         Email = r.User.Email,
-                        Role = r.Role
+                        Role = r.Role,
+                        ExemptFromTrainingFee = r.User.ExemptFromTrainingFee,
+                        ExemptFromClassesFee = r.User.ExemptFromClassesFee
                     })
                     .ToList()
             });
@@ -74,26 +76,34 @@ public class RolesModel : PageModel
         return RedirectToPage();
     }
 
-    public async Task<IActionResult> OnPostEditAsync([FromForm] string userId, [FromForm] SemesterRole.RoleType role, [FromForm] bool remove)
+    public async Task<IActionResult> OnPostEditAsync(
+        [FromForm] string userId,
+        [FromForm] SemesterRole.RoleType role,
+        [FromForm] bool exemptFromTrainingFee,
+        [FromForm] bool exemptFromClassesFee,
+        [FromForm] bool remove)
     {
-        var user = await _database.SemesterRoles
+        var semesterRole = await _database.SemesterRoles
+            .Include(s => s.User)
             .Expressionify()
             .Where(s => s.Semester.IsActive())
             .Where(s => s.UserId == userId)
             .OrderByDescending(s => s.Semester.SignupOpensAt)
             .FirstOrDefaultAsync();
 
-        if (user != null)
+        if (semesterRole != null)
         {
             if (remove)
             {
-                _database.SemesterRoles.Remove(user);
+                _database.SemesterRoles.Remove(semesterRole);
             }
             else
             {
-                user.Role = role;
-                user.UpdatedAt = DateTime.UtcNow;
-                user.UpdatedByUser = await GetCurrentUser();
+                semesterRole.Role = role;
+                semesterRole.UpdatedAt = DateTime.UtcNow;
+                semesterRole.UpdatedByUser = await GetCurrentUser();
+                semesterRole.User.ExemptFromTrainingFee = exemptFromTrainingFee;
+                semesterRole.User.ExemptFromClassesFee = exemptFromClassesFee;
             }
 
             await _database.SaveChangesAsync();
@@ -129,11 +139,10 @@ public class RolesModel : PageModel
     public class UserRole
     {
         public string Id { get; init; }
-
         public string FullName { get; init; }
-
         public string Email { get; init; }
-
         public SemesterRole.RoleType Role { get; init; }
+        public bool ExemptFromTrainingFee { get; init; }
+        public bool ExemptFromClassesFee { get; init; }
     }
 }

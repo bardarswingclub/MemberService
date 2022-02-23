@@ -260,7 +260,7 @@ public class FeeCalculationTests
     }
 
     [Test]
-    public void TestMembershipFee_ExcemptTraining_NoPayments()
+    public void TestMembershipFee_ExemptTraining_NoPayments()
     {
         var user = new User
         {
@@ -280,7 +280,7 @@ public class FeeCalculationTests
     }
 
     [Test]
-    public void TestTrainingFee_ExcemptTraining_NoPayments()
+    public void TestTrainingFee_ExemptTraining_NoPayments()
     {
         var user = new User
         {
@@ -295,7 +295,7 @@ public class FeeCalculationTests
     }
 
     [Test]
-    public void TestClassesFee_ExcemptTraining_NoPayments()
+    public void TestClassesFee_ExemptTraining_NoPayments()
     {
         var user = new User
         {
@@ -315,7 +315,7 @@ public class FeeCalculationTests
     }
 
     [Test]
-    public void TestClassesFee_ExcemptTraining_MembershipPayed()
+    public void TestClassesFee_ExemptTraining_MembershipPayed()
     {
         var user = new User
         {
@@ -339,7 +339,7 @@ public class FeeCalculationTests
     }
 
     [Test]
-    public void TestMembershipFee_ExcemptTrainingAndClasses_NoPayments()
+    public void TestMembershipFee_ExemptTrainingAndClasses_NoPayments()
     {
         var user = new User
         {
@@ -360,7 +360,7 @@ public class FeeCalculationTests
     }
 
     [Test]
-    public void TestTrainingFee_ExcemptTrainingAndClasses_NoPayments()
+    public void TestTrainingFee_ExemptTrainingAndClasses_NoPayments()
     {
         var user = new User
         {
@@ -376,7 +376,7 @@ public class FeeCalculationTests
     }
 
     [Test]
-    public void TestClassesFee_ExcemptTrainingAndClasses_NoPayments()
+    public void TestClassesFee_ExemptTrainingAndClasses_NoPayments()
     {
         var user = new User
         {
@@ -392,7 +392,7 @@ public class FeeCalculationTests
     }
 
     [Test]
-    public void TestClassesFee_ExcemptTrainingAndClasses_MembershipPayed()
+    public void TestClassesFee_ExemptTrainingAndClasses_MembershipPayed()
     {
         var user = new User
         {
@@ -412,7 +412,7 @@ public class FeeCalculationTests
     }
 
     [Test]
-    public void TestMembershipFee_ExcemptClasses_NoPayments()
+    public void TestMembershipFee_ExemptClasses_NoPayments()
     {
         var user = new User
         {
@@ -432,7 +432,7 @@ public class FeeCalculationTests
     }
 
     [Test]
-    public void TestTrainingFee_ExcemptClasses_NoPayments()
+    public void TestTrainingFee_ExemptClasses_NoPayments()
     {
         var user = new User
         {
@@ -452,7 +452,7 @@ public class FeeCalculationTests
     }
 
     [Test]
-    public void TestClassesFee_ExcemptClasses_NoPayments()
+    public void TestClassesFee_ExemptClasses_NoPayments()
     {
         var user = new User
         {
@@ -467,7 +467,7 @@ public class FeeCalculationTests
     }
 
     [Test]
-    public void TestClassesFee_ExcemptClasses_MembershipPayed()
+    public void TestClassesFee_ExemptClasses_MembershipPayed()
     {
         var user = new User
         {
