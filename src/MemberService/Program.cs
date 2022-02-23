@@ -1,7 +1,9 @@
 ﻿using System.Globalization;
+using System.Security.Claims;
 
 using Clave.NamespaceViewLocationExpander;
 
+using MemberService;
 using MemberService.Auth;
 using MemberService.Auth.Requirements;
 using MemberService.Configs;
@@ -12,7 +14,6 @@ using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
@@ -23,16 +24,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.AddConsole();
 
+var env = builder.Environment;
+var services = builder.Services;
 var configuration = builder.Configuration;
 var config = configuration.Get<Config>();
 
-var services = builder.Services;
+Stripe.StripeConfiguration.ApiKey = config.Stripe.SecretKey;
 
 services
-    .AddSingleton(config);
-
-services
-    .AddScoped(typeof(IEmailer), builder.Environment.IsDevelopment() ? typeof(DummyConsoleEmailer) : typeof(SendGridEmailer))
+    .AddSingleton(config)
+    .AddScoped(typeof(IEmailer), env.IsDevelopment() ? typeof(DummyConsoleEmailer) : typeof(SendGridEmailer))
     .AddScoped<IEmailSender, EmailSender>()
     .AddScoped<SendGridClient>(e => new SendGridClient(config.Email.SendGridApiKey))
     .AddScoped<Stripe.ChargeService>()
@@ -43,22 +44,14 @@ services
     .AddScoped<IPaymentService, PaymentService>()
     .AddScoped<ILoginService, LoginService>()
     .AddScoped<IPartialRenderer, PartialRenderer>()
-    .AddScoped<IEmailService, EmailService>();
-
-services.Configure<CookiePolicyOptions>(options =>
-{
-    // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-    options.CheckConsentNeeded = context => true;
-    options.MinimumSameSitePolicy = SameSiteMode.None;
-});
-
-services
+    .AddScoped<IEmailService, EmailService>()
     .AddSingleton<IActionContextAccessor, ActionContextAccessor>()
     .AddScoped(x => x
         .GetRequiredService<IUrlHelperFactory>()
         .GetUrlHelper(x.GetRequiredService<IActionContextAccessor>().ActionContext));
 
-services.AddDbContext<MemberContext>(o => o.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+services
+    .AddDbContext<MemberContext>(o => o.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
 services
     .AddIdentity<User, MemberRole>(config =>
@@ -66,7 +59,7 @@ services
         config.SignIn.RequireConfirmedEmail = true;
         config.User.RequireUniqueEmail = true;
 
-        config.Password = new PasswordOptions
+        config.Password = new()
         {
             RequireDigit = false,
             RequireLowercase = false,
@@ -78,7 +71,8 @@ services
     .AddRoles<MemberRole>()
     .AddDefaultTokenProviders()
     .AddEntityFrameworkStores<MemberContext>()
-    .AddPasswordlessLoginTokenProvider(builder.Environment.IsDevelopment());
+    .AddPasswordlessLoginTokenProvider(env.IsDevelopment())
+    .AddClaimsPrincipalFactory<UserClaimsPrincipalFactory>();
 
 services
     .AddRazorPages()
@@ -88,17 +82,10 @@ services
         options.PageViewLocationFormats.Add("/{0}.cshtml");
     });
 
-if (builder.Environment.IsDevelopment())
-{
-    services
-        .AddControllersWithViews()
-        .AddRazorRuntimeCompilation();
-}
-else
-{
-    services
-        .AddControllersWithViews();
-}
+services
+    .UseNamespaceViewLocations()
+    .AddControllersWithViews()
+    .IfDev(env, s => s.AddRazorRuntimeCompilation());
 
 services
     .AddScoped<IAuthorizationHandler, RoleRequirementsHandler>()
@@ -112,7 +99,8 @@ services
         }
     });
 
-services.AddAuthentication()
+services
+    .AddAuthentication()
     .AddMicrosoftAccount(options =>
     {
         options.ClientId = config.Authentication.Microsoft.ClientId;
@@ -125,15 +113,19 @@ services.AddAuthentication()
         options.AccessDeniedPath = "/account/accessDenied";
     });
 
-services.AddScoped<IUserClaimsPrincipalFactory<User>, UserClaimsPrincipalFactory>();
-
-services.UseNamespaceViewLocations();
-services.ConfigureApplicationCookie(options =>
-{
-    options.LoginPath = $"/account/login";
-    options.LogoutPath = $"/account/logout";
-    options.AccessDeniedPath = $"/account/accessDenied";
-});
+services
+    .Configure<CookiePolicyOptions>(options =>
+    {
+        // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+        options.CheckConsentNeeded = context => true;
+        options.MinimumSameSitePolicy = SameSiteMode.None;
+    })
+    .ConfigureApplicationCookie(options =>
+    {
+        options.LoginPath = $"/account/login";
+        options.LogoutPath = $"/account/logout";
+        options.AccessDeniedPath = $"/account/accessDenied";
+    });
 
 services
     .AddApplicationInsightsTelemetry()
@@ -159,40 +151,44 @@ using (var scope = app.Services.CreateScope())
         .SeedUserRoles(config.AdminEmails.Split(","));
 }
 
-Stripe.StripeConfiguration.ApiKey = config.Stripe.SecretKey;
-
-if (!builder.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-
-var supportedCultures = new[] { new CultureInfo("nb-NO") };
-
-app.UseRequestLocalization(new RequestLocalizationOptions
-{
-    DefaultRequestCulture = new RequestCulture("nb-NO"),
-    // Formatting numbers, dates, etc.
-    SupportedCultures = supportedCultures,
-    // UI strings that we have localized.
-    SupportedUICultures = supportedCultures
-});
-
-app.UseStatusCodePagesWithReExecute("/Home/StatusCode/{0}");
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
-    endpoints.MapRazorPages();
-});
+app
+    .IfProd(env, a => a
+        .UseExceptionHandler("/Home/Error")
+        .UseHsts())
+    .UseHttpsRedirection()
+    .UseStaticFiles()
+    .UseRouting()
+    .UseRequestLocalization(new RequestLocalizationOptions
+    {
+        DefaultRequestCulture = new("nb-NO"),
+        // Formatting numbers, dates, etc.
+        SupportedCultures = { new("nb-NO") },
+        // UI strings that we have localized.
+        SupportedUICultures = { new("nb-NO") }
+    })
+    .UseStatusCodePagesWithReExecute("/Home/StatusCode/{0}")
+    .UseAuthentication()
+    .UseAuthorization()
+    .Use(EnsureUserHasFullName)
+    .UseEndpoints(endpoints =>
+    {
+        endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+        endpoints.MapRazorPages();
+    });
 
 await app.RunAsync();
+
+static Task EnsureUserHasFullName(HttpContext ctx, Func<Task> next)
+{
+    if (!ctx.User.Identity.IsAuthenticated)
+        return next();
+
+    if (!string.IsNullOrWhiteSpace(ctx.User?.FindFirstValue("FullName")))
+        return next();
+
+    if (ctx.GetEndpoint()?.DisplayName == "/Account/Register")
+        return next();
+
+    ctx.Response.Redirect($"/Account/Register?returnUrl={ctx.Request.Path}");
+    return Task.CompletedTask;
+}

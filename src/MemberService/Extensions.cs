@@ -192,4 +192,23 @@ public static class Extensions
     public static void SetInfoMessage(this ITempDataDictionary tempData, string message) => tempData.SetMessage("InfoMessage", message);
     public static void SetErrorMessage(this ITempDataDictionary tempData, string message) => tempData.SetMessage("ErrorMessage", message);
     private static void SetMessage(this ITempDataDictionary tempData, string key, string message) => tempData[key] = message;
+
+    public static T IfDev<T>(this T services, IWebHostEnvironment environment, Action<T> action)
+    {
+        if (environment.IsDevelopment())
+        {
+            action(services);
+        }
+
+        return services;
+    }
+    public static T IfProd<T>(this T services, IWebHostEnvironment environment, Action<T> action)
+    {
+        if (environment.IsProduction())
+        {
+            action(services);
+        }
+
+        return services;
+    }
 }
