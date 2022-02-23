@@ -55,4 +55,6 @@ public static class UserExtensions
         => roles.Any(user.IsInRole);
 
     public static string GetFullName(this ClaimsPrincipal user) => user.FindFirstValue("FullName") ?? user.Identity.Name;
+
+    public static string GetEmail(this ClaimsPrincipal user) => user.Identity.Name;
 }

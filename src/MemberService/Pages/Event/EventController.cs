@@ -1,6 +1,7 @@
 ﻿namespace MemberService.Pages.Event;
 
 using Clave.Expressionify;
+using Clave.ExtensionMethods;
 
 using MemberService.Auth;
 using MemberService.Data;
@@ -167,6 +168,8 @@ public class EventController : Controller
 
         var statusChanged = input.Status != Status.Unknown;
 
+        var failures = new List<string>();
+
         await _database.EditEvent(id, async eventEntry =>
         {
             foreach (var signup in selected)
@@ -180,11 +183,31 @@ public class EventController : Controller
 
                 if (input.SendEmail)
                 {
-                    var model = new EventStatusModel(
-                        eventEntry.Title,
-                        await SignupLink(eventSignup.User, eventEntry));
+                    try
+                    {
+                        await _emailService.SendCustomEmail(
+                            eventSignup.User,
+                            input.Subject,
+                            input.Message,
+                            new(eventEntry.Title, await SignupLink(eventSignup.User, eventEntry)),
+                            currentUser);
 
-                    await SendEmail(input, model, currentUser, statusChanged, eventSignup);
+                        if (statusChanged)
+                        {
+                            eventSignup.AuditLog.Add($"Moved to {input.Status} and sent email\n\n---\n\n> {input.Subject}\n\n{input.Message}", currentUser);
+                        }
+                        else
+                        {
+                            eventSignup.AuditLog.Add($"Sent email\n\n---\n\n> {input.Subject}\n\n{input.Message}", currentUser);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        // Mail sending might fail, but that should't stop us
+                        eventSignup.AuditLog.Add($"Tried to send email, but failed with message {e.Message}", currentUser);
+                        _logger.LogError(e, $"Failed to send email to {eventSignup.User.Email}");
+                        failures.Add($"Klarte ikke sende epost til {eventSignup.User.FullName} ({eventSignup.User.Email})");
+                    }
                 }
                 else if (statusChanged)
                 {
@@ -193,35 +216,21 @@ public class EventController : Controller
             }
         });
 
+        if (failures.Any())
+        {
+            TempData.SetErrorMessage(failures.JoinWithComma());
+        }
+
+        if(failures.Count != selected.Count)
+        {
+            TempData.SetSuccessMessage(input.SendEmail
+                ? statusChanged
+                ? $"Oppdaterte status og sendte epost til {selected.Count - failures.Count} dansere"
+                : $"Sendte epost til {selected.Count - failures.Count} dansere"
+                : $"Oppdaterte status på {selected.Count - failures.Count} dansere");
+        }
+
         return RedirectToAction(nameof(View), new { id });
-    }
-
-    private async Task SendEmail(EventSaveModel input, EventStatusModel model, User currentUser, bool statusChanged, EventSignup eventSignup)
-    {
-        try
-        {
-            await _emailService.SendCustomEmail(
-                eventSignup.User,
-                input.Subject,
-                input.Message,
-                model,
-                input.ReplyToMe ? currentUser : null);
-
-            if (statusChanged)
-            {
-                eventSignup.AuditLog.Add($"Moved to {input.Status} and sent email\n\n---\n\n> {input.Subject}\n\n{input.Message}", currentUser);
-            }
-            else
-            {
-                eventSignup.AuditLog.Add($"Sent email\n\n---\n\n> {input.Subject}\n\n{input.Message}", currentUser);
-            }
-        }
-        catch (Exception e)
-        {
-            // Mail sending might fail, but that should't stop us
-            eventSignup.AuditLog.Add($"Tried to send email, but failed with message {e.Message}", currentUser);
-            _logger.LogError(e, "Failed to send email");
-        }
     }
 
     [HttpGet]

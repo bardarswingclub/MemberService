@@ -51,9 +51,9 @@
                     <label for="@Model.Key-email-subject">Emne</label>
                     <input type="text" class="form-control" id="@Model.Key-email-subject" name="Subject" value="Info om {TITLE}">
                 </div>
-                <div class="form-group form-check">
-                    <input type="checkbox" class="form-check-input" id="@Model.Key-email-replyTo" name="ReplyToMe" value="true">
-                    <label class="form-check-label" for="@Model.Key-email-replyTo">Sett deg selv som ReplyTo</label>
+                <div class="form-group">
+                    <label>Send svar til</label>
+                    <input type="text" class="form-control-plaintext" readonly value="@User.GetEmail()">
                 </div>
                 <div class="form-group">
                     <label for="@Model.Key-email-message">Melding</label>

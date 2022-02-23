@@ -1,7 +1,5 @@
 ﻿namespace MemberService.Pages.Event;
 
-
-
 using System.ComponentModel.DataAnnotations;
 
 using MemberService.Data.ValueTypes;
@@ -18,8 +16,6 @@ public class EventSaveModel
     public List<Item> Solos { get; set; } = new();
 
     public bool SendEmail { get; set; }
-
-    public bool ReplyToMe { get; set; }
 
     [Required]
     public string Subject { get; set; }

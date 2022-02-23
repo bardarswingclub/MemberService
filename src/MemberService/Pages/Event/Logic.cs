@@ -112,12 +112,13 @@ public static class Logic
         return EventModel.Create(model, signups.Select(s => EventSignupModel.Create(s.signup, s.partner)).ToList());
     }
 
-    public static IEnumerable<Guid> GetSelected(this EventSaveModel input)
+    public static IReadOnlyList<Guid> GetSelected(this EventSaveModel input)
         => input.Leads
             .Concat(input.Follows)
             .Concat(input.Solos)
             .Where(l => l.Selected)
-            .Select(l => l.Id);
+            .Select(l => l.Id)
+            .ToList();
 
     public static async Task<EventInputModel> GetEventInputModel(this MemberContext context, Guid id)
     {
