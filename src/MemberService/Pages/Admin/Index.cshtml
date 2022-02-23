@@ -1,5 +1,5 @@
 @using MemberService.Pages.Admin
-@model AdminModel
+
 @{
     ViewData["Title"] = "Admin";
 }
@@ -13,29 +13,4 @@
         <input class="form-control mr-2 ml-2" type="date" name="after" value="@DateTime.Now.ToString("yyyy-MM-dd")">
         <button type="submit" class="btn btn-success">Importer</button>
     </form>
-</div>
-
-<h2>Roller</h2>
-
-<div class="card-deck">
-    @foreach (var (role, users) in Model.Roles)
-    {
-        <div class="card">
-            <h3 class="card-header">
-                @role.Name
-            </h3>
-            <ul class="list-group list-group-flush">
-                @foreach (var user in users)
-                {
-                    <li class="list-group-item">
-                        <a asp-page="/Members/Details" asp-route-id="@user.Id">
-                            @user.FullName
-                            <br />
-                            <span class="text-muted">(@user.Email)</span>
-                        </a>
-                    </li>
-                }
-            </ul>
-        </div>
-    }
 </div>

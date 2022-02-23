@@ -7,6 +7,7 @@ using Clave.ExtensionMethods;
 
 using MemberService.Auth;
 using MemberService.Data;
+using MemberService.Data.ValueTypes;
 using MemberService.Pages.Shared;
 using MemberService.Services;
 
@@ -56,6 +57,9 @@ public class IndexModel : PageModel
     [BindProperty(SupportsGet = true)]
     public string ExemptClassesFilter { get; set; }
 
+    [BindProperty(SupportsGet = true)]
+    public string Role { get; set; }
+
     public async Task<IActionResult> OnGet()
     {
         var users = await GetFilteredUsers();
@@ -75,14 +79,19 @@ public class IndexModel : PageModel
     }
 
     private async Task<List<Member>> GetFilteredUsers()
-        => await _database.Users
+    {
+        var canToggleRoles = await _authorizationService.IsAuthorized(User, Policy.CanToggleRoles);
+        var canViewOlderMembers = await _authorizationService.IsAuthorized(User, Policy.CanViewOlderMembers);
+
+        return await _database.Users
             .Expressionify()
             .Where(u => u.EmailConfirmed)
-            .Where(FilterMembership(MemberFilter))
+            .Where(FilterMembership(MemberFilter, canViewOlderMembers))
             .Where(Filter(TrainingFilter, u => u.HasPayedTrainingFeeThisSemester()))
             .Where(Filter(ClassesFilter, u => u.HasPayedClassesFeeThisSemester()))
             .Where(Filter(ExemptTrainingFilter, u => u.ExemptFromTrainingFee))
             .Where(Filter(ExemptClassesFilter, u => u.ExemptFromClassesFee))
+            .Where(FilterRole(Role, canToggleRoles))
             .Where(Search(Query))
             .OrderBy(u => u.FullName)
             .Select(u => new Member
@@ -97,6 +106,7 @@ public class IndexModel : PageModel
                 ExemptFromClassesFee = u.ExemptFromClassesFee,
             })
             .ToListAsync();
+    }
 
     public async Task<IActionResult> OnPostSendEmail([FromForm] string subject, [FromForm] string body, [FromForm] bool fromMe, [FromForm] string[] users)
     {
@@ -167,17 +177,22 @@ public class IndexModel : PageModel
             _ => user => true,
         };
 
-    private static Expression<Func<User, bool>> FilterMembership(string filter)
+    private static Expression<Func<User, bool>> FilterMembership(string filter, bool canViewOlderMembers)
         => filter switch
         {
-            "LastYear" => u => u.HasPayedMembershipLastYear(),
-            "LastOrThisYear" => u => u.HasPayedMembershipLastOrThisYear(),
+            "LastYear" when canViewOlderMembers => u => u.HasPayedMembershipLastYear(),
+            "LastOrThisYear" when canViewOlderMembers => u => u.HasPayedMembershipLastOrThisYear(),
             var f => Filter(f, u => u.HasPayedMembershipThisYear())
         };
 
-    private static Expression<Func<User, bool>> Search(string query) 
-        => string.IsNullOrWhiteSpace(query) 
-            ? (u => true) 
+    private static Expression<Func<User, bool>> FilterRole(string filter, bool canToggleRoles)
+        => Roles.All.Contains(filter) && canToggleRoles
+            ? user => user.UserRoles.Any(r => r.Role.Name == filter)
+            : user => true;
+
+    private static Expression<Func<User, bool>> Search(string query)
+        => string.IsNullOrWhiteSpace(query)
+            ? (u => true)
             : (u => u.NameMatches(query));
 
     public class Member

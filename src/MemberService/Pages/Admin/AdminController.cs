@@ -1,15 +1,10 @@
 ﻿namespace MemberService.Pages.Admin;
 
-
-
-using MemberService.Data;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
 
 using Microsoft.AspNetCore.Authorization;
 using MemberService.Services;
-using Microsoft.EntityFrameworkCore;
-using Clave.ExtensionMethods;
 using MemberService.Auth;
 
 [Authorize(nameof(Policy.IsAdmin))]
@@ -17,35 +12,16 @@ public class AdminController : Controller
 {
     private readonly ChargeService _chargeService;
     private readonly IPaymentService _paymentService;
-    private readonly MemberContext _memberContext;
 
     public AdminController(
         ChargeService chargeService,
-        IPaymentService paymentService,
-        MemberContext memberContext)
+        IPaymentService paymentService)
     {
         _chargeService = chargeService;
         _paymentService = paymentService;
-        _memberContext = memberContext;
     }
 
-    public async Task<IActionResult> Index()
-    {
-        var userRoles = await _memberContext.UserRoles
-            .Include(x => x.User)
-            .Include(x => x.Role)
-            .ToListAsync();
-
-        var roles = userRoles
-            .GroupByProp(x => x.Role, x => x.Id)
-            .Select(x => (x.Key, x.Select(u => u.User).ToReadOnlyCollection()))
-            .ToReadOnlyCollection();
-
-        return View(new AdminModel
-        {
-            Roles = roles
-        });
-    }
+    public IActionResult Index() => View();
 
     [HttpPost]
     public async Task<IActionResult> Import([FromForm] DateTime? after)

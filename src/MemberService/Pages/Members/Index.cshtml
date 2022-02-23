@@ -26,8 +26,9 @@
                 <option value="All">Alle</option>
                 <option value="Only">&#x2713; Som har betalt medlemskap</option>
                 <option value="Not">&#x2717; Som ikke har betalt medlemskap</option>
-                
-                @if (await AuthorizationService.IsAuthorized(User, Policy.CanViewOlderMembers)) {
+
+                @if (await AuthorizationService.IsAuthorized(User, Policy.CanViewOlderMembers))
+                {
                     <option value="LastYear">&#x2713; Som betalte medlemskap i fjor</option>
                     <option value="LastOrThisYear">&#x2713; Som betalte medlemskap i fjor eller i år</option>
                 }
@@ -61,6 +62,19 @@
                 <option value="Not">&#x2717; Som ikke er fritatt kursavgift</option>
             </select>
         </div>
+
+        @if (await AuthorizationService.IsAuthorized(User, Policy.CanToggleRoles))
+        {
+            <div class="col">
+                <select class="custom-select" asp-for="Role" onchange="this.form.submit()">
+                    <option value="All">Alle</option>
+                    @foreach(var role in Roles.All)
+                    {
+                        <option value="@role">@role</option>
+                    }
+                </select>
+            </div>
+        }
     </div>
 </form>
 <form asp-page-handler="SendEmail" method="post">
@@ -110,15 +124,15 @@
 
     <div class="d-flex justify-content-between">
         <button type="submit" form="filter-form" name="handler" value="export" class="btn btn-outline-secondary">Exporter som csv fil</button>
-            
+
         @if (await AuthorizationService.IsAuthorized(User, Policy.CanSendEmailToMembers))
         {
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-email">Send epost til valgte brukere</button>
         }
     </div>
-    
-    @if (await AuthorizationService.IsAuthorized(User, Policy.CanSendEmailToMembers)) 
-    {    
+
+    @if (await AuthorizationService.IsAuthorized(User, Policy.CanSendEmailToMembers))
+    {
         <div class="modal fade" id="modal-email" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
             <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
                 <div class="modal-content">
@@ -173,7 +187,7 @@
 }
 
 @section Scripts {
-    <script>        
+    <script>
         $(function () {
             $("input[data-action=select-all]").on('click', function () {
                 var table = $(this).parents('table');
