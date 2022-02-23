@@ -15,13 +15,16 @@ public class RolesModel : PageModel
 {
     private readonly MemberContext _database;
     private readonly UserManager<User> _userManager;
+    private readonly IAuthorizationService _authorizationService;
 
     public RolesModel(
         MemberContext database,
-        UserManager<User> userManager)
+        UserManager<User> userManager,
+        IAuthorizationService authorizationService)
     {
         _database = database;
         _userManager = userManager;
+        _authorizationService = authorizationService;
     }
 
     public string Title { get; set; }
@@ -74,6 +77,25 @@ public class RolesModel : PageModel
         await _database.SaveChangesAsync();
 
         return RedirectToPage();
+    }
+
+    public async Task<IActionResult> OnPostSetExemptionAsync(
+        [FromForm] string userId,
+        [FromForm] bool exemptFromTrainingFee,
+        [FromForm] bool exemptFromClassesFee)
+    {
+        if (!await _authorizationService.IsAuthorized(User, Policy.CanToggleUserFeeExemption)) return Forbid();
+
+        var user = await _database.Users.FindAsync(userId);
+
+        if (user is null) return NotFound();
+
+        user.ExemptFromTrainingFee = exemptFromTrainingFee;
+        user.ExemptFromClassesFee = exemptFromClassesFee;
+
+        await _database.SaveChangesAsync();
+
+        return new OkResult();
     }
 
     public async Task<IActionResult> OnPostEditAsync(

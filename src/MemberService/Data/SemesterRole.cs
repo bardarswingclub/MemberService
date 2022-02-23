@@ -10,9 +10,9 @@ public class SemesterRole : IEntityTypeConfiguration<SemesterRole>
 {
     public enum RoleType
     {
-        [Display(Name="Instruktør")]
+        [Display(Name="🔵Instruktør")]
         Instructor,
-        [Display(Name="Koordnator")]
+        [Display(Name="🔴Koordnator")]
         Coordinator
     }
 

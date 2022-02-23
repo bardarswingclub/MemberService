@@ -94,7 +94,6 @@
 @section Scripts{
     <script>
         $(function () {
-
             $("[data-action='ajax-form']").submit(
                 function (e) {
                     e.preventDefault(); // avoid to execute the actual submit of the form.
@@ -108,9 +107,7 @@
                         type: form.attr('method'),
                         url: url,
                         data: form.serialize(), // serializes the form's elements.
-                        success: function (data) {
-                            form.prop('disabled', false);
-                        }
+                        success: () => form.prop('disabled', false)
                     });
                 });
         });

@@ -13,8 +13,8 @@
         <tr>
             <th>Navn</th>
             <th>Rolle</th>
-            <th>Fritatt fra treningsavgift</th>
-            <th>Fritatt fra kursavgift</th>
+            <th class="text-center">Fritatt fra treningsavgift</th>
+            <th class="text-center">Fritatt fra kursavgift</th>
             <th></th>
         </tr>
     </thead>
@@ -30,10 +30,17 @@
                     <select class="form-control" form="edit-@user.Id" asp-for=@role asp-items=@(Html.GetEnumSelectList<SemesterRole.RoleType>()) onchange="form.submit()"></select>
                 </td>
                 <td>
-                    <input form="edit-@user.Id" asp-for=@exemptFromTrainingFee onchange="form.submit()">
+                    <form id="toggle-exempt-@user.Id" method="POST" asp-page-handler="SetExemption" data-action="ajax-form">
+                        <input type="hidden" name="userId" value="@user.Id">
+                        <label class="text-center d-block">
+                            <input asp-for=@exemptFromTrainingFee onchange="$(this.form).submit()">
+                        </label>
+                    </form>
                 </td>
                 <td>
-                    <input form="edit-@user.Id" asp-for=@exemptFromClassesFee onchange="form.submit()">
+                    <label class="text-center d-block">
+                        <input form="toggle-exempt-@user.Id" asp-for=@exemptFromClassesFee onchange="$(this.form).submit()">
+                    </label>
                 </td>
                 <td>
                     <form id="edit-@user.Id" method="POST" asp-page-handler="Edit">
@@ -84,5 +91,26 @@
     <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
     <script>
         $('.autoComplete').autoComplete();
+    </script>
+
+    <script>
+        $(function () {
+            $("[data-action='ajax-form']").submit(
+                function (e) {
+                    e.preventDefault(); // avoid to execute the actual submit of the form.
+
+                    var form = $(this);
+                    var url = form.attr('action');
+
+                    form.prop('disabled', true);
+
+                    $.ajax({
+                        type: form.attr('method'),
+                        url: url,
+                        data: form.serialize(), // serializes the form's elements.
+                        success: () => form.prop('disabled', false)
+                    });
+                });
+        });
     </script>
 }
