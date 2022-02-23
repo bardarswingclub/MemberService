@@ -66,6 +66,10 @@
                     </form>
                 }
                 <hr />
+            }
+
+            @if (await AuthorizationService.IsAuthorized(User, Policy.CanToggleUserFeeExcemption))
+            {
                 <form asp-page-handler="SetExemptions" asp-route-id="@Model.Id" method="post" class="form">
                     <div class="form-check">
                         <input class="form-check-input" asp-for="ExemptFromTrainingFee" onchange="form.submit()" />
