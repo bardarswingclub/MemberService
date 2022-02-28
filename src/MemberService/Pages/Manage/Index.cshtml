@@ -18,9 +18,15 @@
                 <input asp-for="Email" class="form-control" disabled />
             </div>
             <div class="form-group">
-                <label asp-for="Input.FullName"></label>
-                <input asp-for="Input.FullName" class="form-control" />
-                <span asp-validation-for="Input.FullName" class="text-danger"></span>
+                <label asp-for="FullName"></label>
+                <input asp-for="FullName" class="form-control" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FriendlyName"></label>
+                <input asp-for="FriendlyName" class="form-control" />
+                <span class="text-muted text-small">Vi kommer til å bruke dette navnet på kurs og arrangementer</span>
+                <span asp-validation-for="FriendlyName" class="text-danger"></span>
             </div>
             <button id="update-profile-button" type="submit" class="btn btn-success btn-block">Lagre</button>
         </form>

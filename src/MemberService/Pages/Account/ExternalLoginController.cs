@@ -46,13 +46,13 @@ public class ExternalLoginController : Controller
         if (remoteError != null)
         {
             TempData.SetErrorMessage($"Error from external provider: {remoteError}");
-            return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+            return RedirectToPage("/Account/Login", new { ReturnUrl = returnUrl });
         }
         var info = await _signInManager.GetExternalLoginInfoAsync();
         if (info == null)
         {
             TempData.SetErrorMessage("Error loading external login information.");
-            return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+            return RedirectToPage("/Account/Login", new { ReturnUrl = returnUrl });
         }
 
         // Sign in the user with this external login provider if the user already has a login.
@@ -61,7 +61,7 @@ public class ExternalLoginController : Controller
         {
             _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
 
-            var user = await _loginService.GetOrCreateUser(info.Principal.FindFirstValue(ClaimTypes.Email));
+            var user = await _loginService.GetOrCreateUser(info.Principal.FindFirstValue(ClaimTypes.Email), info.Principal.FindFirstValue(ClaimTypes.Name));
 
             if (string.IsNullOrWhiteSpace(user.FullName))
             {
@@ -72,7 +72,7 @@ public class ExternalLoginController : Controller
         }
         else
         {
-            var user = await _loginService.GetOrCreateUser(info.Principal.FindFirstValue(ClaimTypes.Email));
+            var user = await _loginService.GetOrCreateUser(info.Principal.FindFirstValue(ClaimTypes.Email), info.Principal.FindFirstValue(ClaimTypes.Name));
 
             await _userManager.AddLoginAsync(user, info);
 

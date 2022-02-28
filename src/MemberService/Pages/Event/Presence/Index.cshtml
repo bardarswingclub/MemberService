@@ -43,7 +43,10 @@
             {
                 <tr>
                     <th class="pr-5">
-                        <a asp-page="/Members/Details" asp-route-id="@participant.UserId" target="_blank">@participant.FullName</a>
+                        <a asp-page="/Members/Details" asp-route-id="@participant.UserId" target="_blank">
+                            @participant.FriendlyName
+                            <span class="text-small font-weight-normal text-muted text-decoration-none">(@participant.FullName)</span>
+                        </a>
                     </th>
                     @for (var i = 0; i < Model.Count; i++)
                     {

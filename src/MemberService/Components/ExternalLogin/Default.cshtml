@@ -7,7 +7,11 @@
         <div class="text-center">
             @foreach (var provider in Model.ExternalLogins)
             {
-                <button type="submit" class="btn btn-primary signin-@provider.Name mb-2" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">Logg inn med @provider.DisplayName</button>
+                <button type="submit" class="btn btn-block signin-@provider.Name mb-2" name="provider" value="@provider.Name" title="Logg inn med din @provider.DisplayName konto">
+                    <span>
+                        Logg inn med @provider.DisplayName
+                    </span>
+                </button>
             }
         </div>
     </form>

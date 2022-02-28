@@ -11,6 +11,7 @@ using MemberService.Data;
 using MemberService.Services;
 
 using Microsoft.ApplicationInsights.DependencyCollector;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -111,7 +112,26 @@ services
         options.AppId = config.Authentication.Facebook.AppId;
         options.AppSecret = config.Authentication.Facebook.AppSecret;
         options.AccessDeniedPath = "/account/accessDenied";
-    });
+    })
+    /*.AddOpenIdConnect("Vipps", "Vipps", options =>
+    {
+        options.Authority = "https://api.vipps.no/access-management-1.0/access/";// = "https://api.vipps.no/access-management-1.0/access/oauth2/auth";
+        //options.TokenEndpoint = "https://api.vipps.no/access-management-1.0/access/oauth2/token";
+        options.ClientId = config.Authentication.Vipps.ClientId;
+        options.ClientSecret = config.Authentication.Vipps.ClientSecret;
+        options.AccessDeniedPath = "/account/accessDenied";
+        options.CallbackPath = "/signin-vipps";
+        options.ResponseType = "code";
+        options.Scope.Clear();
+        options.Scope.Add("openid");
+        options.Scope.Add("email");
+        options.Scope.Add("name");
+        options.Scope.Add("api_version_2");
+        options.GetClaimsFromUserInfoEndpoint = true;
+        options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
+        options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+        options.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "given_name");
+    })*/;
 
 services
     .Configure<CookiePolicyOptions>(options =>

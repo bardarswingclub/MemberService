@@ -6,6 +6,8 @@ using MemberService.Emails.Event;
 using MemberService.Data;
 
 using SendGrid.Helpers.Mail;
+using Clave.ExtensionMethods;
+using Markdig;
 
 public class EmailService : IEmailService
 {
@@ -36,14 +38,14 @@ public class EmailService : IEmailService
         await _emailer.Send(
             new EmailAddress(to.Email, to.FullName),
             Replace(subject, to, eventStatusModel),
-            Markdig.Markdown.ToHtml(Replace(message, to, eventStatusModel)),
+            Markdown.ToHtml(Replace(message, to, eventStatusModel)),
             replyTo != null ? new EmailAddress(replyTo.Email, replyTo.FullName) : null);
     }
 
     private static string Replace(string value, User user, EventStatusModel model)
         => value
             .Replace("{TITLE}", model?.Title ?? string.Empty)
-            .Replace("{NAME}", user.FullName)
+            .Replace("{NAME}", user.GetFriendlyName())
             .Replace("{LINK}", model?.Link ?? string.Empty);
 
 }

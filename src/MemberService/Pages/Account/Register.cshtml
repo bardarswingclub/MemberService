@@ -7,19 +7,29 @@
 
 <form method="post" class="card shadow">
     <h3 class="card-header">
-        Opprett bruker
+        Hei og velkommen til Bårdar Swing Club!
     </h3>
     <div class="card-body">
-        <div class="alert alert-info" role="alert">
-            <h5 class="alert-heading">Hei og velkommen til Bårdar Swing Club!</h5>
-            Hva heter du? Fyll inn navn under og trykk på fullfør for å gå videre
-        </div>
-        <input type="hidden" asp-for="Input.ReturnUrl" />
+        <p>
+            Vi trenger bare å vite hva du heter først
+        </p>
+        <input type="hidden" asp-for="ReturnUrl" />
         <span asp-validation-summary="All" class="text-danger"></span>
         <div class="form-group">
-            <label asp-for="Input.FullName"></label>
-            <input asp-for="Input.FullName" class="form-control" autofocus />
-            <span asp-validation-for="Input.FullName" class="text-danger"></span>
+            <label asp-for="FullName"></label>
+            <input asp-for="FullName" class="form-control" autofocus oninput="$('.friendly-name-output').text(this.value.split(' ')[0] || '') && $('#FriendlyName').val(this.value.split(' ')[0] || '') && $('.friendly-name-greeting').collapse(!!this.value)" />
+            <span asp-validation-for="FullName" class="text-danger"></span>
+        </div>
+        <div class="form-group collapse friendly-name-toggle">
+            <label asp-for="FriendlyName"></label>
+            <input asp-for="FriendlyName" class="form-control" oninput="$('.friendly-name-output').text(this.value)" />
+            <span class="text-muted text-small">Vi kommer til å bruke dette navnet på kurs og arrangementer</span>
+        </div>
+        <div class="form-group friendly-name-greeting collapse">
+            <h5>Hei <span class="friendly-name-output">@User.GetFriendlyName()</span>, velkommen!</h5>
+            <p class="text-muted text-small collapse friendly-name-toggle show">
+                Er det greit at vi kaller deg <span class="friendly-name-output">@User.GetFriendlyName()</span>? <a href="#" data-toggle="collapse" data-target=".friendly-name-toggle">Nei, jeg bruker et annet navn.</a>
+            </p>
         </div>
     </div>
     <div class="card-footer">

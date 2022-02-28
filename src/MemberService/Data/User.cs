@@ -9,6 +9,9 @@ public class User : IdentityUser
     [PersonalData]
     public string FullName { get; set; }
 
+    [PersonalData]
+    public string FriendlyName { get; set; }
+
     public ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
