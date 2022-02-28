@@ -45,7 +45,7 @@ public class EmailService : IEmailService
     private static string Replace(string value, User user, EventStatusModel model)
         => value
             .Replace("{TITLE}", model?.Title ?? string.Empty)
-            .Replace("{NAME}", user.FriendlyName?.ToNullIfEmpty() ?? user.FullName)
+            .Replace("{NAME}", user.GetFriendlyName())
             .Replace("{LINK}", model?.Link ?? string.Empty);
 
 }

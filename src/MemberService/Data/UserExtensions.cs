@@ -59,5 +59,7 @@ public static class UserExtensions
 
     public static string GetFriendlyName(this ClaimsPrincipal user) => user.FindFirstValue("FriendlyName")?.ToNullIfEmpty() ?? user.GetFullName()?.Split(' ').FirstOrDefault() ?? "danser";
 
+    public static string GetFriendlyName(this User user) => user.FriendlyName?.ToNullIfEmpty() ?? user.FullName?.Split(' ').FirstOrDefault() ?? string.Empty;
+
     public static string GetEmail(this ClaimsPrincipal user) => user.Identity.Name;
 }

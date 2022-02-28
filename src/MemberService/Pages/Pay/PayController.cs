@@ -131,7 +131,9 @@ public class PayController : Controller
             return RedirectToAction(nameof(HomeController.Fees), "Home");
         }
 
-        return LocalRedirect(returnUrl);
+        return Url.IsLocalUrl(returnUrl)
+            ? Redirect(returnUrl)
+            : Redirect("/");
     }
 
     private async Task<User> GetCurrentUser()

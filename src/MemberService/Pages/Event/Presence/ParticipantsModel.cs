@@ -9,6 +9,7 @@ public class ParticipantsModel
     {
         Id = s.Id;
         UserId = s.UserId;
+        FriendlyName = s.User.GetFriendlyName();
         FullName = s.User.FullName;
         Status = s.Status;
         Refunded = s.Payment?.Refunded ?? false;
@@ -18,6 +19,8 @@ public class ParticipantsModel
     public Guid Id { get; }
 
     public string UserId { get; }
+
+    public string FriendlyName { get; }
 
     public string FullName { get; }
 

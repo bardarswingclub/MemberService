@@ -89,6 +89,10 @@ h1, h2, h3, h4, h5, h6 {
     text-decoration: line-through;
 }
 
+.text-small {
+    font-size: .8em;
+}
+
 .card-columns.card-columns-2 {
     column-count: 1;
 }

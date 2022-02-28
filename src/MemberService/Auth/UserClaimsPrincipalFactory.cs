@@ -21,6 +21,7 @@ public class UserClaimsPrincipalFactory : UserClaimsPrincipalFactory<User, Membe
     {
         var identity = await base.GenerateClaimsAsync(user);
         identity.AddClaim(new Claim("FullName", user.FullName ?? ""));
+        identity.AddClaim(new Claim("FriendlyName", user.GetFriendlyName()));
         return identity;
     }
 }

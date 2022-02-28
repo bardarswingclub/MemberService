@@ -69,6 +69,8 @@ public class RegisterModel : PageModel
         await _userManager.UpdateAsync(user);
         await _signInManager.RefreshSignInAsync(user);
 
-        return LocalRedirect(ReturnUrl);
+        return Url.IsLocalUrl(ReturnUrl)
+            ? Redirect(ReturnUrl)
+            : Redirect("/");
     }
 }

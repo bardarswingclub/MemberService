@@ -25,13 +25,8 @@ public class LogoutModel : PageModel
         await _signInManager.SignOutAsync();
         _logger.LogInformation("User logged out.");
 
-        if (returnUrl != null)
-        {
-            return LocalRedirect(returnUrl);
-        }
-        else
-        {
-            return Page();
-        }
+        return Url.IsLocalUrl(returnUrl)
+                ? Redirect(returnUrl)
+                : Redirect("/");
     }
 }
