@@ -17,7 +17,7 @@
             </div>
             <div class="col-md-6">
 
-                <form class="alert @AlertClass(Model) mt-2" asp-action="SetStatus" asp-route-id="@Model.Id" method="POST">
+                <form class="alert @AlertClass(Model) mt-2" asp-controller="Event" asp-action="SetStatus" asp-route-id="@Model.Id" method="POST">
                     @if (Model.Archived)
                     {
                         <h4 class="alert-heading">Arrangementet er arkivert</h4>
@@ -112,7 +112,7 @@
         @if (await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanEditEvent))
         {
             <li class=nav-item>
-                <a class="nav-link" highlight-active asp-controller="Event" asp-action="Edit" asp-route-id="@Model.Id">Rediger</a>
+                <a class="nav-link" highlight-active asp-page="/Event/Edit" asp-route-id="@Model.Id">Rediger</a>
             </li>
         }
         @if (await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanEditEventOrganizers))
@@ -147,7 +147,7 @@
             return "alert-warning";
         }
         else
-        { 
+        {
             return "alert-danger";
         }
     }

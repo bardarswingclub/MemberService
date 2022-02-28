@@ -1,14 +1,14 @@
-@model EventInputModel
+@page
+@model CreateModel
 
 @{
     ViewData["ContainerClass"] = "container-fluid";
     ViewData["Title"] = "Opprett nytt arrangement";
 }
 
-<vc:semester-header id="@Model.SemesterId"></vc:semester-header>
 <h2>@ViewData["Title"]</h2>
 
-<form method="POST" asp-action="Create" class="form-row justify-content-between">
+<form method="POST" class="form-row justify-content-between">
     <partial name="_EditEvent" model="@Model" />
     <div class="col-md-12 mt-2">
         <button type="submit" class="btn btn-success">Opprett</button>

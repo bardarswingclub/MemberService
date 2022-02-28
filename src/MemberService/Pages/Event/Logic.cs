@@ -21,7 +21,7 @@ public static class Logic
             .Select(e => EventEntry.Create(e, userId))
             .ToListAsync();
 
-    public static Data.Event ToEntity(this EventInputModel model, User user)
+    public static Event ToEntity(this EventInputModel model, User user)
         => new()
         {
             Title = model.Title,
@@ -120,50 +120,7 @@ public static class Logic
             .Select(l => l.Id)
             .ToList();
 
-    public static async Task<EventInputModel> GetEventInputModel(this MemberContext context, Guid id)
-    {
-        var model = await context.Events
-            .Include(e => e.SignupOptions)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.Id == id);
-
-        if (model == null) return null;
-
-        var (signupOpensAtDate, signupOpensAtTime) = model.SignupOptions.SignupOpensAt.GetLocalDateAndTime();
-        var (signupClosesAtDate, signupClosesAtTime) = model.SignupOptions.SignupClosesAt.GetLocalDateAndTime();
-
-        return new EventInputModel
-        {
-            Id = model.Id,
-            SemesterId = model.SemesterId,
-            Title = model.Title,
-            Description = model.Description,
-            Type = model.Type,
-            IsArchived = model.Archived,
-            IsCancelled = model.Cancelled,
-            EnableSignupOpensAt = model.SignupOptions.SignupOpensAt.HasValue,
-            SignupOpensAtDate = signupOpensAtDate,
-            SignupOpensAtTime = signupOpensAtTime,
-            EnableSignupClosesAt = model.SignupOptions.SignupClosesAt.HasValue,
-            SignupClosesAtDate = signupClosesAtDate,
-            SignupClosesAtTime = signupClosesAtTime,
-            PriceForMembers = model.SignupOptions.PriceForMembers,
-            PriceForNonMembers = model.SignupOptions.PriceForNonMembers,
-            RequiresMembershipFee = model.SignupOptions.RequiresMembershipFee,
-            RequiresTrainingFee = model.SignupOptions.RequiresTrainingFee,
-            RequiresClassesFee = model.SignupOptions.RequiresClassesFee,
-            IncludedInTrainingFee = model.SignupOptions.IncludedInTrainingFee,
-            IncludedInClassesFee = model.SignupOptions.IncludedInClassesFee,
-            SignupHelp = model.SignupOptions.SignupHelp,
-            RoleSignup = model.SignupOptions.RoleSignup,
-            RoleSignupHelp = model.SignupOptions.RoleSignupHelp,
-            AllowPartnerSignup = model.SignupOptions.AllowPartnerSignup,
-            AllowPartnerSignupHelp = model.SignupOptions.AllowPartnerSignupHelp,
-            AutoAcceptedSignups = model.SignupOptions.AutoAcceptedSignups
-        };
-    }
-
-    public static void UpdateEvent(this Data.Event entity, EventInputModel model)
+    public static void UpdateEvent(this Event entity, EventInputModel model)
     {
         entity.Title = model.Title;
         entity.Description = model.Description;
