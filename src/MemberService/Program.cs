@@ -113,7 +113,7 @@ services
         options.AppSecret = config.Authentication.Facebook.AppSecret;
         options.AccessDeniedPath = "/account/accessDenied";
     })
-    .AddOpenIdConnect("Vipps", "Vipps", options =>
+    /*.AddOpenIdConnect("Vipps", "Vipps", options =>
     {
         options.Authority = "https://api.vipps.no/access-management-1.0/access/";// = "https://api.vipps.no/access-management-1.0/access/oauth2/auth";
         //options.TokenEndpoint = "https://api.vipps.no/access-management-1.0/access/oauth2/token";
@@ -131,7 +131,7 @@ services
         options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
         options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
         options.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "given_name");
-    });
+    })*/;
 
 services
     .Configure<CookiePolicyOptions>(options =>
