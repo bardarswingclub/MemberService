@@ -18,8 +18,14 @@
         <span asp-validation-summary="All" class="text-danger"></span>
         <div class="form-group">
             <label asp-for="FullName"></label>
-            <input asp-for="FullName" class="form-control" autofocus />
+            <input asp-for="FullName" class="form-control" autofocus onchange="$('.name-output').text(this.value)" />
             <span asp-validation-for="FullName" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <h5>Hei <span class="name-output"></span></h5>
+            <span class="text-muted text-small">
+                Er det greit at vi kaller deg <span class="name-output"></span>? <a href="#" data-toggle="friendly-name-input">Nei</a>.
+            </span>
         </div>
     </div>
     <div class="card-footer">
