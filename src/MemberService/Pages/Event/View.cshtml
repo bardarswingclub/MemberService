@@ -118,7 +118,7 @@
     <div class="tab-content card-body">
         @foreach (var signups in Model.Signups)
         {
-            <form method="post" class="tab-pane @(signups.Active ? "active" : "")" id="@signups.Key" role="tabpanel" aria-labelledby="@signups.Key-tab" disabled="@Model.Archived">
+            <form method="post" class="tab-pane @(signups.Active ? "active" : "")" id="@signups.Key" role="tabpanel" aria-labelledby="@signups.Key-tab">
 
                 @if (!Model.Archived && await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanSetEventSignupStatus))
                 {
@@ -126,6 +126,15 @@
                         <partial name="_SignupActions" for="@signups" />
                     </div>
                 }
+                else if(await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanSendEventEmail))
+                {
+                    <div class="row mb-5">
+                        <button type="submit" class="btn btn-success">
+                            &#x1F4E7; Send epost
+                        </button>
+                    </div>
+                }
+
 
                 <fieldset class="row" disabled="@Model.Archived">
                     @if (Model.RoleSignup)
@@ -135,39 +144,11 @@
 
                         <div class="col-lg-6">
                             <h4>Førere</h4>
-
-                            <table class="table">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th><input type="checkbox" data-action="select-all" /></th>
-                                        <th>Navn</th>
-                                        <th>Påmeldt</th>
-                                        @if (Model.AllowPartnerSignup)
-                                        {
-                                            <th>Partner</th>
-                                        }
-                                    </tr>
-                                </thead>
-                                <partial name="_Participants" for="@leads" />
-                            </table>
+                            <partial name="_Participants" for="@leads" />
                         </div>
                         <div class="col-lg-6">
                             <h4>Følgere</h4>
-
-                            <table class="table">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th><input type="checkbox" data-action="select-all" /></th>
-                                        <th>Navn</th>
-                                        <th>Påmeldt</th>
-                                        @if (Model.AllowPartnerSignup)
-                                        {
-                                            <th>Partner</th>
-                                        }
-                                    </tr>
-                                </thead>
-                                <partial name="_Participants" for="@follows" />
-                            </table>
+                            <partial name="_Participants" for="@follows" />
                         </div>
                     }
                     else
@@ -175,17 +156,7 @@
                         var solos = new ParticipantsModel(signups.Solos, Model);
 
                         <div class="col-lg-12">
-
-                            <table class="table">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th><input type="checkbox" data-action="select-all" /></th>
-                                        <th>Navn</th>
-                                        <th>Påmeldt</th>
-                                    </tr>
-                                </thead>
-                                <partial name="_Participants" for="@solos" />
-                            </table>
+                            <partial name="_Participants" for="@solos" />
                         </div>
                     }
                 </fieldset>

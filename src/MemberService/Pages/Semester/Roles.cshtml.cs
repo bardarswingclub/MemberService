@@ -8,22 +8,18 @@ using MemberService.Data;
 using Clave.Expressionify;
 using MemberService.Auth;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 
 [Authorize(nameof(Policy.CanEditSemesterRoles))]
 public class RolesModel : PageModel
 {
     private readonly MemberContext _database;
-    private readonly UserManager<User> _userManager;
     private readonly IAuthorizationService _authorizationService;
 
     public RolesModel(
         MemberContext database,
-        UserManager<User> userManager,
         IAuthorizationService authorizationService)
     {
         _database = database;
-        _userManager = userManager;
         _authorizationService = authorizationService;
     }
 
@@ -155,8 +151,9 @@ public class RolesModel : PageModel
 
         return new JsonResult(model);
     }
+
     private async Task<User> GetCurrentUser()
-        => await _database.Users.SingleUser(_userManager.GetUserId(User));
+        => await _database.Users.SingleUser(User.GetId());
 
     public class UserRole
     {

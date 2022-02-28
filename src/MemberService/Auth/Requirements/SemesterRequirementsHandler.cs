@@ -4,14 +4,9 @@ using System.Security.Claims;
 
 using Clave.Expressionify;
 
-using MemberService.Auth.Requirements;
 using MemberService.Data;
-using MemberService.Data.ValueTypes;
 
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 
 using R = Data.SemesterRole.RoleType;
@@ -19,12 +14,10 @@ using R = Data.SemesterRole.RoleType;
 public class SemesterRequirementsHandler : IAuthorizationHandler
 {
     private readonly MemberContext _database;
-    private readonly UserManager<User> _userManager;
 
-    public SemesterRequirementsHandler(MemberContext database, UserManager<User> userManager)
+    public SemesterRequirementsHandler(MemberContext database)
     {
         _database = database;
-        _userManager = userManager;
     }
 
     public async Task HandleAsync(AuthorizationHandlerContext context)
@@ -55,6 +48,7 @@ public class SemesterRequirementsHandler : IAuthorizationHandler
             Policy.CanViewEvent when id is Guid eventId => await CheckEventSemesterRole(eventId, user, R.Instructor, R.Coordinator),
             Policy.CanEditEvent when id is Guid eventId => await CheckEventSemesterRole(eventId, user, R.Coordinator),
             Policy.CanSetEventSignupStatus when id is Guid eventId => await CheckEventSemesterRole(eventId, user, R.Coordinator),
+            Policy.CanSendEventEmail when id is Guid eventId => await CheckEventSemesterRole(eventId, user, R.Instructor, R.Coordinator),
 
             Policy.CanSetPresence when id is Guid eventId => await CheckEventSemesterRole(eventId, user, R.Instructor, R.Coordinator),
             Policy.CanAddPresenceLesson when id is Guid eventId => await CheckEventSemesterRole(eventId, user, R.Instructor, R.Coordinator),
@@ -82,7 +76,7 @@ public class SemesterRequirementsHandler : IAuthorizationHandler
 
     private async Task<bool> CheckSemesterRole(Guid semesterId, ClaimsPrincipal user, params SemesterRole.RoleType[] roleTypes)
     {
-        var userId = _userManager.GetUserId(user);
+        var userId = user.GetId();
         var permissions = await _database.SemesterRoles.FindAsync(semesterId, userId);
 
         if (permissions is null) return false;
@@ -92,7 +86,7 @@ public class SemesterRequirementsHandler : IAuthorizationHandler
 
     private async Task<bool> CheckCurrentSemesterRole(ClaimsPrincipal user, params SemesterRole.RoleType[] roleTypes)
     {
-        var userId = _userManager.GetUserId(user);
+        var userId = user.GetId();
         var semesterRole = await _database.Semesters
             .Expressionify()
             .Where(s => s.IsActive())

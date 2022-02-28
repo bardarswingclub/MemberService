@@ -22,8 +22,6 @@ public class EventController : Controller
 {
     private readonly MemberContext _database;
 
-    private readonly UserManager<User> _userManager;
-
     private readonly IEmailService _emailService;
 
     private readonly ILoginService _linker;
@@ -32,13 +30,11 @@ public class EventController : Controller
 
     public EventController(
         MemberContext database,
-        UserManager<User> userManager,
         IEmailService emailService,
         ILoginService linker,
         ILogger<EventController> logger)
     {
         _database = database;
-        _userManager = userManager;
         _emailService = emailService;
         _linker = linker;
         _logger = logger;
@@ -48,7 +44,7 @@ public class EventController : Controller
     [Authorize(nameof(Policy.CanListEvents))]
     public async Task<IActionResult> Index(bool archived = false)
     {
-        var model = await _database.GetEvents(GetUserId(), archived);
+        var model = await _database.GetEvents(User.GetId(), archived);
 
         return View(model);
     }
@@ -275,7 +271,7 @@ public class EventController : Controller
             }
             else
             {
-                return RedirectToAction(nameof(Index));
+                return RedirectToPage("/Event");
             }
         }
 
@@ -446,9 +442,7 @@ public class EventController : Controller
         return RedirectToAction(nameof(View), new { id = entry.Id });
     }
 
-    private async Task<User> GetCurrentUser() => await _database.Users.SingleUser(GetUserId());
-
-    private string GetUserId() => _userManager.GetUserId(User);
+    private async Task<User> GetCurrentUser() => await _database.Users.SingleUser(User.GetId());
 
     private async Task<string> SignupLink(User user, Data.Event e)
     {

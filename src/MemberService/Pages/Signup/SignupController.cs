@@ -7,7 +7,6 @@ using MemberService.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,16 +14,13 @@ using Microsoft.EntityFrameworkCore;
 public class SignupController : Controller
 {
     private readonly MemberContext _database;
-    private readonly UserManager<User> _userManager;
     private readonly IPaymentService _paymentService;
 
     public SignupController(
         MemberContext database,
-        UserManager<User> userManager,
         IPaymentService paymentService)
     {
         _database = database;
-        _userManager = userManager;
         _paymentService = paymentService;
     }
 
@@ -301,5 +297,5 @@ public class SignupController : Controller
                 sessionId = "{CHECKOUT_SESSION_ID}"
             });
 
-    private string GetUserId() => _userManager.GetUserId(User);
+    private string GetUserId() => User.GetId();
 }

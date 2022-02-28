@@ -1,8 +1,5 @@
 namespace MemberService.Pages.Event;
 
-
-
-
 public class ParticipantsModel
 {
     public ParticipantsModel(IReadOnlyList<EventSignupModel> signups, EventModel @event)

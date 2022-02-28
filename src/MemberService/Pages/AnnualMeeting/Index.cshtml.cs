@@ -56,7 +56,7 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnGet()
     {
-        var userId = GetUserId();
+        var userId = User.GetId();
         var canSeeAll = await _authorizationService.IsAuthorized(User, Policy.CanViewAnnualMeetingAttendees);
 
         var meetings = await _database.AnnualMeetings
@@ -133,7 +133,7 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPost(Guid id, [FromForm] Guid option)
     {
-        var userId = GetUserId();
+        var userId = User.GetId();
 
         var surveyId = await _database.AnnualMeetings
             .Where(m => m.Id == id)
@@ -158,7 +158,7 @@ public class IndexModel : PageModel
 
         if (question.AnswerableFrom < TimeProvider.UtcNow && question.AnswerableUntil > TimeProvider.UtcNow)
         {
-            var response = survey.Responses.GetOrAdd(r => r.UserId == GetUserId(), () => new() { UserId = userId });
+            var response = survey.Responses.GetOrAdd(r => r.UserId == userId, () => new() { UserId = userId });
 
             response.Answers.RemoveWhere(a => a.Option.QuestionId == questionOption.QuestionId);
 
@@ -169,8 +169,6 @@ public class IndexModel : PageModel
 
         return RedirectToPage(nameof(Index));
     }
-
-    private string GetUserId() => _userManager.GetUserId(User);
 
     public class Attendee
     {

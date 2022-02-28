@@ -1,152 +1,164 @@
 ﻿@using MemberService.Data.ValueTypes
 @model ParticipantsModel
-
-<tbody>
-    @if (Model.Signups.NotAny())
-    {
+<table class="table">
+    <thead class="thead-light">
         <tr>
-            <td colspan="@(Model.AllowPartnerSignup ? 4 : 3)" class="text-center text-uppercase text-muted">Ingen</td>
+            <th><input type="checkbox" data-action="select-all" /></th>
+            <th>Navn</th>
+            <th>Påmeldt</th>
+            @if (Model.AllowPartnerSignup)
+            {
+                <th>Partner</th>
+            }
         </tr>
-    }
+    </thead>
+    <tbody>
+        @if (Model.Signups.NotAny())
+        {
+            <tr>
+                <td colspan="@(Model.AllowPartnerSignup ? 4 : 3)" class="text-center text-uppercase text-muted">Ingen</td>
+            </tr>
+        }
 
-    @for (var i = 0; i < Model.Signups.Count; i++)
-    {
-        var signup = Model.Signups[i];
-        <tr>
-            <td>
-                <input type="hidden" asp-for="@Model[i].Id" />
-                <input type="checkbox" asp-for="@Model[i].Selected" />
-            </td>
-            <td>
-                <a asp-page="/Members/Details" asp-route-id="@signup.UserId" target="_blank">
-                    @if (string.IsNullOrWhiteSpace(signup.FullName))
-                    {
-                        <span class="text-muted">@signup.Email</span>
-                    }
-                    else
-                    {
-                        @signup.FullName
-                    }
-                </a>
-            </td>
-            <td>
-                @if (Model.ShowPriority)
-                {
-                    <span class="badge badge-primary badge-pill">@(signup.Priority). pri</span>
-                }
-
-                @if (await AuthorizationService.IsAuthorized(User, Model.EventId, Policy.CanSetEventSignupStatus))
-                {
-                    <a href="#" class="" data-toggle="modal" data-target="#modal-@signup.Id">
-                        @signup.SignedUpAt.ToOsloDate()
+        @for (var i = 0; i < Model.Signups.Count; i++)
+        {
+            var signup = Model.Signups[i];
+            <tr>
+                <td>
+                    <input type="hidden" asp-for="@Model[i].Id" />
+                    <input type="checkbox" asp-for="@Model[i].Selected" />
+                </td>
+                <td>
+                    <a asp-page="/Members/Details" asp-route-id="@signup.UserId" target="_blank">
+                        @if (string.IsNullOrWhiteSpace(signup.FullName))
+                        {
+                            <span class="text-muted">@signup.Email</span>
+                        }
+                        else
+                        {
+                            @signup.FullName
+                        }
                     </a>
-                    <div class="modal fade" id="modal-@signup.Id" tabindex="-1" role="dialog" aria-labelledby="modal-title-@signup.Id" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="modal-title-@signup.Id">
-                                        Historikk for @signup.FullName
-                                        @if (await AuthorizationService.IsAuthorized(User, Model.EventId, Policy.CanEditEventSignup))
-                                        {
-                                            <a asp-action="EditSignup" asp-route-id="@signup.Id">Rediger</a>
-                                        }
-                                    </h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body p-0">
-                                    <table class="table table-striped">
-                                        <tr>
-                                            <th>Hva?</th>
-                                            <th>Hvem?</th>
-                                            <th>Når?</th>
-                                        </tr>
-                                        @foreach (var entry in signup.AuditLog.OrderByDescending(x => x.OccuredAtUtc))
-                                        {
+                </td>
+                <td>
+                    @if (Model.ShowPriority)
+                    {
+                        <span class="badge badge-primary badge-pill">@(signup.Priority). pri</span>
+                    }
+
+                    @if (await AuthorizationService.IsAuthorized(User, Model.EventId, Policy.CanSetEventSignupStatus))
+                    {
+                        <a href="#" class="" data-toggle="modal" data-target="#modal-@signup.Id">
+                            @signup.SignedUpAt.ToOsloDate()
+                        </a>
+                        <div class="modal fade" id="modal-@signup.Id" tabindex="-1" role="dialog" aria-labelledby="modal-title-@signup.Id" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="modal-title-@signup.Id">
+                                            Historikk for @signup.FullName
+                                            @if (await AuthorizationService.IsAuthorized(User, Model.EventId, Policy.CanEditEventSignup))
+                                            {
+                                                <a asp-action="EditSignup" asp-route-id="@signup.Id">Rediger</a>
+                                            }
+                                        </h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body p-0">
+                                        <table class="table table-striped">
                                             <tr>
-                                                <td>
-                                                    @Html.Markdown(entry.Message)
-                                                </td>
-                                                <td>
-                                                    <a asp-page="/Members/Details" asp-route-id="@entry.UserId" target="_blank">@entry.User.FullName</a>
-                                                </td>
-                                                <td>
-                                                    @entry.OccuredAtUtc.DisplayOslo()
-                                                </td>
+                                                <th>Hva?</th>
+                                                <th>Hvem?</th>
+                                                <th>Når?</th>
                                             </tr>
-                                        }
-                                    </table>
+                                            @foreach (var entry in signup.AuditLog.OrderByDescending(x => x.OccuredAtUtc))
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        @Html.Markdown(entry.Message)
+                                                    </td>
+                                                    <td>
+                                                        <a asp-page="/Members/Details" asp-route-id="@entry.UserId" target="_blank">@entry.User.FullName</a>
+                                                    </td>
+                                                    <td>
+                                                        @entry.OccuredAtUtc.DisplayOslo()
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                }
-                else
-                {
-                    @signup.SignedUpAt.ToOsloDate()
-                }
-            </td>
-
-            @if(Model.AllowPartnerSignup)
-            {
-                <td>
-                    @switch(signup.Partner)
+                    }
+                    else
                     {
-                        case SignedUpPartnerSignupModel partner:
-                            <a asp-page="/Members/Details" asp-route-id="@partner.Id" target="_blank">
-                                @partner.Name
-                            </a>
-                            <br>
-                            @if(partner.PartnerEmail == null)
-                            {
-                                <span class="badge badge-warning">
-                                    @partner.Status.DisplayName() som @partner.Role.DisplayName() uten partner!
-                                </span>
-                            }
-                            else if(partner.PartnerEmail != signup.Email)
-                            {
-                                <span class="badge badge-warning">
-                                    @partner.Status.DisplayName() som @partner.Role.DisplayName() med en annen partner!
-                                </span>
-                            }
-                            else if(partner.Role == signup.Role)
-                            {
-                                <span class="badge badge-warning">
-                                    @partner.Status.DisplayName() med samme rolle!
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="badge @(partner.Status == Status.AcceptedAndPayed ? "badge-success" : "badge-primary")">
-                                    @partner.Status.DisplayName() som @partner.Role.DisplayName()
-                                </span>
-                            }
-                            break;
-                        case KnownPartnerSignupModel knownPartner:
-                            <a asp-page="/Members/Details" asp-route-id="@knownPartner.Id" target="_blank">
-                                @knownPartner.Name
-                            </a>
-                            <br>
-                            <span class="badge badge-warning">
-                                Ikke påmeldt
-                            </span>
-                            break;
-                        case PartnerSignupModel unknownPartner:
-                            @unknownPartner.Email
-                            <br>
-                            <span class="badge badge-warning">
-                                Ikke medlem
-                            </span>
-                            break;
-                        default:
-                            <span class="text-muted">
-                                (Uten partner)
-                            </span>
-                            break;
+                        @signup.SignedUpAt.ToOsloDate()
                     }
                 </td>
-            }
-        </tr>
-    }
-</tbody>
+
+                @if(Model.AllowPartnerSignup)
+                {
+                    <td>
+                        @switch(signup.Partner)
+                        {
+                            case SignedUpPartnerSignupModel partner:
+                                <a asp-page="/Members/Details" asp-route-id="@partner.Id" target="_blank">
+                                    @partner.Name
+                                </a>
+                                <br>
+                                @if(partner.PartnerEmail == null)
+                                {
+                                    <span class="badge badge-warning">
+                                        @partner.Status.DisplayName() som @partner.Role.DisplayName() uten partner!
+                                    </span>
+                                }
+                                else if(partner.PartnerEmail != signup.Email)
+                                {
+                                    <span class="badge badge-warning">
+                                        @partner.Status.DisplayName() som @partner.Role.DisplayName() med en annen partner!
+                                    </span>
+                                }
+                                else if(partner.Role == signup.Role)
+                                {
+                                    <span class="badge badge-warning">
+                                        @partner.Status.DisplayName() med samme rolle!
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge @(partner.Status == Status.AcceptedAndPayed ? "badge-success" : "badge-primary")">
+                                        @partner.Status.DisplayName() som @partner.Role.DisplayName()
+                                    </span>
+                                }
+                                break;
+                            case KnownPartnerSignupModel knownPartner:
+                                <a asp-page="/Members/Details" asp-route-id="@knownPartner.Id" target="_blank">
+                                    @knownPartner.Name
+                                </a>
+                                <br>
+                                <span class="badge badge-warning">
+                                    Ikke påmeldt
+                                </span>
+                                break;
+                            case PartnerSignupModel unknownPartner:
+                                @unknownPartner.Email
+                                <br>
+                                <span class="badge badge-warning">
+                                    Ikke medlem
+                                </span>
+                                break;
+                            default:
+                                <span class="text-muted">
+                                    (Uten partner)
+                                </span>
+                                break;
+                        }
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>

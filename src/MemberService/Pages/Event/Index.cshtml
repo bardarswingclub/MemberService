@@ -1,5 +1,6 @@
+@page
 @using MemberService.Data.ValueTypes
-@model IReadOnlyList<EventEntry>
+@model IndexModel
 
 @{
     ViewData["Title"] = "Arrangementer";
@@ -38,7 +39,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var eventEntry in Model)
+        @foreach (var eventEntry in Model.Events)
         {
             <tr>
                 <td>

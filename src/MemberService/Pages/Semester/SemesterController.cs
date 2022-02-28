@@ -11,7 +11,6 @@ using MemberService.Pages.Event;
 using MemberService.Pages.Shared;
 
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,14 +18,10 @@ using Microsoft.EntityFrameworkCore;
 public class SemesterController : Controller
 {
     private readonly MemberContext _database;
-    private readonly UserManager<User> _userManager;
 
-    public SemesterController(
-        MemberContext database,
-        UserManager<User> userManager)
+    public SemesterController(MemberContext database)
     {
         _database = database;
-        _userManager = userManager;
     }
 
     [HttpGet]
@@ -200,7 +195,8 @@ public class SemesterController : Controller
 
         return RedirectToAction(nameof(Index));
     }
-    private string GetUserId() => _userManager.GetUserId(User);
+
+    private string GetUserId() => User.GetId();
 
     private static Expression<Func<Data.Event, bool>> Filter(bool all = false)
     {

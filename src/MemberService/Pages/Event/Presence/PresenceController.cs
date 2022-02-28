@@ -15,14 +15,11 @@ using Microsoft.EntityFrameworkCore;
 public class PresenceController : Controller
 {
     private readonly MemberContext _database;
-    private readonly UserManager<User> _userManager;
 
     public PresenceController(
-        MemberContext database,
-        UserManager<User> userManager)
+        MemberContext database)
     {
         _database = database;
-        _userManager = userManager;
     }
 
     [HttpGet]
@@ -77,7 +74,7 @@ public class PresenceController : Controller
             return NotFound();
         }
 
-        var user = await GetCurrentUser();
+        var user = await _database.Users.SingleUser(User.GetId());
 
         var presence = signup.Presence
             .FirstOrDefault(p => p.Lesson == lesson);
@@ -103,7 +100,4 @@ public class PresenceController : Controller
 
         return Ok();
     }
-
-    private async Task<User> GetCurrentUser()
-        => await _database.Users.SingleUser(_userManager.GetUserId(User));
 }
