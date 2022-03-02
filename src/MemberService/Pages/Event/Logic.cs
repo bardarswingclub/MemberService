@@ -63,14 +63,6 @@ public static class Logic
             }
         };
 
-    public static IReadOnlyList<Guid> GetSelected(this EventSaveModel input)
-        => input.Leads
-            .Concat(input.Follows)
-            .Concat(input.Solos)
-            .Where(l => l.Selected)
-            .Select(l => l.Id)
-            .ToList();
-
     public static void UpdateEvent(this Event entity, EventInputModel model)
     {
         entity.Title = model.Title;

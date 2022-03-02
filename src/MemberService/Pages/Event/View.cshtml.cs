@@ -1,6 +1,7 @@
 ﻿namespace MemberService.Pages.Event;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -101,6 +102,37 @@ public class ViewModel : PageModel
 
     public bool AllowPartnerSignup { get; set; }
 
+    [Required]
+    [BindProperty]
+    public Status Status { get; set; }
+
+    [BindProperty]
+    public List<Item> Leads { get; set; } = new();
+
+    [BindProperty]
+    public List<Item> Follows { get; set; } = new();
+
+    [BindProperty]
+    public List<Item> Solos { get; set; } = new();
+
+    [BindProperty]
+    public bool SendEmail { get; set; }
+
+    [Required]
+    [BindProperty]
+    public string Subject { get; set; }
+
+    [Required]
+    [BindProperty]
+    public string Message { get; set; }
+
+    public class Item
+    {
+        public Guid Id { get; set; }
+
+        public bool Selected { get; set; }
+    }
+
     public async Task<IActionResult> OnGet(Guid id)
     {
         var model = await _database.Events
@@ -162,15 +194,20 @@ public class ViewModel : PageModel
         return Page();
     }
 
-    public async Task<IActionResult> OnPost(Guid id, [FromForm] EventSaveModel input)
+    public async Task<IActionResult> OnPost(Guid id)
     {
         if (!await _authorizationService.IsAuthorized(User, id, Policy.CanSetEventSignupStatus)) return Forbid();
 
         var currentUser = await _database.Users.SingleUser(User.GetId());
 
-        var selected = input.GetSelected();
+        var selected = Leads
+            .Concat(Follows)
+            .Concat(Solos)
+            .Where(l => l.Selected)
+            .Select(l => l.Id)
+            .ToList();
 
-        var statusChanged = input.Status != Status.Unknown;
+        var statusChanged = Status != Status.Unknown;
 
         var failures = new List<string>();
 
@@ -182,27 +219,27 @@ public class ViewModel : PageModel
 
                 if (statusChanged)
                 {
-                    eventSignup.Status = input.Status;
+                    eventSignup.Status = Status;
                 }
 
-                if (input.SendEmail)
+                if (SendEmail)
                 {
                     try
                     {
                         await _emailService.SendCustomEmail(
                             eventSignup.User,
-                            input.Subject,
-                            input.Message,
+                            Subject,
+                            Message,
                             new(eventEntry.Title, await SignupLink(eventSignup.User, eventEntry)),
                             currentUser);
 
                         if (statusChanged)
                         {
-                            eventSignup.AuditLog.Add($"Moved to {input.Status} and sent email\n\n---\n\n> {input.Subject}\n\n{input.Message}", currentUser);
+                            eventSignup.AuditLog.Add($"Moved to {Status} and sent email\n\n---\n\n> {Subject}\n\n{Message}", currentUser);
                         }
                         else
                         {
-                            eventSignup.AuditLog.Add($"Sent email\n\n---\n\n> {input.Subject}\n\n{input.Message}", currentUser);
+                            eventSignup.AuditLog.Add($"Sent email\n\n---\n\n> {Subject}\n\n{Message}", currentUser);
                         }
                     }
                     catch (Exception e)
@@ -215,7 +252,7 @@ public class ViewModel : PageModel
                 }
                 else if (statusChanged)
                 {
-                    eventSignup.AuditLog.Add($"Moved to {input.Status} ", currentUser);
+                    eventSignup.AuditLog.Add($"Moved to {Status} ", currentUser);
                 }
             }
         });
@@ -227,7 +264,7 @@ public class ViewModel : PageModel
 
         if (failures.Count != selected.Count)
         {
-            TempData.SetSuccessMessage(input.SendEmail
+            TempData.SetSuccessMessage(SendEmail
                 ? statusChanged
                 ? $"Oppdaterte status og sendte epost til {selected.Count - failures.Count} dansere"
                 : $"Sendte epost til {selected.Count - failures.Count} dansere"
