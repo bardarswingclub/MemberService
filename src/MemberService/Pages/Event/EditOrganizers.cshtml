@@ -1,4 +1,5 @@
-﻿@using MemberService.Data.ValueTypes
+﻿@page "{id}/{handler?}"
+@using MemberService.Data.ValueTypes
 @model EditOrganizersModel
 
 @{
@@ -66,10 +67,10 @@
                     </td>
                 }
                 <td>
-                    <form id="edit-@organizer.Id" method="POST" asp-action="EditOrganizer" asp-route-id="@Model.EventId" data-action="ajax-form">
+                    <form id="edit-@organizer.Id" method="POST" asp-page-handler="Edit" asp-route-id="@Model.EventId" data-action="ajax-form">
                         <input type="hidden" name="userId" value="@organizer.Id">
                     </form>
-                    <form id="edit-@organizer.Id" method="POST" asp-action="EditOrganizer" asp-route-id="@Model.EventId">
+                    <form id="edit-@organizer.Id" method="POST" asp-page-handler="Remove" asp-route-id="@Model.EventId">
                         <input type="hidden" name="userId" value="@organizer.Id">
                         <button class="btn btn-outline-danger" type="submit" name="remove" value="true">Fjern</button>
                     </form>
@@ -80,14 +81,14 @@
     <tfoot>
         <tr>
             <td>
-                <form id="addUserForm" asp-action="AddOrganizer" asp-route-id="@Model.EventId" method="POST">
+                <form id="addUserForm" asp-page-handler="Add" asp-route-id="@Model.EventId" method="POST">
                     <div class="form-row">
                         <div class="col-md-12">
                         <select
                             class="form-control autoComplete"
                             name="userId"
                             placeholder="Søk etter person"
-                            data-url="/event/users/@Model.EventId"
+                            data-url="/event/editOrganizers/@Model.EventId/users"
                             autocomplete="off"></select>
                         </div>
                     </div>

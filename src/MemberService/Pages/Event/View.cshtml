@@ -1,5 +1,6 @@
+@page "{id}"
 @using MemberService.Data.ValueTypes
-@model EventModel
+@model ViewModel
 
 @{
     ViewData["Title"] = Model.Title;
@@ -10,24 +11,24 @@
 <vc:event-header id="@Model.Id"></vc:event-header>
 
 <details class="btn-toolbar card mb-2" open="@(
-    Model.Filter.SignedUpBefore.HasValue ||
-    Model.Filter.Priority.HasValue ||
-    !string.IsNullOrWhiteSpace(Model.Filter.Name) ||
-    Model.Filter.ExcludeAcceptedElsewhere || Model.Filter.ExcludeApprovedElsewhere || Model.Filter.ExcludeRecommendedElsewhere ||
-    Model.Filter.OnlyWaitingListElsewhere || Model.Filter.OnlyRejectedElsewhere || Model.Filter.OnlyDeniedElsewhere)">
+    Model.SignedUpBefore.HasValue ||
+    Model.Priority.HasValue ||
+    !string.IsNullOrWhiteSpace(Model.Name) ||
+    Model.ExcludeAcceptedElsewhere || Model.ExcludeApprovedElsewhere || Model.ExcludeRecommendedElsewhere ||
+    Model.OnlyWaitingListElsewhere || Model.OnlyRejectedElsewhere || Model.OnlyDeniedElsewhere)">
     <summary class="card-header">Filter</summary>
     <form class="card-body" method="get">
         <div class="input-group mr-2 mb-2">
             <div class="input-group-prepend">
-                <label class="input-group-text @(Model.Filter.SignedUpBefore.HasValue ? "bg-info text-white" : "")" asp-for="Filter.SignedUpBefore">Påmeldt før</label>
+                <label class="input-group-text @(Model.SignedUpBefore.HasValue ? "bg-info text-white" : "")" asp-for="SignedUpBefore">Påmeldt før</label>
             </div>
-            <input type="date" asp-for="Filter.SignedUpBefore" class="form-control" onchange="this.form.submit()"/>
+            <input type="date" asp-for="SignedUpBefore" class="form-control" onchange="this.form.submit()"/>
         </div>
         <div class="input-group mr-2 mb-2">
             <div class="input-group-prepend">
-                <label class="input-group-text @(Model.Filter.Priority.HasValue ? "bg-info text-white" : "")" asp-for="Filter.Priority">Prioritet</label>
+                <label class="input-group-text @(Model.Priority.HasValue ? "bg-info text-white" : "")" asp-for="Priority">Prioritet</label>
             </div>
-            <select asp-for="Filter.Priority" class="custom-select" onchange="this.form.submit()">
+            <select asp-for="Priority" class="custom-select" onchange="this.form.submit()">
                 <option>Alle</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
@@ -37,54 +38,54 @@
         </div>
         <div class="input-group mr-2 mb-2">
             <div class="input-group-prepend">
-                <label class="input-group-text @(!string.IsNullOrWhiteSpace(Model.Filter.Name) ? "bg-info text-white" : "")" asp-for="Filter.Name">Navn</label>
+                <label class="input-group-text @(!string.IsNullOrWhiteSpace(Model.Name) ? "bg-info text-white" : "")" asp-for="Name">Navn</label>
             </div>
-            <input type="text" asp-for="Filter.Name" class="form-control" onchange="this.form.submit()"/>
+            <input type="text" asp-for="Name" class="form-control" onchange="this.form.submit()"/>
         </div>
         @if (Model.SemesterId is Guid)
         {
             <div class="input-group mr-2 mb-2">
                 <div class="input-group-prepend">
-                    <span class="input-group-text @(Model.Filter.ExcludeAcceptedElsewhere || Model.Filter.ExcludeApprovedElsewhere || Model.Filter.ExcludeRecommendedElsewhere ? "bg-info text-white" : "")">Utenom</span>
+                    <span class="input-group-text @(Model.ExcludeAcceptedElsewhere || Model.ExcludeApprovedElsewhere || Model.ExcludeRecommendedElsewhere ? "bg-info text-white" : "")">Utenom</span>
                 </div>
                 <div class="input-group-append">
                     <div class="input-group-text bg-white">
-                        <input class="mr-1" type="checkbox" asp-for="Filter.ExcludeAcceptedElsewhere" onchange="this.form.submit()"/>
-                        <label class="form-check-label" asp-for="Filter.ExcludeAcceptedElsewhere">@Status.AcceptedAndPayed.DisplayName()</label>
+                        <input class="mr-1" type="checkbox" asp-for="ExcludeAcceptedElsewhere" onchange="this.form.submit()"/>
+                        <label class="form-check-label" asp-for="ExcludeAcceptedElsewhere">@Status.AcceptedAndPayed.DisplayName()</label>
                     </div>
                     <div class="input-group-text bg-white">
-                        <input class="mr-1" type="checkbox" asp-for="Filter.ExcludeApprovedElsewhere" onchange="this.form.submit()"/>
-                        <label class="form-check-label" asp-for="Filter.ExcludeApprovedElsewhere">@Status.Approved.DisplayName()</label>
+                        <input class="mr-1" type="checkbox" asp-for="ExcludeApprovedElsewhere" onchange="this.form.submit()"/>
+                        <label class="form-check-label" asp-for="ExcludeApprovedElsewhere">@Status.Approved.DisplayName()</label>
                     </div>
                     <div class="input-group-text bg-white">
-                        <input class="mr-1" type="checkbox" asp-for="Filter.ExcludeRecommendedElsewhere" onchange="this.form.submit()"/>
-                        <label class="form-check-label" asp-for="Filter.ExcludeRecommendedElsewhere">@Status.Recommended.DisplayName()</label>
+                        <input class="mr-1" type="checkbox" asp-for="ExcludeRecommendedElsewhere" onchange="this.form.submit()"/>
+                        <label class="form-check-label" asp-for="ExcludeRecommendedElsewhere">@Status.Recommended.DisplayName()</label>
                     </div>
                 </div>
                 <div class="input-group-append">
-                    <span class="input-group-text @(Model.Filter.ExcludeAcceptedElsewhere || Model.Filter.ExcludeApprovedElsewhere || Model.Filter.ExcludeRecommendedElsewhere ? "bg-info text-white" : "")">på andre kurs</span>
+                    <span class="input-group-text @(Model.ExcludeAcceptedElsewhere || Model.ExcludeApprovedElsewhere || Model.ExcludeRecommendedElsewhere ? "bg-info text-white" : "")">på andre kurs</span>
                 </div>
             </div>
             <div class="input-group mr-2 mb-2">
                 <div class="input-group-prepend">
-                    <span class="input-group-text @(Model.Filter.OnlyWaitingListElsewhere || Model.Filter.OnlyRejectedElsewhere || Model.Filter.OnlyDeniedElsewhere ? "bg-info text-white" : "")">Bare</span>
+                    <span class="input-group-text @(Model.OnlyWaitingListElsewhere || Model.OnlyRejectedElsewhere || Model.OnlyDeniedElsewhere ? "bg-info text-white" : "")">Bare</span>
                 </div>
                 <div class="input-group-append">
                     <div class="input-group-text bg-white">
-                        <input class="mr-1" type="checkbox" asp-for="Filter.OnlyWaitingListElsewhere" onchange="this.form.submit()"/>
-                        <label class="form-check-label" asp-for="Filter.OnlyWaitingListElsewhere">@Status.WaitingList.DisplayName()</label>
+                        <input class="mr-1" type="checkbox" asp-for="OnlyWaitingListElsewhere" onchange="this.form.submit()"/>
+                        <label class="form-check-label" asp-for="OnlyWaitingListElsewhere">@Status.WaitingList.DisplayName()</label>
                     </div>
                     <div class="input-group-text bg-white">
-                        <input class="mr-1" type="checkbox" asp-for="Filter.OnlyRejectedElsewhere" onchange="this.form.submit()"/>
-                        <label class="form-check-label" asp-for="Filter.OnlyRejectedElsewhere">@Status.RejectedOrNotPayed.DisplayName()</label>
+                        <input class="mr-1" type="checkbox" asp-for="OnlyRejectedElsewhere" onchange="this.form.submit()"/>
+                        <label class="form-check-label" asp-for="OnlyRejectedElsewhere">@Status.RejectedOrNotPayed.DisplayName()</label>
                     </div>
                     <div class="input-group-text bg-white">
-                        <input class="mr-1" type="checkbox" asp-for="Filter.OnlyDeniedElsewhere" onchange="this.form.submit()"/>
-                        <label class="form-check-label" asp-for="Filter.OnlyDeniedElsewhere">@Status.Denied.DisplayName()</label>
+                        <input class="mr-1" type="checkbox" asp-for="OnlyDeniedElsewhere" onchange="this.form.submit()"/>
+                        <label class="form-check-label" asp-for="OnlyDeniedElsewhere">@Status.Denied.DisplayName()</label>
                     </div>
                 </div>
                 <div class="input-group-append">
-                    <span class="input-group-text @(Model.Filter.OnlyWaitingListElsewhere || Model.Filter.OnlyRejectedElsewhere || Model.Filter.OnlyDeniedElsewhere ? "bg-info text-white" : "")">på andre kurs</span>
+                    <span class="input-group-text @(Model.OnlyWaitingListElsewhere || Model.OnlyRejectedElsewhere || Model.OnlyDeniedElsewhere ? "bg-info text-white" : "")">på andre kurs</span>
                 </div>
             </div>
         }

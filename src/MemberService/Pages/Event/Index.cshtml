@@ -45,7 +45,7 @@
                 <td>
                     @if (eventEntry.CanView || User.IsInAnyRole(Roles.STYRET, Roles.ADMIN))
                     {
-                        <a asp-controller="Event" asp-action="View" asp-route-id="@eventEntry.Id">@eventEntry.Title</a>
+                        <a asp-Page="/Event/View" asp-route-id="@eventEntry.Id">@eventEntry.Title</a>
                     }
                     else
                     {
