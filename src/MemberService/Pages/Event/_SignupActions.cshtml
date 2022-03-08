@@ -1,45 +1,71 @@
 ﻿@using MemberService.Data.ValueTypes
 @using MemberService.Emails.Event
-@model EventSignupStatusModel
-<div class="col-lg-12 input-group">
-    <div class="input-group-prepend">
-        <span class="input-group-text">Endre status til:</span>
-    </div>
-    <select name="Status" class="custom-select" data-action="set-email">
-        <option selected="selected" value="" data-subject="Info om {TITLE}" data-body="@EmailBodies.Default">- Velg en handling -</option>
-        @if (User.IsAdministrator() || Model.Status != Status.AcceptedAndPayed)
-        {
-            <option value="2" data-subject="Info om {TITLE}" data-body="@EmailBodies.Default">Anbefall plass</option>
-            <option value="4" data-subject="Du har fått plass på {TITLE}" data-body="@EmailBodies.Approved">Gi plass</option>
-            <option value="3" data-subject="Du er på ventelisten til {TITLE}" data-body="@EmailBodies.WaitingList">Sett på venteliste</option>
-        }
-        <option value="7" data-subject="Du har ikke fått plass på {TITLE}" data-body="@EmailBodies.Denied">Får ikke plass</option>
-        @if (User.IsAdministrator())
-        {
-            <optgroup label="ADMIN"></optgroup>
-            <option value="1" data-subject="Info om {TITLE}" data-body="@EmailBodies.Default">Påmeldt</option>
-            <option value="5" data-subject="Info om {TITLE}" data-body="@EmailBodies.Default">Godtatt og betalt</option>
-            <option value="6" data-subject="Du har takket nei til plass på {TITLE}" data-body="@EmailBodies.Default">Takket nei til plass</option>
-        }
-    </select>
-    <div class="input-group-append">
-        <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Lagre</button>
-        <div class="dropdown-menu">
-            <button type="submit" class="dropdown-item" name="SendEmail" value="false">
-                &#x2713; Lagre uten melding
-            </button>
-            <a href="#" class="dropdown-item" data-toggle="modal" data-target="#modal-@Model.Key">
-                &#x1F4E7; Lagre med melding...
-            </a>
+@model (Guid Id, bool Archived, Status Status)
+
+@{
+    var key = Model.Status.ToString();
+}
+
+<div class="row mb-5">
+    @if (!Model.Archived && await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanSetEventSignupStatus))
+    {
+        <div class="col-lg-12 input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Endre status til:</span>
+            </div>
+            <select name="Status" class="custom-select" data-action="set-email">
+                <option selected="selected" value="" data-subject="Info om {TITLE}" data-body="@EmailBodies.Default">- Velg en handling -</option>
+                @if (User.IsAdministrator() || Model.Status != Status.AcceptedAndPayed)
+                {
+                    <option value="2" data-subject="Info om {TITLE}" data-body="@EmailBodies.Default">Anbefall plass</option>
+                    <option value="4" data-subject="Du har fått plass på {TITLE}" data-body="@EmailBodies.Approved">Gi plass</option>
+                    <option value="3" data-subject="Du er på ventelisten til {TITLE}" data-body="@EmailBodies.WaitingList">Sett på venteliste</option>
+                }
+                <option value="7" data-subject="Du har ikke fått plass på {TITLE}" data-body="@EmailBodies.Denied">Får ikke plass</option>
+                @if (User.IsAdministrator())
+                {
+                    <optgroup label="ADMIN"></optgroup>
+                    <option value="1" data-subject="Info om {TITLE}" data-body="@EmailBodies.Default">Påmeldt</option>
+                    <option value="5" data-subject="Info om {TITLE}" data-body="@EmailBodies.Default">Godtatt og betalt</option>
+                    <option value="6" data-subject="Du har takket nei til plass på {TITLE}" data-body="@EmailBodies.Default">Takket nei til plass</option>
+                }
+            </select>
+            <div class="input-group-append">
+                <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Lagre</button>
+                <div class="dropdown-menu">
+                    <button type="submit" class="dropdown-item" name="SendEmail" value="false">
+                        &#x2713; Lagre uten melding
+                    </button>
+                    <a href="#" class="dropdown-item" data-toggle="modal" data-target="#modal-@key">
+                        &#x1F4E7; Lagre med melding...
+                    </a>
+                </div>
+            </div>
         </div>
-    </div>
+    }
+    else if (await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanSendEventEmail))
+    {
+        <input type="hidden" name="handler" value="SendEmail" />
+        <div class="col-lg-12 justify-content-end input-group">
+            <span class="input-group-prepend">
+                <span class="input-group-text">
+                    Send melding:
+                </span>
+            </span>
+            <div class="input-group-append">
+                <a href="#" class="btn btn-success" data-toggle="modal" data-target="#modal-@key">
+                    &#x1F4E7; Skriv melding...
+                </a>
+            </div>
+        </div>
+    }
 </div>
 
-<div class="modal fade" id="modal-@Model.Key" tabindex="-1" role="dialog" aria-labelledby="modal-@Model.Key-title" aria-hidden="true">
+<div class="modal fade" id="modal-@key" tabindex="-1" role="dialog" aria-labelledby="modal-@key-title" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modal-@Model.Key-title">
+                <h5 class="modal-title" id="modal-@key-title">
                     Endre status
                 </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -48,16 +74,16 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="@Model.Key-email-subject">Emne</label>
-                    <input type="text" class="form-control" id="@Model.Key-email-subject" name="Subject" value="Info om {TITLE}">
+                    <label for="@key-email-subject">Emne</label>
+                    <input type="text" class="form-control" id="@key-email-subject" name="Subject" value="Info om {TITLE}">
                 </div>
                 <div class="form-group">
                     <label>Send svar til</label>
                     <input type="text" class="form-control-plaintext" readonly value="@User.GetEmail()">
                 </div>
                 <div class="form-group">
-                    <label for="@Model.Key-email-message">Melding</label>
-                    <textarea class="form-control" id="@Model.Key-email-message" name="Message" rows="8">@EmailBodies.Default</textarea>
+                    <label for="@key-email-message">Melding</label>
+                    <textarea class="form-control" id="@key-email-message" name="Message" rows="8">@EmailBodies.Default</textarea>
                     <hr />
                     <small class="text-muted">
                         Du kan bruke <a href="https://www.markdownguide.org/basic-syntax/" target="_blank">Markdown</a>, f.eks <code>**<b>bold</b>**</code>, <code>_<i>italics</i>_</code> og <code>[link](https://bardarswingclub.no)</code>

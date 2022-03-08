@@ -54,7 +54,7 @@
         @if (await AuthorizationService.IsAuthorized(User, Policy.CanCreateSemesterEvent) && Model.IsActive)
         {
             <li class="nav-item">
-                <a class="nav-link text-success" highlight-active highlight-active-when="controller action" asp-controller="Event" asp-action="CreateClass">+ Nytt kurs</a>
+                <a class="nav-link text-success" highlight-active highlight-active-when="controller action" asp-page="/Event/CreateClass">+ Nytt kurs</a>
             </li>
         }
     </ul>

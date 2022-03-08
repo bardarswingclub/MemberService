@@ -55,11 +55,13 @@ public static class UserExtensions
     public static bool IsInAnyRole(this ClaimsPrincipal user, params string[] roles)
         => roles.Any(user.IsInRole);
 
-    public static string GetFullName(this ClaimsPrincipal user) => user.FindFirstValue("FullName") ?? user.Identity.Name;
+    public static string GetFullName(this ClaimsPrincipal user) => user.FindFirstValue("FullName") ?? user.GetEmail();
 
     public static string GetFriendlyName(this ClaimsPrincipal user) => user.FindFirstValue("FriendlyName")?.ToNullIfEmpty() ?? user.GetFullName()?.Split(' ').FirstOrDefault() ?? "danser";
 
     public static string GetFriendlyName(this User user) => user.FriendlyName?.ToNullIfEmpty() ?? user.FullName?.Split(' ').FirstOrDefault() ?? string.Empty;
 
     public static string GetEmail(this ClaimsPrincipal user) => user.Identity.Name;
+
+    public static string GetId(this ClaimsPrincipal user) => user.FindFirstValue(ClaimTypes.NameIdentifier);
 }

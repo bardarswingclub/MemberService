@@ -1,11 +1,8 @@
 namespace MemberService.Pages.Event;
 
-
-
-
 public class ParticipantsModel
 {
-    public ParticipantsModel(IReadOnlyList<EventSignupModel> signups, EventModel @event)
+    public ParticipantsModel(IReadOnlyList<EventSignupModel> signups, ViewModel @event)
     {
         Signups = signups;
         AllowPartnerSignup = @event.AllowPartnerSignup;

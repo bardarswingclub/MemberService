@@ -10,8 +10,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-
-
 public class PayController : Controller
 {
     private readonly SignInManager<User> _signInManager;
@@ -43,7 +41,7 @@ public class PayController : Controller
             name = user.FullName;
             if (User.Identity.IsAuthenticated)
             {
-                if (_userManager.GetUserId(User) != user.Id)
+                if (User.GetId() != user.Id)
                 {
                     await _signInManager.SignOutAsync();
                     return RedirectToPage("/Account/Login", new { email, returnUrl = Request.GetEncodedPathAndQuery(), Area = "Identity" });
@@ -139,5 +137,5 @@ public class PayController : Controller
     private async Task<User> GetCurrentUser()
         => await _memberContext.Users
             .Include(x => x.Payments)
-            .SingleUser(_userManager.GetUserId(User));
+            .SingleUser(User.GetId());
 }

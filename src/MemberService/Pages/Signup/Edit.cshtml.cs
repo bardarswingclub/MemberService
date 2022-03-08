@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using MemberService.Data;
 
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -13,14 +12,10 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 public class EditModel : PageModel
 {
     private readonly MemberContext _database;
-    private readonly UserManager<User> _userManager;
 
-    public EditModel(
-        MemberContext database,
-        UserManager<User> userManager)
+    public EditModel(MemberContext database)
     {
         _database = database;
-        _userManager = userManager;
     }
 
     public SignupModel SignupModel { get; set; }
@@ -34,7 +29,7 @@ public class EditModel : PageModel
             return NotFound();
         }
 
-        model.User = await _database.GetUser(_userManager.GetUserId(User));
+        model.User = await _database.GetUser(User.GetId());
 
         if (model.User.GetEditableEvent(id) is not EventSignup eventSignup)
         {
@@ -67,7 +62,7 @@ public class EditModel : PageModel
             return NotFound();
         }
 
-        var user = await _database.GetEditableUser(_userManager.GetUserId(User));
+        var user = await _database.GetEditableUser(User.GetId());
 
         if (user.GetEditableEvent(id) is EventSignup eventSignup)
         {

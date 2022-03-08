@@ -1,13 +1,8 @@
 ﻿namespace MemberService.Pages.Corona;
 
-
-
-
-
 using MemberService.Data;
 
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,16 +11,13 @@ using Stripe;
 public class CoronaController : Controller
 {
     private readonly MemberContext _database;
-    private readonly UserManager<User> _userManager;
     private readonly RefundService _refundService;
 
     public CoronaController(
         MemberContext database,
-        UserManager<User> userManager,
         RefundService refundService)
     {
         _database = database;
-        _userManager = userManager;
         _refundService = refundService;
     }
 
@@ -36,7 +28,7 @@ public class CoronaController : Controller
         {
             var user = await _database.Users
                 .Include(u => u.Payments)
-                .SingleUser(GetUserId());
+                .SingleUser(User.GetId());
 
             var refund = user.GetCoronaRefundablePayments();
 
@@ -58,7 +50,7 @@ public class CoronaController : Controller
     {
         var user = await _database.Users
             .Include(u => u.Payments)
-            .SingleUser(GetUserId());
+            .SingleUser(User.GetId());
 
         var payments = user.GetCoronaRefundablePayments();
 
@@ -96,6 +88,4 @@ public class CoronaController : Controller
 
     [HttpGet]
     public IActionResult Failure() => View();
-
-    private string GetUserId() => _userManager.GetUserId(User);
 }

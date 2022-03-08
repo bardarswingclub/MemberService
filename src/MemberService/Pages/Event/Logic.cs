@@ -21,7 +21,7 @@ public static class Logic
             .Select(e => EventEntry.Create(e, userId))
             .ToListAsync();
 
-    public static Data.Event ToEntity(this EventInputModel model, User user)
+    public static Event ToEntity(this EventInputModel model, User user)
         => new()
         {
             Title = model.Title,
@@ -63,107 +63,7 @@ public static class Logic
             }
         };
 
-    public static async Task<EventModel> GetEventModel(
-        this MemberContext context,
-        Guid id,
-        DateTime? signedUpBefore,
-        int? priority,
-        string name,
-        bool excludeAcceptedElsewhere,
-        bool excludeApprovedElsewhere,
-        bool excludeRecommendedElsewhere,
-        bool onlyDeniedElsewhere,
-        bool onlyRejectedElsewhere,
-        bool onlyWaitingListElsewhere)
-    {
-        var model = await context.Events
-            .Include(e => e.SignupOptions)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.Id == id);
-
-        if (model == null) return null;
-
-        var signups = await context.EventSignups
-            .Include(s => s.User)
-            .Include(s => s.AuditLog)
-            .ThenInclude(l => l.User)
-            .AsNoTracking()
-            .Expressionify()
-            .Where(e => e.EventId == id)
-            .Filter(signedUpBefore.HasValue, e => e.SignedUpAt < signedUpBefore)
-            .Filter(priority.HasValue, e => e.Priority == priority)
-            .Filter(!string.IsNullOrWhiteSpace(name), e => e.User.NameMatches(name))
-            .Filter(excludeAcceptedElsewhere || excludeApprovedElsewhere || excludeRecommendedElsewhere, e => !e.User.EventSignups
-                .Where(s => s.Event.SemesterId == model.SemesterId)
-                .Where(s => s.EventId != e.EventId)
-                .Any(s => (excludeAcceptedElsewhere && s.Status == Status.AcceptedAndPayed)
-                          || (excludeApprovedElsewhere && s.Status == Status.Approved)
-                          || (excludeRecommendedElsewhere && s.Status == Status.Recommended)))
-            .Filter(onlyDeniedElsewhere || onlyRejectedElsewhere || onlyWaitingListElsewhere, e => e.User.EventSignups
-                .Where(s => s.Event.SemesterId == model.SemesterId)
-                .Any(s => s.EventId == e.EventId
-                          || (onlyDeniedElsewhere && s.Status == Status.Denied)
-                          || (onlyRejectedElsewhere && s.Status == Status.RejectedOrNotPayed)
-                          || (onlyWaitingListElsewhere && s.Status == Status.WaitingList)))
-
-            .Select(signup => new { signup, partner = context.Users.Include(u => u.EventSignups).FirstOrDefault(u => u.NormalizedEmail == signup.PartnerEmail) })
-            .ToListAsync();
-
-        return EventModel.Create(model, signups.Select(s => EventSignupModel.Create(s.signup, s.partner)).ToList());
-    }
-
-    public static IReadOnlyList<Guid> GetSelected(this EventSaveModel input)
-        => input.Leads
-            .Concat(input.Follows)
-            .Concat(input.Solos)
-            .Where(l => l.Selected)
-            .Select(l => l.Id)
-            .ToList();
-
-    public static async Task<EventInputModel> GetEventInputModel(this MemberContext context, Guid id)
-    {
-        var model = await context.Events
-            .Include(e => e.SignupOptions)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.Id == id);
-
-        if (model == null) return null;
-
-        var (signupOpensAtDate, signupOpensAtTime) = model.SignupOptions.SignupOpensAt.GetLocalDateAndTime();
-        var (signupClosesAtDate, signupClosesAtTime) = model.SignupOptions.SignupClosesAt.GetLocalDateAndTime();
-
-        return new EventInputModel
-        {
-            Id = model.Id,
-            SemesterId = model.SemesterId,
-            Title = model.Title,
-            Description = model.Description,
-            Type = model.Type,
-            IsArchived = model.Archived,
-            IsCancelled = model.Cancelled,
-            EnableSignupOpensAt = model.SignupOptions.SignupOpensAt.HasValue,
-            SignupOpensAtDate = signupOpensAtDate,
-            SignupOpensAtTime = signupOpensAtTime,
-            EnableSignupClosesAt = model.SignupOptions.SignupClosesAt.HasValue,
-            SignupClosesAtDate = signupClosesAtDate,
-            SignupClosesAtTime = signupClosesAtTime,
-            PriceForMembers = model.SignupOptions.PriceForMembers,
-            PriceForNonMembers = model.SignupOptions.PriceForNonMembers,
-            RequiresMembershipFee = model.SignupOptions.RequiresMembershipFee,
-            RequiresTrainingFee = model.SignupOptions.RequiresTrainingFee,
-            RequiresClassesFee = model.SignupOptions.RequiresClassesFee,
-            IncludedInTrainingFee = model.SignupOptions.IncludedInTrainingFee,
-            IncludedInClassesFee = model.SignupOptions.IncludedInClassesFee,
-            SignupHelp = model.SignupOptions.SignupHelp,
-            RoleSignup = model.SignupOptions.RoleSignup,
-            RoleSignupHelp = model.SignupOptions.RoleSignupHelp,
-            AllowPartnerSignup = model.SignupOptions.AllowPartnerSignup,
-            AllowPartnerSignupHelp = model.SignupOptions.AllowPartnerSignupHelp,
-            AutoAcceptedSignups = model.SignupOptions.AutoAcceptedSignups
-        };
-    }
-
-    public static void UpdateEvent(this Data.Event entity, EventInputModel model)
+    public static void UpdateEvent(this Event entity, EventInputModel model)
     {
         entity.Title = model.Title;
         entity.Description = model.Description;

@@ -13,6 +13,7 @@ public enum Policy
     CanViewEvent,
     CanEditEvent,
     CanSetEventSignupStatus,
+    CanSendEventEmail,
     CanEditEventSignup,
     CanEditEventOrganizers,
 

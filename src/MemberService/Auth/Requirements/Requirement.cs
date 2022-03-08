@@ -2,6 +2,4 @@
 
 using Microsoft.AspNetCore.Authorization;
 
-public record Requirement(Policy Policy) : IAuthorizationRequirement
-{
-}
+public record Requirement(Policy Policy) : IAuthorizationRequirement;

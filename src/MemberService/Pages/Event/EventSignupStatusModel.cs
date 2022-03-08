@@ -2,7 +2,6 @@
 
 using Clave.ExtensionMethods;
 
-
 using MemberService.Data.ValueTypes;
 
 public class EventSignupStatusModel

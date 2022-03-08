@@ -1,10 +1,6 @@
 ﻿namespace MemberService.Pages.Home;
 
-
-
 using System.Diagnostics;
-
-
 
 using Clave.Expressionify;
 using Clave.ExtensionMethods;
@@ -16,7 +12,6 @@ using MemberService.Pages.Signup;
 using MemberService.Services;
 
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,23 +19,20 @@ using Microsoft.EntityFrameworkCore;
 public class HomeController : Controller
 {
     private readonly MemberContext _database;
-    private readonly UserManager<User> _userManager;
     private readonly IAuthorizationService _authorizationService;
 
     public HomeController(
         MemberContext database,
-        UserManager<User> userManager,
         IAuthorizationService authorizationService)
     {
         _database = database;
-        _userManager = userManager;
         _authorizationService = authorizationService;
     }
 
     [AllowAnonymous]
     public async Task<IActionResult> Index()
     {
-        var userId = _userManager.GetUserId(User);
+        var userId = User.GetId();
 
         var model = await _database.GetIndexModel(userId);
 
@@ -107,7 +99,7 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Courses()
     {
-        var userId = _userManager.GetUserId(User);
+        var userId = User.GetId();
 
         var semester = await _database.Semesters.Current();
 
@@ -160,7 +152,7 @@ public class HomeController : Controller
             items.Add(new ClassSignup(classes[i], roles[i], partners[i], i + 1));
         }
 
-        var userId = _userManager.GetUserId(User);
+        var userId = User.GetId();
         var user = await _database.GetEditableUser(userId);
 
         var openedClasses = await _database.GetCourses(userId, e => e.HasOpened());
@@ -203,7 +195,7 @@ public class HomeController : Controller
     [HttpGet]
     public async Task<IActionResult> Survey()
     {
-        var userId = _userManager.GetUserId(User);
+        var userId = User.GetId();
 
         var model = await _database.Semesters
             .Expressionify()
@@ -228,7 +220,7 @@ public class HomeController : Controller
             return RedirectToAction(nameof(Survey));
         }
 
-        var userId = _userManager.GetUserId(User);
+        var userId = User.GetId();
 
         var model = await _database.Semesters
             .Include(s => s.Survey)
@@ -298,7 +290,7 @@ public class HomeController : Controller
     private async Task<User> GetCurrentUser()
         => await _database.Users
             .Include(x => x.Payments)
-            .SingleUser(_userManager.GetUserId(User));
+            .SingleUser(User.GetId());
 
     private class ClassSignup
     {

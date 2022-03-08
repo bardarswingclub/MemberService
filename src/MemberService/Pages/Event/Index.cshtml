@@ -1,5 +1,6 @@
+@page
 @using MemberService.Data.ValueTypes
-@model IReadOnlyList<EventEntry>
+@model IndexModel
 
 @{
     ViewData["Title"] = "Arrangementer";
@@ -15,11 +16,11 @@
             <div class="dropdown-menu dropdown-menu-right">
                 @if (User.CanCreateWorkshop())
                 {
-                    <a class="dropdown-item" asp-action="Create" asp-route-type="@EventType.Workshop">@EventType.Workshop.DisplayDescription()</a>
+                    <a class="dropdown-item" asp-page="Create" asp-route-type="@EventType.Workshop">@EventType.Workshop.DisplayDescription()</a>
                 }
                 @if (User.CanCreateParty())
                 {
-                    <a class="dropdown-item" asp-action="Create" asp-route-type="@EventType.Party">@EventType.Party.DisplayDescription()</a>
+                    <a class="dropdown-item" asp-page="Create" asp-route-type="@EventType.Party">@EventType.Party.DisplayDescription()</a>
                 }
             </div>
         </div>
@@ -38,13 +39,13 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var eventEntry in Model)
+        @foreach (var eventEntry in Model.Events)
         {
             <tr>
                 <td>
                     @if (eventEntry.CanView || User.IsInAnyRole(Roles.STYRET, Roles.ADMIN))
                     {
-                        <a asp-action="View" asp-route-id="@eventEntry.Id">@eventEntry.Title</a>
+                        <a asp-Page="/Event/View" asp-route-id="@eventEntry.Id">@eventEntry.Title</a>
                     }
                     else
                     {

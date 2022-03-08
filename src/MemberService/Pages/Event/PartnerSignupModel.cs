@@ -1,14 +1,11 @@
 namespace MemberService.Pages.Event;
 
-
-
-
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
 
 public class PartnerSignupModel
 {
-    public PartnerSignupModel(string email)
+    protected PartnerSignupModel(string email)
     {
         Email = email;
     }
@@ -22,12 +19,12 @@ public class PartnerSignupModel
             return new SignedUpPartnerSignupModel(signup);
         }
 
-        if (partner is User)
+        if (partner is not null)
         {
             return new KnownPartnerSignupModel(partner);
         }
 
-        if (email is string)
+        if (email is not null)
         {
             return new PartnerSignupModel(email);
         }

@@ -22,7 +22,7 @@
         @foreach (var eventEntry in Model.Courses)
         {
             <tr>
-                <td><a asp-controller="Event" asp-action="View" asp-route-id="@eventEntry.Id">@eventEntry.Title</a></td>
+                <td><a asp-page="/Event/View" asp-route-id="@eventEntry.Id">@eventEntry.Title</a></td>
                 <td>@eventEntry.RolesCount(Status.Pending)</td>
                 <td>@eventEntry.RolesCount()</td>
                 <td>@eventEntry.RolesCount(Status.AcceptedAndPayed)</td>

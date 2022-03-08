@@ -1,9 +1,5 @@
 ﻿namespace MemberService.Pages.Event;
 
-
-
-
-
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
 

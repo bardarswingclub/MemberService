@@ -12,7 +12,6 @@ using MemberService.Pages.Shared;
 using MemberService.Services;
 
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -21,18 +20,15 @@ using Microsoft.EntityFrameworkCore;
 public class IndexModel : PageModel
 {
     private readonly MemberContext _database;
-    private readonly UserManager<User> _userManager;
     private readonly IEmailService _emailService;
     private readonly IAuthorizationService _authorizationService;
 
     public IndexModel(
         MemberContext Database,
-        UserManager<User> userManager,
         IEmailService emailService,
         IAuthorizationService authorizationService)
     {
         _database = Database;
-        _userManager = userManager;
         _emailService = emailService;
         _authorizationService = authorizationService;
     }
@@ -112,7 +108,7 @@ public class IndexModel : PageModel
     {
         if (!await _authorizationService.IsAuthorized(User, Policy.CanSendEmailToMembers)) return Forbid();
 
-        var replyTo = await _database.Users.SingleUser(_userManager.GetUserId(User));
+        var replyTo = await _database.Users.SingleUser(User.GetId());
         var successes = new List<string>();
         var failures = new List<string>();
 
