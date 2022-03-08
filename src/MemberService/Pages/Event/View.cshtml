@@ -121,23 +121,9 @@
         {
             <form method="post" class="tab-pane @(signups.Active ? "active" : "")" id="@signups.Key" role="tabpanel" aria-labelledby="@signups.Key-tab">
 
-                @if (!Model.Archived && await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanSetEventSignupStatus))
-                {
-                    <div class="row mb-5">
-                        <partial name="_SignupActions" for="@signups" />
-                    </div>
-                }
-                else if(await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanSendEventEmail))
-                {
-                    <div class="row mb-5">
-                        <button type="submit" class="btn btn-success">
-                            &#x1F4E7; Send epost
-                        </button>
-                    </div>
-                }
+                <partial name="_SignupActions" model="@((Model.Id, Model.Archived, signups.Status))" />
 
-
-                <fieldset class="row" disabled="@Model.Archived">
+                <fieldset class="row">
                     @if (Model.RoleSignup)
                     {
                         var leads = new ParticipantsModel(signups.Leads, Model);

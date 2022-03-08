@@ -1,7 +1,5 @@
 ﻿namespace MemberService.Emails.Event;
 
-
-
 using System.Reflection;
 
 public static class EmailBodies

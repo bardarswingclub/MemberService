@@ -273,6 +273,63 @@ public class ViewModel : PageModel
 
         return RedirectToPage(new { id });
     }
+
+    public async Task<IActionResult> OnPostSendEmail(Guid id)
+    {
+        if (!await _authorizationService.IsAuthorized(User, id, Policy.CanSendEventEmail)) return Forbid();
+
+        var currentUser = await _database.Users.SingleUser(User.GetId());
+
+        var selected = Leads
+            .Concat(Follows)
+            .Concat(Solos)
+            .Where(l => l.Selected)
+            .Select(l => l.Id)
+            .ToList();
+
+        var failures = new List<string>();
+
+        var eventSignups = await _database.EventSignups
+            .Include(e => e.Event)
+            .Include(e => e.User)
+            .Where(e => selected.Contains(e.Id))
+            .ToListAsync();
+
+        foreach (var signup in eventSignups)
+        {
+            try
+            {
+                await _emailService.SendCustomEmail(
+                    signup.User,
+                    Subject,
+                    Message,
+                    new(signup.Event.Title, await SignupLink(signup.User, signup.Event)),
+                    currentUser);
+
+                signup.AuditLog.Add($"Sent email\n\n---\n\n> {Subject}\n\n{Message}", currentUser);
+            }
+            catch (Exception e)
+            {
+                // Mail sending might fail, but that should't stop us
+                signup.AuditLog.Add($"Tried to send email, but failed with message {e.Message}", currentUser);
+                _logger.LogError(e, $"Failed to send email to {signup.User.Email}");
+                failures.Add($"Klarte ikke sende epost til {signup.User.FullName} ({signup.User.Email})");
+            }
+        }
+
+        if (failures.Any())
+        {
+            TempData.SetErrorMessage(failures.JoinWithComma());
+        }
+
+        if (failures.Count != selected.Count)
+        {
+            TempData.SetSuccessMessage($"Sendte epost til {selected.Count - failures.Count} dansere");
+        }
+
+        return RedirectToPage(new { id });
+    }
+
     private async Task<string> SignupLink(User user, Data.Event e)
     {
         var targetLink = SignupLink(e.Id, e.Title);

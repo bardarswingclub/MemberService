@@ -42,6 +42,7 @@ public class EventRequirementsHandler : IAuthorizationHandler
             Policy.CanEditEvent when id is Guid eventId => await CheckEventOrganizer(eventId, user, p => p.CanEdit),
             Policy.CanSetEventSignupStatus when id is Guid eventId => await CheckEventOrganizer(eventId, user, p => p.CanSetSignupStatus),
             Policy.CanEditEventSignup when id is Guid eventId => await CheckEventOrganizer(eventId, user, p => p.CanEditSignup),
+            Policy.CanSendEventEmail when id is Guid eventId => await CheckEventOrganizer(eventId, user, p => p.CanEditSignup),
             Policy.CanEditEventOrganizers when id is Guid eventId => await CheckEventOrganizer(eventId, user, p => p.CanEditOrganizers),
 
             Policy.CanSetPresence when id is Guid eventId => await CheckEventOrganizer(eventId, user, p => p.CanSetPresence),
