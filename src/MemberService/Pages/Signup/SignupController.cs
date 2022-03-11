@@ -14,14 +14,14 @@ using Microsoft.EntityFrameworkCore;
 public class SignupController : Controller
 {
     private readonly MemberContext _database;
-    private readonly IPaymentService _paymentService;
+    private readonly IStripePaymentService _stripePaymentService;
 
     public SignupController(
         MemberContext database,
-        IPaymentService paymentService)
+        IStripePaymentService stripePaymentService)
     {
         _database = database;
-        _paymentService = paymentService;
+        _stripePaymentService = stripePaymentService;
     }
 
     [AllowAnonymous]
@@ -190,7 +190,7 @@ public class SignupController : Controller
 
         if (signup?.Status == Status.AcceptedAndPayed)
         {
-            await _paymentService.Refund(signup.PaymentId);
+            await _stripePaymentService.Refund(signup.PaymentId);
 
             TempData.SetSuccessMessage($"Du vil få pengene tilbake på konto i løpet av noen dager");
         }
@@ -205,7 +205,7 @@ public class SignupController : Controller
 
         var signup = user.EventSignups.FirstOrDefault(s => s.EventId == id);
 
-        await _paymentService.SavePayment(sessionId);
+        await _stripePaymentService.SavePayment(sessionId);
 
         return RedirectToAction(nameof(Event), new { id });
     }
@@ -263,7 +263,7 @@ public class SignupController : Controller
 
     private async Task<string> CreatePayment(SignupModel model, decimal amount)
     {
-        var sessionId = await _paymentService.CreatePayment(
+        var sessionId = await _stripePaymentService.CreatePaymentRequest(
             model.User.FullName,
             model.User.Email,
             model.Title,
@@ -278,7 +278,7 @@ public class SignupController : Controller
 
     private async Task<string> CreatePayment(SignupModel model, Fee fee, Guid eventSignupId)
     {
-        var sessionId = await _paymentService.CreatePayment(
+        var sessionId = await _stripePaymentService.CreatePaymentRequest(
             model.User.FullName,
             model.User.Email,
             fee.Description,

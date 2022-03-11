@@ -44,7 +44,7 @@ services
     .AddScoped<Stripe.CustomerService>()
     .AddScoped<Stripe.PaymentIntentService>()
     .AddScoped<Stripe.RefundService>()
-    .AddScoped<IPaymentService, PaymentService>()
+    .AddScoped<IStripePaymentService, StripePaymentService>()
     .AddScoped<ILoginService, LoginService>()
     .AddScoped<IPartialRenderer, PartialRenderer>()
     .AddScoped<IEmailService, EmailService>()

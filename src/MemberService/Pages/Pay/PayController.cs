@@ -15,18 +15,18 @@ public class PayController : Controller
     private readonly SignInManager<User> _signInManager;
     private readonly UserManager<User> _userManager;
     private readonly MemberContext _memberContext;
-    private readonly IPaymentService _paymentService;
+    private readonly IStripePaymentService _stripePaymentService;
 
     public PayController(
         SignInManager<User> signInManager,
         UserManager<User> userManager,
         MemberContext memberContext,
-        IPaymentService paymentService)
+        IStripePaymentService stripePaymentService)
     {
         _signInManager = signInManager;
         _userManager = userManager;
         _memberContext = memberContext;
-        _paymentService = paymentService;
+        _stripePaymentService = stripePaymentService;
     }
 
     public async Task<IActionResult> Index(string title, string description, decimal amount, string email = null, string name = null)
@@ -53,7 +53,7 @@ public class PayController : Controller
             }
         }
 
-        var sessionId = await _paymentService.CreatePayment(
+        var sessionId = await _stripePaymentService.CreatePaymentRequest(
             name: name,
             email: email,
             title: title,
@@ -85,7 +85,7 @@ public class PayController : Controller
             return RedirectToPage("/Home/Fees");
         }
 
-        var sessionId = await _paymentService.CreatePayment(
+        var sessionId = await _stripePaymentService.CreatePaymentRequest(
             name: user.FullName,
             email: user.Email,
             title: fee.Description,
@@ -105,7 +105,7 @@ public class PayController : Controller
 
     public async Task<IActionResult> Success(string title, string description, string sessionId)
     {
-        await _paymentService.SavePayment(sessionId);
+        await _stripePaymentService.SavePayment(sessionId);
 
         return View(new PayModel
         {
@@ -120,7 +120,7 @@ public class PayController : Controller
 
         var (feeStatus, fee) = user.GetFee(type);
 
-        await _paymentService.SavePayment(sessionId);
+        await _stripePaymentService.SavePayment(sessionId);
 
         TempData.SetSuccessMessage($"{fee.Description} betalt");
 

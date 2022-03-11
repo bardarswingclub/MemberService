@@ -11,14 +11,14 @@ using MemberService.Auth;
 public class AdminController : Controller
 {
     private readonly ChargeService _chargeService;
-    private readonly IPaymentService _paymentService;
+    private readonly IStripePaymentService _stripePaymentService;
 
     public AdminController(
         ChargeService chargeService,
-        IPaymentService paymentService)
+        IStripePaymentService stripePaymentService)
     {
         _chargeService = chargeService;
-        _paymentService = paymentService;
+        _stripePaymentService = stripePaymentService;
     }
 
     public IActionResult Index() => View();
@@ -44,7 +44,7 @@ public class AdminController : Controller
             });
 
             importedCount += charges.Count();
-            var (users, payments, updates) = await _paymentService.SavePayments(charges);
+            var (users, payments, updates) = await _stripePaymentService.SavePayments(charges);
             userCount += users;
             paymentCount += payments;
             updatedCount += updates;

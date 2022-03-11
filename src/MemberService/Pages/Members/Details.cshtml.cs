@@ -18,18 +18,18 @@ public class DetailsModel : PageModel
 {
     private readonly MemberContext _memberContext;
     private readonly UserManager<User> _userManager;
-    private readonly IPaymentService _paymentService;
+    private readonly IStripePaymentService _stripePaymentService;
     private readonly IAuthorizationService _authorizationService;
 
     public DetailsModel(
         MemberContext memberContext,
         UserManager<User> userManager,
-        IPaymentService paymentService,
+        IStripePaymentService stripePaymentService,
         IAuthorizationService authorizationService)
     {
         _memberContext = memberContext;
         _userManager = userManager;
-        _paymentService = paymentService;
+        _stripePaymentService = stripePaymentService;
         _authorizationService = authorizationService;
     }
 
@@ -147,7 +147,7 @@ public class DetailsModel : PageModel
 
         if (await _memberContext.Users.FindAsync(id) is not User user) return NotFound();
 
-        var (payments, updates) = await _paymentService.ImportPayments(user.Email);
+        var (payments, updates) = await _stripePaymentService.ImportPayments(user.Email);
 
         TempData.SetSuccessMessage($"Fant {payments} nye betalinger, oppdaterte {updates} eksisterende betalinger");
 

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Stripe;
 using Stripe.Checkout;
 
-public class PaymentService : IPaymentService
+public class StripePaymentService : IStripePaymentService
 {
     private readonly SessionService _sessionService;
     private readonly ChargeService _chargeService;
@@ -17,7 +17,7 @@ public class PaymentService : IPaymentService
     private readonly UserManager<User> _userManager;
     private readonly MemberContext _memberContext;
 
-    public PaymentService(
+    public StripePaymentService(
         SessionService sessionService,
         ChargeService chargeService,
         CustomerService customerService,
@@ -42,7 +42,7 @@ public class PaymentService : IPaymentService
         ["2018"] = (false, false, false)
     };
 
-    public async Task<string> CreatePayment(
+    public async Task<string> CreatePaymentRequest(
         string name,
         string email,
         string title,

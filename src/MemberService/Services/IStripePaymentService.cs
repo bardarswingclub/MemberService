@@ -2,9 +2,9 @@
 
 using Stripe;
 
-public interface IPaymentService
+public interface IStripePaymentService
 {
-    Task<string> CreatePayment(
+    Task<string> CreatePaymentRequest(
         string name,
         string email,
         string title,
