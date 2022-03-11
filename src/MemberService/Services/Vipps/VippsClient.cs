@@ -17,7 +17,7 @@ public class VippsClient : IVippsClient
         _config = config;
     }
 
-    public async Task<InitiatePaymentResponse> InitiatePayment(Transaction transaction, string returnUrl)
+    public async Task<InitiatePaymentResponse> InitiatePayment(Transaction transaction, string returnUrl, string callbackUrl)
     {
         var response = await _httpClient.PostAsJsonAsync("/ecomm/v2/payments", new InitiatePaymentRequest
         {
@@ -25,7 +25,7 @@ public class VippsClient : IVippsClient
             {
 
                 MerchantSerialNumber = _config.Vipps.MerchantSerialNumber,
-                CallbackPrefix = "https://eohgrfxlsp9eu05.m.pipedream.net",
+                CallbackPrefix = callbackUrl,
                 FallBack = returnUrl,
             },
             CustomerInfo = new(),

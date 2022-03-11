@@ -1,12 +1,12 @@
 ﻿namespace MemberService.Data;
 
-
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-public class Payment
+public class Payment : IEntityTypeConfiguration<Payment>
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public string Id { get; set; }
@@ -18,6 +18,8 @@ public class Payment
     public DateTime PayedAtUtc { get; set; }
 
     public string StripeChargeId { get; set; }
+
+    public string VippsOrderId { get; set; }
 
     public string ManualPayment { get; set; }
 
@@ -38,4 +40,7 @@ public class Payment
 
     [InverseProperty(nameof(Data.EventSignup.Payment))]
     public EventSignup EventSignup { get; set; }
+
+    public void Configure(EntityTypeBuilder<Payment> payment)
+        => payment.HasIndex(p => p.PayedAtUtc);
 }

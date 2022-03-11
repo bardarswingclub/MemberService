@@ -1,7 +1,8 @@
 ﻿namespace MemberService.Pages.Pay;
 using System.Threading.Tasks;
 
-using MemberService.Services.Vipps;
+using MemberService.Data;
+using MemberService.Services;
 using MemberService.Services.Vipps.Models;
 
 using Microsoft.AspNetCore.Mvc;
@@ -9,25 +10,22 @@ using Microsoft.AspNetCore.Mvc;
 public class VippsCallbackController : Controller
 {
     public const string CallbackPrefix = "/vipps/callback";
-    private readonly IVippsClient _vippsClient;
+    private readonly IVippsPaymentService _vippsPaymentService;
 
-    public VippsCallbackController(IVippsClient vippsClient)
+    public VippsCallbackController(IVippsPaymentService vippsPaymentService)
     {
-        _vippsClient = vippsClient;
+        _vippsPaymentService = vippsPaymentService;
     }
 
     [HttpPost($"{CallbackPrefix}/v2/payments/{{orderId}}")]
-    public async Task<IActionResult> Callback(string orderId, [FromBody] PaymentCallback body)
+    public async Task<IActionResult> Callback(Guid orderId, [FromBody] PaymentCallback body)
     {
         var authToken = Request.Headers.Authorization.ToString();
 
-        // get from database
-        // check authToken
-        var transactionText = "Testing"; // get from database
-
-        await _vippsClient.CapturePayment(orderId, transactionText);
-
-        // save to database
+        if (body.TransactionInfo.Status == "RESERVED")
+        {
+            await _vippsPaymentService.CapturePayment(orderId, User.GetId(), authToken);
+        }
 
         return Ok();
     }

@@ -49,7 +49,8 @@ services
     .AddScoped<IPartialRenderer, PartialRenderer>()
     .AddScoped<IEmailService, EmailService>()
     .AddSingleton<IActionContextAccessor, ActionContextAccessor>()
-    .AddTransient<IVippsClient, VippsClient>()
+    .AddScoped<IVippsClient, VippsClient>()
+    .AddScoped<IVippsPaymentService, VippsPaymentService>()
     .AddSingleton<AccessTokenCache>()
     .AddTransient<AccessTokenHandler>()
     .AddScoped(x => x
