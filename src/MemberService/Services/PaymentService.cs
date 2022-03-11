@@ -8,11 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Stripe;
 using Stripe.Checkout;
 
-
-
-
-
-
 public class PaymentService : IPaymentService
 {
     private readonly SessionService _sessionService;

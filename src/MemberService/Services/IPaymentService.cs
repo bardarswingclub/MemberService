@@ -2,10 +2,6 @@
 
 using Stripe;
 
-
-
-
-
 public interface IPaymentService
 {
     Task<string> CreatePayment(
