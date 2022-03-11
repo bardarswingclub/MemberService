@@ -9,6 +9,7 @@ using MemberService.Auth.Requirements;
 using MemberService.Configs;
 using MemberService.Data;
 using MemberService.Services;
+using MemberService.Services.Vipps;
 
 using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.AspNetCore.Authentication;
@@ -48,9 +49,28 @@ services
     .AddScoped<IPartialRenderer, PartialRenderer>()
     .AddScoped<IEmailService, EmailService>()
     .AddSingleton<IActionContextAccessor, ActionContextAccessor>()
+    .AddTransient<IVippsClient, VippsClient>()
+    .AddSingleton<AccessTokenCache>()
+    .AddTransient<AccessTokenHandler>()
     .AddScoped(x => x
         .GetRequiredService<IUrlHelperFactory>()
         .GetUrlHelper(x.GetRequiredService<IActionContextAccessor>().ActionContext));
+
+services.AddHttpClient("Vipps-auth", client =>
+{
+    client.BaseAddress = new Uri(config.Vipps.BaseUrl);
+    client.DefaultRequestHeaders.Add("client_id", config.Authentication.Vipps.ClientId);
+    client.DefaultRequestHeaders.Add("client_secret", config.Authentication.Vipps.ClientSecret);
+    client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", config.Vipps.SubscriptionKey);
+    client.Timeout = TimeSpan.FromSeconds(5);
+});
+
+services.AddHttpClient("Vipps", client =>
+{
+    client.BaseAddress = new Uri(config.Vipps.BaseUrl);
+    client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", config.Vipps.SubscriptionKey);
+    client.DefaultRequestHeaders.Add("Merchant-Serial-Number", config.Vipps.MerchantSerialNumber);
+}).AddHttpMessageHandler<AccessTokenHandler>();
 
 services
     .AddDbContext<MemberContext>(o => o.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
@@ -118,10 +138,9 @@ services
         options.AppSecret = config.Authentication.Facebook.AppSecret;
         options.AccessDeniedPath = "/account/accessDenied";
     })
-    /*.AddOpenIdConnect("Vipps", "Vipps", options =>
+    .AddOpenIdConnect("Vipps", "Vipps", options =>
     {
-        options.Authority = "https://api.vipps.no/access-management-1.0/access/";// = "https://api.vipps.no/access-management-1.0/access/oauth2/auth";
-        //options.TokenEndpoint = "https://api.vipps.no/access-management-1.0/access/oauth2/token";
+        options.Authority = $"{config.Vipps.BaseUrl}/access-management-1.0/access/";
         options.ClientId = config.Authentication.Vipps.ClientId;
         options.ClientSecret = config.Authentication.Vipps.ClientSecret;
         options.AccessDeniedPath = "/account/accessDenied";
@@ -136,7 +155,7 @@ services
         options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
         options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
         options.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "given_name");
-    })*/;
+    });
 
 services
     .Configure<CookiePolicyOptions>(options =>

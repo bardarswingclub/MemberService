@@ -3,9 +3,17 @@ namespace MemberService.Configs;
 public record Config
 {
     public StripeConfig Stripe { get; init; }
+    public VippsConfig Vipps { get; init; }
     public EmailConfig Email { get; init; }
     public string AdminEmails { get; init; }
     public Auth Authentication { get; init; }
+
+    public record VippsConfig
+    {
+        public string BaseUrl { get; init; }
+        public string SubscriptionKey { get; init; }
+        public string MerchantSerialNumber { get; init; }
+    }
 
     public record StripeConfig
     {
