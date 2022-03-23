@@ -37,10 +37,9 @@
         }
         else if (Model.MembershipFee.Fee is Fee membershipFee)
         {
-            <form class="card-footer" asp-controller="Pay" asp-action="Fee" method="post">
-                <input type="hidden" name="type" value="@Fee.Membership" />
-                <button class="btn btn-success">Bli medlem</button>
-            </form>
+            <div class="card-footer">
+                <vc:pay-fee label="Bli medlem" type=@Fee.Membership amount=@membershipFee.Amount />
+            </div>
         }
     </div>
 
@@ -78,10 +77,9 @@
         }
         else if (Model.TrainingFee.Fee is Fee trainingFee)
         {
-            <form class="card-footer" asp-controller="Pay" asp-action="Fee" method="post">
-                <input type="hidden" name="type" value="@Fee.Training" />
-                <button class="btn btn-success">Betal treningsavgift</button>
-            </form>
+            <div class="card-footer">
+                <vc:pay-fee label="Betal treningsavgift" type=@Fee.Training amount=@trainingFee.Amount />
+            </div>
         }
     </div>
 
@@ -131,10 +129,9 @@
         }
         else if(Model.ClassesFee.Fee is Fee classesFee)
         {
-            <form class="card-footer" asp-controller="Pay" asp-action="Fee" method="post">
-                <input type="hidden" name="type" value="@Fee.Classes" />
-                <button class="btn btn-success">Betal kursavgift</button>
-            </form>
+            <div class="card-footer">
+                <vc:pay-fee label="Betal kursavgift" type=@Fee.Classes amount=@classesFee.Amount />
+            </div>
         }
     </div>
 </div>

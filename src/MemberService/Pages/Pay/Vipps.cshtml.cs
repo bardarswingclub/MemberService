@@ -43,7 +43,7 @@ public class VippsModel : PageModel
             userId: User.GetId(),
             description:"Testing",
             amount: 200,
-            successUrl: "http://127.0.0.1:5862/Pay/Vipps/{orderId}",
+            successUrl: Url.PageLink(values: new { orderId = "{orderId}" }),//"http://127.0.0.1:5862/Pay/Vipps/{orderId}",
             callbackUrl: "https://eohgrfxlsp9eu05.m.pipedream.net",
             includesMembership: true,
             includesClasses: true,
