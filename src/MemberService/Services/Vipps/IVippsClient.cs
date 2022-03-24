@@ -5,7 +5,7 @@ using MemberService.Services.Vipps.Models;
 
 public interface IVippsClient
 {
-    Task<InitiatePaymentResponse> InitiatePayment(Transaction transaction, string returnUrl, string callbackUrl);
+    Task<InitiatePaymentResponse> InitiatePayment(Transaction transaction, string returnUrl);
 
     Task<CapturePaymentResponse> CapturePayment(string orderId, string transactionText);
 

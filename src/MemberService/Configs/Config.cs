@@ -13,6 +13,7 @@ public record Config
         public string BaseUrl { get; init; }
         public string SubscriptionKey { get; init; }
         public string MerchantSerialNumber { get; init; }
+        public string CallbackPrefix { get; init; }
     }
 
     public record StripeConfig

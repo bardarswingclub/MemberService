@@ -95,7 +95,7 @@ public class StripePaymentService : IStripePaymentService
             CancelUrl = cancelUrl,
         });
 
-        return session.Id;
+        return session.Url;
     }
 
     private async Task<string> GetCustomerId(string email, string name)

@@ -1,8 +1,6 @@
 ﻿namespace MemberService.Services;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using MemberService.Data;
@@ -28,8 +26,7 @@ public class VippsPaymentService : IVippsPaymentService
         string userId,
         string description,
         decimal amount,
-        string successUrl,
-        string callbackUrl,
+        string returnToUrl,
         bool includesMembership = false,
         bool includesTraining = false,
         bool includesClasses = false,
@@ -51,12 +48,16 @@ public class VippsPaymentService : IVippsPaymentService
         await _database.SaveChangesAsync();
 
         var orderId = reservation.Id.ToString();
-        var response = await _vippsClient.InitiatePayment(new()
-        {
-            Amount = (int) amount * 100,
-            OrderId = orderId,
-            TransactionText = description
-        }, successUrl.Replace("{orderId}", orderId), callbackUrl);
+        var response = await _vippsClient.InitiatePayment(
+            new()
+            {
+                Amount = (int) amount * 100,
+                OrderId = orderId,
+                TransactionText = description
+            },
+            returnToUrl
+                .Replace("{orderId}", orderId)
+                .Replace("%7BorderId%7D", orderId));
 
         return response.Url;
     }

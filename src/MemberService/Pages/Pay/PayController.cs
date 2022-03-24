@@ -29,48 +29,6 @@ public class PayController : Controller
         _stripePaymentService = stripePaymentService;
     }
 
-    public async Task<IActionResult> Index(string title, string description, decimal amount, string email = null, string name = null)
-    {
-        if (title == null || description == null || amount <= 0)
-        {
-            return NotFound();
-        }
-
-        if (email != null && await _userManager.FindByEmailAsync(email) is User user)
-        {
-            name = user.FullName;
-            if (User.Identity.IsAuthenticated)
-            {
-                if (User.GetId() != user.Id)
-                {
-                    await _signInManager.SignOutAsync();
-                    return RedirectToPage("/Account/Login", new { email, returnUrl = Request.GetEncodedPathAndQuery(), Area = "Identity" });
-                }
-            }
-            else
-            {
-                return RedirectToPage("/Account/Login", new { email, returnUrl = Request.GetEncodedPathAndQuery(), Area = "Identity" });
-            }
-        }
-
-        var sessionId = await _stripePaymentService.CreatePaymentRequest(
-            name: name,
-            email: email,
-            title: title,
-            description: description,
-            amount: amount,
-            successUrl: Url.ActionLink(nameof(Success), "Pay", new { title, description, sessionId = "{CHECKOUT_SESSION_ID}" }),
-            cancelUrl: Request.GetDisplayUrl());
-
-        return View(new PayModel
-        {
-            Id = sessionId,
-            Name = title,
-            Description = description,
-            Amount = amount
-        });
-    }
-
     [HttpPost]
     [Authorize]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
@@ -85,7 +43,7 @@ public class PayController : Controller
             return RedirectToPage("/Home/Fees");
         }
 
-        var sessionId = await _stripePaymentService.CreatePaymentRequest(
+        var url = await _stripePaymentService.CreatePaymentRequest(
             name: user.FullName,
             email: user.Email,
             title: fee.Description,
@@ -97,10 +55,7 @@ public class PayController : Controller
             includesTraining: fee.IncludesTraining,
             includesClasses: fee.IncludesClasses);
 
-        return View(new PayModel
-        {
-            Id = sessionId
-        });
+        return Redirect(url);
     }
 
     public async Task<IActionResult> Success(string title, string description, string sessionId)
