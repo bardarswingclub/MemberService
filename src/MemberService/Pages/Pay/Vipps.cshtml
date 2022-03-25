@@ -13,7 +13,13 @@
         Betal med Vipps
     </h3>
 
-    @if (Model.PaymentDetails is null)
+    @if (Model.Success)
+    {
+        <div class="card-body">
+            <p>Betalt</p>
+        </div>
+    }
+    else
     {
         <form method="post" class="card-body">
             <p>
@@ -21,16 +27,6 @@
             </p>
 
             <button type="submit" class="btn btn-success btn-block">Betal</button>
-        </form>
-    }
-    else
-    {
-        <form method="post" asp-page-handler="capture" class="card-body">
-            <p>
-                Status: @Model.PaymentDetails.TransactionLogHistory.OrderByDescending(d => d.TimeStamp).FirstOrDefault().Operation
-            </p>
-
-            <button type="submit" class="btn btn-success btn-block">Capture</button>
         </form>
     }
 </div>

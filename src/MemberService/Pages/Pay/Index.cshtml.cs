@@ -64,10 +64,9 @@ public class IndexModel : PageModel
             return Page();
         }
 
-        if (OrderId is Guid orderId)
+        if (OrderId is Guid)
         {
-            await _vippsPaymentService.CapturePayment(orderId, User.GetId());
-            Success = true;
+            Success = await _vippsPaymentService.CompleteReservations(User.GetId());
             return Page();
         }
 

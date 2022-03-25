@@ -12,8 +12,13 @@ public interface IVippsPaymentService
         bool includesClasses = false,
         Guid? eventId = null);
 
-    Task CapturePayment(
+    Task CompletePayment(
         Guid orderId,
-        string userId,
-        string secret = null);
+        string secret);
+
+    Task<bool> CompleteReservations(
+        string userId);
+    Task CancelPayment(
+        Guid orderId,
+        string secret);
 }

@@ -49,7 +49,7 @@ public class PayController : Controller
             title: fee.Description,
             description: fee.Description,
             amount: fee.Amount,
-            successUrl: Url.ActionLink(nameof(FeePaid), "Pay", new { type, returnUrl, sessionId = "{CHECKOUT_SESSION_ID}" }),
+            successUrl: Url.ActionLink(nameof(FeePaid), values: new { type, returnUrl, sessionId = "{CHECKOUT_SESSION_ID}" }),
             cancelUrl: returnUrl,
             includesMembership: fee.IncludesMembership,
             includesTraining: fee.IncludesTraining,

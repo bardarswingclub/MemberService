@@ -14,24 +14,21 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 [Authorize]
 public class VippsModel : PageModel
 {
-    private readonly IVippsClient _vippsClient;
     private readonly IVippsPaymentService _vippsPaymentService;
 
     public VippsModel(
-        IVippsClient vippsClient,
         IVippsPaymentService vippsPaymentService)
     {
-        _vippsClient = vippsClient;
         _vippsPaymentService = vippsPaymentService;
     }
 
-    public PaymentDetails PaymentDetails { get; set; }
+    public bool Success { get; set; }
 
-    public async Task<IActionResult> OnGet(string orderId = null)
+    public async Task<IActionResult> OnGet(Guid? orderId = null)
     {
-        if (orderId is not null)
+        if (orderId is Guid id)
         {
-            PaymentDetails = await _vippsClient.GetPaymentDetails(orderId);
+            Success = await _vippsPaymentService.CompleteReservations(User.GetId());
         }
 
         return Page();
@@ -43,7 +40,7 @@ public class VippsModel : PageModel
             userId: User.GetId(),
             description:"Testing",
             amount: 200,
-            returnToUrl: Url.PageLink(values: new { orderId = "{orderId}" }),//"http://127.0.0.1:5862/Pay/Vipps/{orderId}",
+            returnToUrl: Url.PageLink(values: new { orderId = "{orderId}" }),
             includesMembership: true,
             includesClasses: true,
             includesTraining: true);
@@ -51,10 +48,10 @@ public class VippsModel : PageModel
         return Redirect(url);
     }
 
-    public async Task<IActionResult> OnPostCapture(Guid orderId)
+    public async Task<IActionResult> OnGetDetails(Guid orderId, [FromServices] IVippsClient vippsClient)
     {
-        await _vippsPaymentService.CapturePayment(orderId, User.GetId());
+        var details = await vippsClient.GetPaymentDetails(orderId.ToString());
 
-        return Page();
+        return new JsonResult(details);
     }
 }

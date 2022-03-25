@@ -1,7 +1,6 @@
 ﻿namespace MemberService.Pages.Pay;
 using System.Threading.Tasks;
 
-using MemberService.Data;
 using MemberService.Services;
 using MemberService.Services.Vipps.Models;
 
@@ -22,10 +21,7 @@ public class VippsCallbackController : Controller
     {
         var authToken = Request.Headers.Authorization.ToString();
 
-        if (body.TransactionInfo.Status == "RESERVED")
-        {
-            await _vippsPaymentService.CapturePayment(orderId, User.GetId(), authToken);
-        }
+        await _vippsPaymentService.CompletePayment(orderId, authToken);
 
         return Ok();
     }

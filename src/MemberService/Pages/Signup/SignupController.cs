@@ -201,10 +201,6 @@ public class SignupController : Controller
     [HttpGet]
     public async Task<IActionResult> Success(Guid id, string sessionId)
     {
-        var user = await _database.GetEditableUser(GetUserId());
-
-        var signup = user.EventSignups.FirstOrDefault(s => s.EventId == id);
-
         await _stripePaymentService.SavePayment(sessionId);
 
         return RedirectToAction(nameof(Event), new { id });
@@ -295,14 +291,7 @@ public class SignupController : Controller
     }
 
     private string SignupSuccessLink(Guid id)
-        => Url.ActionLink(
-            nameof(Success),
-            "Signup",
-            new
-            {
-                id,
-                sessionId = "{CHECKOUT_SESSION_ID}"
-            });
+        => Url.ActionLink(nameof(Success), values: new { id, sessionId = "{CHECKOUT_SESSION_ID}" });
 
     private string GetUserId() => User.GetId();
 }
