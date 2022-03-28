@@ -1,8 +1,5 @@
 ﻿namespace MemberService.Pages.Home;
 
-
-
-
 using MemberService.Pages.Signup;
 
 public class IndexModel

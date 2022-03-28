@@ -1,4 +1,5 @@
-﻿@using MemberService.Data.ValueTypes
+﻿@page
+@using MemberService.Data.ValueTypes
 @model SurveyModel
 
 @{
@@ -8,7 +9,7 @@
 
 <form method="POST" class="card shadow mt-5">
     <h2 class="card-header text-center">
-        Meld deg på kurs
+        @Model.Title
     </h2>
     <div class="card-body">
         <vc:survey-response id=Model.SurveyId />

@@ -189,67 +189,7 @@ public class HomeController : Controller
 
         await _database.SaveChangesAsync();
 
-        return RedirectToAction(nameof(Survey));
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Survey()
-    {
-        var model = await _database.Semesters
-            .Expressionify()
-            .Where(s => s.IsActive())
-            .Where(s => s.Survey != null)
-            .Select(s => SurveyModel.Create(s))
-            .FirstOrDefaultAsync();
-
-        if (model == null)
-        {
-            return RedirectToAction(nameof(Index));
-        }
-
-        return View(model);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Survey([FromForm] SurveyInputModel input)
-    {
-        if (!ModelState.IsValid)
-        {
-            return RedirectToAction(nameof(Survey));
-        }
-
-        var userId = User.GetId();
-
-        var model = await _database.Surveys
-            .Include(s => s.Questions)
-            .Include(s => s.Responses.Where(r => r.UserId == userId))
-            .ThenInclude(r => r.Answers)
-            .Expressionify()
-            .Where(s => s.Semester.IsActive())
-            .FirstOrDefaultAsync();
-
-        if (model == null)
-        {
-            return RedirectToAction(nameof(Index));
-        }
-
-        var response = model.Responses.GetOrAdd(r => r.UserId == userId, () => new Response { UserId = userId });
-
-        try
-        {
-            response.Answers = model.Questions
-                .JoinWithAnswers(input.Answers)
-                .ToList();
-        }
-        catch (ModelErrorException error)
-        {
-            ModelState.AddModelError(error.Key, error.Message);
-            return RedirectToAction(nameof(Survey));
-        }
-
-        await _database.SaveChangesAsync();
-
-        return RedirectToAction(nameof(Index));
+        return RedirectToPage("/Home/Survey");
     }
 
     public async Task<IActionResult> Fees()
