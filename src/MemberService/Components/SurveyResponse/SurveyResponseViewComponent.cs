@@ -7,7 +7,6 @@ using Clave.Expressionify;
 
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
-using MemberService.Pages.Signup;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

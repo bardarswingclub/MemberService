@@ -195,13 +195,11 @@ public class HomeController : Controller
     [HttpGet]
     public async Task<IActionResult> Survey()
     {
-        var userId = User.GetId();
-
         var model = await _database.Semesters
             .Expressionify()
             .Where(s => s.IsActive())
             .Where(s => s.Survey != null)
-            .Select(s => SurveyModel.Create(s, userId))
+            .Select(s => SurveyModel.Create(s))
             .FirstOrDefaultAsync();
 
         if (model == null)
@@ -222,19 +220,12 @@ public class HomeController : Controller
 
         var userId = User.GetId();
 
-        var model = await _database.Semesters
-            .Include(s => s.Survey)
-            .ThenInclude(s => s.Responses)
+        var model = await _database.Surveys
+            .Include(s => s.Questions)
+            .Include(s => s.Responses.Where(r => r.UserId == userId))
             .ThenInclude(r => r.Answers)
             .Expressionify()
-            .Where(s => s.IsActive())
-            .Where(s => s.Survey != null)
-            .Select(s => new
-            {
-                Survey = s.Survey,
-                Questions = s.Survey.Questions,
-                Responses = s.Survey.Responses.Where(r => r.UserId == userId).ToList()
-            })
+            .Where(s => s.Semester.IsActive())
             .FirstOrDefaultAsync();
 
         if (model == null)
@@ -246,7 +237,7 @@ public class HomeController : Controller
 
         try
         {
-            response.Answers = model.Survey.Questions
+            response.Answers = model.Questions
                 .JoinWithAnswers(input.Answers)
                 .ToList();
         }
