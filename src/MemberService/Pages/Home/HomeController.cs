@@ -29,41 +29,6 @@ public class HomeController : Controller
         _authorizationService = authorizationService;
     }
 
-    [AllowAnonymous]
-    public async Task<IActionResult> Index()
-    {
-        var userId = User.GetId();
-
-        var model = await _database.GetIndexModel(userId);
-
-        var openEvents = await _database.GetEvents(userId, e => e.HasOpened());
-
-        var futureEvents = await _database.GetEvents(userId, e => e.WillOpen());
-
-        model.PartyModel = new EventsModel
-        {
-            Title = "Fester",
-            OpenEvents = openEvents.Where(e => e.Type == EventType.Party).ToList(),
-            FutureEvents = futureEvents.Where(e => e.Type == EventType.Party).ToList()
-        };
-
-        model.WorkshopModel = new EventsModel
-        {
-            Title = "Workshops",
-            OpenEvents = openEvents.Where(e => e.Type == EventType.Workshop).ToList(),
-            FutureEvents = futureEvents.Where(e => e.Type == EventType.Workshop).ToList()
-        };
-
-        model.TrainingModel = new EventsModel
-        {
-            Title = "Egentrening",
-            OpenEvents = openEvents.Where(e => e.Type == EventType.Training).ToList(),
-            FutureEvents = futureEvents.Where(e => e.Type == EventType.Training).ToList()
-        };
-
-        return View(model);
-    }
-
     public async Task<IActionResult> Signup()
     {
         var semester = await _database.Semesters
@@ -192,18 +157,6 @@ public class HomeController : Controller
         return RedirectToPage("/Home/Survey");
     }
 
-    public async Task<IActionResult> Fees()
-    {
-        var user = await GetCurrentUser();
-
-        return View(new FeesViewModel
-        {
-            MembershipFee = user.GetMembershipFee(),
-            TrainingFee = user.GetTrainingFee(),
-            ClassesFee = user.GetClassesFee()
-        });
-    }
-
     [AllowAnonymous]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
@@ -215,13 +168,8 @@ public class HomeController : Controller
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult StatusCode(string statusCode)
     {
-        return View();
+        return View(statusCode);
     }
-
-    private async Task<User> GetCurrentUser()
-        => await _database.Users
-            .Include(x => x.Payments)
-            .SingleUser(User.GetId());
 
     private class ClassSignup
     {

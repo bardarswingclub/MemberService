@@ -27,7 +27,7 @@ public class SignupController : Controller
     [AllowAnonymous]
     public IActionResult Index()
     {
-        return RedirectToAction(nameof(HomeController.Index), "Home");
+        return RedirectToPage("/Home/Index");
     }
 
     [HttpGet]

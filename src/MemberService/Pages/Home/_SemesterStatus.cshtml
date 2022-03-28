@@ -5,7 +5,7 @@
     <h2 class="card-header text-center">
         Kurs
     </h2>
-    @if (Model?.SignupOpensAt == null)
+    @if (!Model.AnyOpenSignups || Model.SignupOpensAt == null)
     {
         <div class="card-body text-center pt-5 pb-5">
             <p style="font-size: 1.2em">
@@ -86,6 +86,6 @@
         </div>
     }
     <div class="card-footer text-center">
-        <a asp-action="Fees">Jeg vil ikke gå kurs, jeg vil bare bli medlem</a>
+        <a asp-page="/Home/Fees">Jeg vil ikke gå kurs, jeg vil bare bli medlem</a>
     </div>
 </div>

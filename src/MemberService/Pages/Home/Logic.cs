@@ -27,17 +27,4 @@ public static class Logic
             .OrderBy(e => e.SignupOptions.SignupOpensAt)
             .Select(e => CourseModel.Create(e, userId))
             .ToListAsync();
-
-    public static async Task<IndexModel> GetIndexModel(this MemberContext db, string userId) => await db.Semesters
-        .Current(s => new IndexModel
-        {
-            UserId = userId,
-            SignupOpensAt = s.SignupOpensAt,
-            Signups = s.Courses
-                .SelectMany(c => c.Signups, (e, s) => s)
-                .Where(es => es.UserId == userId)
-                .OrderBy(es => es.Priority)
-                .Select(es => CourseSignupModel.Create(es))
-                .ToList()
-        }) ?? new IndexModel();
 }

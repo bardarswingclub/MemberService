@@ -33,7 +33,7 @@ public class SurveyModel : PageModel
 
         if (model?.SurveyId is not Guid surveyId)
         {
-            return RedirectToAction(nameof(HomeController.Index), "Home");
+            return RedirectToPage("/Home/Index");
         }
 
         Title = model.Title;
@@ -63,7 +63,7 @@ public class SurveyModel : PageModel
 
         if (model == null)
         {
-            return RedirectToAction(nameof(HomeController.Index), "Home");
+            return RedirectToPage("/Home/Index");
         }
 
         var response = model.Responses.GetOrAdd(r => r.UserId == userId, () => new Response { UserId = userId });
@@ -82,6 +82,6 @@ public class SurveyModel : PageModel
 
         await database.SaveChangesAsync();
 
-        return RedirectToAction(nameof(HomeController.Index), "Home");
+        return RedirectToPage("/Home/Index");
     }
 }
