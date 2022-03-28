@@ -1,26 +1,15 @@
 ﻿@using MemberService.Data.ValueTypes
-@model IndexModel
+@model IndexModel.SemesterModel
 
 <div class="card shadow mt-5">
     <h2 class="card-header text-center">
-        Kurs
+        Kurs @Model?.Title
     </h2>
-    @if (!Model.AnyOpenSignups || Model.SignupOpensAt == null)
+    @if (Model?.SignupOpensAt > TimeProvider.UtcNow)
     {
         <div class="card-body text-center pt-5 pb-5">
             <p style="font-size: 1.2em">
-                Påmeldingen til kurs er desverre stengt
-            </p>
-            <p class="text-muted">
-                Kurspåmelding åpner vanligvis tidlig i januar og september
-            </p>
-        </div>
-    }
-    else if (Model.SignupOpensAt > TimeProvider.UtcNow)
-    {
-        <div class="card-body text-center pt-5 pb-5">
-            <p style="font-size: 1.2em">
-                Påmeldingen til kurs åpner <strong>@Model.SignupOpensAt.Value.DisplayOslo()</strong>
+                Påmeldingen til kurs åpner <strong>@Model.SignupOpensAt.DisplayOslo()</strong>
             </p>
             <p>
                 Timeplan finner du <a href="https://www.bardarswingclub.no/kurs/kursplaner/">her</a>.
@@ -30,7 +19,7 @@
             </p>
         </div>
     }
-    else if (Model.Signups.Any())
+    else if (Model?.Signups.Any() ?? false)
     {
         <div class="list-group list-group-flush priority-group">
             @foreach (var item in Model.Signups)
@@ -63,26 +52,40 @@
                 </div>
             }
         </div>
-        <div class="card-body text-center">
-            <a asp-action="Courses" class="btn btn-sm btn-outline-primary">Meld deg på flere kurs</a>
-        </div>
+        @if (Model.AnyOpenSignups)
+        {
+            <div class="card-body text-center">
+                <a asp-action="Courses" class="btn btn-sm btn-outline-primary">Meld deg på flere kurs</a>
+            </div>
+        }
     }
-    else
+    else if (Model?.AnyOpenSignups ?? false)
     {
         <div class="card-body text-center pt-5 pb-5">
-            @if (Model.UserId is not null)
+            @if (User.Identity.IsAuthenticated)
             {
                 <p style="font-size: 1.2em">
                     Du kan melde deg på kurs nå!
                 </p>
             }
             <a asp-action="Signup" class="btn btn-primary">Meld deg på kurs</a>
-            @if (Model.UserId is null)
+            @if (!User.Identity.IsAuthenticated)
             {
                 <p class="mt-5 mb-0">
                     Allerede påmeldt? <a asp-page="/Account/Login">Logg inn</a> for å se status
                 </p>
             }
+        </div>
+    }
+    else
+    {
+        <div class="card-body text-center pt-5 pb-5">
+            <p style="font-size: 1.2em">
+                Påmeldingen til kurs er desverre stengt
+            </p>
+            <p class="text-muted">
+                Kurspåmelding åpner vanligvis tidlig i januar og september
+            </p>
         </div>
     }
     <div class="card-footer text-center">

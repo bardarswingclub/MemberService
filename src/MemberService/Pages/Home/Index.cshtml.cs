@@ -11,13 +11,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 [AllowAnonymous]
 public class IndexModel : PageModel
 {
-    public DateTime? SignupOpensAt { get; set; }
-
-    public bool AnyOpenSignups { get; set; }
-
-    public IReadOnlyCollection<CourseSignupModel> Signups { get; set; }
-
-    public string UserId { get; set; }
+    public SemesterModel Semester { get; set; }
 
     public EventsModel PartyModel { get; set; }
 
@@ -30,9 +24,10 @@ public class IndexModel : PageModel
     {
         var userId = User.GetId();
 
-        var semester = await database.Semesters
-            .Current(s => new
+        Semester = await database.Semesters
+            .Current(s => new SemesterModel
             {
+                Title = s.Title,
                 SignupOpensAt = s.SignupOpensAt,
                 AnyOpenSignups = s.Courses.Any(c => c.IsOpen()),
                 Signups = s.Courses
@@ -42,11 +37,6 @@ public class IndexModel : PageModel
                     .Select(es => CourseSignupModel.Create(es))
                     .ToList()
             });
-
-        SignupOpensAt = semester?.SignupOpensAt;
-        AnyOpenSignups = semester?.AnyOpenSignups ?? false;
-        Signups = semester?.Signups;
-        UserId = User.GetId();
 
         var openEvents = await database.GetEvents(userId, e => e.HasOpened());
 
@@ -74,5 +64,16 @@ public class IndexModel : PageModel
         };
 
         return Page();
+    }
+
+    public class SemesterModel
+    {
+        public string Title { get; set; }
+
+        public DateTime SignupOpensAt { get; set; }
+
+        public bool AnyOpenSignups { get; set; }
+
+        public IReadOnlyCollection<CourseSignupModel> Signups { get; set; }
     }
 }
