@@ -1,10 +1,6 @@
 ﻿namespace MemberService.Pages.Home;
 
-
-
-
 using System.Linq.Expressions;
-
 
 using Clave.Expressionify;
 
@@ -14,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 public static class Logic
 {
-    public static async Task<IReadOnlyList<CourseModel>> GetCourses(this MemberContext db, string userId, Expression<Func<Data.Event, bool>> predicate)
+    public static async Task<IReadOnlyList<CourseModel>> GetCourses(this MemberContext db, string userId, Expression<Func<Event, bool>> predicate)
         => await db.Events
             .Include(e => e.SignupOptions)
             .Include(e => e.Semester)

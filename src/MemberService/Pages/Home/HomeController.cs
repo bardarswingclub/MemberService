@@ -157,20 +157,6 @@ public class HomeController : Controller
         return RedirectToPage("/Home/Survey");
     }
 
-    [AllowAnonymous]
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-    }
-
-    [AllowAnonymous]
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult StatusCode(string statusCode)
-    {
-        return View(statusCode);
-    }
-
     private class ClassSignup
     {
         public ClassSignup(Guid id, DanceRole role, string partnerEmail, int priority)
