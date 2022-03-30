@@ -1,11 +1,12 @@
 parameters:
   - name: azureSubscription
     default: bsc-medlemmer
+  - name: appName
 
 steps:
   - task: AzureWebApp@1
     inputs:
-      appName: bsc-medlemmer-test
+      appName: ${{ parameters.appName }}
       appType: webApp
       azureSubscription: ${{ parameters.azureSubscription }}
       package: $(Pipeline.Workspace)/**/*.zip
@@ -18,7 +19,7 @@ steps:
         -Email:SendGridApiKey @Microsoft.KeyVault(VaultName=bsc-medlemmer-keyvault;SecretName=SendGrid-ApiKey)
         -Authentication:Microsoft:ClientId @Microsoft.KeyVault(VaultName=bsc-medlemmer-keyvault;SecretName=Microsoft-ClientId)
         -Authentication:Microsoft:ClientSecret @Microsoft.KeyVault(VaultName=bsc-medlemmer-keyvault;SecretName=Microsoft-ClientSecret)
-        -Authentication:Facebook:AppId @Microsoft.KeyVault(VaultName=bsc-medlemmer-keyvault;SecretName=Facebook-AppSecret)
+        -Authentication:Facebook:AppId @Microsoft.KeyVault(VaultName=bsc-medlemmer-keyvault;SecretName=Facebook-AppId)
         -Authentication:Facebook:AppSecret @Microsoft.KeyVault(VaultName=bsc-medlemmer-keyvault;SecretName=Facebook-AppSecret)
         -Authentication:Vipps:ClientId @Microsoft.KeyVault(VaultName=bsc-medlemmer-keyvault;SecretName=Vipps-ClientId)
         -Authentication:Vipps:ClientSecret @Microsoft.KeyVault(VaultName=bsc-medlemmer-keyvault;SecretName=Vipps-ClientSecret)

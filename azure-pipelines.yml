@@ -16,7 +16,9 @@ stages:
       - job: Build
         steps:
           - template: pipelines/build.yml
-  - stage: Deploy
+
+  - stage: DeployTest
+    displayName: Deploy to Test
     jobs:
       - deployment: Test
         environment: Test
@@ -25,3 +27,5 @@ stages:
             deploy:
               steps:
                 - template: pipelines/deploy.yml
+                  parameters:
+                    appName: bsc-medlemmer-test
