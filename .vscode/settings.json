@@ -6,7 +6,7 @@
     "aspnetcorerazor": "html"
   },
   "razor.disabled": false,
-  "yaml.schemas": {
-    "https://raw.githubusercontent.com/microsoft/azure-pipelines-vscode/master/service-schema.json": "file:///c%3A/dev/MemberService/pipelines/build.yml"
-}
+  "files.associations": {
+    "**/pipelines/*.yml": "azure-pipelines"
+  }
 }

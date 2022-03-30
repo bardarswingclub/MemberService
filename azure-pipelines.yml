@@ -4,6 +4,12 @@ pool:
 trigger:
   - master
 
+variables:
+  - name: AdminEmails
+    value: "gundersen@gmail.com, erikly@gmail.com"
+  - name: FromEmail
+    value: pamelding@bardarswingclub.no
+
 stages:
   - stage: Build
     jobs:
@@ -18,4 +24,4 @@ stages:
           runOnce:
             deploy:
               steps:
-                - script: echo "deploy"
+                - template: pipelines/deploy.yml

@@ -1,0 +1,11 @@
+parameters:
+  - name: azureSubscription
+    default: bsc-medlemmer
+
+steps:
+  - task: AzureWebApp@1
+    inputs:
+      appName: bsc-medlemmer
+      appType: webApp
+      azureSubscription: ${{ parameters.azureSubscription }}
+      package: $(System.DefaultWorkingDirectory)/**/*.zip
