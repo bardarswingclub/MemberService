@@ -1,58 +1,21 @@
 pool:
-  vmImage: 'windows-2022'
+  vmImage: "windows-2022"
 
 trigger:
   - master
 
-variables:
-  BuildConfiguration: release
-  NUGET_PACKAGES: $(Build.SourcesDirectory)/.nuget/packages
-
-steps:
-  - task: UseDotNet@2
-    displayName: ".NET Core 6 for building"
-    inputs:
-      version: "6.0.x"
-      packageType: sdk
-
-  - task: Cache@2
-    inputs:
-      key: 'nuget | "$(Agent.OS)"'
-      restoreKeys: |
-        nuget | "$(Agent.OS)"
-      path: $(NUGET_PACKAGES)
-    displayName: Cache NuGet packages
-
-  - task: DotNetCoreCLI@2
-    displayName: Restore
-    inputs:
-      command: restore
-      projects: "**/*.csproj"
-
-  - task: DotNetCoreCLI@2
-    displayName: Build
-    inputs:
-      projects: "**/*.csproj"
-      arguments: "--configuration $(BuildConfiguration)"
-
-  - task: DotNetCoreCLI@2
-    displayName: Test
-    inputs:
-      command: test
-      projects: "**/*.Tests.csproj"
-      arguments: "--configuration $(BuildConfiguration)"
-      nobuild: true
-
-  - task: DotNetCoreCLI@2
-    displayName: Publish
-    inputs:
-      command: publish
-      publishWebProjects: True
-      arguments: "--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)"
-      zipAfterPublish: True
-
-  - task: PublishBuildArtifacts@1
-    displayName: "Publish Artifact"
-    inputs:
-      PathtoPublish: "$(build.artifactstagingdirectory)"
-      ArtifactName: "Drop"
+stages:
+  - stage: Build
+    jobs:
+      - job: Build
+        steps:
+          - template: pipelines/build.yml
+  - stage: Deploy
+    jobs:
+      - deployment: Test
+        environment: Test
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - script: echo "deploy"
