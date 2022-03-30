@@ -29,41 +29,6 @@ public class HomeController : Controller
         _authorizationService = authorizationService;
     }
 
-    [AllowAnonymous]
-    public async Task<IActionResult> Index()
-    {
-        var userId = User.GetId();
-
-        var model = await _database.GetIndexModel(userId);
-
-        var openEvents = await _database.GetEvents(userId, e => e.HasOpened());
-
-        var futureEvents = await _database.GetEvents(userId, e => e.WillOpen());
-
-        model.PartyModel = new EventsModel
-        {
-            Title = "Fester",
-            OpenEvents = openEvents.Where(e => e.Type == EventType.Party).ToList(),
-            FutureEvents = futureEvents.Where(e => e.Type == EventType.Party).ToList()
-        };
-
-        model.WorkshopModel = new EventsModel
-        {
-            Title = "Workshops",
-            OpenEvents = openEvents.Where(e => e.Type == EventType.Workshop).ToList(),
-            FutureEvents = futureEvents.Where(e => e.Type == EventType.Workshop).ToList()
-        };
-
-        model.TrainingModel = new EventsModel
-        {
-            Title = "Egentrening",
-            OpenEvents = openEvents.Where(e => e.Type == EventType.Training).ToList(),
-            FutureEvents = futureEvents.Where(e => e.Type == EventType.Training).ToList()
-        };
-
-        return View(model);
-    }
-
     public async Task<IActionResult> Signup()
     {
         var semester = await _database.Semesters
@@ -189,108 +154,8 @@ public class HomeController : Controller
 
         await _database.SaveChangesAsync();
 
-        return RedirectToAction(nameof(Survey));
+        return RedirectToPage("/Home/Survey");
     }
-
-    [HttpGet]
-    public async Task<IActionResult> Survey()
-    {
-        var userId = User.GetId();
-
-        var model = await _database.Semesters
-            .Expressionify()
-            .Where(s => s.IsActive())
-            .Where(s => s.Survey != null)
-            .Select(s => SurveyModel.Create(s, userId))
-            .FirstOrDefaultAsync();
-
-        if (model == null)
-        {
-            return RedirectToAction(nameof(Index));
-        }
-
-        return View(model);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Survey([FromForm] SurveyInputModel input)
-    {
-        if (!ModelState.IsValid)
-        {
-            return RedirectToAction(nameof(Survey));
-        }
-
-        var userId = User.GetId();
-
-        var model = await _database.Semesters
-            .Include(s => s.Survey)
-            .ThenInclude(s => s.Responses)
-            .ThenInclude(r => r.Answers)
-            .Expressionify()
-            .Where(s => s.IsActive())
-            .Where(s => s.Survey != null)
-            .Select(s => new
-            {
-                Survey = s.Survey,
-                Questions = s.Survey.Questions,
-                Responses = s.Survey.Responses.Where(r => r.UserId == userId).ToList()
-            })
-            .FirstOrDefaultAsync();
-
-        if (model == null)
-        {
-            return RedirectToAction(nameof(Index));
-        }
-
-        var response = model.Responses.GetOrAdd(r => r.UserId == userId, () => new Response { UserId = userId });
-
-        try
-        {
-            response.Answers = model.Survey.Questions
-                .JoinWithAnswers(input.Answers)
-                .ToList();
-        }
-        catch (ModelErrorException error)
-        {
-            ModelState.AddModelError(error.Key, error.Message);
-            return RedirectToAction(nameof(Survey));
-        }
-
-        await _database.SaveChangesAsync();
-
-        return RedirectToAction(nameof(Index));
-    }
-
-    public async Task<IActionResult> Fees()
-    {
-        var user = await GetCurrentUser();
-
-        return View(new FeesViewModel
-        {
-            MembershipFee = user.GetMembershipFee(),
-            TrainingFee = user.GetTrainingFee(),
-            ClassesFee = user.GetClassesFee()
-        });
-    }
-
-    [AllowAnonymous]
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-    }
-
-    [AllowAnonymous]
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult StatusCode(string statusCode)
-    {
-        return View();
-    }
-
-    private async Task<User> GetCurrentUser()
-        => await _database.Users
-            .Include(x => x.Payments)
-            .SingleUser(User.GetId());
 
     private class ClassSignup
     {

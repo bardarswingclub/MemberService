@@ -1,10 +1,6 @@
 ﻿namespace MemberService.Pages.Home;
 
-
-
-
 using System.Linq.Expressions;
-
 
 using Clave.Expressionify;
 
@@ -14,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 public static class Logic
 {
-    public static async Task<IReadOnlyList<CourseModel>> GetCourses(this MemberContext db, string userId, Expression<Func<Data.Event, bool>> predicate)
+    public static async Task<IReadOnlyList<CourseModel>> GetCourses(this MemberContext db, string userId, Expression<Func<Event, bool>> predicate)
         => await db.Events
             .Include(e => e.SignupOptions)
             .Include(e => e.Semester)
@@ -27,17 +23,4 @@ public static class Logic
             .OrderBy(e => e.SignupOptions.SignupOpensAt)
             .Select(e => CourseModel.Create(e, userId))
             .ToListAsync();
-
-    public static async Task<IndexModel> GetIndexModel(this MemberContext db, string userId) => await db.Semesters
-        .Current(s => new IndexModel
-        {
-            UserId = userId,
-            SignupOpensAt = s.SignupOpensAt,
-            Signups = s.Courses
-                .SelectMany(c => c.Signups, (e, s) => s)
-                .Where(es => es.UserId == userId)
-                .OrderBy(es => es.Priority)
-                .Select(es => CourseSignupModel.Create(es))
-                .ToList()
-        }) ?? new IndexModel();
 }

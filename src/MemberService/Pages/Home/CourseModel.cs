@@ -1,8 +1,5 @@
 ﻿namespace MemberService.Pages.Home;
 
-
-
-
 using Clave.Expressionify;
 
 using MemberService.Data;

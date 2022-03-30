@@ -82,7 +82,7 @@ public class PayController : Controller
 
         if (feeStatus != FeeStatus.Unpaid)
         {
-            return RedirectToAction(nameof(HomeController.Fees), "Home");
+            return RedirectToPage("/Home/Fees");
         }
 
         var sessionId = await _paymentService.CreatePayment(
@@ -126,7 +126,7 @@ public class PayController : Controller
 
         if (string.IsNullOrEmpty(returnUrl))
         {
-            return RedirectToAction(nameof(HomeController.Fees), "Home");
+            return RedirectToPage("/Home/Fees");
         }
 
         return Url.IsLocalUrl(returnUrl)

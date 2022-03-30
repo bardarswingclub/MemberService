@@ -20,7 +20,7 @@ public partial class SignupModel
 
     public EventSignup UserEventSignup { get; set; }
 
-    public IReadOnlyList<SignupQuestion> Questions { get; set; }
+    public Guid? SurveyId { get; set; }
 
     public bool HasClosed { get; set; }
 
@@ -40,7 +40,7 @@ public partial class SignupModel
             Options = e.SignupOptions,
             IsOpen = e.IsOpen(),
             HasClosed = e.HasClosed(),
-            Questions = e.Survey.Questions.Select(q => SignupQuestion.Create(q)).ToList(),
+            SurveyId = e.SurveyId,
             IsArchived = e.Archived,
             IsCancelled = e.Cancelled
         };
