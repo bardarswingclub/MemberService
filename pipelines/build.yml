@@ -1,6 +1,8 @@
-variables:
-  BuildConfiguration: release
-  NUGET_PACKAGES: $(Build.SourcesDirectory)/.nuget/packages
+parameters:
+  - name: BuildConfiguration
+    default: release
+  - name: NUGET_PACKAGES
+    default: $(Build.SourcesDirectory)/.nuget/packages
 
 steps:
   - task: UseDotNet@2
