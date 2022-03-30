@@ -5,7 +5,20 @@ parameters:
 steps:
   - task: AzureWebApp@1
     inputs:
-      appName: bsc-medlemmer
+      appName: bsc-medlemmer-test
       appType: webApp
       azureSubscription: ${{ parameters.azureSubscription }}
-      package: $(System.DefaultWorkingDirectory)/**/*.zip
+      package: $(Pipeline.Workspace)/**/*.zip
+      appSettings: >-
+        -Stripe:PublicKey @Microsoft.KeyVault(VaultName=bsc-medlemmer-keyvault;SecretName=Stripe-PublicKey)
+        -Stripe:SecretKey @Microsoft.KeyVault(VaultName=bsc-medlemmer-keyvault;SecretName=Stripe-SecretKey)
+        -Email:From $(Email-From)
+        -ConnectionStrings:DefaultConnection @Microsoft.KeyVault(VaultName=bsc-medlemmer-keyvault;SecretName=DatabaseConnectionString)
+        -AdminEmails "$(AdminEmails)"
+        -Email:SendGridApiKey @Microsoft.KeyVault(VaultName=bsc-medlemmer-keyvault;SecretName=SendGrid-ApiKey)
+        -Authentication:Microsoft:ClientId @Microsoft.KeyVault(VaultName=bsc-medlemmer-keyvault;SecretName=Microsoft-ClientId)
+        -Authentication:Microsoft:ClientSecret @Microsoft.KeyVault(VaultName=bsc-medlemmer-keyvault;SecretName=Microsoft-ClientSecret)
+        -Authentication:Facebook:AppId @Microsoft.KeyVault(VaultName=bsc-medlemmer-keyvault;SecretName=Facebook-AppSecret)
+        -Authentication:Facebook:AppSecret @Microsoft.KeyVault(VaultName=bsc-medlemmer-keyvault;SecretName=Facebook-AppSecret)
+        -Authentication:Vipps:ClientId @Microsoft.KeyVault(VaultName=bsc-medlemmer-keyvault;SecretName=Vipps-ClientId)
+        -Authentication:Vipps:ClientSecret @Microsoft.KeyVault(VaultName=bsc-medlemmer-keyvault;SecretName=Vipps-ClientSecret)
