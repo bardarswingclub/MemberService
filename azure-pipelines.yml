@@ -19,6 +19,7 @@ stages:
 
   - stage: DeployTest
     displayName: Deploy to Test
+    condition: false
     jobs:
       - deployment: Test
         environment: Test
@@ -29,3 +30,17 @@ stages:
                 - template: pipelines/deploy.yml
                   parameters:
                     appName: bsc-medlemmer-test
+
+  - stage: DeployProd
+    displayName: Deploy to Prod
+    dependsOn: [Build]
+    jobs:
+      - deployment: Prod
+        environment: Prod
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: pipelines/deploy.yml
+                  parameters:
+                    appName: bsc-medlemmer
