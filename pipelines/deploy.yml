@@ -13,7 +13,7 @@ steps:
       appSettings: >-
         -Stripe:PublicKey @Microsoft.KeyVault(VaultName=bsc-medlemmer-keyvault;SecretName=Stripe-PublicKey)
         -Stripe:SecretKey @Microsoft.KeyVault(VaultName=bsc-medlemmer-keyvault;SecretName=Stripe-SecretKey)
-        -Email:From $(Email-From)
+        -Email:From $(FromEmail)
         -ConnectionStrings:DefaultConnection @Microsoft.KeyVault(VaultName=bsc-medlemmer-keyvault;SecretName=DatabaseConnectionString)
         -AdminEmails "$(AdminEmails)"
         -Email:SendGridApiKey @Microsoft.KeyVault(VaultName=bsc-medlemmer-keyvault;SecretName=SendGrid-ApiKey)
