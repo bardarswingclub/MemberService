@@ -10,9 +10,9 @@ public static class TimeProvider
 
     public static DateTime LastYearUtc => new(UtcNow.Year - 1, 1, 1);
 
-    public static DateTime ThisSemesterUtc => new(UtcNow.Year, (UtcNow.Month >= 7 ? 7 : 1), 1);
+    public static DateTime ThisSemesterUtc => UtcNow.GetStartOfSemester();
 
-    public static DateTime NextSemesterUtc => new DateTime(UtcNow.Year, (UtcNow.Month >= 7 ? 7 : 1), 1).AddMonths(6);
+    public static DateTime NextSemesterUtc => UtcNow.GetStartOfNextSemester();
 
     public static DateTime UtcNow => UtcNowProvider();
 

@@ -92,35 +92,47 @@
         </div>
     </div>
 
+    <vc:semester-history user-id=@Model.Id view-event />
 
     <div class="card shadow-sm">
         <h3 class="card-header">
-            Påmeldinger
+            Arrangementer
         </h3>
-        <table class="table card-body">
-            <thead>
-                <tr>
-                    <th>Dato</th>
-                    <th>Arrangement</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var signup in Model.EventSignups)
-                {
+
+        @if (Model.EventSignups.NotAny())
+        {
+            <div class="card-body text-center">
+                <em class="text-muted">
+                    Ikke påmeldt noe
+                </em>
+            </div>
+        }
+        else
+        {
+            <table class="table card-body">
+                <thead>
                     <tr>
-                        <td>
-                            <abbr title="@signup.SignedUpAt.ToOsloDateTime()">@signup.SignedUpAt.ToOsloDate()</abbr>
-                        </td>
-                        <td>
-                            <a asp-controller="Event" asp-action="View" asp-route-id="@signup.EventId">@signup.Event.Title</a>
-                            <span class="badge badge-primary badge-pill">@(signup.Priority). pri</span>
-                        </td>
-                        <td>@signup.Status.DisplayName()</td>
+                        <th>Dato</th>
+                        <th>Arrangement</th>
+                        <th>Status</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var signup in Model.EventSignups)
+                    {
+                        <tr>
+                            <td>
+                                <abbr title="@signup.SignedUpAt.ToOsloDateTime()">@signup.SignedUpAt.ToOsloDate()</abbr>
+                            </td>
+                            <td>
+                                <a asp-controller="Event" asp-action="View" asp-route-id="@signup.EventId">@signup.Event.Title</a>
+                            </td>
+                            <td>@signup.Status.DisplayName()</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
     </div>
 
     <div class="card shadow-sm">
@@ -136,38 +148,49 @@
                 </form>
             }
         </h3>
-        <table class="table card-body">
-            <thead>
-                <tr>
-                    <th>Dato</th>
-                    <th>Beskrivelse</th>
-                    <th>Beløp</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var payment in Model.Payments.OrderByDescending(p => p.PayedAtUtc))
-                {
-                    <tr class="@(payment.Refunded ? "line-through" : "")">
-                        <td>
-                            <abbr title="@payment.PayedAtUtc.ToOsloDateTime()">@payment.PayedAtUtc.ToOsloDate()</abbr>
-                        </td>
-                        <td>
-                            @if (await AuthorizationService.IsAuthorized(User, Policy.CanSeeStripeLink) && payment.StripeChargeId != null)
-                            {
-                                <a href="https://dashboard.stripe.com/payments/@payment.StripeChargeId" target="_blank">
-                                    @payment.Description
-                                </a>
-                            }
-                            else
-                            {
-                                @payment.Description
-                            }
-                        </td>
-                        <td>@payment.Amount.FormatMoney()</td>
+        @if (Model.Payments.NotAny())
+        {
+            <div class="card-body text-center">
+                <em class="text-muted">
+                    Ikke betalt noe
+                </em>
+            </div>
+        }
+        else
+        {
+            <table class="table card-body">
+                <thead>
+                    <tr>
+                        <th>Dato</th>
+                        <th>Beskrivelse</th>
+                        <th>Beløp</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var payment in Model.Payments.OrderByDescending(p => p.PayedAtUtc))
+                    {
+                        <tr class="@(payment.Refunded ? "line-through" : "")">
+                            <td>
+                                <abbr title="@payment.PayedAtUtc.ToOsloDateTime()">@payment.PayedAtUtc.ToOsloDate()</abbr>
+                            </td>
+                            <td>
+                                @if (await AuthorizationService.IsAuthorized(User, Policy.CanSeeStripeLink) && payment.StripeChargeId != null)
+                                {
+                                    <a href="https://dashboard.stripe.com/payments/@payment.StripeChargeId" target="_blank">
+                                        @payment.Description
+                                    </a>
+                                }
+                                else
+                                {
+                                    @payment.Description
+                                }
+                            </td>
+                            <td>@payment.Amount.FormatMoney()</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
         @if (await AuthorizationService.IsAuthorized(User, Policy.CanAddManualPayment))
         {
             <div class="card-footer">

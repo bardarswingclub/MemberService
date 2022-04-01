@@ -31,9 +31,12 @@
             <button id="update-profile-button" type="submit" class="btn btn-success btn-block">Lagre</button>
         </form>
     </div>
+
+    <vc:semester-history user-id=@Model.UserId />
+
     <div class="card shadow-sm">
         <h3 class="card-header">
-            Hva har du meldt deg på?
+            Arrangementer
         </h3>
         @if (Model.EventSignups.Any())
         {
@@ -54,9 +57,9 @@
                             </td>
                             <td>
                                 <a asp-controller="Signup" asp-action="Event" asp-route-id="@signup.EventId">@signup.Title</a>
-                                @if (signup.Role is DanceRole role)
+                                @if (signup.Role is not DanceRole.None)
                                 {
-                                    @: som @role.DisplayName().ToLower()
+                                    @: som @signup.Role.DisplayName().ToLower()
                                 }
                             </td>
                             <td>
@@ -69,16 +72,16 @@
         }
         else
         {
-            <div class="card-body">
-                <h4 class="text-muted text-center mt-5">
+            <div class="card-body text-center">
+                <em class="text-muted">
                     Du har ikke meldt deg på noe ennå
-                </h4>
+                </em>
             </div>
         }
     </div>
     <div class="card shadow-sm">
         <h3 class="card-header">
-            Hva har du betalt for?
+            Betalinger
         </h3>
         @if (Model.Payments.Any())
         {
@@ -106,10 +109,10 @@
         }
         else
         {
-            <div class="card-body">
-                <h4 class="text-muted text-center mt-5">
+            <div class="card-body text-center">
+                <em class="text-muted">
                     Du har ikke betalt for noe ennå
-                </h4>
+                </em>
             </div>
         }
     </div>

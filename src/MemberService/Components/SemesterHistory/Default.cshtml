@@ -1,0 +1,73 @@
+﻿@using MemberService.Data.ValueTypes
+
+@model MemberService.Components.SemesterHistory.SemesterHistory.Model
+
+<div class="card shadow-sm">
+    <h3 class="card-header">
+        Kurs
+    </h3>
+    <table class="table card-body">
+        @if (Model.Semesters.NotAny())
+        {
+            <tbody>
+                <tr>
+                    <td colspan=3 class="text-center">
+                        <em class="text-muted">Ikke påmeldt kurs</em>
+                    </td>
+                </tr>
+            </tbody>
+        }
+        @foreach (var semester in Model.Semesters)
+        {
+            <thead>
+                <tr>
+                    <th colspan=3>
+                            @if (semester.PaidMembership)
+                            {
+                                <span class="float-right">
+                                    <span style="color: #0a0">&#x2713;</span> Medlem
+                                </span>
+                            }
+                        <span class="mb-0">
+                            @semester.Title
+                        </span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (semester.Courses.NotAny())
+                {
+                    <tr>
+                        <td colspan=3 class="text-center">
+                            <em class="text-muted">Ikke påmeldt kurs</em>
+                        </td>
+                    </tr>
+                }
+                @foreach(var course in semester.Courses)
+                {
+                    <tr>
+                        <td>
+                            @if (Model.LinkToEvent)
+                            {
+                                <a asp-page="/Event/View" asp-route-id="@course.EventId">@course.Title</a>
+                            }
+                            else
+                            {
+                                <a asp-controller="Signup" asp-action="Event" asp-route-id="@course.EventId">@course.Title</a>
+                            }
+                        </td>
+                        <td>
+                            @if (course.Role is not DanceRole.None)
+                            {
+                                @course.Role.DisplayName()
+                            }
+                        </td>
+                        <td>
+                            @course.Status.DisplayDescription()
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        }
+    </table>
+</div>

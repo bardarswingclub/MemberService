@@ -53,7 +53,7 @@ public class DetailsModel : PageModel
             .Include(u => u.Payments)
             .Include(u => u.UserRoles)
                 .ThenInclude(r => r.Role)
-            .Include(u => u.EventSignups)
+            .Include(u => u.EventSignups.Where(s => !s.Event.SemesterId.HasValue))
                 .ThenInclude(s => s.Event)
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.Id == id);

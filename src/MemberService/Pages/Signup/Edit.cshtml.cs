@@ -24,7 +24,7 @@ public class EditModel : PageModel
     {
         var model = await _database.GetSignupModel(id);
 
-        if (model == null)
+        if (model.IsArchived)
         {
             return NotFound();
         }

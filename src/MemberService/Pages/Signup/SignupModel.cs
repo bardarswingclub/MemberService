@@ -41,7 +41,7 @@ public partial class SignupModel
             IsOpen = e.IsOpen(),
             HasClosed = e.HasClosed(),
             SurveyId = e.SurveyId,
-            IsArchived = e.Archived,
+            IsArchived = e.Archived || !e.Semester.IsActive(),
             IsCancelled = e.Cancelled
         };
 }
