@@ -3,7 +3,7 @@
 @using MemberService.Auth
 @using Microsoft.AspNetCore.Authorization
 @inject IAuthorizationService AuthorizationService
-@model MemberService.Components.EventHeader.EventHeaderViewComponent.Model
+@model MemberService.Components.EventHeader.EventHeader.Model
 
 <div class="bg-light overflow-container">
     <div class="container-fluid">
@@ -128,7 +128,7 @@
 </div>
 
 @functions{
-    string AlertClass(EventHeaderViewComponent.Model model)
+    string AlertClass(EventHeader.Model model)
     {
         if (model.Archived)
         {
