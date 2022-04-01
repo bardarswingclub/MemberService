@@ -29,7 +29,13 @@
                 Rabatt på klubbens arrangementer. Tilgang til å melde seg på på ekstraordinære kurs mot betaling.
             </p>
         </div>
-        @if(Model.MembershipFee.Fee is Fee membershipFee)
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <div class="card-footer">
+                <a asp-page="/Account/Login" asp-route-returnUrl="/home/fees" class="btn btn-success">Bli medlem</a>
+            </div>
+        }
+        else if (Model.MembershipFee.Fee is Fee membershipFee)
         {
             <form class="card-footer" asp-controller="Pay" asp-action="Fee" method="post">
                 <input type="hidden" name="type" value="@Fee.Membership" />
@@ -64,7 +70,13 @@
                 }
             </p>
         </div>
-        @if(Model.TrainingFee.Fee is Fee trainingFee)
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <div class="card-footer">
+                <a asp-page="/Account/Login" asp-route-returnUrl="/home/fees" class="btn btn-success">Betal treningsavgift</a>
+            </div>
+        }
+        else if (Model.TrainingFee.Fee is Fee trainingFee)
         {
             <form class="card-footer" asp-controller="Pay" asp-action="Fee" method="post">
                 <input type="hidden" name="type" value="@Fee.Training" />
@@ -111,7 +123,13 @@
                 }
             </p>
         </div>
-        @if(Model.ClassesFee.Fee is Fee classesFee)
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <div class="card-footer">
+                <a asp-page="/Account/Login" asp-route-returnUrl="/home/fees" class="btn btn-success">Betal kursavgift</a>
+            </div>
+        }
+        else if(Model.ClassesFee.Fee is Fee classesFee)
         {
             <form class="card-footer" asp-controller="Pay" asp-action="Fee" method="post">
                 <input type="hidden" name="type" value="@Fee.Classes" />
