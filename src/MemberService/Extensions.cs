@@ -52,6 +52,9 @@ public static class Extensions
     public static string ToOsloTime(this DateTime utc)
         => utc.ToOsloZone().TimeOfDay.ToString("HH:mm", CultureInfo.InvariantCulture);
 
+    public static DateTime GetStartOfSemester(this DateTime d) => new(d.Year, d.Month >= 7 ? 7 : 1, 1);
+    public static DateTime GetStartOfNextSemester(this DateTime d) => d.GetStartOfSemester().AddMonths(6);
+
     public static ZonedDateTime ToOsloZone(this DateTime utc)
         => Instant.FromDateTimeUtc(utc.WithKind(DateTimeKind.Utc)).InZone(TimeProvider.TimeZoneOslo);
 

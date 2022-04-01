@@ -5,21 +5,17 @@ using MemberService.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
-public class ExternalLoginViewComponent : ViewComponent
+public class ExternalLogin : ViewComponent
 {
     private readonly ILoginService _loginService;
 
-    public ExternalLoginViewComponent(ILoginService loginService)
+    public ExternalLogin(ILoginService loginService)
     {
         _loginService = loginService;
     }
 
     public async Task<IViewComponentResult> InvokeAsync(string returnUrl = null)
-    {
-        var model = new Model(returnUrl, await _loginService.GetExternalAuthenticationSchemes());
-
-        return View(model);
-    }
+        => View(new Model(returnUrl, await _loginService.GetExternalAuthenticationSchemes()));
 
     public record Model(string ReturnUrl, IList<AuthenticationScheme> ExternalLogins);
 }

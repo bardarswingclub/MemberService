@@ -13,12 +13,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.EntityFrameworkCore;
 
-public partial class SurveyResponseViewComponent : ViewComponent
+public partial class SurveyResponse : ViewComponent
 {
     private readonly MemberContext _database;
     private readonly UserManager<User> _userManager;
 
-    public SurveyResponseViewComponent(
+    public SurveyResponse(
         MemberContext database,
         UserManager<User> userManager)
     {
@@ -48,15 +48,11 @@ public partial class SurveyResponseViewComponent : ViewComponent
     {
         public partial record SignupQuestion
         {
-            public Guid Id { get; set; }
-
-            public QuestionType Type { get; set; }
-
-            public string Title { get; set; }
-
-            public string Description { get; set; }
-
-            public IReadOnlyList<Option> Options { get; set; }
+            public Guid Id { get; init; }
+            public QuestionType Type { get; init; }
+            public string Title { get; init; }
+            public string Description { get; init; }
+            public IReadOnlyList<Option> Options { get; init; }
 
             [Expressionify]
             public static SignupQuestion Create(Question q, string userId)
@@ -73,14 +69,10 @@ public partial class SurveyResponseViewComponent : ViewComponent
 
             public partial record Option
             {
-                public Guid Id { get; set; }
-
-                public string Title { get; set; }
-
-                public string Description { get; set; }
-
-                public bool Checked { get; set; }
-
+                public Guid Id { get; init; }
+                public string Title { get; init; }
+                public string Description { get; init; }
+                public bool Checked { get; init; }
                 [Expressionify]
                 public static Option Create(QuestionOption o, string userId)
                     => new()

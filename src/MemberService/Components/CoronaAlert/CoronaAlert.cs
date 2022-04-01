@@ -2,7 +2,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-public class CoronaAlertViewComponent : ViewComponent
+public class CoronaAlert : ViewComponent
 {
     public IViewComponentResult Invoke() => View();
 }

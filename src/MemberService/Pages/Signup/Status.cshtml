@@ -49,8 +49,10 @@
                 <p>Du har godtatt plassen og betalt alt som trengs for å delta, så nå er det ingenting mer å gjøre, bare å glede seg!</p>
             </div>
 
-            <details>
-                <summary>Jeg kan ikke delta likevel</summary>
+            @if (!Model.IsArchived)
+            {
+                <details>
+                    <summary>Jeg kan ikke delta likevel</summary>
                 <div class="alert alert-info" role="alert">
                     <h3 class="alert-heading">Vil du ikke ha plassen din?</h3>
                     <p>Du kan melde deg av hvis du vil, men du vil ikke få refundert betalingen</p>
@@ -60,6 +62,7 @@
                     </form>
                 </div>
             </details>
+            }
         }
         else if (Model.UserEventSignup.Status == Status.RejectedOrNotPayed)
         {
@@ -101,7 +104,7 @@
 
             <vc:survey-response id=Model.SurveyId disabled />
 
-            @if (Model.Options.RoleSignup || Model.SurveyId.HasValue)
+            @if (!Model.IsArchived && (Model.Options.RoleSignup || Model.SurveyId.HasValue))
             {
                 <div class="text-center">
                     <a asp-page="/Signup/Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">Rediger påmelding</a>

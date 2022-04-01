@@ -9,6 +9,7 @@ using System.ComponentModel.DataAnnotations;
 using Clave.ExtensionMethods;
 
 using MemberService.Data;
+using MemberService.Data.ValueTypes;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -33,6 +34,8 @@ public partial class IndexModel : PageModel
         _signInManager = signInManager;
     }
 
+    public string UserId { get; set; }
+
     [DisplayName("E-post")]
     public string Email { get; set; }
 
@@ -54,18 +57,17 @@ public partial class IndexModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
-        var userId = User.GetId();
+        UserId = User.GetId();
 
         var user = await _memberContext.Users
             .Include(x => x.Payments)
-            .Include(x => x.EventSignups)
+            .Include(x => x.EventSignups.Where(e => !e.Event.SemesterId.HasValue))
                 .ThenInclude(s => s.Event)
-                    .ThenInclude(e => e.SignupOptions)
-            .SingleUser(userId);
+            .SingleUser(UserId);
 
         if (user == null)
         {
-            return base.NotFound($"Unable to load user with ID '{userId}'.");
+            return base.NotFound($"Unable to load user with ID '{UserId}'.");
         }
 
         Email = user.Email;
@@ -107,4 +109,26 @@ public partial class IndexModel : PageModel
         SuccessMessage = "Navnet ditt har blitt lagret :)";
         return RedirectToPage();
     }
+
+    public class SignupModel
+    {
+        public Guid EventId { get; init; }
+        public string Title { get; init; }
+        public Status Status { get; init; }
+        public DateTime SignedUpAt { get; init; }
+        public DanceRole Role { get; init; }
+
+        public static SignupModel Create(EventSignup s)
+        {
+            return new()
+            {
+                EventId = s.EventId,
+                Title = s.Event.Title,
+                Status = s.Status,
+                SignedUpAt = s.SignedUpAt,
+                Role = s.Role
+            };
+        }
+    }
+
 }

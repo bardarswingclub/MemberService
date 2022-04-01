@@ -8,11 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.EntityFrameworkCore;
 
-public class EventHeaderViewComponent : ViewComponent
+public class EventHeader : ViewComponent
 {
     private readonly MemberContext _database;
 
-    public EventHeaderViewComponent(MemberContext database)
+    public EventHeader(MemberContext database)
     {
         _database = database;
     }
@@ -47,26 +47,16 @@ public class EventHeaderViewComponent : ViewComponent
 
     public class Model
     {
-        public Guid Id { get; set; }
-
-        public String Title { get; set; }
-
-        public string Description { get; set; }
-
-        public bool Archived { get; set; }
-
-        public bool Cancelled { get; set; }
-
-        public bool HasClosed { get; set; }
-
-        public bool IsOpen { get; set; }
-
-        public bool IsSemester { get; set; }
-
-        public Guid? SurveyId { get; set; }
-
-        public DateTime? SignupOpensAt { get; set; }
-
-        public DateTime? SignupClosesAt { get; set; }
+        public Guid Id { get; init; }
+        public string Title { get; init; }
+        public string Description { get; init; }
+        public bool Archived { get; init; }
+        public bool Cancelled { get; init; }
+        public bool HasClosed { get; init; }
+        public bool IsOpen { get; init; }
+        public bool IsSemester { get; init; }
+        public Guid? SurveyId { get; init; }
+        public DateTime? SignupOpensAt { get; init; }
+        public DateTime? SignupClosesAt { get; init; }
     }
 }

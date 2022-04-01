@@ -7,11 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.EntityFrameworkCore;
 
-public class SemesterHeaderViewComponent : ViewComponent
+public class SemesterHeader : ViewComponent
 {
     private readonly MemberContext _database;
 
-    public SemesterHeaderViewComponent(MemberContext database)
+    public SemesterHeader(MemberContext database)
     {
         _database = database;
     }
@@ -51,27 +51,20 @@ public class SemesterHeaderViewComponent : ViewComponent
 
     public class Model
     {
-        public Guid Id { get; set; }
-
-        public string Title { get; set; }
-
-        public bool IsActive { get; set; }
-
-        public Guid? SurveyId { get; set; }
-
-        public IReadOnlyCollection<Event> Events { get; set; }
+        public Guid Id { get; init; }
+        public string Title { get; init; }
+        public bool IsActive { get; init; }
+        public Guid? SurveyId { get; init; }
+        public IReadOnlyCollection<Event> Events { get; init; }
 
         public class Event
         {
-            public Guid Id { get; set; }
-
-            public string Title { get; set; }
-
-            public bool Roles { get; set; }
-
-            public int PendingLeads { get; set; }
-            public int PendingFollows { get; set; }
-            public int Pending { get; set; }
+            public Guid Id { get; init; }
+            public string Title { get; init; }
+            public bool Roles { get; init; }
+            public int PendingLeads { get; init; }
+            public int PendingFollows { get; init; }
+            public int Pending { get; init; }
         }
     }
 }

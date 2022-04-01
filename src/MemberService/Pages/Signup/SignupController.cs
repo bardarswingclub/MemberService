@@ -44,6 +44,11 @@ public class SignupController : Controller
 
         if (!User.Identity.IsAuthenticated)
         {
+            if (model.HasClosed)
+            {
+                return View("ClosedAlready", model);
+            }
+
             return View("Anonymous", model);
         }
 
@@ -53,7 +58,7 @@ public class SignupController : Controller
         {
             model.UserEventSignup = eventSignup;
 
-            if (eventSignup.Status != Status.Approved || model.IsCancelled)
+            if (eventSignup.Status != Status.Approved || model.IsCancelled || model.IsArchived)
             {
                 return View("Status", model);
             }
@@ -63,14 +68,14 @@ public class SignupController : Controller
             return base.View("Accept", acceptModel);
         }
 
+        if (model.HasClosed || model.IsCancelled || model.IsArchived)
+        {
+            return View("ClosedAlready", model);
+        }
+
         if (model.IsOpen || preview)
         {
             return View("Signup", model);
-        }
-
-        if (model.HasClosed)
-        {
-            return View("ClosedAlready", model);
         }
 
         return View("NotOpenYet", model);
@@ -141,9 +146,11 @@ public class SignupController : Controller
     [HttpPost]
     public async Task<IActionResult> AcceptOrReject(Guid id, [FromForm] bool accept)
     {
-        var user = await _database.GetEditableUser(GetUserId());
-
         var signupModel = await _database.GetSignupModel(id);
+
+        if (signupModel.IsArchived) return NotFound();
+
+        var user = await _database.GetEditableUser(GetUserId());
 
         var signup = user.EventSignups.FirstOrDefault(s => s.EventId == id);
 

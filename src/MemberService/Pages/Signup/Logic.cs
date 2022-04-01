@@ -36,7 +36,6 @@ public static class Logic
                     .ThenInclude(q => q.Options)
             .AsNoTracking()
             .Expressionify()
-            .Where(e => e.Archived == false)
             .Select(e => SignupModel.Create(e))
             .FirstOrDefaultAsync(e => e.Id == id);
 
