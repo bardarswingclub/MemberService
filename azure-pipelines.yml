@@ -14,7 +14,7 @@ variables:
   - name: appName
     value: bsc-medlemmer
   - name: resourceGroup
-    vaule: bsc-medlemmer-rg
+    value: bsc-medlemmer-rg
 
 stages:
   - stage: Build
