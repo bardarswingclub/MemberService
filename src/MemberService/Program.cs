@@ -13,6 +13,7 @@ using MemberService.Services;
 using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -53,6 +54,10 @@ services
 
 services
     .AddDbContext<MemberContext>(o => o.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
+services
+    .AddDataProtection()
+    .PersistKeysToDbContext<MemberContext>();
 
 services
     .AddIdentity<User, MemberRole>(config =>

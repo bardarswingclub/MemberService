@@ -1,12 +1,11 @@
 ﻿namespace MemberService.Data;
 
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-public class MemberContext : IdentityDbContext<User, MemberRole, string, IdentityUserClaim<string>,
-UserRole, IdentityUserLogin<string>,
-IdentityRoleClaim<string>, IdentityUserToken<string>>
+public class MemberContext : IdentityDbContext<User, MemberRole, string, IdentityUserClaim<string>, UserRole, IdentityUserLogin<string>, IdentityRoleClaim<string>, IdentityUserToken<string>>, IDataProtectionKeyContext
 {
     public MemberContext(DbContextOptions<MemberContext> options)
         : base(options)
@@ -36,6 +35,8 @@ IdentityRoleClaim<string>, IdentityUserToken<string>>
     public DbSet<EventOrganizer> EventOrganizers { get; set; }
 
     public DbSet<SemesterRole> SemesterRoles { get; set; }
+
+    public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
