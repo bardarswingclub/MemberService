@@ -1,13 +1,17 @@
 parameters:
   - name: azureSubscription
-    default: bsc-medlemmer
   - name: appName
+  - name: resourceGroup
+  - name: slot
+    default: test
 
 steps:
   - task: AzureWebApp@1
     inputs:
       appName: ${{ parameters.appName }}
       appType: webApp
+      resourceGroupName: ${{ parameters.resourceGroup }}
+      slotName: ${{ parameters.slot }}
       azureSubscription: ${{ parameters.azureSubscription }}
       package: $(Pipeline.Workspace)/**/*.zip
       appSettings: >-

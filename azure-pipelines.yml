@@ -9,6 +9,12 @@ variables:
     value: "gundersen@gmail.com, erikly@gmail.com"
   - name: FromEmail
     value: pamelding@bardarswingclub.no
+  - name: azureSubscription
+    value: bsc-medlemmer
+  - name: appName
+    value: bsc-medlemmer
+  - name: resourceGroup
+    vaule: bsc-medlemmer-rg
 
 stages:
   - stage: Build
@@ -19,7 +25,6 @@ stages:
 
   - stage: DeployTest
     displayName: Deploy to Test
-    condition: false
     jobs:
       - deployment: Test
         environment: Test
@@ -29,11 +34,12 @@ stages:
               steps:
                 - template: pipelines/deploy.yml
                   parameters:
-                    appName: bsc-medlemmer-test
+                    appName: $(appName)
+                    azureSubscription: $(azureSubscription)
+                    resourceGroup: $(resourceGroup)
 
   - stage: DeployProd
     displayName: Deploy to Prod
-    dependsOn: [Build]
     jobs:
       - deployment: Prod
         environment: Prod
@@ -41,6 +47,10 @@ stages:
           runOnce:
             deploy:
               steps:
-                - template: pipelines/deploy.yml
-                  parameters:
-                    appName: bsc-medlemmer
+                - task: AzureAppServiceManage@0
+                  inputs:
+                    azureSubscription: $(azureSubscription)
+                    Action: Swap Slots
+                    WebAppName: $(appName)
+                    ResourceGroupName: $(resourceGroup)
+                    SourceSlot: test
