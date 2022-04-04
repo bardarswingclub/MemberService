@@ -3,6 +3,8 @@ namespace MemberService.Data;
 
 using System.ComponentModel.DataAnnotations.Schema;
 
+using Microsoft.EntityFrameworkCore;
+
 public class EventSignupOptions
 {
     public Guid Id { get; set; }
@@ -20,8 +22,10 @@ public class EventSignupOptions
 
     public bool RequiresClassesFee { get; set; }
 
+    [Precision(18,2)]
     public decimal PriceForMembers { get; set; }
 
+    [Precision(18, 2)]
     public decimal PriceForNonMembers { get; set; }
 
     public bool IncludedInTrainingFee { get; set; }

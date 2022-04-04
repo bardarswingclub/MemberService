@@ -4,6 +4,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using Microsoft.EntityFrameworkCore;
+
 public class Payment
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -20,6 +22,7 @@ public class Payment
     public string ManualPayment { get; set; }
 
     [Required]
+    [Precision(18, 2)]
     public decimal Amount { get; set; }
 
     [Required]
