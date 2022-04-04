@@ -6,7 +6,7 @@ public static class TimeProvider
 {
     public static DateTimeZone TimeZoneOslo { get; } = DateTimeZoneProviders.Tzdb["Europe/Oslo"];
 
-    public static DateTime ThisYearUtc => new(UtcNow.Year, 1, 1);
+    public static DateTime ThisYearUtc => UtcNow.GetStartOfYear();
 
     public static DateTime LastYearUtc => new(UtcNow.Year - 1, 1, 1);
 

@@ -32,7 +32,7 @@ public class SemesterHistory : ViewComponent
         var semesters = await _database.Semesters
             .Include(s => s.Courses.Where(c => c.Signups.Any(s => s.UserId == userId)))
                 .ThenInclude(c => c.Signups.Where(s => s.UserId == userId))
-            .OrderBy(s => s.SignupOpensAt)
+            .OrderByDescending(s => s.SignupOpensAt)
             .ToListAsync();
 
         return View(new Model
@@ -69,7 +69,7 @@ public class SemesterHistory : ViewComponent
                     .OrderBy(c => c.Priority)
                     .Select(Course.Create)
                     .ToArray(),
-                    PaidMembership = payments.Any(p => p.IncludesMembership && p.PayedAtUtc > semester.SignupOpensAt.GetStartOfSemester() && p.PayedAtUtc < semester.SignupOpensAt.GetStartOfNextSemester())
+                    PaidMembership = payments.Any(p => p.IncludesMembership && p.PayedAtUtc > semester.SignupOpensAt.GetStartOfYear() && p.PayedAtUtc < semester.SignupOpensAt.GetStartOfNextSemester())
                 };
 
             public class Course
