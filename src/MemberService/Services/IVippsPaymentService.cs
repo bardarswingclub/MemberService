@@ -18,7 +18,4 @@ public interface IVippsPaymentService
 
     Task<bool> CompleteReservations(
         string userId);
-    Task CancelPayment(
-        Guid orderId,
-        string secret);
 }

@@ -17,52 +17,38 @@
         <div class="alert alert-success" role="alert">
             <h3 class="alert-heading">Gratulerer, du har fått plass!</h3>
 
-            @if (Model.MustPayClassesFee)
+            @switch (Model.Requirement)
             {
-                <p>Betal kursavgiften for dette semesteret for å godta plassen.</p>
-            }
-            else if (Model.MustPayTrainingFee)
-            {
-                <p>Betal treningsavgiften for dette semesteret for å godta plassen.</p>
-            }
-            else if (Model.MustPayMembershipFee)
-            {
-                <p>Du må være medlem for å delta på dette arrangementet. Betal medlemsavgiften for i år for å godta plassen.</p>
-            }
-            else if (Model.MustPayAmount > 0)
-            {
-                <p>Du må betale @Model.MustPayAmount.FormatMoney() for å godta plassen</p>
-            }
-            else
-            {
-                <p>Trykk på knappen under for å godta plassen.</p>
+                case AcceptModel.AcceptanceRequirement.MustPayClassesFee:
+                    <p>Betal kursavgiften for dette semesteret for å godta plassen.</p>
+                    break;
+                case AcceptModel.AcceptanceRequirement.MustPayTrainingFee:
+                    <p>Betal treningsavgiften for dette semesteret for å godta plassen.</p>
+                    break;
+                case AcceptModel.AcceptanceRequirement.MustPayMembershipFee:
+                    <p>Du må være medlem for å delta på dette arrangementet. Betal medlemsavgiften for i år for å godta plassen.</p>
+                    break;
+                case AcceptModel.AcceptanceRequirement.MustPayMembersPrice:
+                case AcceptModel.AcceptanceRequirement.MustPayNonMembersPrice:
+                    <p>Du må betale @Model.MustPayAmount.FormatMoney() for å godta plassen</p>
+                    break;
+                default:
+                    <p>Trykk på knappen under for å godta plassen.</p>
+                    break;
             }
         </div>
     </div>
     <form asp-action="acceptOrReject" asp-route-id="@Model.Id" method="POST" class="card-footer">
-        @if (Model.SessionId != null)
-        {
-            <script src="https://js.stripe.com/v3/"></script>
-            <script>
-                    function payWithStripe() {
-                        var stripe = Stripe('@Config.Stripe.PublicKey');
-                        stripe.redirectToCheckout({
-                            sessionId: '@Model.SessionId',
-                        }).then(function (result) {
-                            console.log(result.error.message);
-                            // If `redirectToCheckout` fails due to a browser or network
-                            // error, display the localized error message to your customer
-                            // using `result.error.message`.
-                        });
-                    }
-            </script>
-
-            <button type="button" class="btn btn-success btn-block" onclick="payWithStripe()">Betal @Model.MustPayAmount.FormatMoney()</button>
-        }
-        else
-        {
-            <button type="submit" name="accept" value="true" class="btn btn-success btn-block">Godta plass</button>
-        }
+        <button type="submit" name="accept" value="true" class="btn btn-success btn-block">
+            @if (Model.MustPayAmount > 0)
+            {
+                @: Betal @Model.MustPayAmount.FormatMoney()
+            }
+            else
+            {
+                @: Godta plass
+            }
+        </button>
         <button type="submit" name="accept" value="false" class="btn btn-outline-danger btn-block text-left">Nei takk</button>
     </form>
 </div>

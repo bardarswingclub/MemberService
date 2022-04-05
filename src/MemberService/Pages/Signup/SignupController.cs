@@ -37,10 +37,7 @@ public class SignupController : Controller
     {
         var model = await _database.GetSignupModel(id);
 
-        if (model == null)
-        {
-            return NotFound();
-        }
+        if (model is null) return NotFound();
 
         if (!User.Identity.IsAuthenticated)
         {
@@ -63,7 +60,12 @@ public class SignupController : Controller
                 return View("Status", model);
             }
 
-            var acceptModel = await CreateAcceptModel(model);
+            var acceptModel = CreateAcceptModel(new()
+            {
+                Id = model.Id,
+                Title = model.Title,
+                Description = model.Description
+            }, model.User, model.Options);
 
             return base.View("Accept", acceptModel);
         }
@@ -146,9 +148,11 @@ public class SignupController : Controller
     [HttpPost]
     public async Task<IActionResult> AcceptOrReject(Guid id, [FromForm] bool accept)
     {
-        var signupModel = await _database.GetSignupModel(id);
+        var model = await _database.GetSignupModel(id);
 
-        if (signupModel.IsArchived) return NotFound();
+        if (model is null) return NotFound();
+
+        if (model.IsArchived) return NotFound();
 
         var user = await _database.GetEditableUser(GetUserId());
 
@@ -158,14 +162,52 @@ public class SignupController : Controller
         {
             if (signup?.Status == Status.Approved)
             {
-                if (user.MustPayClassesFee(signupModel.Options)) return Forbid();
-                if (user.MustPayTrainingFee(signupModel.Options)) return Forbid();
-                if (user.MustPayMembershipFee(signupModel.Options)) return Forbid();
-                if (user.MustPayMembersPrice(signupModel.Options)) return Forbid();
-                if (user.MustPayNonMembersPrice(signupModel.Options)) return Forbid();
+                var options = model.Options;
 
-                signup.Status = Status.AcceptedAndPayed;
-                signup.AuditLog.Add("Accepted", user);
+                if (user.MustPayClassesFee(options))
+                {
+                    return Redirect(await CreatePayment(
+                        id,
+                        user,
+                        user.GetClassesFee().Fee));
+                }
+                else if (user.MustPayTrainingFee(options))
+                {
+                    return Redirect(await CreatePayment(
+                        id,
+                        user,
+                        user.GetTrainingFee().Fee));
+                }
+                else if (user.MustPayMembershipFee(options))
+                {
+                    return Redirect(await CreatePayment(
+                        id,
+                        user,
+                        user.GetMembershipFee().Fee));
+                }
+                else if (user.MustPayMembersPrice(options))
+                {
+                    return base.Redirect(await CreatePayment(
+                        id,
+                        model.Title,
+                        model.Description,
+                        user,
+                        options.PriceForMembers));
+                }
+                else if (user.MustPayNonMembersPrice(options))
+                {
+                    return base.Redirect(await CreatePayment(
+                        id,
+                        model.Title,
+                        model.Description,
+                        user,
+                        options.PriceForNonMembers));
+                }
+                else
+                {
+                    signup.Status = Status.AcceptedAndPayed;
+                    signup.AuditLog.Add("Accepted", user);
+                }
             }
         }
         else
@@ -206,88 +248,79 @@ public class SignupController : Controller
         return RedirectToAction(nameof(Event), new { id });
     }
 
-    private async Task<AcceptModel> CreateAcceptModel(SignupModel model)
+    private AcceptModel CreateAcceptModel(AcceptModel acceptModel, User user, EventSignupOptions options)
     {
-        var mustPayClassesFee = model.User.MustPayClassesFee(model.Options);
-        var mustPayTrainingFee = model.User.MustPayTrainingFee(model.Options);
-        var mustPayMembershipFee = model.User.MustPayMembershipFee(model.Options);
-
-        var mustPayMembersPrice = model.User.MustPayMembersPrice(model.Options);
-        var mustPayNonMembersPrice = model.User.MustPayNonMembersPrice(model.Options);
-
-        var acceptModel = new AcceptModel
+        if (user.MustPayClassesFee(options))
         {
-            Id = model.Id,
-            Title = model.Title,
-            Description = model.Description,
-            MustPayClassesFee = mustPayClassesFee,
-            MustPayTrainingFee = mustPayTrainingFee,
-            MustPayMembershipFee = mustPayMembershipFee
-        };
-
-        if (mustPayClassesFee)
-        {
-            var classesFee = model.User.GetClassesFee().Fee;
-            acceptModel.MustPayAmount = classesFee.Amount;
-            acceptModel.SessionId = await CreatePayment(model, classesFee, model.UserEventSignup.Id);
+            return acceptModel with
+            {
+                Requirement = AcceptModel.AcceptanceRequirement.MustPayClassesFee,
+                MustPayAmount = user.GetClassesFee().Fee.Amount
+            };
         }
-        else if (mustPayTrainingFee)
+        else if (user.MustPayTrainingFee(options))
         {
-            var trainingFee = model.User.GetTrainingFee().Fee;
-            acceptModel.MustPayAmount = trainingFee.Amount;
-            acceptModel.SessionId = await CreatePayment(model, trainingFee, model.UserEventSignup.Id);
+            return acceptModel with
+            {
+                Requirement = AcceptModel.AcceptanceRequirement.MustPayTrainingFee,
+                MustPayAmount = user.GetTrainingFee().Fee.Amount
+            };
         }
-        else if (mustPayMembershipFee)
+        else if (user.MustPayMembershipFee(options))
         {
-            var membershipFee = model.User.GetMembershipFee().Fee;
-            acceptModel.MustPayAmount = membershipFee.Amount;
-            acceptModel.SessionId = await CreatePayment(model, membershipFee, model.UserEventSignup.Id);
+            return acceptModel with
+            {
+                Requirement = AcceptModel.AcceptanceRequirement.MustPayMembershipFee,
+                MustPayAmount = user.GetMembershipFee().Fee.Amount
+            };
         }
-        else if (mustPayMembersPrice)
+        else if (user.MustPayMembersPrice(options))
         {
-            acceptModel.MustPayAmount = model.Options.PriceForMembers;
-            acceptModel.SessionId = await CreatePayment(model, model.Options.PriceForMembers);
+            return acceptModel with
+            {
+                Requirement = AcceptModel.AcceptanceRequirement.MustPayMembersPrice,
+                MustPayAmount = options.PriceForMembers
+            };
         }
-        else if (mustPayNonMembersPrice)
+        else if (user.MustPayNonMembersPrice(options))
         {
-            acceptModel.MustPayAmount = model.Options.PriceForNonMembers;
-            acceptModel.SessionId = await CreatePayment(model, model.Options.PriceForNonMembers);
+            return acceptModel with
+            {
+                Requirement = AcceptModel.AcceptanceRequirement.MustPayNonMembersPrice,
+                MustPayAmount = options.PriceForNonMembers
+            };
         }
 
         return acceptModel;
     }
 
-    private async Task<string> CreatePayment(SignupModel model, decimal amount)
+    private async Task<string> CreatePayment(Guid id, string title, string description, User user, decimal amount)
     {
-        var sessionId = await _stripePaymentService.CreatePaymentRequest(
-            model.User.FullName,
-            model.User.Email,
-            model.Title,
-            model.Description,
+        return await _stripePaymentService.CreatePaymentRequest(
+            user.FullName,
+            user.Email,
+            title,
+            description,
             amount,
-            SignupSuccessLink(model.Id),
+            SignupSuccessLink(id),
             Request.GetDisplayUrl(),
-            eventSignupId: model.UserEventSignup.Id);
-
-        return sessionId;
+            eventId: id);
     }
 
-    private async Task<string> CreatePayment(SignupModel model, Fee fee, Guid eventSignupId)
+    private async Task<string> CreatePayment(Guid id, User user, Fee fee)
     {
-        var sessionId = await _stripePaymentService.CreatePaymentRequest(
-            model.User.FullName,
-            model.User.Email,
+        return await _stripePaymentService.CreatePaymentRequest(
+            user.FullName,
+            user.Email,
             fee.Description,
             fee.Description,
             fee.Amount,
-            SignupSuccessLink(model.Id),
+            SignupSuccessLink(id),
             Request.GetDisplayUrl(),
             fee.IncludesMembership,
             fee.IncludesTraining,
             fee.IncludesClasses,
-            eventSignupId: eventSignupId);
-
-        return sessionId;
+            eventId: id);
     }
 
     private string SignupSuccessLink(Guid id)

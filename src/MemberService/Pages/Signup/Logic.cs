@@ -30,11 +30,6 @@ public static class Logic
 
     public static async Task<SignupModel> GetSignupModel(this MemberContext db, Guid id)
         => await db.Events
-            .Include(e => e.SignupOptions)
-            .Include(e => e.Survey)
-                .ThenInclude(s => s.Questions)
-                    .ThenInclude(q => q.Options)
-            .AsNoTracking()
             .Expressionify()
             .Select(e => SignupModel.Create(e))
             .FirstOrDefaultAsync(e => e.Id == id);
