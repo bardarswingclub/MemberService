@@ -1,11 +1,11 @@
 @using MemberService.Pages.Signup
-@model SignupModel
+@model NotOpenYetModel
 
 @{
     ViewData["Title"] = Model.Title;
     Layout = "~/Pages/_CoverLayout.cshtml";
-    var date = Model.Options.SignupOpensAt.Value.ToOsloDate();
-    var time = Model.Options.SignupOpensAt.Value.ToOsloTime();
+    var date = Model.SignupOpensAt.Value.ToOsloDate();
+    var time = Model.SignupOpensAt.Value.ToOsloTime();
 }
 
 <div class="card shadow mt-5">
@@ -15,7 +15,7 @@
     <div class="card-body">
         <p class="lead">@Model.Description</p>
 
-        <p>@Html.Markdown(Model.Options.SignupHelp)</p>
+        <p>@Html.Markdown(Model.SignupHelp)</p>
 
         <div class="alert alert-primary">
             Påmeldinge åpner @date klokken @time

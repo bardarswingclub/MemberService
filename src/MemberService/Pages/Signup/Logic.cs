@@ -14,7 +14,7 @@ using MemberService.Data.ValueTypes;
 
 using Microsoft.EntityFrameworkCore;
 
-public static class Logic
+public static partial class Logic
 {
     public static async Task<IReadOnlyList<EventModel>> GetEvents(this MemberContext db, string userId, Expression<Func<Data.Event, bool>> predicate)
         => await db.Events
@@ -124,6 +124,7 @@ public static class Logic
         }
     }
 
+    [Expressionify]
     public static bool CanEdit(this EventSignup e)
         => e.Status == Status.Pending || e.Status == Status.Recommended || e.Status == Status.WaitingList;
 

@@ -1,5 +1,7 @@
 ﻿namespace MemberService.Pages.Signup;
 
+using Clave.Expressionify;
+
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
 using MemberService.Pages.Home;
@@ -43,36 +45,59 @@ public class SignupController : Controller
         {
             if (model.HasClosed)
             {
-                return View("ClosedAlready", model);
+                return View("ClosedAlready", new ClosedAlreadyModel
+                {
+                    Title = model.Title,
+                    Description = model.Description,
+                });
             }
 
-            return View("Anonymous", model);
+            return View("Anonymous", new AnonymousModel
+            {
+                Id = id,
+                Title = model.Title,
+                Description = model.Description,
+            });
         }
 
         model.User = await _database.GetUser(GetUserId());
 
         if (model.User.EventSignups.FirstOrDefault(e => e.EventId == id) is EventSignup eventSignup)
         {
-            model.UserEventSignup = eventSignup;
-
             if (eventSignup.Status != Status.Approved || model.IsCancelled || model.IsArchived)
             {
-                return View("Status", model);
+                return View("Status", new StatusModel
+                {
+                    Id = id,
+                    Title = model.Title,
+                    Description = model.Description,
+                    IsArchived = model.IsArchived,
+                    IsCancelled = model.IsCancelled,
+                    SurveyId = model.SurveyId,
+                    Status = eventSignup.Status,
+                    Refunded = eventSignup.Payment?.Refunded,
+                    AllowPartnerSignup = model.Options.AllowPartnerSignup,
+                    RoleSignup = model.Options.RoleSignup,
+                    Role = eventSignup.Role,
+                    PartnerEmail = eventSignup.PartnerEmail
+                });
             }
 
-            var acceptModel = CreateAcceptModel(new()
+            return View("Accept", CreateAcceptModel(new()
             {
                 Id = model.Id,
                 Title = model.Title,
                 Description = model.Description
-            }, model.User, model.Options);
-
-            return base.View("Accept", acceptModel);
+            }, model.User, model.Options));
         }
 
         if (model.HasClosed || model.IsCancelled || model.IsArchived)
         {
-            return View("ClosedAlready", model);
+            return View("ClosedAlready", new ClosedAlreadyModel
+            {
+                Title = model.Title,
+                Description = model.Description,
+            });
         }
 
         if (model.IsOpen || preview)
@@ -80,7 +105,13 @@ public class SignupController : Controller
             return View("Signup", model);
         }
 
-        return View("NotOpenYet", model);
+        return View("NotOpenYet", new NotOpenYetModel
+        {
+            Title = model.Title,
+            Description = model.Description,
+            SignupHelp = model.Options.SignupHelp,
+            SignupOpensAt = model.Options.SignupOpensAt
+        });
     }
 
     [HttpPost]
@@ -148,21 +179,28 @@ public class SignupController : Controller
     [HttpPost]
     public async Task<IActionResult> AcceptOrReject(Guid id, [FromForm] bool accept)
     {
-        var model = await _database.GetSignupModel(id);
+        var model = await _database.Events
+            .Include(e => e.SignupOptions)
+            .FirstOrDefaultAsync(e => e.Id == id);
 
         if (model is null) return NotFound();
 
-        if (model.IsArchived) return NotFound();
+        if (model.Archived) return NotFound();
 
-        var user = await _database.GetEditableUser(GetUserId());
+        var userId = GetUserId();
 
-        var signup = user.EventSignups.FirstOrDefault(s => s.EventId == id);
+        var user = await _database.Users
+            .Include(u => u.Payments)
+            .SingleUser(userId);
+
+        var signup = await _database.EventSignups
+            .FirstOrDefaultAsync(s => s.EventId == id && s.UserId == userId);
 
         if (accept)
         {
             if (signup?.Status == Status.Approved)
             {
-                var options = model.Options;
+                var options = model.SignupOptions;
 
                 if (user.MustPayClassesFee(options))
                 {

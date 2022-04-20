@@ -2,9 +2,9 @@
 @using MemberService.Pages.Signup
 @model SignupModel
 
-<p>@Html.Markdown(Model.Options.SignupHelp)</p>
+<p>@Html.Markdown(Model.SignupHelp)</p>
 
-@if (Model.Options.RoleSignup)
+@if (Model.RoleSignup)
 {
     <div class="form-group mt-4">
         <label asp-for="Input.Role"></label>
@@ -13,18 +13,18 @@
             <option value="@DanceRole.Follow">Følger</option>
         </select>
         <small class="form-text text-muted">
-            @Html.Markdown(Model.Options.RoleSignupHelp)
+            @Html.Markdown(Model.RoleSignupHelp)
         </small>
         <span asp-validation-for="Input.Role" class="text-danger"></span>
     </div>
 
-    @if (Model.Options.AllowPartnerSignup)
+    @if (Model.AllowPartnerSignup)
     {
         <div class="form-group mt-4">
             <label asp-for="Input.PartnerEmail"></label>
             <input type="text" class="form-control" asp-for="Input.PartnerEmail" placeholder="epost@eksempel.no">
             <small class="form-text text-muted">
-                @Html.Markdown(Model.Options.AllowPartnerSignupHelp ?? "Fyll inn e-post til partner hvis dere er to som ønsker å gå kurs sammen. Begge to må melde seg på og skrive opp hverandres e-post.")
+                @Html.Markdown(Model.AllowPartnerSignupHelp ?? "Fyll inn e-post til partner hvis dere er to som ønsker å gå kurs sammen. Begge to må melde seg på og skrive opp hverandres e-post.")
             </small>
             <span asp-validation-for="Input.PartnerEmail" class="text-danger"></span>
         </div>

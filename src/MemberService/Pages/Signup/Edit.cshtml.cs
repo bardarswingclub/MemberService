@@ -2,11 +2,14 @@
 using System;
 using System.Threading.Tasks;
 
+using Clave.Expressionify;
+
 using MemberService.Data;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
 [Authorize]
 public class EditModel : PageModel
@@ -18,31 +21,58 @@ public class EditModel : PageModel
         _database = database;
     }
 
-    public SignupModel SignupModel { get; set; }
+    public string Title { get; set; }
+
+    public string Description { get; set; }
+
+    public string SignupHelp { get; set; }
+
+    public bool RoleSignup { get; set; }
+
+    public string RoleSignupHelp { get; set; }
+
+    public bool AllowPartnerSignup { get; set; }
+
+    public string AllowPartnerSignupHelp { get; set; }
+
+    public SignupInputModel Input { get; set; }
+
+    public Guid? SurveyId { get; set; }
 
     public async Task<IActionResult> OnGet(Guid id, string redirectTo = null)
     {
-        var model = await _database.GetSignupModel(id);
+        var model = await _database.Events
+            .Expressionify()
+            .Include(e => e.Semester)
+            .Include(e => e.SignupOptions)
+            .Include(e => e.Signups.Where(s => s.CanEdit() && s.UserId == User.GetId()))
+            .FirstOrDefaultAsync(e => e.Id == id);
 
         if (model is null) return NotFound();
 
-        if (model.IsArchived) return NotFound();
-
-        model.User = await _database.GetUser(User.GetId());
-
-        if (model.User.GetEditableEvent(id) is not EventSignup eventSignup)
+        if (model.Archived || !model.Semester.IsActive())
         {
             return RedirectToAction(nameof(SignupController.Event), "Signup", new { id, slug = model.Title.Slugify() });
         }
 
-        model.UserEventSignup = eventSignup;
-        model.Input = new SignupInputModel
+        if (model.Signups.FirstOrDefault() is not EventSignup signup)
         {
-            Role = eventSignup.Role,
-            PartnerEmail = eventSignup.PartnerEmail
-        };
+            return RedirectToAction(nameof(SignupController.Event), "Signup", new { id, slug = model.Title.Slugify() });
+        }
 
-        SignupModel = model;
+        Title = model.Title;
+        Description = model.Description;
+        SignupHelp = model.SignupOptions.SignupHelp;
+        RoleSignup = model.SignupOptions.RoleSignup;
+        RoleSignupHelp = model.SignupOptions.RoleSignupHelp;
+        AllowPartnerSignup = model.SignupOptions.AllowPartnerSignup;
+        AllowPartnerSignupHelp = model.SignupOptions.AllowPartnerSignupHelp;
+        SurveyId = model.SurveyId;
+        Input = new()
+        {
+            Role = signup.Role,
+            PartnerEmail = signup.PartnerEmail
+        };
 
         return Page();
     }
