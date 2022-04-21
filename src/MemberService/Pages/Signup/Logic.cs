@@ -28,12 +28,6 @@ public static partial class Logic
             .Select(e => EventModel.Create(e, userId))
             .ToListAsync();
 
-    public static async Task<SignupModel> GetSignupModel(this MemberContext db, Guid id)
-        => await db.Events
-            .Expressionify()
-            .Select(e => SignupModel.Create(e))
-            .FirstOrDefaultAsync(e => e.Id == id);
-
     public static async Task<Data.Event> GetEditableEvent(this MemberContext db, Guid id)
         => await db.Events
             .Include(e => e.Signups)

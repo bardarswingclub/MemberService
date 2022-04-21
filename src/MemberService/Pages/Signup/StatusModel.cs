@@ -16,4 +16,5 @@ public class StatusModel
     public bool AllowPartnerSignup { get; init; }
     public DanceRole Role { get; init; }
     public string PartnerEmail { get; init; }
+    public bool CanEdit { get; init; }
 }

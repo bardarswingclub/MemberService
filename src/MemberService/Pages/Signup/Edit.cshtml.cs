@@ -42,15 +42,15 @@ public class EditModel : PageModel
     public async Task<IActionResult> OnGet(Guid id, string redirectTo = null)
     {
         var model = await _database.Events
-            .Expressionify()
             .Include(e => e.Semester)
             .Include(e => e.SignupOptions)
             .Include(e => e.Signups.Where(s => s.CanEdit() && s.UserId == User.GetId()))
+            .Expressionify()
             .FirstOrDefaultAsync(e => e.Id == id);
 
         if (model is null) return NotFound();
 
-        if (model.Archived || !model.Semester.IsActive())
+        if (model.Archived || (model.Semester is Semester semester && !semester.IsActive()))
         {
             return RedirectToAction(nameof(SignupController.Event), "Signup", new { id, slug = model.Title.Slugify() });
         }

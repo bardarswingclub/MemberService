@@ -37,80 +37,101 @@ public class SignupController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Event(Guid id, bool preview = false)
     {
-        var model = await _database.GetSignupModel(id);
-
-        if (model is null) return NotFound();
-
-        if (!User.Identity.IsAuthenticated)
-        {
-            if (model.HasClosed)
+        var ev = await _database.Events
+            .Expressionify()
+            .Where(e => e.Id == id)
+            .Select(e => new
             {
-                return View("ClosedAlready", new ClosedAlreadyModel
-                {
-                    Title = model.Title,
-                    Description = model.Description,
-                });
-            }
+                Title = e.Title,
+                Description = e.Description,
+                HasClosed = e.HasClosed(),
+                IsCancelled = e.Cancelled,
+                IsArchived = e.Archived || !e.Semester.IsActive(),
+                IsOpen = e.IsOpen(),
+                Options = e.SignupOptions,
+                SurveyId = e.SurveyId
+            })
+            .FirstOrDefaultAsync();
 
-            return View("Anonymous", new AnonymousModel
-            {
-                Id = id,
-                Title = model.Title,
-                Description = model.Description,
-            });
-        }
+        if (ev is null) return NotFound();
 
-        model.User = await _database.GetUser(GetUserId());
+        var user = User.Identity.IsAuthenticated ? await _database.GetUser(GetUserId()) : null;
 
-        if (model.User.EventSignups.FirstOrDefault(e => e.EventId == id) is EventSignup eventSignup)
+        if (user?.EventSignups.FirstOrDefault(e => e.EventId == id) is EventSignup eventSignup)
         {
-            if (eventSignup.Status != Status.Approved || model.IsCancelled || model.IsArchived)
+            if (eventSignup.Status != Status.Approved || ev.IsCancelled || ev.IsArchived)
             {
                 return View("Status", new StatusModel
                 {
                     Id = id,
-                    Title = model.Title,
-                    Description = model.Description,
-                    IsArchived = model.IsArchived,
-                    IsCancelled = model.IsCancelled,
-                    SurveyId = model.SurveyId,
+                    Title = ev.Title,
+                    Description = ev.Description,
+                    IsArchived = ev.IsArchived,
+                    IsCancelled = ev.IsCancelled,
+                    SurveyId = ev.SurveyId,
                     Status = eventSignup.Status,
                     Refunded = eventSignup.Payment?.Refunded,
-                    AllowPartnerSignup = model.Options.AllowPartnerSignup,
-                    RoleSignup = model.Options.RoleSignup,
+                    AllowPartnerSignup = ev.Options.AllowPartnerSignup,
+                    RoleSignup = ev.Options.RoleSignup,
                     Role = eventSignup.Role,
-                    PartnerEmail = eventSignup.PartnerEmail
+                    PartnerEmail = eventSignup.PartnerEmail,
+                    CanEdit = eventSignup.CanEdit() && !ev.IsArchived && (ev.Options.RoleSignup || ev.SurveyId.HasValue)
                 });
             }
 
             return View("Accept", CreateAcceptModel(new()
             {
-                Id = model.Id,
-                Title = model.Title,
-                Description = model.Description
-            }, model.User, model.Options));
+                Id = id,
+                Title = ev.Title,
+                Description = ev.Description
+            }, user, ev.Options));
         }
 
-        if (model.HasClosed || model.IsCancelled || model.IsArchived)
+        if (ev.HasClosed || ev.IsCancelled || ev.IsArchived)
         {
             return View("ClosedAlready", new ClosedAlreadyModel
             {
-                Title = model.Title,
-                Description = model.Description,
+                Title = ev.Title,
+                Description = ev.Description,
             });
         }
 
-        if (model.IsOpen || preview)
+        if (ev.IsOpen || preview)
         {
-            return View("Signup", model);
+            if (user is null)
+            {
+                return View("Anonymous", new AnonymousModel
+                {
+                    Id = id,
+                    Title = ev.Title,
+                    Description = ev.Description,
+                });
+            }
+            else
+            {
+                return View("Signup", new SignupModel
+                {
+                    Title = ev.Title,
+                    Description = ev.Description,
+                    AllowPartnerSignup = ev.Options.AllowPartnerSignup,
+                    Requirement = GetRequirement(user, ev.Options),
+                    AllowPartnerSignupHelp = ev.Options.AllowPartnerSignupHelp,
+                    PriceForMembers = ev.Options.PriceForMembers,
+                    PriceForNonMembers = ev.Options.PriceForNonMembers,
+                    RoleSignup = ev.Options.RoleSignup,
+                    RoleSignupHelp = ev.Options.RoleSignupHelp,
+                    SignupHelp = ev.Options.SignupHelp,
+                    SurveyId = ev.SurveyId
+                });
+            }
         }
 
         return View("NotOpenYet", new NotOpenYetModel
         {
-            Title = model.Title,
-            Description = model.Description,
-            SignupHelp = model.Options.SignupHelp,
-            SignupOpensAt = model.Options.SignupOpensAt
+            Title = ev.Title,
+            Description = ev.Description,
+            SignupHelp = ev.Options.SignupHelp,
+            SignupOpensAt = ev.Options.SignupOpensAt
         });
     }
 
@@ -202,49 +223,43 @@ public class SignupController : Controller
             {
                 var options = model.SignupOptions;
 
-                if (user.MustPayClassesFee(options))
-                {
-                    return Redirect(await CreatePayment(
-                        id,
-                        user,
-                        user.GetClassesFee().Fee));
-                }
-                else if (user.MustPayTrainingFee(options))
-                {
-                    return Redirect(await CreatePayment(
-                        id,
-                        user,
-                        user.GetTrainingFee().Fee));
-                }
-                else if (user.MustPayMembershipFee(options))
-                {
-                    return Redirect(await CreatePayment(
-                        id,
-                        user,
-                        user.GetMembershipFee().Fee));
-                }
-                else if (user.MustPayMembersPrice(options))
-                {
-                    return base.Redirect(await CreatePayment(
-                        id,
-                        model.Title,
-                        model.Description,
-                        user,
-                        options.PriceForMembers));
-                }
-                else if (user.MustPayNonMembersPrice(options))
-                {
-                    return base.Redirect(await CreatePayment(
-                        id,
-                        model.Title,
-                        model.Description,
-                        user,
-                        options.PriceForNonMembers));
-                }
-                else
+                var requirement = GetRequirement(user, options);
+
+                if(requirement == SignupRequirement.None)
                 {
                     signup.Status = Status.AcceptedAndPayed;
                     signup.AuditLog.Add("Accepted", user);
+                }
+                else
+                {
+                    return requirement switch
+                    {
+                        SignupRequirement.MustPayClassesFee => Redirect(await CreatePayment(
+                            id,
+                            user,
+                            user.GetClassesFee().Fee)),
+                        SignupRequirement.MustPayTrainingFee => Redirect(await CreatePayment(
+                            id,
+                            user,
+                            user.GetTrainingFee().Fee)),
+                        SignupRequirement.MustPayMembershipFee => Redirect(await CreatePayment(
+                            id,
+                            user,
+                            user.GetMembershipFee().Fee)),
+                        SignupRequirement.MustPayMembersPrice => Redirect(await CreatePayment(
+                            id,
+                            model.Title,
+                            model.Description,
+                            user,
+                            options.PriceForMembers)),
+                        SignupRequirement.MustPayNonMembersPrice => Redirect(await CreatePayment(
+                            id,
+                            model.Title,
+                            model.Description,
+                            user,
+                            options.PriceForNonMembers)),
+                        _ => throw new Exception(),
+                    };
                 }
             }
         }
@@ -288,48 +303,61 @@ public class SignupController : Controller
 
     private AcceptModel CreateAcceptModel(AcceptModel acceptModel, User user, EventSignupOptions options)
     {
+        return GetRequirement(user, options) switch
+        {
+            SignupRequirement.MustPayClassesFee => acceptModel with
+            {
+                Requirement = SignupRequirement.MustPayClassesFee,
+                MustPayAmount = user.GetClassesFee().Fee.Amount
+            },
+            SignupRequirement.MustPayTrainingFee => acceptModel with
+            {
+                Requirement = SignupRequirement.MustPayTrainingFee,
+                MustPayAmount = user.GetTrainingFee().Fee.Amount
+            },
+            SignupRequirement.MustPayMembershipFee => acceptModel with
+            {
+                Requirement = SignupRequirement.MustPayMembershipFee,
+                MustPayAmount = user.GetMembershipFee().Fee.Amount
+            },
+            SignupRequirement.MustPayMembersPrice => acceptModel with
+            {
+                Requirement = SignupRequirement.MustPayMembersPrice,
+                MustPayAmount = options.PriceForMembers
+            },
+            SignupRequirement.MustPayNonMembersPrice => acceptModel with
+            {
+                Requirement = SignupRequirement.MustPayNonMembersPrice,
+                MustPayAmount = options.PriceForNonMembers
+            },
+            _ => acceptModel,
+        };
+    }
+
+    private static SignupRequirement GetRequirement(User user, EventSignupOptions options)
+    {
         if (user.MustPayClassesFee(options))
         {
-            return acceptModel with
-            {
-                Requirement = AcceptModel.AcceptanceRequirement.MustPayClassesFee,
-                MustPayAmount = user.GetClassesFee().Fee.Amount
-            };
+            return SignupRequirement.MustPayClassesFee;
         }
         else if (user.MustPayTrainingFee(options))
         {
-            return acceptModel with
-            {
-                Requirement = AcceptModel.AcceptanceRequirement.MustPayTrainingFee,
-                MustPayAmount = user.GetTrainingFee().Fee.Amount
-            };
+            return SignupRequirement.MustPayTrainingFee;
         }
         else if (user.MustPayMembershipFee(options))
         {
-            return acceptModel with
-            {
-                Requirement = AcceptModel.AcceptanceRequirement.MustPayMembershipFee,
-                MustPayAmount = user.GetMembershipFee().Fee.Amount
-            };
+            return SignupRequirement.MustPayMembershipFee;
         }
         else if (user.MustPayMembersPrice(options))
         {
-            return acceptModel with
-            {
-                Requirement = AcceptModel.AcceptanceRequirement.MustPayMembersPrice,
-                MustPayAmount = options.PriceForMembers
-            };
+            return SignupRequirement.MustPayMembersPrice;
         }
         else if (user.MustPayNonMembersPrice(options))
         {
-            return acceptModel with
-            {
-                Requirement = AcceptModel.AcceptanceRequirement.MustPayNonMembersPrice,
-                MustPayAmount = options.PriceForNonMembers
-            };
+            return SignupRequirement.MustPayNonMembersPrice;
         }
 
-        return acceptModel;
+        return SignupRequirement.None;
     }
 
     private async Task<string> CreatePayment(Guid id, string title, string description, User user, decimal amount)

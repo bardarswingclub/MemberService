@@ -14,34 +14,34 @@
     <div class="card-body">
         <p class="lead">@Model.Description</p>
 
-        @if (Model.User.MustPayClassesFee(Model.Options))
+        @if (Model.Requirement == SignupRequirement.MustPayClassesFee)
         {
             <div class="alert alert-warning" role="alert">
                 For å delta på dette arrangementet må du ha betalt kursavgift. Du kan melde deg på nå og betale først når du har fått plass.
             </div>
         }
-        else if (Model.User.MustPayTrainingFee(Model.Options))
+        else if (Model.Requirement == SignupRequirement.MustPayTrainingFee)
         {
             <div class="alert alert-warning" role="alert">
                 For å delta på dette arrangementet må du ha betalt treningsavgift. Du kan melde deg på nå og betale først når du har fått plass.
             </div>
         }
-        else if (Model.User.MustPayMembershipFee(Model.Options))
+        else if (Model.Requirement == SignupRequirement.MustPayMembershipFee)
         {
             <div class="alert alert-warning" role="alert">
                 For å delta på dette arrangementet må du ha betalt medlemsavgift for i år. Du kan melde deg på nå og betale først når du har fått plass.
             </div>
         }
-        else if (Model.User.MustPayMembersPrice(Model.Options))
+        else if (Model.Requirement == SignupRequirement.MustPayMembersPrice)
         {
             <div class="alert alert-info" role="alert">
-                Det koster @Model.Options.PriceForMembers.FormatMoney() for medlemmer å delta på dette arrangementet. Du kan melde deg på nå og betale først når du har fått plass.
+                Det koster @Model.PriceForMembers.FormatMoney() for medlemmer å delta på dette arrangementet. Du kan melde deg på nå og betale først når du har fått plass.
             </div>
         }
-        else if(Model.User.MustPayNonMembersPrice(Model.Options))
+        else if(Model.Requirement == SignupRequirement.MustPayNonMembersPrice)
         {
             <div class="alert alert-info" role="alert">
-                Det koster @Model.Options.PriceForNonMembers.FormatMoney() for ikke-medlemmer å delta på dette arrangementet. Du kan melde deg på nå og betale først når du har fått plass.
+                Det koster @Model.PriceForNonMembers.FormatMoney() for ikke-medlemmer å delta på dette arrangementet. Du kan melde deg på nå og betale først når du har fått plass.
             </div>
         }
 

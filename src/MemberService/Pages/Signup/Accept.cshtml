@@ -18,17 +18,17 @@
 
             @switch (Model.Requirement)
             {
-                case AcceptModel.AcceptanceRequirement.MustPayClassesFee:
+                case SignupRequirement.MustPayClassesFee:
                     <p>Betal kursavgiften for dette semesteret for å godta plassen.</p>
                     break;
-                case AcceptModel.AcceptanceRequirement.MustPayTrainingFee:
+                case SignupRequirement.MustPayTrainingFee:
                     <p>Betal treningsavgiften for dette semesteret for å godta plassen.</p>
                     break;
-                case AcceptModel.AcceptanceRequirement.MustPayMembershipFee:
+                case SignupRequirement.MustPayMembershipFee:
                     <p>Du må være medlem for å delta på dette arrangementet. Betal medlemsavgiften for i år for å godta plassen.</p>
                     break;
-                case AcceptModel.AcceptanceRequirement.MustPayMembersPrice:
-                case AcceptModel.AcceptanceRequirement.MustPayNonMembersPrice:
+                case SignupRequirement.MustPayMembersPrice:
+                case SignupRequirement.MustPayNonMembersPrice:
                     <p>Du må betale @Model.MustPayAmount.FormatMoney() for å godta plassen</p>
                     break;
                 default:
