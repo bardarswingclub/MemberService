@@ -8,5 +8,8 @@
   "razor.disabled": false,
   "files.associations": {
     "**/pipelines/*.yml": "azure-pipelines"
+  },
+  "yaml.schemas": {
+    "https://json.schemastore.org/github-workflow.json": "file:///c%3A/dev/MemberService/.github/workflows/build.yml"
   }
 }

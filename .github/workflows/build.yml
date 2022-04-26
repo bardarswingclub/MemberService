@@ -1,0 +1,71 @@
+#Note: Azure DevOps strategy>runOnce does not have an equivalent in GitHub Actions yet, and only the deploy steps are transferred to steps
+#Note: the 'AZURE_SP' secret is required to be added into GitHub Secrets. See this blog post for details: https://samlearnsazure.blog/2019/12/13/github-actions/
+#Note: Azure DevOps strategy>runOnce does not have an equivalent in GitHub Actions yet, and only the deploy steps are transferred to steps
+#Note: the 'AZURE_SP' secret is required to be added into GitHub Secrets. See this blog post for details: https://samlearnsazure.blog/2019/12/13/github-actions/
+on:
+  push:
+    branches:
+    - master
+env:
+  AdminEmails: gundersen@gmail.com, erikly@gmail.com
+  FromEmail: pamelding@bardarswingclub.no
+  azureSubscription: bsc-medlemmer
+  appName: bsc-medlemmer
+  resourceGroup: bsc-medlemmer-rg
+jobs:
+  Build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: .NET Core 6 for building
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+    - name: Cache NuGet packages
+      uses: actions/cache@v2
+      with:
+        key: nuget | "${{ runner.os }}"
+        restore-keys:
+          nuget | "${{ runner.os }}"
+        path: ${{ github.workspace }}/.nuget/packages
+    - name: Restore
+      run: dotnet restore **/*.csproj
+    - name: Build
+      run: dotnet **/*.csproj --configuration release
+    - name: Test
+      run: dotnet test **/*.Tests.csproj --configuration release
+    - name: Publish
+      run: dotnet publish --configuration release --output ${{ github.workspace }}
+    - name: Publish artifact WebApp
+      uses: actions/upload-artifact@v2
+      with:
+        path: ${{ github.workspace }}
+        name: WebApp
+
+  DeployTest:
+    runs-on: windows-latest
+    environment:
+      name: Test
+    steps:
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_SP }}
+    - uses: Azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.appName }}
+        package: ${{ env.Pipeline.Workspace }}/**/*.zip
+        slot-name: test
+
+  DeployProd:
+    runs-on: windows-latest
+    environment:
+      name: Prod
+    steps:
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_SP }}
+    - uses: Azure/cli@v1.0.0
+      with:
+        inlineScript: az webapp deployment slot swap --resource-group ${{ env.resourceGroup }} --name ${{ env.appName }} --slot test --target-slot production
