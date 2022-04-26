@@ -1,5 +1,7 @@
 ﻿namespace MemberService.Pages.Pay;
 
+using Clave.ExtensionMethods;
+
 using MemberService.Data;
 using MemberService.Pages.Home;
 using MemberService.Services;
@@ -46,8 +48,8 @@ public class PayController : Controller
             return RedirectToPage("/Home/Fees");
         }
         string url = method == "vipps"
-            ? await CreateVippsPayment(user, fee, returnUrl)
-            : await CreateStripePayment(user, fee, returnUrl);
+            ? await CreateVippsPayment(user, fee, returnUrl ?? Request.Headers.Referer.ToString()?.Pipe(url => new Uri(url).PathAndQuery))
+            : await CreateStripePayment(user, fee, returnUrl ?? Request.Headers.Referer.ToString()?.Pipe(url => new Uri(url).PathAndQuery));
 
         return Redirect(url);
     }
@@ -83,15 +85,17 @@ public class PayController : Controller
     {
         if (sessionId is not null)
         {
+            TempData.SetSuccessMessage($"{description} betalt");
             await _stripePaymentService.SavePayment(sessionId);
         }
 
         if (orderId is not null)
         {
-            await _vippsPaymentService.CompleteReservations(User.GetId());
+            if (await _vippsPaymentService.CompleteReservations(User.GetId()))
+            {
+                TempData.SetSuccessMessage($"{description} betalt");
+            }
         }
-
-        TempData.SetSuccessMessage($"{description} betalt");
 
         if (string.IsNullOrEmpty(returnUrl))
         {

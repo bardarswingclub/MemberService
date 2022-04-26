@@ -344,7 +344,8 @@ public class SignupController : Controller
             SignupRequirement.MustPayNonMembersPrice => acceptModel with
             {
                 Requirement = SignupRequirement.MustPayNonMembersPrice,
-                MustPayAmount = options.PriceForNonMembers
+                MustPayAmount = options.PriceForNonMembers,
+                MembersPrice = options.PriceForMembers
             },
             _ => acceptModel,
         };

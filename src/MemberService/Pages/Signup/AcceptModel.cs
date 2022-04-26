@@ -11,4 +11,5 @@ public record AcceptModel
     public SignupRequirement Requirement { get; init; }
 
     public decimal MustPayAmount { get; init; }
+    public decimal MembersPrice { get; init; }
 }

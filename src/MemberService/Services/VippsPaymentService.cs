@@ -84,10 +84,10 @@ public class VippsPaymentService : IVippsPaymentService
             .Where(r => r.UserId == userId)
             .ToListAsync();
 
-        var result = true;
+        var result = false;
         foreach (var reservation in reservations)
         {
-            result &= await CompletePayment(reservation);
+            result |= await CompletePayment(reservation);
         }
 
         return result;

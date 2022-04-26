@@ -29,14 +29,30 @@
                     break;
                 case SignupRequirement.MustPayMembersPrice:
                 case SignupRequirement.MustPayNonMembersPrice:
-                    <p>Du må betale @Model.MustPayAmount.FormatMoney() for å godta plassen</p>
+                    <p>Du må betale <strong>@Model.MustPayAmount.FormatMoney()</strong> for å godta plassen</p>
                     break;
                 default:
                     <p>Trykk på knappen under for å godta plassen.</p>
                     break;
             }
         </div>
+
+        @if (Model.Requirement == SignupRequirement.MustPayNonMembersPrice && Model.MustPayAmount > Model.MembersPrice)
+        {
+            <details class="alert alert-info">
+                <summary><h4 class="alert-heading d-inline">Vil du bli medlem?</h4></summary>
+                <p>
+                    Dette arrangementet koster kun <strong>@Model.MembersPrice.FormatMoney()</strong> for medlemmer av Bårdar Swing Club.
+                    <br>
+                    Medlemskap koster <strong>@FeeCalculation.MembershipFee.FormatMoney()</strong> ut året og gir deg rabatt på dette og andre arrangementer.
+                </p>
+                <div class="text-center">
+                    <vc:pay-fee label="Bli medlem" type=@Fee.Membership amount=@FeeCalculation.MembershipFee />
+                </div>
+            </details>
+        }
     </div>
+
     <form asp-action="acceptOrReject" asp-route-id="@Model.Id" method="POST" class="card-footer">
         @if (Model.MustPayAmount > 0)
         {
@@ -62,7 +78,9 @@
                 Godta plass
             </button>
         }
-
-        <button type="submit" name="accept" value="false" class="btn btn-outline-danger btn-block text-left">Nei takk</button>
+        <details>
+            <summary>Nei takk</summary>
+            <button type="submit" name="accept" value="false" class="btn btn-outline-danger btn-block text-left">Jeg vil ikke delta</button>
+        </details>
     </form>
 </div>
