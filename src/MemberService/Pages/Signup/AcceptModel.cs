@@ -1,22 +1,15 @@
 ﻿namespace MemberService.Pages.Signup;
 
-
-
-public class AcceptModel
+public record AcceptModel
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 
-    public string Title { get; set; }
+    public string Title { get; init; }
 
-    public string Description { get; set; }
+    public string Description { get; init; }
 
-    public bool MustPayClassesFee { get; set; }
+    public SignupRequirement Requirement { get; init; }
 
-    public bool MustPayTrainingFee { get; set; }
-
-    public bool MustPayMembershipFee { get; set; }
-
-    public decimal MustPayAmount { get; set; }
-
-    public string SessionId { get; set; }
+    public decimal MustPayAmount { get; init; }
+    public decimal MembersPrice { get; init; }
 }

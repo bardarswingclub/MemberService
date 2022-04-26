@@ -38,6 +38,8 @@ public class MemberContext : IdentityDbContext<User, MemberRole, string, Identit
 
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
 
+    public DbSet<VippsReservation> VippsReservations { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -57,11 +59,6 @@ public class MemberContext : IdentityDbContext<User, MemberRole, string, Identit
                 .WithMany(r => r.UserRoles)
                 .HasForeignKey(ur => ur.UserId)
                 .IsRequired();
-        });
-
-        builder.Entity<Payment>(payment =>
-        {
-            payment.HasIndex(p => p.PayedAtUtc);
         });
 
         builder.Entity<EventSignupOptions>(options =>

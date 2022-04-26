@@ -45,10 +45,7 @@
                         medlemskap.
                     </p>
 
-                    <form asp-controller="Pay" asp-action="Fee" method="post" asp-route-returnUrl="/AnnualMeeting">
-                        <input type="hidden" name="type" value="@Fee.Membership"/>
-                        <button class="btn btn-success">Betal medlemskap</button>
-                    </form>
+                    <vc:pay-fee label="Betal medlemskap" type=@Fee.Membership />
                 </div>
             }
         }

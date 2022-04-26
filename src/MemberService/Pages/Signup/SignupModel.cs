@@ -1,47 +1,30 @@
 namespace MemberService.Pages.Signup;
 
-using Clave.Expressionify;
-
 using MemberService.Data;
 
-public partial class SignupModel
+public class SignupModel
 {
-    public Guid Id { get; set; }
+    public string Title { get; init; }
 
-    public string Title { get; set; }
+    public string Description { get; init; }
 
-    public string Description { get; set; }
+    public decimal PriceForMembers { get; init; }
 
-    public EventSignupOptions Options { get; set; }
+    public decimal PriceForNonMembers { get; init; }
 
-    public SignupInputModel Input { get; set; }
+    public string SignupHelp { get; init; }
 
-    public User User { get; set; }
+    public bool RoleSignup { get; init; }
 
-    public EventSignup UserEventSignup { get; set; }
+    public string RoleSignupHelp { get; init; }
 
-    public Guid? SurveyId { get; set; }
+    public bool AllowPartnerSignup { get; init; }
 
-    public bool HasClosed { get; set; }
+    public string AllowPartnerSignupHelp { get; init; }
 
-    public bool IsArchived { get; set; }
+    public SignupInputModel Input { get; init; }
 
-    public bool IsCancelled { get; set; }
+    public Guid? SurveyId { get; init; }
 
-    public bool IsOpen { get; set; }
-
-    [Expressionify]
-    public static SignupModel Create(Data.Event e)
-        => new()
-        {
-            Id = e.Id,
-            Title = e.Title,
-            Description = e.Description,
-            Options = e.SignupOptions,
-            IsOpen = e.IsOpen(),
-            HasClosed = e.HasClosed(),
-            SurveyId = e.SurveyId,
-            IsArchived = e.Archived || !e.Semester.IsActive(),
-            IsCancelled = e.Cancelled
-        };
+    public SignupRequirement Requirement { get; init; }
 }

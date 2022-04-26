@@ -14,7 +14,7 @@ using MemberService.Data.ValueTypes;
 
 using Microsoft.EntityFrameworkCore;
 
-public static class Logic
+public static partial class Logic
 {
     public static async Task<IReadOnlyList<EventModel>> GetEvents(this MemberContext db, string userId, Expression<Func<Data.Event, bool>> predicate)
         => await db.Events
@@ -27,17 +27,6 @@ public static class Logic
             .OrderBy(e => e.SignupOptions.SignupOpensAt)
             .Select(e => EventModel.Create(e, userId))
             .ToListAsync();
-
-    public static async Task<SignupModel> GetSignupModel(this MemberContext db, Guid id)
-        => await db.Events
-            .Include(e => e.SignupOptions)
-            .Include(e => e.Survey)
-                .ThenInclude(s => s.Questions)
-                    .ThenInclude(q => q.Options)
-            .AsNoTracking()
-            .Expressionify()
-            .Select(e => SignupModel.Create(e))
-            .FirstOrDefaultAsync(e => e.Id == id);
 
     public static async Task<Data.Event> GetEditableEvent(this MemberContext db, Guid id)
         => await db.Events
@@ -129,25 +118,45 @@ public static class Logic
         }
     }
 
+    [Expressionify]
+    public static SignupRequirement GetRequirement(this User user, EventSignupOptions options)
+        => user.MustPayClassesFee(options)
+        ? SignupRequirement.MustPayClassesFee
+        : user.MustPayTrainingFee(options)
+        ? SignupRequirement.MustPayTrainingFee
+        : user.MustPayMembershipFee(options)
+        ? SignupRequirement.MustPayMembershipFee
+        : user.MustPayMembersPrice(options)
+        ? SignupRequirement.MustPayMembersPrice
+        : user.MustPayNonMembersPrice(options)
+        ? SignupRequirement.MustPayNonMembersPrice
+        : SignupRequirement.None;
+
+    [Expressionify]
     public static bool CanEdit(this EventSignup e)
         => e.Status == Status.Pending || e.Status == Status.Recommended || e.Status == Status.WaitingList;
 
+    [Expressionify]
     public static bool MustPayNonMembersPrice(this User user, EventSignupOptions options)
         => options.PriceForNonMembers > 0 && !user.HasPayedMembershipThisYear()
                                           && !(options.IncludedInClassesFee && user.HasPayedClassesFeeThisSemester())
                                           && !(options.IncludedInTrainingFee && user.HasPayedTrainingFeeThisSemester());
 
+    [Expressionify]
     public static bool MustPayMembersPrice(this User user, EventSignupOptions options)
         => options.PriceForMembers > 0 && user.HasPayedMembershipThisYear()
                                        && !(options.IncludedInClassesFee && user.HasPayedClassesFeeThisSemester())
                                        && !(options.IncludedInTrainingFee && user.HasPayedTrainingFeeThisSemester());
 
+    [Expressionify]
     public static bool MustPayMembershipFee(this User user, EventSignupOptions options)
         => options.RequiresMembershipFee && !user.HasPayedMembershipThisYear();
 
+    [Expressionify]
     public static bool MustPayTrainingFee(this User user, EventSignupOptions options)
         => options.RequiresTrainingFee && !user.HasPayedTrainingFeeThisSemester() && !user.ExemptFromTrainingFee;
 
+    [Expressionify]
     public static bool MustPayClassesFee(this User user, EventSignupOptions options)
         => options.RequiresClassesFee && !user.HasPayedClassesFeeThisSemester() && !user.ExemptFromClassesFee;
 }

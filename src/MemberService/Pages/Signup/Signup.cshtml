@@ -14,42 +14,35 @@
     <div class="card-body">
         <p class="lead">@Model.Description</p>
 
-        @if (Model.Options.RequiresClassesFee && !Model.User.HasPayedClassesFeeThisSemester())
+        @if (Model.Requirement == SignupRequirement.MustPayClassesFee)
         {
             <div class="alert alert-warning" role="alert">
                 For å delta på dette arrangementet må du ha betalt kursavgift. Du kan melde deg på nå og betale først når du har fått plass.
             </div>
         }
-        else if (Model.Options.RequiresTrainingFee && !Model.User.HasPayedTrainingFeeThisSemester())
+        else if (Model.Requirement == SignupRequirement.MustPayTrainingFee)
         {
             <div class="alert alert-warning" role="alert">
                 For å delta på dette arrangementet må du ha betalt treningsavgift. Du kan melde deg på nå og betale først når du har fått plass.
             </div>
         }
-        else if (Model.Options.RequiresMembershipFee && !Model.User.HasPayedMembershipThisYear())
+        else if (Model.Requirement == SignupRequirement.MustPayMembershipFee)
         {
             <div class="alert alert-warning" role="alert">
                 For å delta på dette arrangementet må du ha betalt medlemsavgift for i år. Du kan melde deg på nå og betale først når du har fått plass.
             </div>
         }
-
-        @if (Model.User.HasPayedMembershipThisYear())
+        else if (Model.Requirement == SignupRequirement.MustPayMembersPrice)
         {
-            if (Model.Options.PriceForMembers > 0)
-            {
-                <div class="alert alert-info" role="alert">
-                    Det koster @Model.Options.PriceForMembers.FormatMoney() for medlemmer å delta på dette arrangementet. Du kan melde deg på nå og betale først når du har fått plass.
-                </div>
-            }
+            <div class="alert alert-info" role="alert">
+                Det koster @Model.PriceForMembers.FormatMoney() for medlemmer å delta på dette arrangementet. Du kan melde deg på nå og betale først når du har fått plass.
+            </div>
         }
-        else
+        else if(Model.Requirement == SignupRequirement.MustPayNonMembersPrice)
         {
-            if (Model.Options.PriceForNonMembers > 0)
-            {
-                <div class="alert alert-info" role="alert">
-                    Det koster @Model.Options.PriceForNonMembers.FormatMoney() for ikke-medlemmer å delta på dette arrangementet. Du kan melde deg på nå og betale først når du har fått plass.
-                </div>
-            }
+            <div class="alert alert-info" role="alert">
+                Det koster @Model.PriceForNonMembers.FormatMoney() for ikke-medlemmer å delta på dette arrangementet. Du kan melde deg på nå og betale først når du har fått plass.
+            </div>
         }
 
         <partial name="_SignupResponse" model=Model />

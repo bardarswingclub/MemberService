@@ -1,12 +1,10 @@
 @using MemberService.Data.ValueTypes
 @using MemberService.Pages.Signup
-@model SignupModel
+@model StatusModel
 
 @{
     ViewData["Title"] = Model.Title;
     Layout = "~/Pages/_CoverLayout.cshtml";
-    var options = Model.Options;
-    var user = Model.User;
 }
 
 <div class="card shadow mt-5">
@@ -23,7 +21,7 @@
                 <p>@Model.Title har blitt avlyst</p>
             </div>
 
-            @if(!Model.IsArchived && Model.UserEventSignup.Status == Status.AcceptedAndPayed && Model.UserEventSignup.Payment?.Refunded == false)
+            @if(!Model.IsArchived && Model.Status == Status.AcceptedAndPayed && Model.Refunded == false)
             {
                 <div class="alert alert-info" role="alert">
                     <h3 class="alert-heading">Vil du ha refundert betalingen?</h3>
@@ -35,17 +33,16 @@
                 </div>
             }
         }
-        else if (Model.UserEventSignup.Status == Status.WaitingList)
+        else if (Model.Status == Status.WaitingList)
         {
             <div class="alert alert-info" role="alert">
                 <h3 class="alert-heading">Du er på ventelisten</h3>
                 <p>Det er veldig mange som ønsker å delta, og arrangementet er desverre fullt. Du er på ventelisten, så hvis noen gir fra seg plassen så kan du kanskje få plass likevel. Kryss fingrene!</p>
             </div>
         }
-        else if (Model.UserEventSignup.Status == Status.AcceptedAndPayed)
+        else if (Model.Status == Status.AcceptedAndPayed)
         {
             <div class="alert alert-success" role="alert">
-                <h3 class="alert-heading">Du har fått plass</h3>
                 <p>Du har godtatt plassen og betalt alt som trengs for å delta, så nå er det ingenting mer å gjøre, bare å glede seg!</p>
             </div>
 
@@ -64,14 +61,14 @@
             </details>
             }
         }
-        else if (Model.UserEventSignup.Status == Status.RejectedOrNotPayed)
+        else if (Model.Status == Status.RejectedOrNotPayed)
         {
             <div class="alert alert-warning" role="alert">
                 <h3 class="alert-heading">Du har takket nei til denne plassen</h3>
                 <p>Du har takket nei til denne plassen.</p>
             </div>
         }
-        else if (Model.UserEventSignup.Status == Status.Denied)
+        else if (Model.Status == Status.Denied)
         {
             <div class="alert alert-warning" role="alert">
                 <h3 class="alert-heading">Du har mistet plassen din</h3>
@@ -84,19 +81,20 @@
                 <h3 class="alert-heading">Du er påmeldt</h3>
                 <p>Du vil få beskjed når vi har tildelt plassene.</p>
             </div>
-            @if (Model.Options.RoleSignup)
+
+            @if (Model.RoleSignup)
             {
                 <p>
-                    Du er påmeldt som <strong>@Role(Model.UserEventSignup.Role)</strong>
-                    @if (Model.Options.AllowPartnerSignup)
+                    Du er påmeldt som <strong>@Model.Role.DisplayName().ToLower()</strong>
+                    @if (Model.AllowPartnerSignup)
                     {
-                        if (string.IsNullOrWhiteSpace(Model.UserEventSignup.PartnerEmail))
+                        if (string.IsNullOrWhiteSpace(Model.PartnerEmail))
                         {
                             @:uten partner.
                         }
                         else
                         {
-                            @:sammen med <strong>@Model.UserEventSignup.PartnerEmail</strong>.
+                            @:sammen med <strong>@Model.PartnerEmail</strong>.
                         }
                     }
                 </p>
@@ -104,7 +102,7 @@
 
             <vc:survey-response id=Model.SurveyId disabled />
 
-            @if (!Model.IsArchived && (Model.Options.RoleSignup || Model.SurveyId.HasValue))
+            @if (Model.CanEdit)
             {
                 <div class="text-center">
                     <a asp-page="/Signup/Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">Rediger påmelding</a>
@@ -113,18 +111,3 @@
         }
     </div>
 </div>
-
-@functions{
-    string Role(DanceRole role)
-    {
-        switch (role)
-        {
-            case DanceRole.Follow:
-                return "følger";
-            case DanceRole.Lead:
-                return "fører";
-            default:
-                return "ingenting";
-        }
-    }
-}

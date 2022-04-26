@@ -2,13 +2,9 @@
 
 using Stripe;
 
-
-
-
-
-public interface IPaymentService
+public interface IStripePaymentService
 {
-    Task<string> CreatePayment(
+    Task<string> CreatePaymentRequest(
         string name,
         string email,
         string title,
@@ -19,7 +15,7 @@ public interface IPaymentService
         bool includesMembership = false,
         bool includesTraining = false,
         bool includesClasses = false,
-        Guid? eventSignupId = null);
+        Guid? eventId = null);
 
     Task<(int users, int payments, int updates)> SavePayments(IEnumerable<Charge> charges);
 

@@ -1,0 +1,32 @@
+﻿@page "{orderId?}/{handler?}"
+@using MemberService.Pages.Pay
+@model VippsModel
+
+
+@{
+    ViewData["Title"] = "Betal med Vipps";
+    Layout = "~/Pages/_CoverLayout.cshtml";
+}
+
+<div class="card mt-5 shadow">
+    <h3 class="card-header">
+        Betal med Vipps
+    </h3>
+
+    @if (Model.Success)
+    {
+        <div class="card-body">
+            <p>Betalt</p>
+        </div>
+    }
+    else
+    {
+        <form method="post" class="card-body">
+            <p>
+                Trykk på knappen under for å betale med Vipps
+            </p>
+
+            <button type="submit" class="btn btn-success btn-block">Betal</button>
+        </form>
+    }
+</div>

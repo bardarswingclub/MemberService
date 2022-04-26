@@ -1,5 +1,7 @@
 ﻿namespace MemberService.Pages.Pay;
 
+using Clave.ExtensionMethods;
+
 using MemberService.Data;
 using MemberService.Pages.Home;
 using MemberService.Services;
@@ -15,66 +17,27 @@ public class PayController : Controller
     private readonly SignInManager<User> _signInManager;
     private readonly UserManager<User> _userManager;
     private readonly MemberContext _memberContext;
-    private readonly IPaymentService _paymentService;
+    private readonly IStripePaymentService _stripePaymentService;
+    private readonly IVippsPaymentService _vippsPaymentService;
 
     public PayController(
         SignInManager<User> signInManager,
         UserManager<User> userManager,
         MemberContext memberContext,
-        IPaymentService paymentService)
+        IStripePaymentService stripePaymentService,
+        IVippsPaymentService vippsPaymentService)
     {
         _signInManager = signInManager;
         _userManager = userManager;
         _memberContext = memberContext;
-        _paymentService = paymentService;
-    }
-
-    public async Task<IActionResult> Index(string title, string description, decimal amount, string email = null, string name = null)
-    {
-        if (title == null || description == null || amount <= 0)
-        {
-            return NotFound();
-        }
-
-        if (email != null && await _userManager.FindByEmailAsync(email) is User user)
-        {
-            name = user.FullName;
-            if (User.Identity.IsAuthenticated)
-            {
-                if (User.GetId() != user.Id)
-                {
-                    await _signInManager.SignOutAsync();
-                    return RedirectToPage("/Account/Login", new { email, returnUrl = Request.GetEncodedPathAndQuery(), Area = "Identity" });
-                }
-            }
-            else
-            {
-                return RedirectToPage("/Account/Login", new { email, returnUrl = Request.GetEncodedPathAndQuery(), Area = "Identity" });
-            }
-        }
-
-        var sessionId = await _paymentService.CreatePayment(
-            name: name,
-            email: email,
-            title: title,
-            description: description,
-            amount: amount,
-            successUrl: Url.ActionLink(nameof(Success), "Pay", new { title, description, sessionId = "{CHECKOUT_SESSION_ID}" }),
-            cancelUrl: Request.GetDisplayUrl());
-
-        return View(new PayModel
-        {
-            Id = sessionId,
-            Name = title,
-            Description = description,
-            Amount = amount
-        });
+        _stripePaymentService = stripePaymentService;
+        _vippsPaymentService = vippsPaymentService;
     }
 
     [HttpPost]
     [Authorize]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public async Task<IActionResult> Fee([FromForm] string type, string returnUrl = null)
+    public async Task<IActionResult> Fee([FromForm] string type, [FromForm] string method, string returnUrl = null)
     {
         var user = await GetCurrentUser();
 
@@ -84,45 +47,55 @@ public class PayController : Controller
         {
             return RedirectToPage("/Home/Fees");
         }
+        string url = method == "vipps"
+            ? await CreateVippsPayment(user, fee, returnUrl ?? Request.Headers.Referer.ToString()?.Pipe(url => new Uri(url).PathAndQuery))
+            : await CreateStripePayment(user, fee, returnUrl ?? Request.Headers.Referer.ToString()?.Pipe(url => new Uri(url).PathAndQuery));
 
-        var sessionId = await _paymentService.CreatePayment(
+        return Redirect(url);
+    }
+
+    private async Task<string> CreateVippsPayment(User user, Fee fee, string returnUrl)
+    {
+        return await _vippsPaymentService.InitiatePayment(
+            userId: user.Id,
+            description: fee.Description,
+            amount: fee.Amount,
+            returnToUrl: Url.ActionLink(nameof(FeePaid), values: new { fee.Description, returnUrl, orderId = "{orderId}" }),
+            includesMembership: fee.IncludesMembership,
+            includesTraining: fee.IncludesTraining,
+            includesClasses: fee.IncludesClasses);
+    }
+
+    private async Task<string> CreateStripePayment(User user, Fee fee, string returnUrl)
+    {
+        return await _stripePaymentService.CreatePaymentRequest(
             name: user.FullName,
             email: user.Email,
             title: fee.Description,
             description: fee.Description,
             amount: fee.Amount,
-            successUrl: Url.ActionLink(nameof(FeePaid), "Pay", new { type, returnUrl, sessionId = "{CHECKOUT_SESSION_ID}" }),
-            cancelUrl: Request.GetDisplayUrl(),
+            successUrl: Url.ActionLink(nameof(FeePaid), values: new { fee.Description, returnUrl, sessionId = "{CHECKOUT_SESSION_ID}" }),
+            cancelUrl: returnUrl,
             includesMembership: fee.IncludesMembership,
             includesTraining: fee.IncludesTraining,
             includesClasses: fee.IncludesClasses);
-
-        return View(new PayModel
-        {
-            Id = sessionId
-        });
     }
 
-    public async Task<IActionResult> Success(string title, string description, string sessionId)
+    public async Task<IActionResult> FeePaid(string sessionId, string orderId, string description, string returnUrl = null)
     {
-        await _paymentService.SavePayment(sessionId);
-
-        return View(new PayModel
+        if (sessionId is not null)
         {
-            Name = title,
-            Description = description
-        });
-    }
+            TempData.SetSuccessMessage($"{description} betalt");
+            await _stripePaymentService.SavePayment(sessionId);
+        }
 
-    public async Task<IActionResult> FeePaid(string sessionId, string type, string returnUrl = null)
-    {
-        var user = await GetCurrentUser();
-
-        var (feeStatus, fee) = user.GetFee(type);
-
-        await _paymentService.SavePayment(sessionId);
-
-        TempData.SetSuccessMessage($"{fee.Description} betalt");
+        if (orderId is not null)
+        {
+            if (await _vippsPaymentService.CompleteReservations(User.GetId()))
+            {
+                TempData.SetSuccessMessage($"{description} betalt");
+            }
+        }
 
         if (string.IsNullOrEmpty(returnUrl))
         {

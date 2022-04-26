@@ -8,13 +8,24 @@ using Microsoft.EntityFrameworkCore;
 using Stripe;
 using Stripe.Checkout;
 
-
-
-
-
-
-public class PaymentService : IPaymentService
+public class StripePaymentService : IStripePaymentService
 {
+    private const string Membership = "medlemskap";
+    private const string MembershipAndCourse = "medlemskap+kurs";
+    private const string MembershipFreeCourse = "medlemskapgratisKurs";
+    private const string MembershipTraining = "medlemskap+trening";
+    private const string Old = "2018";
+    private const string Name = "name";
+    private const string Email = "email";
+    private const string AmountOwed = "amount_owed";
+    private const string LongDescription = "long_desc";
+    private const string ShortDescription = "short_desc";
+    private const string IncludesMembership = "inc_membership";
+    private const string IncludesTraining = "inc_training";
+    private const string IncludesClasses = "inc_classes";
+    private const string EventSignup = "event_signup";
+    private const string Event = "event";
+
     private readonly SessionService _sessionService;
     private readonly ChargeService _chargeService;
     private readonly CustomerService _customerService;
@@ -22,7 +33,7 @@ public class PaymentService : IPaymentService
     private readonly UserManager<User> _userManager;
     private readonly MemberContext _memberContext;
 
-    public PaymentService(
+    public StripePaymentService(
         SessionService sessionService,
         ChargeService chargeService,
         CustomerService customerService,
@@ -40,14 +51,14 @@ public class PaymentService : IPaymentService
 
     private static readonly Dictionary<string, (bool?, bool?, bool?)> DescriptionMap = new()
     {
-        ["medlemskap"] = (true, null, null),
-        ["medlemskap+kurs"] = (true, true, true),
-        ["medlemskapgratisKurs"] = (true, true, true),
-        ["medlemskap+trening"] = (true, true, null),
-        ["2018"] = (false, false, false)
+        [Membership] = (true, null, null),
+        [MembershipAndCourse] = (true, true, true),
+        [MembershipFreeCourse] = (true, true, true),
+        [MembershipTraining] = (true, true, null),
+        [Old] = (false, false, false)
     };
 
-    public async Task<string> CreatePayment(
+    public async Task<string> CreatePaymentRequest(
         string name,
         string email,
         string title,
@@ -58,49 +69,46 @@ public class PaymentService : IPaymentService
         bool includesMembership = false,
         bool includesTraining = false,
         bool includesClasses = false,
-        Guid? eventSignupId = null)
+        Guid? eventId = null)
     {
         var customerId = await GetCustomerId(email, name);
 
         var session = await _sessionService.CreateAsync(new SessionCreateOptions
         {
             Customer = customerId,
-            PaymentIntentData = new SessionPaymentIntentDataOptions
+            PaymentIntentData = new()
             {
                 Description = title,
-                Metadata = new Dictionary<string, string>
+                Metadata = new()
                 {
-                    ["name"] = name,
-                    ["email"] = email,
-                    ["amount_owed"] = amount.ToString(),
-                    ["long_desc"] = description,
-                    ["short_desc"] = title,
-                    ["inc_membership"] = includesMembership ? "yes" : "no",
-                    ["inc_training"] = includesTraining ? "yes" : "no",
-                    ["inc_classes"] = includesClasses ? "yes" : "no",
-                    ["event_signup"] = eventSignupId?.ToString()
+                    [Name] = name,
+                    [Email] = email,
+                    [AmountOwed] = amount.ToString(),
+                    [LongDescription] = description,
+                    [ShortDescription] = title,
+                    [IncludesMembership] = includesMembership ? "yes" : "no",
+                    [IncludesTraining] = includesTraining ? "yes" : "no",
+                    [IncludesClasses] = includesClasses ? "yes" : "no",
+                    [Event] = eventId?.ToString()
                 }
             },
-            PaymentMethodTypes = new List<string>
+            PaymentMethodTypes = new() { "card" },
+            LineItems = new()
+            {
+                new()
                 {
-                    "card",
-                },
-            LineItems = new List<SessionLineItemOptions>
-                {
-                    new()
-                    {
-                        Name = title,
-                        Description = description,
-                        Amount = (long) amount*100L,
-                        Currency = "nok",
-                        Quantity = 1
-                    }
-                },
+                    Name = title,
+                    Description = description,
+                    Amount = (long) amount*100L,
+                    Currency = "nok",
+                    Quantity = 1
+                }
+            },
             SuccessUrl = successUrl.Replace("%7BCHECKOUT_SESSION_ID%7D", "{CHECKOUT_SESSION_ID}"),
             CancelUrl = cancelUrl,
         });
 
-        return session.Id;
+        return session.Url;
     }
 
     private async Task<string> GetCustomerId(string email, string name)
@@ -205,13 +213,13 @@ public class PaymentService : IPaymentService
 
     private async Task<Status> SavePayment(Charge charge)
     {
-        var email = charge.Customer?.Email ?? charge.Metadata.GetValueOrDefault("email");
-        var name = charge.Customer?.Name ?? charge.Metadata.GetValueOrDefault("name");
+        var email = charge.Customer?.Email ?? charge.Metadata.GetValueOrDefault(Email);
+        var name = charge.Customer?.Name ?? charge.Metadata.GetValueOrDefault(Name);
 
         if (email is null) return Status.Nothing;
 
         var user = await _memberContext.Users
-            .Include(u => u.Payments)
+            .Include(u => u.Payments.Where(p => p.StripeChargeId == charge.Id))
             .Include(u => u.EventSignups)
                 .ThenInclude(s => s.AuditLog)
             .FirstOrDefaultAsync(u => u.NormalizedEmail == email.ToUpperInvariant());
@@ -224,23 +232,22 @@ public class PaymentService : IPaymentService
                 Email = email,
                 FullName = name,
                 Payments =
-                    {
-                        CreatePayment(charge)
-                    }
+                {
+                    CreatePayment(charge)
+                }
             });
 
             await _memberContext.SaveChangesAsync();
 
             return Status.CreatedUser;
         }
-
-        if (user.Payments.FirstOrDefault(p => p.StripeChargeId == charge.Id) is Payment payment)
+        else if (user.Payments.FirstOrDefault(p => p.StripeChargeId == charge.Id) is Payment payment)
         {
             payment.Refunded = charge.Refunded || charge.Status == "failed";
             payment.EventSignup = GetEventSignup(charge, user.EventSignups);
-            payment.IncludesMembership = charge.Metadata.TryGetValue("inc_membership", out var m) && m == "yes";
-            payment.IncludesTraining = charge.Metadata.TryGetValue("inc_training", out var t) && t == "yes";
-            payment.IncludesClasses = charge.Metadata.TryGetValue("inc_classes", out var c) && c == "yes";
+            payment.IncludesMembership = charge.Metadata.TryGetValue(IncludesMembership, out var m) && m == "yes";
+            payment.IncludesTraining = charge.Metadata.TryGetValue(IncludesTraining, out var t) && t == "yes";
+            payment.IncludesClasses = charge.Metadata.TryGetValue(IncludesClasses, out var c) && c == "yes";
 
             SetEventSignupStatus(payment, user);
 
@@ -250,14 +257,16 @@ public class PaymentService : IPaymentService
                 ? Status.Nothing
                 : Status.UpdatedPayment;
         }
+        else
+        {
+            payment = CreatePayment(charge, user.EventSignups);
+            SetEventSignupStatus(payment, user);
+            user.Payments.Add(payment);
 
-        payment = CreatePayment(charge, user.EventSignups);
-        SetEventSignupStatus(payment, user);
-        user.Payments.Add(payment);
+            await _memberContext.SaveChangesAsync();
 
-        await _memberContext.SaveChangesAsync();
-
-        return Status.CreatedPayment;
+            return Status.CreatedPayment;
+        }
     }
 
     private static void SetEventSignupStatus(Payment payment, User user)
@@ -279,9 +288,9 @@ public class PaymentService : IPaymentService
             Description = charge.Description,
             PayedAtUtc = charge.Created,
             StripeChargeId = charge.Id,
-            IncludesMembership = charge.Metadata.TryGetValue("inc_membership", out var m) && m == "yes" || includesMembership,
-            IncludesTraining = charge.Metadata.TryGetValue("inc_training", out var t) && t == "yes" || includesTraining,
-            IncludesClasses = charge.Metadata.TryGetValue("inc_classes", out var c) && c == "yes" || includesClasses,
+            IncludesMembership = charge.Metadata.TryGetValue(IncludesMembership, out var m) && m == "yes" || includesMembership,
+            IncludesTraining = charge.Metadata.TryGetValue(IncludesTraining, out var t) && t == "yes" || includesTraining,
+            IncludesClasses = charge.Metadata.TryGetValue(IncludesClasses, out var c) && c == "yes" || includesClasses,
             Refunded = charge.Refunded || charge.Status == "failed",
             EventSignup = GetEventSignup(charge, eventSignups)
         };
@@ -307,12 +316,13 @@ public class PaymentService : IPaymentService
 
     private static EventSignup GetEventSignup(Charge charge, ICollection<EventSignup> eventSignups)
     {
-        var id = charge.Metadata.GetValueOrDefault("event_signup")?.ToGuid();
+        if (charge.Metadata.GetValueOrDefault(EventSignup)?.ToGuid() is Guid eventSignupId)
+            return eventSignups?.FirstOrDefault(e => e.Id == eventSignupId);
 
-        if (id == null)
-            return null;
+        if (charge.Metadata.GetValueOrDefault(Event)?.ToGuid() is Guid eventId)
+            return eventSignups?.FirstOrDefault(e => e.EventId == eventId);
 
-        return eventSignups?.FirstOrDefault(e => e.Id == id);
+        return null;
     }
 
     private enum Status

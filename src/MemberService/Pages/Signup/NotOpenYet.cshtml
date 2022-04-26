@@ -1,11 +1,9 @@
 @using MemberService.Pages.Signup
-@model SignupModel
+@model NotOpenYetModel
 
 @{
     ViewData["Title"] = Model.Title;
     Layout = "~/Pages/_CoverLayout.cshtml";
-    var date = Model.Options.SignupOpensAt.Value.ToOsloDate();
-    var time = Model.Options.SignupOpensAt.Value.ToOsloTime();
 }
 
 <div class="card shadow mt-5">
@@ -15,10 +13,40 @@
     <div class="card-body">
         <p class="lead">@Model.Description</p>
 
-        <p>@Html.Markdown(Model.Options.SignupHelp)</p>
+        <p>@Html.Markdown(Model.SignupHelp)</p>
 
         <div class="alert alert-primary">
-            Påmeldinge åpner @date klokken @time
+            <h4 class="alert-heading">Påmelding ikke åpen</h4>
+            <p>Påmelding åpner @Model.SignupOpensAt?.DisplayOslo()</p>
+            <ul>
+                @if (Model.RequiresMembership)
+                {
+                    <li>Du må være medlem for å delta</li>
+                    if(Model.MembersPrice > 0)
+                    {
+                        <li>Pris: @Model.NonMembersPrice.FormatMoney()</li>
+                    }
+                }
+                else
+                {
+                    if (Model.MembersPrice > 0)
+                    {
+                        @if (Model.MembersPrice != Model.NonMembersPrice) {
+                            <li>Pris for medlemmer: @Model.MembersPrice.FormatMoney()</li>
+                            <li>Pris for ikke-medlemmer: @Model.NonMembersPrice.FormatMoney()</li>
+                        }
+                        else
+                        {
+                            <li>Pris: @Model.MembersPrice.FormatMoney()</li>
+                        }
+                    }
+                    else if(Model.NonMembersPrice > 0)
+                    {
+                        <li>Gratis for medlemmer</li>
+                        <li>Pris for ikke-medlemmer: @Model.NonMembersPrice.FormatMoney()</li>
+                    }
+                }
+            </ul>
         </div>
     </div>
 </div>

@@ -1,7 +1,5 @@
 namespace MemberService.Services;
 
-
-
 using MemberService.Data;
 
 public enum FeeStatus
