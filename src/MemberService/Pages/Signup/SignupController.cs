@@ -12,18 +12,24 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+using CreateFeePayment = Func<Guid, Data.User, Services.Fee, Task<string>>;
+using CreateEventPayment = Func<Guid, string, string, Data.User, decimal, Task<string>>;
+
 [Authorize]
 public class SignupController : Controller
 {
     private readonly MemberContext _database;
     private readonly IStripePaymentService _stripePaymentService;
+    private readonly IVippsPaymentService _vippsPaymentService;
 
     public SignupController(
         MemberContext database,
-        IStripePaymentService stripePaymentService)
+        IStripePaymentService stripePaymentService,
+        IVippsPaymentService vippsPaymentService)
     {
         _database = database;
         _stripePaymentService = stripePaymentService;
+        _vippsPaymentService = vippsPaymentService;
     }
 
     [AllowAnonymous]
@@ -114,7 +120,7 @@ public class SignupController : Controller
                     Title = ev.Title,
                     Description = ev.Description,
                     AllowPartnerSignup = ev.Options.AllowPartnerSignup,
-                    Requirement = GetRequirement(user, ev.Options),
+                    Requirement = user.GetRequirement(ev.Options),
                     AllowPartnerSignupHelp = ev.Options.AllowPartnerSignupHelp,
                     PriceForMembers = ev.Options.PriceForMembers,
                     PriceForNonMembers = ev.Options.PriceForNonMembers,
@@ -198,7 +204,7 @@ public class SignupController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> AcceptOrReject(Guid id, [FromForm] bool accept)
+    public async Task<IActionResult> AcceptOrReject(Guid id, [FromForm] bool accept, [FromForm] string method)
     {
         var model = await _database.Events
             .Include(e => e.SignupOptions)
@@ -217,42 +223,45 @@ public class SignupController : Controller
         var signup = await _database.EventSignups
             .FirstOrDefaultAsync(s => s.EventId == id && s.UserId == userId);
 
-        if (accept)
+        if (accept || method is not null)
         {
             if (signup?.Status == Status.Approved)
             {
                 var options = model.SignupOptions;
 
-                var requirement = GetRequirement(user, options);
+                var requirement = user.GetRequirement(options);
 
-                if(requirement == SignupRequirement.None)
+                if (requirement == SignupRequirement.None)
                 {
                     signup.Status = Status.AcceptedAndPayed;
                     signup.AuditLog.Add("Accepted", user);
                 }
                 else
                 {
+                    CreateFeePayment createFeePayment = method == "vipps" ? CreateVippsPayment : CreateStripePayment;
+                    CreateEventPayment createEventPayment = method == "vipps" ? CreateVippsPayment : CreateStripePayment;
+
                     return requirement switch
                     {
-                        SignupRequirement.MustPayClassesFee => Redirect(await CreatePayment(
+                        SignupRequirement.MustPayClassesFee => Redirect(await createFeePayment(
                             id,
                             user,
                             user.GetClassesFee().Fee)),
-                        SignupRequirement.MustPayTrainingFee => Redirect(await CreatePayment(
+                        SignupRequirement.MustPayTrainingFee => Redirect(await createFeePayment(
                             id,
                             user,
                             user.GetTrainingFee().Fee)),
-                        SignupRequirement.MustPayMembershipFee => Redirect(await CreatePayment(
+                        SignupRequirement.MustPayMembershipFee => Redirect(await createFeePayment(
                             id,
                             user,
                             user.GetMembershipFee().Fee)),
-                        SignupRequirement.MustPayMembersPrice => Redirect(await CreatePayment(
+                        SignupRequirement.MustPayMembersPrice => Redirect(await createEventPayment(
                             id,
                             model.Title,
                             model.Description,
                             user,
                             options.PriceForMembers)),
-                        SignupRequirement.MustPayNonMembersPrice => Redirect(await CreatePayment(
+                        SignupRequirement.MustPayNonMembersPrice => Redirect(await createEventPayment(
                             id,
                             model.Title,
                             model.Description,
@@ -294,16 +303,23 @@ public class SignupController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Success(Guid id, string sessionId)
+    public async Task<IActionResult> Success(Guid id, string sessionId, string orderId)
     {
-        await _stripePaymentService.SavePayment(sessionId);
+        if (sessionId is not null)
+        {
+            await _stripePaymentService.SavePayment(sessionId);
+        }
+
+        if (orderId is not null)
+        {
+            await _vippsPaymentService.CompleteReservations(GetUserId());
+        }
 
         return RedirectToAction(nameof(Event), new { id });
     }
 
-    private AcceptModel CreateAcceptModel(AcceptModel acceptModel, User user, EventSignupOptions options)
-    {
-        return GetRequirement(user, options) switch
+    private static AcceptModel CreateAcceptModel(AcceptModel acceptModel, User user, EventSignupOptions options)
+        => user.GetRequirement(options) switch
         {
             SignupRequirement.MustPayClassesFee => acceptModel with
             {
@@ -332,35 +348,18 @@ public class SignupController : Controller
             },
             _ => acceptModel,
         };
-    }
 
-    private static SignupRequirement GetRequirement(User user, EventSignupOptions options)
+    private async Task<string> CreateVippsPayment(Guid eventId, string title, string description, User user, decimal amount)
     {
-        if (user.MustPayClassesFee(options))
-        {
-            return SignupRequirement.MustPayClassesFee;
-        }
-        else if (user.MustPayTrainingFee(options))
-        {
-            return SignupRequirement.MustPayTrainingFee;
-        }
-        else if (user.MustPayMembershipFee(options))
-        {
-            return SignupRequirement.MustPayMembershipFee;
-        }
-        else if (user.MustPayMembersPrice(options))
-        {
-            return SignupRequirement.MustPayMembersPrice;
-        }
-        else if (user.MustPayNonMembersPrice(options))
-        {
-            return SignupRequirement.MustPayNonMembersPrice;
-        }
-
-        return SignupRequirement.None;
+        return await _vippsPaymentService.InitiatePayment(
+            user.Id,
+            title,
+            amount,
+            VippsSuccessLink(eventId),
+            eventId: eventId);
     }
 
-    private async Task<string> CreatePayment(Guid id, string title, string description, User user, decimal amount)
+    private async Task<string> CreateStripePayment(Guid eventId, string title, string description, User user, decimal amount)
     {
         return await _stripePaymentService.CreatePaymentRequest(
             user.FullName,
@@ -368,12 +367,25 @@ public class SignupController : Controller
             title,
             description,
             amount,
-            SignupSuccessLink(id),
+            StripeSuccessLink(eventId),
             Request.GetDisplayUrl(),
-            eventId: id);
+            eventId: eventId);
     }
 
-    private async Task<string> CreatePayment(Guid id, User user, Fee fee)
+    private async Task<string> CreateVippsPayment(Guid eventId, User user, Fee fee)
+    {
+        return await _vippsPaymentService.InitiatePayment(
+            user.Id,
+            fee.Description,
+            fee.Amount,
+            VippsSuccessLink(eventId),
+            fee.IncludesMembership,
+            fee.IncludesTraining,
+            fee.IncludesClasses,
+            eventId: eventId);
+    }
+
+    private async Task<string> CreateStripePayment(Guid eventId, User user, Fee fee)
     {
         return await _stripePaymentService.CreatePaymentRequest(
             user.FullName,
@@ -381,16 +393,19 @@ public class SignupController : Controller
             fee.Description,
             fee.Description,
             fee.Amount,
-            SignupSuccessLink(id),
+            StripeSuccessLink(eventId),
             Request.GetDisplayUrl(),
             fee.IncludesMembership,
             fee.IncludesTraining,
             fee.IncludesClasses,
-            eventId: id);
+            eventId: eventId);
     }
 
-    private string SignupSuccessLink(Guid id)
+    private string StripeSuccessLink(Guid id)
         => Url.ActionLink(nameof(Success), values: new { id, sessionId = "{CHECKOUT_SESSION_ID}" });
+
+    private string VippsSuccessLink(Guid id)
+        => Url.ActionLink(nameof(Success), values: new { id, orderId = "{orderId}" });
 
     private string GetUserId() => User.GetId();
 }
