@@ -14,7 +14,7 @@ env:
   resourceGroup: bsc-medlemmer-rg
 jobs:
   Build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: .NET Core 6 for building
@@ -44,6 +44,7 @@ jobs:
 
   DeployTest:
     runs-on: windows-latest
+    needs: Build
     environment:
       name: Test
     steps:
@@ -59,6 +60,7 @@ jobs:
 
   DeployProd:
     runs-on: windows-latest
+    needs: DeployTest
     environment:
       name: Prod
     steps:
