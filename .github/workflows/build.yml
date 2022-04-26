@@ -51,7 +51,7 @@ jobs:
     - name: Azure Login
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_SP }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
     - uses: Azure/webapps-deploy@v2
       with:
         app-name: ${{ env.appName }}
@@ -67,7 +67,7 @@ jobs:
     - name: Azure Login
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_SP }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
     - uses: Azure/cli@v1.0.0
       with:
         inlineScript: az webapp deployment slot swap --resource-group ${{ env.resourceGroup }} --name ${{ env.appName }} --slot test --target-slot production
