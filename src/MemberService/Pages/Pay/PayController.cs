@@ -16,23 +16,26 @@ public class PayController : Controller
     private readonly UserManager<User> _userManager;
     private readonly MemberContext _memberContext;
     private readonly IStripePaymentService _stripePaymentService;
+    private readonly IVippsPaymentService _vippsPaymentService;
 
     public PayController(
         SignInManager<User> signInManager,
         UserManager<User> userManager,
         MemberContext memberContext,
-        IStripePaymentService stripePaymentService)
+        IStripePaymentService stripePaymentService,
+        IVippsPaymentService vippsPaymentService)
     {
         _signInManager = signInManager;
         _userManager = userManager;
         _memberContext = memberContext;
         _stripePaymentService = stripePaymentService;
+        _vippsPaymentService = vippsPaymentService;
     }
 
     [HttpPost]
     [Authorize]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public async Task<IActionResult> Fee([FromForm] string type, string returnUrl = null)
+    public async Task<IActionResult> Fee([FromForm] string type, [FromForm] string method, string returnUrl = null)
     {
         var user = await GetCurrentUser();
 
@@ -42,42 +45,53 @@ public class PayController : Controller
         {
             return RedirectToPage("/Home/Fees");
         }
+        string url = method == "vipps"
+            ? await CreateVippsPayment(user, fee, returnUrl)
+            : await CreateStripePayment(user, fee, returnUrl);
 
-        var url = await _stripePaymentService.CreatePaymentRequest(
+        return Redirect(url);
+    }
+
+    private async Task<string> CreateVippsPayment(User user, Fee fee, string returnUrl)
+    {
+        return await _vippsPaymentService.InitiatePayment(
+            userId: user.Id,
+            description: fee.Description,
+            amount: fee.Amount,
+            returnToUrl: Url.ActionLink(nameof(FeePaid), values: new { fee.Description, returnUrl, orderId = "{orderId}" }),
+            includesMembership: fee.IncludesMembership,
+            includesTraining: fee.IncludesTraining,
+            includesClasses: fee.IncludesClasses);
+    }
+
+    private async Task<string> CreateStripePayment(User user, Fee fee, string returnUrl)
+    {
+        return await _stripePaymentService.CreatePaymentRequest(
             name: user.FullName,
             email: user.Email,
             title: fee.Description,
             description: fee.Description,
             amount: fee.Amount,
-            successUrl: Url.ActionLink(nameof(FeePaid), values: new { type, returnUrl, sessionId = "{CHECKOUT_SESSION_ID}" }),
+            successUrl: Url.ActionLink(nameof(FeePaid), values: new { fee.Description, returnUrl, sessionId = "{CHECKOUT_SESSION_ID}" }),
             cancelUrl: returnUrl,
             includesMembership: fee.IncludesMembership,
             includesTraining: fee.IncludesTraining,
             includesClasses: fee.IncludesClasses);
-
-        return Redirect(url);
     }
 
-    public async Task<IActionResult> Success(string title, string description, string sessionId)
+    public async Task<IActionResult> FeePaid(string sessionId, string orderId, string description, string returnUrl = null)
     {
-        await _stripePaymentService.SavePayment(sessionId);
-
-        return View(new PayModel
+        if (sessionId is not null)
         {
-            Name = title,
-            Description = description
-        });
-    }
+            await _stripePaymentService.SavePayment(sessionId);
+        }
 
-    public async Task<IActionResult> FeePaid(string sessionId, string type, string returnUrl = null)
-    {
-        var user = await GetCurrentUser();
+        if (orderId is not null)
+        {
+            await _vippsPaymentService.CompleteReservations(User.GetId());
+        }
 
-        var (feeStatus, fee) = user.GetFee(type);
-
-        await _stripePaymentService.SavePayment(sessionId);
-
-        TempData.SetSuccessMessage($"{fee.Description} betalt");
+        TempData.SetSuccessMessage($"{description} betalt");
 
         if (string.IsNullOrEmpty(returnUrl))
         {
