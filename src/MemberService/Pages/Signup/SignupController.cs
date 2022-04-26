@@ -137,7 +137,10 @@ public class SignupController : Controller
             Title = ev.Title,
             Description = ev.Description,
             SignupHelp = ev.Options.SignupHelp,
-            SignupOpensAt = ev.Options.SignupOpensAt
+            SignupOpensAt = ev.Options.SignupOpensAt,
+            RequiresMembership = ev.Options.RequiresMembershipFee,
+            MembersPrice = ev.Options.PriceForMembers,
+            NonMembersPrice = ev.Options.PriceForNonMembers
         });
     }
 
