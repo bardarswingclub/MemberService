@@ -27,18 +27,15 @@ public class AccessTokenHandler : DelegatingHandler
 
     private async Task<string> GetAccessToken()
     {
-        var accessToken = _accessTokenCache.AccessToken;
+        return await _accessTokenCache.GetOrSet(Create);
+    }
 
-        if (accessToken?.HasExpired == false) return accessToken.AccessToken;
-
+    private async Task<AccessTokenResponse> Create()
+    {
         var client = _httpClientFactory.CreateClient("Vipps-auth");
 
-        var response = await client.PostAsJsonAsync("/accessToken/get", new {});
+        var response = await client.PostAsJsonAsync("/accessToken/get", new { });
         response.EnsureSuccessStatusCode();
-        accessToken = await response.Content.ReadFromJsonAsync<AccessTokenResponse>();
-
-        _accessTokenCache.AccessToken = accessToken;
-
-        return accessToken.AccessToken;
+        return await response.Content.ReadFromJsonAsync<AccessTokenResponse>();
     }
 }
