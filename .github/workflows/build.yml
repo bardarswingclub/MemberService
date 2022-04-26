@@ -29,11 +29,11 @@ jobs:
           nuget | "${{ runner.os }}"
         path: ${{ github.workspace }}/.nuget/packages
     - name: Restore
-      run: dotnet restore **/*.csproj
+      run: dotnet restore
     - name: Build
-      run: dotnet **/*.csproj --configuration release
+      run: dotnet build --no-restore --configuration release
     - name: Test
-      run: dotnet test **/*.Tests.csproj --configuration release
+      run: dotnet test --no-restore --no-build --configuration release
     - name: Publish
       run: dotnet publish --configuration release --output ${{ github.workspace }}
     - name: Publish artifact WebApp
