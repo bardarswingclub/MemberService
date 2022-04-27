@@ -6,7 +6,7 @@ using MemberService.Services.Vipps.Models;
 
 public class AccessTokenCache
 {
-    private SemaphoreSlim _semaphore = new(0, 1);
+    private readonly SemaphoreSlim _semaphore = new(1);
     private AccessTokenResponse _accessToken;
 
     public async Task<string> GetOrSet(Func<Task<AccessTokenResponse>> factory)
