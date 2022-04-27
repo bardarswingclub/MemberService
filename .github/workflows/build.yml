@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - master
+
 env:
   AdminEmails: gundersen@gmail.com, erikly@gmail.com
   FromEmail: pamelding@bardarswingclub.no
@@ -58,6 +59,9 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - uses: Azure/cli@v1.0.0
+      with:
+        inlineScript: az deployment group create --resource-group bsc-medlemmer-rg --template-file infrastructure/main.bicep
     - uses: Azure/webapps-deploy@v2
       with:
         app-name: ${{ env.appName }}

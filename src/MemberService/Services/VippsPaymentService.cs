@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
 using MemberService.Services.Vipps;
+using MemberService.Services.Vipps.Models;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -13,13 +14,16 @@ public class VippsPaymentService : IVippsPaymentService
 {
     private readonly IVippsClient _vippsClient;
     private readonly MemberContext _database;
+    private readonly ILogger<VippsPaymentService> _logger;
 
     public VippsPaymentService(
         IVippsClient vippsClient,
-        MemberContext database)
+        MemberContext database,
+        ILogger<VippsPaymentService> logger)
     {
         _vippsClient = vippsClient;
         _database = database;
+        _logger = logger;
     }
 
     public async Task<string> InitiatePayment(
@@ -96,17 +100,11 @@ public class VippsPaymentService : IVippsPaymentService
     private async Task<bool> CompletePayment(VippsReservation reservation)
     {
         var success = false;
-        try
-        {
-            var paymentDetails = await _vippsClient.GetPaymentDetails(reservation.Id.ToString());
+        var paymentDetails = await GetPaymentDetails(reservation);
 
-            if (paymentDetails.TransactionSummary?.RemainingAmountToCapture > 0)
-            {
-                success = await Capture(reservation);
-            }
-        }
-        catch (HttpRequestException)
+        if (paymentDetails?.TransactionSummary?.RemainingAmountToCapture > 0)
         {
+            success = await Capture(reservation);
         }
 
         _database.VippsReservations.Remove(reservation);
@@ -115,11 +113,24 @@ public class VippsPaymentService : IVippsPaymentService
         return success;
     }
 
+    private async Task<PaymentDetails> GetPaymentDetails(VippsReservation reservation)
+    {
+        try
+        {
+            return await _vippsClient.GetPaymentDetails(reservation.Id.ToString());
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(exception, "Failed to get payment details");
+            return null;
+        }
+    }
+
     private async Task<bool> Capture(VippsReservation reservation)
     {
-        var response = await _vippsClient.CapturePayment(reservation.Id.ToString(), reservation.Description);
+        var response = await CapturePayment(reservation);
 
-        if (response.TransactionInfo.Status == "Captured")
+        if (response?.TransactionInfo.Status == "Captured")
         {
             var payment = new Payment
             {
@@ -151,5 +162,18 @@ public class VippsPaymentService : IVippsPaymentService
         }
 
         return false;
+    }
+
+    private async Task<CapturePaymentResponse> CapturePayment(VippsReservation reservation)
+    {
+        try
+        {
+            return await _vippsClient.CapturePayment(reservation.Id.ToString(), reservation.Description);
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(exception, "Failed to capture payment");
+            return null;
+        }
     }
 }
