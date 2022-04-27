@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 
 using MemberService.Configs;
+using MemberService.Pages.Pay;
 using MemberService.Services.Vipps.Models;
 
 public class VippsClient : IVippsClient
@@ -25,7 +26,7 @@ public class VippsClient : IVippsClient
             {
                 AuthToken = secret,
                 MerchantSerialNumber = _config.Vipps.MerchantSerialNumber,
-                CallbackPrefix = _config.Vipps.CallbackPrefix,
+                CallbackPrefix = Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME") + VippsCallbackController.CallbackPrefix,
                 FallBack = returnUrl,
             },
             CustomerInfo = new(),

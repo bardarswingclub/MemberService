@@ -28,7 +28,6 @@ module testAppSettings './appsettings.bicep' = {
       'Authentication:Vipps:ClientSecret': '@Microsoft.KeyVault(VaultName=${vaultName};SecretName=Vipps-ClientSecret)'
       'Vipps:SubscriptionKey': '@Microsoft.KeyVault(VaultName=${vaultName};SecretName=Vipps-SubscriptionKey)'
       'Vipps:MerchantSerialNumber': '@Microsoft.KeyVault(VaultName=${vaultName};SecretName=Vipps-MerchantSerialNumber)'
-      'Vipps:CallbackPrefix': 'https://bsc-medlemmer.azurewebsites.net/vipps/callback'
     }
   }
 }
