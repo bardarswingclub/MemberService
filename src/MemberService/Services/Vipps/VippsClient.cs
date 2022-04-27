@@ -26,7 +26,7 @@ public class VippsClient : IVippsClient
             {
                 AuthToken = secret,
                 MerchantSerialNumber = _config.Vipps.MerchantSerialNumber,
-                CallbackPrefix = Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME") + VippsCallbackController.CallbackPrefix,
+                CallbackPrefix = "https://" + Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME") + VippsCallbackController.CallbackPrefix,
                 FallBack = returnUrl,
             },
             CustomerInfo = new(),
