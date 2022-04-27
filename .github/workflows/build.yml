@@ -43,7 +43,9 @@ jobs:
     - name: Publish artifact WebApp
       uses: actions/upload-artifact@v3
       with:
-        path: webapp.zip
+        path: |
+          webapp.zip
+          infrastructure/
         name: WebApp
 
   Deploy:
