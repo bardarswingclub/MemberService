@@ -95,16 +95,21 @@ public class VippsPaymentService : IVippsPaymentService
 
     private async Task<bool> CompletePayment(VippsReservation reservation)
     {
-        var paymentDetails = await _vippsClient.GetPaymentDetails(reservation.Id.ToString());
-
         var success = false;
-        if (paymentDetails.TransactionSummary?.RemainingAmountToCapture > 0)
+        try
         {
-            success = await Capture(reservation);
+            var paymentDetails = await _vippsClient.GetPaymentDetails(reservation.Id.ToString());
+
+            if (paymentDetails.TransactionSummary?.RemainingAmountToCapture > 0)
+            {
+                success = await Capture(reservation);
+            }
+        }
+        catch (HttpRequestException)
+        {
         }
 
         _database.VippsReservations.Remove(reservation);
-
         await _database.SaveChangesAsync();
 
         return success;
