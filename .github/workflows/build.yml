@@ -37,8 +37,8 @@ jobs:
     - name: Archive Release
       uses: thedoctor0/zip-release@master
       with:
-        path: output
-        filename: webapp.zip
+        directory: output
+        filename: ../webapp.zip
     - name: Publish artifact WebApp
       uses: actions/upload-artifact@v3
       with:
