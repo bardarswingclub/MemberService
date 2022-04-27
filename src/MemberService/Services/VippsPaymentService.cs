@@ -79,6 +79,15 @@ public class VippsPaymentService : IVippsPaymentService
         if (reservation.Secret != secret) return;
 
         await CompletePayment(reservation);
+
+        try
+        {
+            await _database.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogError(ex, "Concurrency issue");
+        }
     }
 
     public async Task<bool> CompleteReservations(string userId)
@@ -92,6 +101,15 @@ public class VippsPaymentService : IVippsPaymentService
         foreach (var reservation in reservations)
         {
             result |= await CompletePayment(reservation);
+        }
+
+        try
+        {
+            await _database.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogError(ex, "Concurrency issue");
         }
 
         return result;
@@ -108,7 +126,6 @@ public class VippsPaymentService : IVippsPaymentService
         }
 
         _database.VippsReservations.Remove(reservation);
-        await _database.SaveChangesAsync();
 
         return success;
     }
