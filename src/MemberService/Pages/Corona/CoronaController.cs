@@ -28,7 +28,7 @@ public class CoronaController : Controller
         {
             var user = await _database.Users
                 .Include(u => u.Payments)
-                .SingleUser(User.GetId());
+                .SingleUser(User);
 
             var refund = user.GetCoronaRefundablePayments();
 
@@ -50,7 +50,7 @@ public class CoronaController : Controller
     {
         var user = await _database.Users
             .Include(u => u.Payments)
-            .SingleUser(User.GetId());
+            .SingleUser(User);
 
         var payments = user.GetCoronaRefundablePayments();
 

@@ -99,7 +99,12 @@ public class EditOrganizersModel : PageModel
 
     public async Task<IActionResult> OnPostAdd(Guid id)
     {
-        var currentUser = await _database.Users.SingleUser(User.GetId());
+        if (string.IsNullOrWhiteSpace(UserId))
+        {
+            return RedirectToPage(new { id });
+        }
+
+        var currentUser = await _database.Get(User);
 
         _database.EventOrganizers.Add(new EventOrganizer
         {
@@ -127,7 +132,7 @@ public class EditOrganizersModel : PageModel
 
         if (organizer != null)
         {
-            var currentUser = await _database.Users.SingleUser(User.GetId());
+            var currentUser = await _database.Users.FindAsync(User);
             organizer.UpdatedAt = DateTime.UtcNow;
             organizer.UpdatedByUser = currentUser;
             organizer.CanEdit = CanEdit;

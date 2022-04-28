@@ -20,7 +20,7 @@ public class FeesModel : PageModel
     {
         var user = await database.Users
             .Include(x => x.Payments)
-            .SingleUser(User.GetId());
+            .SingleUser(User);
 
         MembershipFee = user.GetMembershipFee();
         TrainingFee = user.GetTrainingFee();

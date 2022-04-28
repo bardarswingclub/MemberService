@@ -152,8 +152,7 @@ public class RolesModel : PageModel
         return new JsonResult(model);
     }
 
-    private async Task<User> GetCurrentUser()
-        => await _database.Users.SingleUser(User.GetId());
+    private async Task<User> GetCurrentUser() => await _database.Get(User);
 
     public class UserRole
     {

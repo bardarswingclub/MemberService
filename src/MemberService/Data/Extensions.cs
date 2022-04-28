@@ -1,6 +1,7 @@
 namespace MemberService.Data;
 
 using System.Linq.Expressions;
+using System.Security.Claims;
 
 using Clave.Expressionify;
 
@@ -61,6 +62,12 @@ public static partial class Extensions
     [Expressionify]
     public static bool NameMatches(this User user, string name)
         => user.FullName.Contains(name) | user.Email.Contains(name);
+
+    public static async Task<User> SingleUser(this IQueryable<User> users, ClaimsPrincipal user)
+        => await users.SingleUser(user.GetId());
+
+    public static async Task<User> Get(this MemberContext database, ClaimsPrincipal user)
+        => await database.Users.SingleUser(user.GetId());
 
     public static async Task<User> SingleUser(this IQueryable<User> users, string id)
         => await users.SingleOrDefaultAsync(user => user.Id == id);

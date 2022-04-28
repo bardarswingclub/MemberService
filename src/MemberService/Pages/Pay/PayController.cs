@@ -110,5 +110,5 @@ public class PayController : Controller
     private async Task<User> GetCurrentUser()
         => await _memberContext.Users
             .Include(x => x.Payments)
-            .SingleUser(User.GetId());
+            .SingleUser(User);
 }

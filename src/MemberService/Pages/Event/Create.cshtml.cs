@@ -31,7 +31,7 @@ public class CreateModel : EventInputModel
             return Page();
         }
 
-        var user = await _database.Users.SingleUser(User.GetId());
+        var user = await _database.Get(User);
         var entity = this.ToEntity(user);
 
         if (entity.Type == EventType.Party && User.CanCreateParty())

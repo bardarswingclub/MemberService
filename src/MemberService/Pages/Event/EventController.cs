@@ -78,7 +78,7 @@ public class EventController : Controller
             .Include(e => e.AuditLog)
             .FirstOrDefaultAsync(e => e.Id == id);
 
-        var user = await GetCurrentUser();
+        var user = await _database.Get(User);
 
         if (ModelState.IsValid)
         {
@@ -113,9 +113,8 @@ public class EventController : Controller
     [Authorize(nameof(Policy.CanCreateEvent))]
     public async Task<IActionResult> Copy(Guid id)
     {
-        var entry = await _database.CloneEvent(id, await GetCurrentUser());
+        var user = await _database.Get(User);
+        var entry = await _database.CloneEvent(id, user);
         return RedirectToAction(nameof(View), new { id = entry.Id });
     }
-
-    private async Task<User> GetCurrentUser() => await _database.Users.SingleUser(User.GetId());
 }

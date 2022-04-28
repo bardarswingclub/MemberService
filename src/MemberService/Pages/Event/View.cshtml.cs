@@ -198,7 +198,7 @@ public class ViewModel : PageModel
     {
         if (!await _authorizationService.IsAuthorized(User, id, Policy.CanSetEventSignupStatus)) return Forbid();
 
-        var currentUser = await _database.Users.SingleUser(User.GetId());
+        var currentUser = await _database.Get(User);
 
         var selected = Leads
             .Concat(Follows)
@@ -278,7 +278,7 @@ public class ViewModel : PageModel
     {
         if (!await _authorizationService.IsAuthorized(User, id, Policy.CanSendEventEmail)) return Forbid();
 
-        var currentUser = await _database.Users.SingleUser(User.GetId());
+        var currentUser = await _database.Get(User);
 
         var selected = Leads
             .Concat(Follows)

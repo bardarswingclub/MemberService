@@ -18,15 +18,12 @@ public class PayFeeViewComponent : ViewComponent
 
     public async Task<IViewComponentResult> InvokeAsync(string type, string label, decimal? amount = null)
     {
-        var user = await GetCurrentUser();
-        return View(new Model(type, label, amount ?? user.GetFee(type).Fee.Amount));
-    }
-
-
-    private async Task<User> GetCurrentUser()
-        => await _database.Users
+        var user = await _database.Users
             .Include(x => x.Payments)
-            .SingleUser(UserClaimsPrincipal.GetId());
+            .SingleUser(UserClaimsPrincipal);
+
+        return View(new Model(type, label, amount ?? user.GetFee(type).Fee.Amount));
+    };
 
     public record Model(string Type, string Label, decimal Amount);
 }

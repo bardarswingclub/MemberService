@@ -108,7 +108,7 @@ public class IndexModel : PageModel
     {
         if (!await _authorizationService.IsAuthorized(User, Policy.CanSendEmailToMembers)) return Forbid();
 
-        var replyTo = await _database.Users.SingleUser(User.GetId());
+        var replyTo = await _database.Get(User);
         var successes = new List<string>();
         var failures = new List<string>();
 

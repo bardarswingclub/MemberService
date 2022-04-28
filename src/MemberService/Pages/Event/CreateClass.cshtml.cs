@@ -39,7 +39,7 @@ public class CreateClassModel : EventInputModel
             return Page();
         }
 
-        var user = await _database.Users.SingleUser(User.GetId());
+        var user = await _database.Get(User);
         var entity = this.ToEntity(user);
 
         var semester = await _database.Semesters.Current();

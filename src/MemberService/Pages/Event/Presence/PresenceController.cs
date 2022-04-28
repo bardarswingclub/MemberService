@@ -74,7 +74,7 @@ public class PresenceController : Controller
             return NotFound();
         }
 
-        var user = await _database.Users.SingleUser(User.GetId());
+        var user = await _database.Get(User);
 
         var presence = signup.Presence
             .FirstOrDefault(p => p.Lesson == lesson);
