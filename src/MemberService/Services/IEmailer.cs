@@ -18,7 +18,9 @@ public class DummyConsoleEmailer : IEmailer
         await Console.Out.WriteLineAsync("Email body:");
         await Console.Out.WriteLineAsync(body);
 #else
-            throw new System.Exception("Dummy methods are only available in debug builds!");
+        // Preventing warning in release build
+        await Task.CompletedTask;
+        throw new System.Exception("Dummy methods are only available in debug builds!");
 #endif
     }
 }
