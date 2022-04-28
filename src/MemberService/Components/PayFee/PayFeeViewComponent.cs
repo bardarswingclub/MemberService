@@ -23,7 +23,7 @@ public class PayFeeViewComponent : ViewComponent
             .SingleUser(UserClaimsPrincipal);
 
         return View(new Model(type, label, amount ?? user.GetFee(type).Fee.Amount));
-    };
+    }
 
     public record Model(string Type, string Label, decimal Amount);
 }

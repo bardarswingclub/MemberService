@@ -39,13 +39,13 @@ public class IndexModel : PageModel
     public decimal Amount { get; set; }
 
     [BindProperty(SupportsGet = true)]
-    public string? Email { get; set; }
+    public string Email { get; set; }
 
     [BindProperty(SupportsGet = true)]
-    public string? Name { get; set; }
+    public string Name { get; set; }
 
     [BindProperty(SupportsGet = true)]
-    public string? SessionId { get; set; }
+    public string SessionId { get; set; }
 
     [BindProperty(SupportsGet = true)]
     public Guid? OrderId { get; set; }
