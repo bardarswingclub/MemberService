@@ -170,6 +170,7 @@ public class VippsPaymentService : IVippsPaymentService
 
                 if (signup?.Status == Status.Approved)
                 {
+                    signup.Payment = payment;
                     signup.Status = Status.AcceptedAndPayed;
                     signup.AuditLog.Add("Paid", reservation.User, payment.PayedAtUtc);
                 }

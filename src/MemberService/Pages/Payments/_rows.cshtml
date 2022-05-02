@@ -3,7 +3,7 @@
 @foreach (var payment in Model.Payments)
 {
     <tr>
-        <td>
+        <td class="text-nowrap">
             @payment.PayedAtUtc.ToOsloDate()
             <span class="text-muted text-small">@payment.PayedAtUtc.ToOsloTime()</span>
         </td>
@@ -12,7 +12,7 @@
                 @payment.User?.FullName
             </a>
         </td>
-        <td>@payment.Amount.FormatMoney()</td>
+        <td class="text-nowrap">@payment.Amount.FormatMoney()</td>
         <td>
             @if (payment.EventSignup is {} signup)
             {
