@@ -381,8 +381,7 @@ public class SignupController : Controller
             VippsSuccessLink(eventId),
             fee.IncludesMembership,
             fee.IncludesTraining,
-            fee.IncludesClasses,
-            eventId: eventId);
+            fee.IncludesClasses);
     }
 
     private async Task<string> CreateStripePayment(Guid eventId, User user, Fee fee)
@@ -397,8 +396,7 @@ public class SignupController : Controller
             Request.GetDisplayUrl(),
             fee.IncludesMembership,
             fee.IncludesTraining,
-            fee.IncludesClasses,
-            eventId: eventId);
+            fee.IncludesClasses);
     }
 
     private string StripeSuccessLink(Guid id)
