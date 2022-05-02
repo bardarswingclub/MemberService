@@ -1,0 +1,83 @@
+﻿@page
+@model MemberService.Pages.Payments.IndexModel
+
+@{
+    ViewData["Title"] = "Betalinger";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form class="form d-print-none" id="filter-form" method="GET">
+    <div class="form-group row mb-3">
+        <div class="col input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text">&#x1F50E;</span>
+            </div>
+            <input class="form-control" asp-for="Query" type="search"
+                placeholder="Søk etter navn, epost, vipps/stripe id, arrangement">
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-primary">Søk</button>
+            </div>
+        </div>
+    </div>
+    <div class="form-row mb-3 align-items-center">
+        <div class="col">
+            <select class="custom-select" asp-for="Method" onchange="this.form.submit()">
+                <option value="All">Alle</option>
+                <option value="Vipps">Vipps</option>
+                <option value="Stripe">Stripe</option>
+                <option value="Manual">Manuell betaling</option>
+            </select>
+        </div>
+        <div class="col d-flex">
+            <input class="form-control" type="date" asp-for="After" onchange="this.form.submit()" />
+            <label class="form-label">-</label>
+            <input class="form-control" type="date" asp-for="Before" onchange="this.form.submit()" />
+        </div>
+    </div>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Dato</th>
+            <th>Bruker</th>
+            <th>Betalt</th>
+            <th>Beskrivelse</th>
+            <th>Metode</th>
+        </tr>
+    </thead>
+    <tbody id="rows">
+        <partial name="_rows.cshtml" />
+    </tbody>
+</table>
+<button class="btn btn-primary" id="add-rows">
+    Last mer...
+</button>
+
+@section scripts {
+    <script type="module">
+        import "https://unpkg.com/@@github/include-fragment-element@latest?module";
+        let skipped = @Model.Skip;
+        let take = @Model.Take;
+
+        const button = document.querySelector("#add-rows");
+        button.addEventListener("click", e => {
+            const fragment = document.createElement("include-fragment");
+
+            const fragmentUrl = new URL(document.location);
+            skipped += take;
+            fragmentUrl.searchParams.set("handler", "rows");
+            fragmentUrl.searchParams.set("skip", skipped);
+            fragmentUrl.searchParams.set("take", take);
+
+            fragment.src = fragmentUrl;
+            fragment.addEventListener("error", () => button.parentElement.removeChild(button));
+            document.querySelector("#rows").appendChild(fragment);
+
+            const url = new URL(document.location);
+            url.searchParams.set("take", skipped+take);
+            history.replaceState(null, null, url);
+        });
+    </script>
+}

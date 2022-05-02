@@ -40,5 +40,7 @@ public enum Policy
 
     CanCreateAnnualMeeting,
     CanEditAnnualMeeting,
-    CanViewAnnualMeetingAttendees
+    CanViewAnnualMeetingAttendees,
+
+    CanListPayments
 }

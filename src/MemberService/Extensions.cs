@@ -44,7 +44,7 @@ public static class Extensions
     }
 
     public static string ToOsloDate(this DateTime utc)
-        => utc.ToOsloZone().Date.ToString();
+        => utc.ToOsloZone().Date.ToString("d", CultureInfo.CurrentUICulture);
 
     public static string ToOsloDateTime(this DateTime utc)
         => utc.ToOsloZone().ToString();
