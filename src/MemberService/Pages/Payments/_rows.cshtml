@@ -2,10 +2,12 @@
 
 @foreach (var payment in Model.Payments)
 {
-    <tr>
+    <tr class="@(payment.Refunded ? "line-through" : "")">
         <td class="text-nowrap">
             @payment.PayedAtUtc.ToOsloDate()
-            <span class="text-muted text-small">@payment.PayedAtUtc.ToOsloTime()</span>
+            <span class="text-muted text-small">
+                @payment.PayedAtUtc.ToOsloTime()
+            </span>
         </td>
         <td>
             <a asp-page="/Members/Details" asp-route-id="@payment.User.Id">
@@ -21,6 +23,11 @@
             else
             {
                 @payment.Description
+            }
+
+            @if (payment.Refunded)
+            {
+                <span class="badge badge-danger">Refundert</span>
             }
         </td>
         <td>
