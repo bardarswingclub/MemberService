@@ -1,9 +1,6 @@
 ﻿namespace MemberService.Pages.Semester;
 
 using System.Linq.Expressions;
-using System.Text;
-
-using Clave.Expressionify;
 
 using MemberService.Auth;
 using MemberService.Data;
@@ -44,7 +41,6 @@ public class SemesterController : Controller
     public async Task<IActionResult> Index(Guid id, bool archived = false)
     {
         var semester = await _database.Semesters
-            .Expressionify()
             .Select(s => SemesterModel.Create(s, GetUserId(), Filter(archived)))
             .FirstOrDefaultAsync(s => s.Id == id);
 
@@ -85,7 +81,6 @@ public class SemesterController : Controller
     public async Task<IActionResult> List()
     {
         var semester = await _database.Semesters
-            .Expressionify()
             .OrderByDescending(s => s.SignupOpensAt)
             .Select(s => SemesterModel.Create(s, GetUserId(), e => true))
             .ToListAsync();
@@ -123,7 +118,6 @@ public class SemesterController : Controller
         }
 
         var activeSemesters = await _database.Semesters
-            .Expressionify()
             .AnyAsync(s => s.IsActive());
 
         if (activeSemesters)
@@ -174,7 +168,6 @@ public class SemesterController : Controller
         var semester = await _database.Semesters
             .Include(s => s.Courses)
             .ThenInclude(c => c.SignupOptions)
-            .Expressionify()
             .Where(s => s.IsActive())
             .OrderByDescending(s => s.SignupOpensAt)
             .FirstOrDefaultAsync();

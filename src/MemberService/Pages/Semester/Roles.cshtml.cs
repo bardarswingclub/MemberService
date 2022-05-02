@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using MemberService.Data;
-using Clave.Expressionify;
 using MemberService.Auth;
 using Microsoft.AspNetCore.Authorization;
 
@@ -103,7 +102,6 @@ public class RolesModel : PageModel
     {
         var semesterRole = await _database.SemesterRoles
             .Include(s => s.User)
-            .Expressionify()
             .Where(s => s.Semester.IsActive())
             .Where(s => s.UserId == userId)
             .OrderByDescending(s => s.Semester.SignupOpensAt)
@@ -136,7 +134,6 @@ public class RolesModel : PageModel
             .Current(s => s.Id);
 
         var model = await _database.Users
-            .Expressionify()
             .Except(_database.SemesterRoles
                 .Where(o => o.SemesterId == id)
                 .Select(o => o.User))

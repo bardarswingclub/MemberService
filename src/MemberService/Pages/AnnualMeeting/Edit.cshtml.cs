@@ -10,7 +10,6 @@ using MemberService.Pages.Event;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 
 [Authorize(nameof(Policy.CanEditAnnualMeeting))]
 [BindProperties]

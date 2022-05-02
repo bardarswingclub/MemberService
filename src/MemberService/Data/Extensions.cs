@@ -86,7 +86,6 @@ public static partial class Extensions
     public static async Task<T> Current<T>(this DbSet<Semester> semesters, Expression<Func<Semester, T>> select)
     {
         return await semesters
-            .Expressionify()
             .Where(s => s.IsActive())
             .OrderByDescending(s => s.SignupOpensAt)
             .Select(select)

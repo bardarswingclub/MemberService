@@ -2,8 +2,6 @@
 
 using System.Security.Claims;
 
-using Clave.Expressionify;
-
 using MemberService.Data;
 
 using Microsoft.AspNetCore.Authorization;
@@ -88,7 +86,6 @@ public class SemesterRequirementsHandler : IAuthorizationHandler
     {
         var userId = user.GetId();
         var semesterRole = await _database.Semesters
-            .Expressionify()
             .Where(s => s.IsActive())
             .OrderByDescending(s => s.SignupOpensAt)
             .SelectMany(s => s.Roles.Where(r => r.UserId == userId))

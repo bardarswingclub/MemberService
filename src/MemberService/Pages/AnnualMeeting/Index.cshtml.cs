@@ -1,6 +1,4 @@
 ﻿namespace MemberService.Pages.AnnualMeeting;
-
-using Clave.Expressionify;
 using Clave.ExtensionMethods;
 
 using MemberService.Auth;
@@ -63,7 +61,6 @@ public class IndexModel : PageModel
             .Include(m => m.Attendees.Where(a => canSeeAll || a.UserId == userId))
             .ThenInclude(a => a.User)
             .Include(m => m.Survey)
-            .Expressionify()
             .OrderBy(m => m.MeetingStartsAt)
             .ToListAsync();
 
@@ -71,7 +68,6 @@ public class IndexModel : PageModel
             .FirstOrDefault(m => m.MeetingEndsAt > TimeProvider.UtcNow);
 
         UserId = await _database.Users
-            .Expressionify()
             .Where(u => u.Id == userId)
             .Where(u => u.HasPayedMembershipThisYear())
             .Select(u => u.Id)
@@ -104,7 +100,6 @@ public class IndexModel : PageModel
         }
 
         VotingResults = await _database.AnnualMeetings
-            .Expressionify()
             .Select(s => SurveyResultModel.Create(s))
             .FirstOrDefaultAsync(s => s.MeetingId == meeting.Id);
 

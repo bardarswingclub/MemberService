@@ -1,7 +1,4 @@
 namespace MemberService.Pages.Signup;
-
-using MemberService.Data;
-
 public class SignupModel
 {
     public string Title { get; init; }

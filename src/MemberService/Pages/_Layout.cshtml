@@ -48,6 +48,12 @@
                                 <a class="nav-link text-white" asp-page="/Event/Index">Arrangementer</a>
                             </li>
                         }
+                        @if (await AuthorizationService.IsAuthorized(User, Policy.CanListPayments))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-page="/Payments/Index">Betalinger</a>
+                            </li>
+                        }
                         @if (User.IsAdministrator())
                         {
                             <li class="nav-item">

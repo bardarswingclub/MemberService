@@ -1,8 +1,6 @@
 ﻿namespace MemberService.Pages.Home;
 using System;
 
-using Clave.Expressionify;
-
 using MemberService.Data;
 using MemberService.Pages.Signup;
 
@@ -22,7 +20,6 @@ public class SurveyModel : PageModel
         [FromServices] MemberContext database)
     {
         var model = await database.Semesters
-            .Expressionify()
             .Where(s => s.IsActive())
             .Select(s => new
             {
@@ -57,7 +54,6 @@ public class SurveyModel : PageModel
             .Include(s => s.Questions)
             .Include(s => s.Responses.Where(r => r.UserId == userId))
             .ThenInclude(r => r.Answers)
-            .Expressionify()
             .Where(s => s.Semester.IsActive())
             .FirstOrDefaultAsync();
 

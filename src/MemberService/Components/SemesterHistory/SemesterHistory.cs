@@ -9,7 +9,6 @@ using MemberService.Data;
 using MemberService.Data.ValueTypes;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.EntityFrameworkCore;
 
 public class SemesterHistory : ViewComponent

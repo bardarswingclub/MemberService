@@ -1,6 +1,4 @@
 namespace MemberService.Pages.Survey;
-
-using Clave.Expressionify;
 using Clave.ExtensionMethods;
 
 using MemberService.Auth;
@@ -33,7 +31,6 @@ public class SurveyController : Controller
     {
         var model = await _database
             .Surveys
-            .Expressionify()
             .Where(s => s.Id == id)
             .Select(s => SurveyModel.Create(s))
             .FirstOrDefaultAsync();

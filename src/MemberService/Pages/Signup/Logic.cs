@@ -20,7 +20,6 @@ public static partial class Logic
         => await db.Events
             .Include(e => e.SignupOptions)
             .AsNoTracking()
-            .Expressionify()
             .Where(e => e.Type != EventType.Class)
             .Where(e => e.Archived == false)
             .Where(predicate)

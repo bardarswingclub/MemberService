@@ -1,7 +1,5 @@
 namespace MemberService.Pages.Event;
 
-using Clave.Expressionify;
-
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
 
@@ -14,7 +12,6 @@ public static class Logic
     public static Task<List<EventEntry>> GetEvents(this MemberContext context, string userId, bool archived)
         => context.Events
             .AsNoTracking()
-            .Expressionify()
             .Where(e => archived || e.Archived == false)
             .Where(e => e.SemesterId == null)
             .OrderByDescending(e => e.CreatedAt)

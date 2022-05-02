@@ -1,7 +1,5 @@
 ﻿namespace MemberService.Components.EventHeader;
 
-using Clave.Expressionify;
-
 using MemberService.Data;
 
 using Microsoft.AspNetCore.Mvc;
@@ -25,7 +23,6 @@ public class EventHeader : ViewComponent
         }
 
         var model = await _database.Events
-            .Expressionify()
             .Select(e => new Model
             {
                 Id = e.Id,

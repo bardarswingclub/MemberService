@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 using MemberService.Auth;
 using MemberService.Data;
-using MemberService.Data.ValueTypes;
 using MemberService.Services;
 
 using Microsoft.AspNetCore.Authorization;

@@ -1,7 +1,5 @@
 ﻿namespace MemberService.Pages.Event;
 
-using Clave.Expressionify;
-
 using MemberService.Auth;
 using MemberService.Data;
 
@@ -81,7 +79,6 @@ public class EditOrganizersModel : PageModel
     public async Task<IActionResult> OnGetUsers(Guid id, string q)
     {
         var model = await _database.Users
-            .Expressionify()
             .Except(_database.EventOrganizers
                 .Where(o => o.EventId == id)
                 .Select(o => o.User))

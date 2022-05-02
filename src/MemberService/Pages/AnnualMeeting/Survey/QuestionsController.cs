@@ -1,6 +1,4 @@
 namespace MemberService.Pages.AnnualMeeting.Survey;
-
-using Clave.Expressionify;
 using Clave.ExtensionMethods;
 
 using MemberService.Auth;
@@ -32,7 +30,6 @@ public class QuestionsController : Controller
     {
         var model = await _database
             .AnnualMeetings
-            .Expressionify()
             .Where(s => s.SurveyId != null)
             .Select(s => SurveyResultModel.Create(s))
             .FirstOrDefaultAsync(s => s.MeetingId == meetingId);
@@ -51,7 +48,6 @@ public class QuestionsController : Controller
         var model = await _database
             .AnnualMeetings
             .AsNoTracking()
-            .Expressionify()
             .Where(s => s.SurveyId != null)
             .Select(s => SurveyModel.Create(s))
             .FirstOrDefaultAsync(s => s.MeetingId == meetingId);
@@ -65,7 +61,6 @@ public class QuestionsController : Controller
         var model = await _database
             .AnnualMeetings
             .AsNoTracking()
-            .Expressionify()
             .Where(m => m.SurveyId != null)
             .Where(m => m.Id == meetingId)
             .Select(m => QuestionModel.Create(meetingId, m.Survey.Questions.FirstOrDefault(q => q.Id == questionId)))

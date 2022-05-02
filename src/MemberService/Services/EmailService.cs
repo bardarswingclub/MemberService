@@ -6,7 +6,6 @@ using MemberService.Emails.Event;
 using MemberService.Data;
 
 using SendGrid.Helpers.Mail;
-using Clave.ExtensionMethods;
 using Markdig;
 
 public class EmailService : IEmailService

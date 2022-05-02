@@ -1,10 +1,7 @@
 ﻿namespace MemberService.Pages.Signup;
 
-using Clave.Expressionify;
-
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
-using MemberService.Pages.Home;
 using MemberService.Services;
 
 using Microsoft.AspNetCore.Authorization;
@@ -44,7 +41,6 @@ public class SignupController : Controller
     public async Task<IActionResult> Event(Guid id, bool preview = false)
     {
         var ev = await _database.Events
-            .Expressionify()
             .Where(e => e.Id == id)
             .Select(e => new
             {

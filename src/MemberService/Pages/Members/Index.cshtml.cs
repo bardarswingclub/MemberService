@@ -2,7 +2,6 @@
 
 using System.Linq.Expressions;
 
-using Clave.Expressionify;
 using Clave.ExtensionMethods;
 
 using MemberService.Auth;
@@ -80,7 +79,6 @@ public class IndexModel : PageModel
         var canViewOlderMembers = await _authorizationService.IsAuthorized(User, Policy.CanViewOlderMembers);
 
         return await _database.Users
-            .Expressionify()
             .Where(u => u.EmailConfirmed)
             .Where(FilterMembership(MemberFilter, canViewOlderMembers))
             .Where(Filter(TrainingFilter, u => u.HasPayedTrainingFeeThisSemester()))

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using MemberService.Data;
 using MemberService.Services;
 using MemberService.Services.Vipps;
-using MemberService.Services.Vipps.Models;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

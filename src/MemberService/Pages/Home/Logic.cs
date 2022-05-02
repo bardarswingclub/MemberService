@@ -2,8 +2,6 @@
 
 using System.Linq.Expressions;
 
-using Clave.Expressionify;
-
 using MemberService.Data;
 
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +13,6 @@ public static class Logic
             .Include(e => e.SignupOptions)
             .Include(e => e.Semester)
             .AsNoTracking()
-            .Expressionify()
             .Where(e => e.Semester != null)
             .Where(e => e.Semester.IsActive())
             .Where(e => e.Archived == false)

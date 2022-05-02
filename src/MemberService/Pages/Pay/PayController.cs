@@ -3,11 +3,9 @@
 using Clave.ExtensionMethods;
 
 using MemberService.Data;
-using MemberService.Pages.Home;
 using MemberService.Services;
 
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

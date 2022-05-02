@@ -3,10 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-using Clave.Expressionify;
 using Clave.ExtensionMethods;
 
 using MemberService.Auth;
@@ -156,7 +154,6 @@ public class ViewModel : PageModel
             .Include(s => s.AuditLog)
             .ThenInclude(l => l.User)
             .AsNoTracking()
-            .Expressionify()
             .Where(e => e.EventId == id)
             .Filter(SignedUpBefore.HasValue, e => e.SignedUpAt < SignedUpBefore)
             .Filter(Priority.HasValue, e => e.Priority == Priority)

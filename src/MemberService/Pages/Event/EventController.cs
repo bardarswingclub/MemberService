@@ -1,6 +1,4 @@
 ﻿namespace MemberService.Pages.Event;
-
-using Clave.Expressionify;
 using Clave.ExtensionMethods;
 
 using MemberService.Auth;
@@ -63,7 +61,6 @@ public class EventController : Controller
     public async Task<IActionResult> EditSignup(Guid id)
     {
         var signup = await _database.EventSignups
-            .Expressionify()
             .Select(e => EditSignupModel.Create(e, _database.Users))
             .FirstOrDefaultAsync(e => e.Id == id);
 

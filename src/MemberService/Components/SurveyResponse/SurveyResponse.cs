@@ -36,7 +36,6 @@ public partial class SurveyResponse : ViewComponent
         var userId = _userManager.GetUserId(User as ClaimsPrincipal);
 
         var questions = await _database.Surveys
-            .Expressionify()
             .Where(s => s.Id == id)
             .SelectMany(s => s.Questions.Select(q => Model.SignupQuestion.Create(q, userId)))
             .ToListAsync();

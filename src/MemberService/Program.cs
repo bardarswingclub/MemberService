@@ -1,6 +1,6 @@
-﻿using System.Globalization;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
+using Clave.Expressionify;
 using Clave.NamespaceViewLocationExpander;
 
 using MemberService;
@@ -74,7 +74,9 @@ services.AddHttpClient("Vipps", client =>
 }).AddHttpMessageHandler<AccessTokenHandler>();
 
 services
-    .AddDbContext<MemberContext>(o => o.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+    .AddDbContext<MemberContext>(o => o
+        .UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
+        .UseExpressionify());
 
 services
     .AddDataProtection()

@@ -1,15 +1,10 @@
 ﻿namespace MemberService.Pages.Home;
-
-using System.Diagnostics;
-
-using Clave.Expressionify;
 using Clave.ExtensionMethods;
 
 using MemberService.Auth;
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
 using MemberService.Pages.Signup;
-using MemberService.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

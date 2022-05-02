@@ -1,12 +1,9 @@
 ﻿namespace MemberService.Pages.Event.Presence;
 
-using Clave.Expressionify;
-
 using MemberService.Auth;
 using MemberService.Data;
 
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,7 +32,6 @@ public class PresenceController : Controller
             .Include(e => e.Signups)
                 .ThenInclude(s => s.Presence)
             .AsNoTracking()
-            .Expressionify()
             .FirstOrDefaultAsync(s => s.Id == id);
 
         return View(new PresenceModel(model));

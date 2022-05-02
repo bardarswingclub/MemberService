@@ -2,8 +2,6 @@
 using System;
 using System.Threading.Tasks;
 
-using Clave.Expressionify;
-
 using MemberService.Data;
 
 using Microsoft.AspNetCore.Authorization;
@@ -45,7 +43,6 @@ public class EditModel : PageModel
             .Include(e => e.Semester)
             .Include(e => e.SignupOptions)
             .Include(e => e.Signups.Where(s => s.CanEdit() && s.UserId == User.GetId()))
-            .Expressionify()
             .FirstOrDefaultAsync(e => e.Id == id);
 
         if (model is null) return NotFound();

@@ -39,7 +39,6 @@ public partial class SurveyModel : PageModel
     public async Task<IActionResult> OnGet(Guid id, string filter = "all")
     {
         var model = await _database.Surveys
-            .Expressionify()
             .Select(s => new
             {
                 Id = s.Id,
