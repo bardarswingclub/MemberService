@@ -65,8 +65,8 @@ public class DetailsModel : PageModel
         Id = user.Id;
         FullName = user.FullName;
         Email = user.Email;
-        Payments = user.Payments.ToList();
-        EventSignups = user.EventSignups.ToList();
+        Payments = user.Payments.OrderByDescending(p => p.PayedAtUtc).ToList();
+        EventSignups = user.EventSignups.OrderByDescending(p => p.SignedUpAt).ToList();
         HasPayedMembershipThisYear = user.HasPayedMembershipThisYear();
         HasPayedTrainingFeeThisSemester = user.HasPayedTrainingFeeThisSemester();
         HasPayedClassesFeeThisSemester = user.HasPayedClassesFeeThisSemester();

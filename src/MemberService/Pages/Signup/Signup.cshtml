@@ -13,37 +13,116 @@
     </h3>
     <div class="card-body">
         <p class="lead">@Model.Description</p>
-
-        @if (Model.Requirement == SignupRequirement.MustPayClassesFee)
-        {
-            <div class="alert alert-warning" role="alert">
-                For å delta på dette arrangementet må du ha betalt kursavgift. Du kan melde deg på nå og betale først når du har fått plass.
-            </div>
-        }
-        else if (Model.Requirement == SignupRequirement.MustPayTrainingFee)
-        {
-            <div class="alert alert-warning" role="alert">
-                For å delta på dette arrangementet må du ha betalt treningsavgift. Du kan melde deg på nå og betale først når du har fått plass.
-            </div>
-        }
-        else if (Model.Requirement == SignupRequirement.MustPayMembershipFee)
-        {
-            <div class="alert alert-warning" role="alert">
-                For å delta på dette arrangementet må du ha betalt medlemsavgift for i år. Du kan melde deg på nå og betale først når du har fått plass.
-            </div>
-        }
-        else if (Model.Requirement == SignupRequirement.MustPayMembersPrice)
-        {
-            <div class="alert alert-info" role="alert">
-                Det koster @Model.PriceForMembers.FormatMoney() for medlemmer å delta på dette arrangementet. Du kan melde deg på nå og betale først når du har fått plass.
-            </div>
-        }
-        else if(Model.Requirement == SignupRequirement.MustPayNonMembersPrice)
-        {
-            <div class="alert alert-info" role="alert">
-                Det koster @Model.PriceForNonMembers.FormatMoney() for ikke-medlemmer å delta på dette arrangementet. Du kan melde deg på nå og betale først når du har fått plass.
-            </div>
-        }
+        <switch value=@Model.Requirement>
+            <case value=@SignupRequirement.MustPayClassesFeeAndPrice>
+                <div class="alert alert-info" role="alert">
+                    <p>
+                        Dette arrangementet er kun åpent for medlemmer som har betalt kursavgift.
+                    </p>
+                    <ul>
+                        <li>Det koster <strong>@Model.PriceForMembers.FormatMoney()</strong> å delta</li>
+                        <li>Kursavgiften koster <strong>@FeeCalculation.ClassesFee.FormatMoney()</strong> (dette semesteret).</li>
+                    </ul>
+                    <p>
+                        Du kan melde deg på nå og betale først når du har fått plass.
+                    </p>
+                </div>
+            </case>
+            <case value=@SignupRequirement.MustPayClassesFee>
+                <div class="alert alert-info" role="alert">
+                    <p>
+                        Dette arrangementet er kun åpent for medlemmer som har betalt kursavgift.
+                    </p>
+                    <ul>
+                        <li>Kursavgiften koster <strong>@FeeCalculation.ClassesFee.FormatMoney()</strong> (dette semesteret).</li>
+                    </ul>
+                    <p>
+                        Du kan melde deg på nå og betale først når du har fått plass.
+                    </p>
+                </div>
+            </case>
+            <case value=@SignupRequirement.MustPayTrainingFeeAndPrice>
+                <div class="alert alert-info" role="alert">
+                    <p>
+                        Dette arrangementet er kun åpent for medlemmer som har betalt treningsavgift/kursavgift.
+                    </p>
+                    <ul>
+                        <li>Det koster <strong>@Model.PriceForMembers.FormatMoney()</strong> å delta</li>
+                        <li>Treningsavgiften koster <strong>@FeeCalculation.TrainingFee.FormatMoney()</strong> (dette semesteret).</li>
+                    </ul>
+                    <p>
+                        Du kan melde deg på nå og betale først når du har fått plass.
+                    </p>
+                </div>
+            </case>
+            <case value=@SignupRequirement.MustPayTrainingFee>
+                <div class="alert alert-info" role="alert">
+                    <p>
+                        Dette arrangementet er kun åpent for medlemmer som har betalt treningsavgift/kursavgift.
+                    </p>
+                    <ul>
+                        <li>Treningsavgiften koster <strong>@FeeCalculation.TrainingFee.FormatMoney()</strong> (dette semesteret).</li>
+                    </ul>
+                    <p>
+                        Du kan melde deg på nå og betale først når du har fått plass.
+                    </p>
+                </div>
+            </case>
+            <case value=@SignupRequirement.MustBeMemberAndPay>
+                <div class="alert alert-info" role="alert">
+                    <p>
+                        Dette arrangementet er kun åpent for klubbens medlemmer.
+                    </p>
+                    <ul>
+                        <li>Det koster <strong>@Model.PriceForMembers.FormatMoney()</strong> for medlemmer å delta</li>
+                        <li>Medlemskap i klubbens koster <strong>@FeeCalculation.MembershipFee.FormatMoney()</strong> (ut året).</li>
+                    </ul>
+                    <p>
+                        Du kan melde deg på nå og betale først når du har fått plass.
+                    </p>
+                </div>
+            </case>
+            <case value=@SignupRequirement.MustBeMember>
+                <div class="alert alert-info" role="alert">
+                    <p>
+                        Dette arrangementet er kun åpent for klubbens medlemmer.
+                    </p>
+                    <ul>
+                        <li>Medlemskap i klubbens koster <strong>@FeeCalculation.MembershipFee.FormatMoney()</strong> (ut året).</li>
+                    </ul>
+                    <p>
+                        Du kan melde deg på nå og betale først når du har fått plass.
+                    </p>
+                </div>
+            </case>
+            <case value=@SignupRequirement.MustPayMembersPrice>
+                <div class="alert alert-info" role="alert">
+                    <p>
+                        Det koster <strong>@Model.PriceForMembers.FormatMoney()</strong> for medlemmer å delta på dette arrangementet.
+                    </p>
+                    <p>
+                        Du kan melde deg på nå og betale først når du har fått plass.
+                    </p>
+                </div>
+            </case>
+            <case value=@SignupRequirement.MustPayNonMembersPrice>
+                <div class="alert alert-info" role="alert">
+                    <p>
+                        Det koster <strong>@Model.PriceForNonMembers.FormatMoney()</strong> å delta på dette arrangementet.
+                    </p>
+                    @if (Model.PriceForMembers < Model.PriceForNonMembers)
+                    {
+                        <ul>
+                            <li>Medlemmer av Bårdar Swing Club betaler kun <strong>@Model.PriceForMembers.FormatMoney()</strong> for å delta!</li>
+                            <li>Medlemskap koster <strong>@FeeCalculation.MembershipFee.FormatMoney()</strong> ut året og gir deg rabatt på dette og andre arrangementer.</li>
+                        </ul>
+                    }
+                    <p>
+                        Du kan melde deg på nå og betale først når du har fått plass.
+                    </p>
+                </div>
+            </case>
+        </switch>
 
         <partial name="_SignupResponse" model=Model />
     </div>

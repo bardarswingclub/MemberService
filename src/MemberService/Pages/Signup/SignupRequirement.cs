@@ -4,8 +4,11 @@ public enum SignupRequirement
 {
     None,
     MustPayClassesFee,
+    MustPayClassesFeeAndPrice,
     MustPayTrainingFee,
-    MustPayMembershipFee,
+    MustPayTrainingFeeAndPrice,
+    MustBeMember,
+    MustBeMemberAndPay,
     MustPayMembersPrice,
     MustPayNonMembersPrice
 }

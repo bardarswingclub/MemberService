@@ -19,16 +19,16 @@ public class LogicTests
     [TestCase(10, 10, DanceRole.Lead, ExpectedResult = false)]
     public bool TestShouldAutoAccept(int autoAcceptCount, int signupCount, DanceRole role)
     {
-        var model = new Data.Event
+        var model = new Event
         {
-            SignupOptions = new EventSignupOptions
+            SignupOptions = new()
             {
                 AutoAcceptedSignups = autoAcceptCount
             },
             Signups =
-                {
-                    GenerateSignups(signupCount)
-                }
+            {
+                GenerateSignups(signupCount)
+            }
         };
 
         return model.ShouldAutoAccept(role);
@@ -52,26 +52,54 @@ public class LogicTests
         return model.CanEdit();
     }
 
+    [TestCase( 0,  0, false, false, ExpectedResult = SignupRequirement.None)]
+    [TestCase( 0,  0,  true, false, ExpectedResult = SignupRequirement.None)]
+    [TestCase(10, 10, false, false, ExpectedResult = SignupRequirement.MustPayNonMembersPrice)]
+    [TestCase(10, 10,  true, false, ExpectedResult = SignupRequirement.MustPayMembersPrice)]
+    public SignupRequirement TestGetRequirement(
+        int membersPrice,
+        int nonMembersPrice,
+        bool membership,
+        bool training)
+    {
+        var user = new User
+        {
+            Payments =
+            {
+                Payment(membership: membership, training: training)
+            }
+        };
+
+        return user.GetRequirement(new()
+        {
+            PriceForMembers = membersPrice,
+            PriceForNonMembers = nonMembersPrice,
+            IncludedInClassesFee = false,
+            IncludedInTrainingFee = false,
+            RequiresClassesFee = false,
+            RequiresTrainingFee = false,
+            RequiresMembershipFee = false,
+        });
+    }
+
     [TestCase(0, false, ExpectedResult = false)]
     [TestCase(0, true, ExpectedResult = false)]
     [TestCase(100, false, ExpectedResult = true)]
     [TestCase(100, true, ExpectedResult = false)]
     public bool TestMustPayNonMembersPrice(int price, bool hasPaidMembership)
     {
-        var options = new EventSignupOptions
-        {
-            PriceForNonMembers = price
-        };
-
         var user = new User
         {
             Payments =
-                {
-                    Payment(membership: hasPaidMembership)
-                }
+            {
+                Payment(membership: hasPaidMembership)
+            }
         };
 
-        return user.MustPayNonMembersPrice(options);
+        return user.MustPayNonMembersPrice(new()
+        {
+            PriceForNonMembers = price
+        });
     }
 
     [TestCase(0, false, ExpectedResult = false)]
@@ -80,20 +108,18 @@ public class LogicTests
     [TestCase(100, true, ExpectedResult = true)]
     public bool TestMustPayMembersPrice(int price, bool hasPaidMembership)
     {
-        var options = new EventSignupOptions
-        {
-            PriceForMembers = price
-        };
-
         var user = new User
         {
             Payments =
-                {
-                    Payment(membership: hasPaidMembership)
-                }
+            {
+                Payment(membership: hasPaidMembership)
+            }
         };
 
-        return user.MustPayMembersPrice(options);
+        return user.MustPayMembersPrice(new()
+        {
+            PriceForMembers = price
+        });
     }
 
     [TestCase(false, false, ExpectedResult = false)]
@@ -102,11 +128,6 @@ public class LogicTests
     [TestCase(true, true, ExpectedResult = false)]
     public bool TestMustPayMembersFee(bool requiresMembership, bool hasPaidMembership)
     {
-        var options = new EventSignupOptions
-        {
-            RequiresMembershipFee = requiresMembership
-        };
-
         var user = new User
         {
             Payments =
@@ -115,7 +136,10 @@ public class LogicTests
                 }
         };
 
-        return user.MustPayMembershipFee(options);
+        return user.MustPayMembershipFee(new()
+        {
+            RequiresMembershipFee = requiresMembership
+        });
     }
 
     [TestCase(false, false, false, ExpectedResult = false)]
@@ -128,11 +152,6 @@ public class LogicTests
     [TestCase(true, true, true, ExpectedResult = false)]
     public bool TestMustPayTrainingFee(bool requiresTrainingFee, bool hasPaidTrainingFee, bool exemptFromTrainingFee)
     {
-        var options = new EventSignupOptions
-        {
-            RequiresTrainingFee = requiresTrainingFee
-        };
-
         var user = new User
         {
             ExemptFromTrainingFee = exemptFromTrainingFee,
@@ -142,7 +161,10 @@ public class LogicTests
                 }
         };
 
-        return user.MustPayTrainingFee(options);
+        return user.MustPayTrainingFee(new()
+        {
+            RequiresTrainingFee = requiresTrainingFee
+        });
     }
 
     [TestCase(false, false, false, ExpectedResult = false)]
@@ -155,11 +177,6 @@ public class LogicTests
     [TestCase(true, true, true, ExpectedResult = false)]
     public bool TestMustPayClassesFee(bool requiresClassesFee, bool hasPaidClassesFee, bool exemptFromClassesFee)
     {
-        var options = new EventSignupOptions
-        {
-            RequiresClassesFee = requiresClassesFee
-        };
-
         var user = new User
         {
             ExemptFromClassesFee = exemptFromClassesFee,
@@ -169,7 +186,10 @@ public class LogicTests
                 }
         };
 
-        return user.MustPayClassesFee(options);
+        return user.MustPayClassesFee(new()
+        {
+            RequiresClassesFee = requiresClassesFee
+        });
     }
 
     [TestCase(false, false, ExpectedResult = true)]
@@ -178,12 +198,6 @@ public class LogicTests
     [TestCase(true, true, ExpectedResult = false)]
     public bool TestNonMembershipIncludedInClassesFee(bool includedInClassesFee, bool hasPaidClassesFee)
     {
-        var options = new EventSignupOptions
-        {
-            IncludedInClassesFee = includedInClassesFee,
-            PriceForNonMembers = 100
-        };
-
         var user = new User
         {
             Payments =
@@ -192,7 +206,11 @@ public class LogicTests
                 }
         };
 
-        return user.MustPayNonMembersPrice(options);
+        return user.MustPayNonMembersPrice(new()
+        {
+            IncludedInClassesFee = includedInClassesFee,
+            PriceForNonMembers = 100
+        });
     }
 
     [TestCase(false, false, ExpectedResult = true)]
@@ -201,12 +219,6 @@ public class LogicTests
     [TestCase(true, true, ExpectedResult = false)]
     public bool TestMembershipIncludedInClassesFee(bool includedInClassesFee, bool hasPaidClassesFee)
     {
-        var options = new EventSignupOptions
-        {
-            IncludedInClassesFee = includedInClassesFee,
-            PriceForMembers = 100
-        };
-
         var user = new User
         {
             Payments =
@@ -215,7 +227,11 @@ public class LogicTests
                 }
         };
 
-        return user.MustPayMembersPrice(options);
+        return user.MustPayMembersPrice(new()
+        {
+            IncludedInClassesFee = includedInClassesFee,
+            PriceForMembers = 100
+        });
     }
 
     [TestCase(false, false, ExpectedResult = true)]
@@ -224,12 +240,6 @@ public class LogicTests
     [TestCase(true, true, ExpectedResult = false)]
     public bool TestNonMembershipIncludedInTrainingFee(bool includedInTrainingFee, bool hasPaidTrainingFee)
     {
-        var options = new EventSignupOptions
-        {
-            IncludedInTrainingFee = includedInTrainingFee,
-            PriceForNonMembers = 100
-        };
-
         var user = new User
         {
             Payments =
@@ -238,7 +248,11 @@ public class LogicTests
                 }
         };
 
-        return user.MustPayNonMembersPrice(options);
+        return user.MustPayNonMembersPrice(new()
+        {
+            IncludedInTrainingFee = includedInTrainingFee,
+            PriceForNonMembers = 100
+        });
     }
 
     [TestCase(false, false, ExpectedResult = true)]
@@ -247,12 +261,6 @@ public class LogicTests
     [TestCase(true, true, ExpectedResult = false)]
     public bool TestMembershipIncludedInTrainingFee(bool includedInTrainingFee, bool hasPaidTrainingFee)
     {
-        var options = new EventSignupOptions
-        {
-            IncludedInTrainingFee = includedInTrainingFee,
-            PriceForMembers = 100
-        };
-
         var user = new User
         {
             Payments =
@@ -261,7 +269,11 @@ public class LogicTests
                 }
         };
 
-        return user.MustPayMembersPrice(options);
+        return user.MustPayMembersPrice(new()
+        {
+            IncludedInTrainingFee = includedInTrainingFee,
+            PriceForMembers = 100
+        });
     }
 
     private static Payment Payment(DateTime? paidAt = null, bool refunded = false, bool membership = false, bool training = false, bool classes = false) => new Payment

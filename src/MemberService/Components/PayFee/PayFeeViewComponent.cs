@@ -8,8 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 public class PayFeeViewComponent : ViewComponent
 {
-    private readonly MemberContext _database
-        ;
+    private readonly MemberContext _database;
 
     public PayFeeViewComponent(MemberContext database)
     {

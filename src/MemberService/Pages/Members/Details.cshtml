@@ -121,8 +121,11 @@
                     @foreach (var signup in Model.EventSignups)
                     {
                         <tr>
-                            <td>
-                                <abbr title="@signup.SignedUpAt.ToOsloDateTime()">@signup.SignedUpAt.ToOsloDate()</abbr>
+                            <td class="text-nowrap">
+                                @signup.SignedUpAt.ToOsloDate()
+                                <span class="text-muted text-small">
+                                    @signup.SignedUpAt.ToOsloTime()
+                                </span>
                             </td>
                             <td>
                                 <a asp-controller="Event" asp-action="View" asp-route-id="@signup.EventId">@signup.Event.Title</a>
@@ -167,11 +170,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var payment in Model.Payments.OrderByDescending(p => p.PayedAtUtc))
+                    @foreach (var payment in Model.Payments)
                     {
                         <tr class="@(payment.Refunded ? "line-through" : "")">
-                            <td>
-                                <abbr title="@payment.PayedAtUtc.ToOsloDateTime()">@payment.PayedAtUtc.ToOsloDate()</abbr>
+                            <td class="text-nowrap">
+                                @payment.PayedAtUtc.ToOsloDate()
+                                <span class="text-muted text-small">
+                                    @payment.PayedAtUtc.ToOsloTime()
+                                </span>
                             </td>
                             <td>
                                 @if (await AuthorizationService.IsAuthorized(User, Policy.CanSeeStripeLink) && payment.StripeChargeId != null)

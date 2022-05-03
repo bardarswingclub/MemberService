@@ -250,7 +250,7 @@ public class SignupController : Controller
                             id,
                             user,
                             user.GetTrainingFee().Fee)),
-                        SignupRequirement.MustPayMembershipFee => Redirect(await createFeePayment(
+                        SignupRequirement.MustBeMember => Redirect(await createFeePayment(
                             id,
                             user,
                             user.GetMembershipFee().Fee)),
@@ -320,19 +320,37 @@ public class SignupController : Controller
     private static AcceptModel CreateAcceptModel(AcceptModel acceptModel, User user, EventSignupOptions options)
         => user.GetRequirement(options) switch
         {
+            SignupRequirement.MustPayClassesFeeAndPrice => acceptModel with
+            {
+                Requirement = SignupRequirement.MustPayClassesFeeAndPrice,
+                MustPayAmount = user.GetClassesFee().Fee.Amount,
+                MembersPrice = options.PriceForMembers
+            },
             SignupRequirement.MustPayClassesFee => acceptModel with
             {
                 Requirement = SignupRequirement.MustPayClassesFee,
                 MustPayAmount = user.GetClassesFee().Fee.Amount
+            },
+            SignupRequirement.MustPayTrainingFeeAndPrice => acceptModel with
+            {
+                Requirement = SignupRequirement.MustPayTrainingFeeAndPrice,
+                MustPayAmount = user.GetTrainingFee().Fee.Amount,
+                MembersPrice = options.PriceForMembers
             },
             SignupRequirement.MustPayTrainingFee => acceptModel with
             {
                 Requirement = SignupRequirement.MustPayTrainingFee,
                 MustPayAmount = user.GetTrainingFee().Fee.Amount
             },
-            SignupRequirement.MustPayMembershipFee => acceptModel with
+            SignupRequirement.MustBeMemberAndPay => acceptModel with
             {
-                Requirement = SignupRequirement.MustPayMembershipFee,
+                Requirement = SignupRequirement.MustBeMemberAndPay,
+                MustPayAmount = user.GetMembershipFee().Fee.Amount,
+                MembersPrice = options.PriceForMembers
+            },
+            SignupRequirement.MustBeMember => acceptModel with
+            {
+                Requirement = SignupRequirement.MustBeMember,
                 MustPayAmount = user.GetMembershipFee().Fee.Amount
             },
             SignupRequirement.MustPayMembersPrice => acceptModel with
@@ -381,7 +399,8 @@ public class SignupController : Controller
             VippsSuccessLink(eventId),
             fee.IncludesMembership,
             fee.IncludesTraining,
-            fee.IncludesClasses);
+            fee.IncludesClasses,
+            eventId);
     }
 
     private async Task<string> CreateStripePayment(Guid eventId, User user, Fee fee)
@@ -396,7 +415,8 @@ public class SignupController : Controller
             Request.GetDisplayUrl(),
             fee.IncludesMembership,
             fee.IncludesTraining,
-            fee.IncludesClasses);
+            fee.IncludesClasses,
+            eventId);
     }
 
     private string StripeSuccessLink(Guid id)

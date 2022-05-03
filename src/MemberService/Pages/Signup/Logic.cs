@@ -118,22 +118,28 @@ public static partial class Logic
     }
 
     [Expressionify]
-    public static SignupRequirement GetRequirement(this User user, EventSignupOptions options)
-        => user.MustPayClassesFee(options)
-        ? SignupRequirement.MustPayClassesFee
-        : user.MustPayTrainingFee(options)
-        ? SignupRequirement.MustPayTrainingFee
-        : user.MustPayMembershipFee(options)
-        ? SignupRequirement.MustPayMembershipFee
-        : user.MustPayMembersPrice(options)
-        ? SignupRequirement.MustPayMembersPrice
-        : user.MustPayNonMembersPrice(options)
-        ? SignupRequirement.MustPayNonMembersPrice
-        : SignupRequirement.None;
-
-    [Expressionify]
     public static bool CanEdit(this EventSignup e)
         => e.Status == Status.Pending || e.Status == Status.Recommended || e.Status == Status.WaitingList;
+
+    [Expressionify]
+    public static SignupRequirement GetRequirement(this User user, EventSignupOptions options)
+        => user.MustPayClassesFee(options)
+            ? (options.PriceForMembers > 0 && !options.IncludedInClassesFee
+                ? SignupRequirement.MustPayClassesFeeAndPrice
+                : SignupRequirement.MustPayClassesFee)
+        : user.MustPayTrainingFee(options)
+            ? (options.PriceForMembers > 0 && !options.IncludedInTrainingFee
+                ? SignupRequirement.MustPayTrainingFeeAndPrice
+                : SignupRequirement.MustPayTrainingFee)
+        : user.MustPayMembershipFee(options)
+            ? (options.PriceForMembers > 0
+                ? SignupRequirement.MustBeMemberAndPay
+                : SignupRequirement.MustBeMember)
+        : user.MustPayMembersPrice(options)
+            ? SignupRequirement.MustPayMembersPrice
+        : user.MustPayNonMembersPrice(options)
+            ? SignupRequirement.MustPayNonMembersPrice
+        : SignupRequirement.None;
 
     [Expressionify]
     public static bool MustPayNonMembersPrice(this User user, EventSignupOptions options)
