@@ -96,7 +96,7 @@
                 <tbody>
                     @foreach (var payment in Model.Payments)
                     {
-                        <tr class="@(payment.Refunded ? "line-through" : "")">
+                        <tr class="@(payment.Refunded() ? "line-through" : "")">
                             <td>
                                 <abbr title="@payment.PayedAtUtc.ToOsloDateTime()">@payment.PayedAtUtc.ToOsloDate()</abbr>
                             </td>

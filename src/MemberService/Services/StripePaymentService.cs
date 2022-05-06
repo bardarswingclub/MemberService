@@ -211,7 +211,7 @@ public class StripePaymentService : IStripePaymentService
             }
         });
 
-        payment.Refunded = true;
+        payment.RefundedAmount = payment.Amount;
 
         await _memberContext.SaveChangesAsync();
 
@@ -250,7 +250,7 @@ public class StripePaymentService : IStripePaymentService
         }
         else if (user.Payments.FirstOrDefault(p => p.StripeChargeId == charge.Id) is Payment payment)
         {
-            payment.Refunded = charge.Refunded || charge.Status == "failed";
+            payment.RefundedAmount = charge.AmountRefunded;
             payment.EventSignup = GetEventSignup(charge, user.EventSignups);
             payment.IncludesMembership = charge.Metadata.TryGetValue(IncludesMembership, out var m) && m == "yes";
             payment.IncludesTraining = charge.Metadata.TryGetValue(IncludesTraining, out var t) && t == "yes";
@@ -278,7 +278,7 @@ public class StripePaymentService : IStripePaymentService
 
     private static void SetEventSignupStatus(Payment payment, User user)
     {
-        if (payment.EventSignup?.Status == Data.ValueTypes.Status.Approved && !payment.Refunded)
+        if (payment.EventSignup?.Status == Data.ValueTypes.Status.Approved && !payment.Refunded())
         {
             payment.EventSignup.Status = Data.ValueTypes.Status.AcceptedAndPayed;
             payment.EventSignup.AuditLog.Add("Paid", user, payment.PayedAtUtc);
@@ -298,7 +298,7 @@ public class StripePaymentService : IStripePaymentService
             IncludesMembership = charge.Metadata.TryGetValue(IncludesMembership, out var m) && m == "yes" || includesMembership,
             IncludesTraining = charge.Metadata.TryGetValue(IncludesTraining, out var t) && t == "yes" || includesTraining,
             IncludesClasses = charge.Metadata.TryGetValue(IncludesClasses, out var c) && c == "yes" || includesClasses,
-            Refunded = charge.Refunded || charge.Status == "failed",
+            RefundedAmount = charge.AmountRefunded,
             EventSignup = GetEventSignup(charge, eventSignups)
         };
     }

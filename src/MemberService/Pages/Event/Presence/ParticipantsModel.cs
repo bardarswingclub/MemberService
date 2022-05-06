@@ -12,7 +12,7 @@ public class ParticipantsModel
         FriendlyName = s.User.GetFriendlyName();
         FullName = s.User.FullName;
         Status = s.Status;
-        Refunded = s.Payment?.Refunded ?? false;
+        Refunded = s.Payment?.Refunded() ?? false;
         Presence = CreateList(s.Presence, count);
     }
 

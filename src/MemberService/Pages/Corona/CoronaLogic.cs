@@ -22,7 +22,7 @@ public static class CoronaLogic
         var paymentsThisSemester = user.Payments
             .Where(p => p.PayedAtUtc > TimeProvider.ThisSemesterUtc && p.PayedAtUtc < TimeProvider.NextSemesterUtc)
             .Where(p => p.IncludesClasses || p.IncludesTraining)
-            .WhereNot(p => p.Refunded);
+            .WhereNot(p => p.Refunded());
 
         return paymentsThisSemester
             .Select(GetRefund)

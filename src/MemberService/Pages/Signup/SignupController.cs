@@ -72,7 +72,7 @@ public class SignupController : Controller
                     IsCancelled = ev.IsCancelled,
                     SurveyId = ev.SurveyId,
                     Status = eventSignup.Status,
-                    Refunded = eventSignup.Payment?.Refunded,
+                    Refunded = eventSignup.Payment?.Refunded(),
                     AllowPartnerSignup = ev.Options.AllowPartnerSignup,
                     RoleSignup = ev.Options.RoleSignup,
                     Role = eventSignup.Role,
@@ -288,7 +288,7 @@ public class SignupController : Controller
         var userId = GetUserId();
         var signup = await _database.EventSignups
             .Where(s => s.Event.Cancelled && !s.Event.Archived)
-            .Where(s => !s.Payment.Refunded)
+            .Where(s => !s.Payment.Refunded())
             .FirstOrDefaultAsync(s => s.EventId == id && s.UserId == userId);
 
         if (signup?.Status == Status.AcceptedAndPayed)

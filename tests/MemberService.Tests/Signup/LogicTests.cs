@@ -278,11 +278,12 @@ public class LogicTests
 
     private static Payment Payment(DateTime? paidAt = null, bool refunded = false, bool membership = false, bool training = false, bool classes = false) => new Payment
     {
+        Amount = 10,
         IncludesMembership = membership,
         IncludesTraining = training,
         IncludesClasses = classes,
         PayedAtUtc = paidAt ?? TimeProvider.UtcNow,
-        Refunded = refunded
+        RefundedAmount = refunded ? 10 : 0
     };
 
     private static IEnumerable<EventSignup> GenerateSignups(int count)

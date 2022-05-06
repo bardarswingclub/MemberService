@@ -11,25 +11,28 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 public static partial class Extensions
 {
     [Expressionify]
+    public static bool Refunded(this Payment payment) => payment.RefundedAmount == payment.Amount;
+
+    [Expressionify]
     public static bool HasPayedMembershipThisYear(this User user)
-        => user.Payments.Any(p => p.PayedAtUtc > TimeProvider.ThisYearUtc && p.IncludesMembership && !p.Refunded);
+        => user.Payments.Any(p => p.PayedAtUtc > TimeProvider.ThisYearUtc && p.IncludesMembership && !p.Refunded());
 
     [Expressionify]
     public static bool HasPayedMembershipLastOrThisYear(this User user)
-        => user.Payments.Any(p => p.PayedAtUtc > TimeProvider.LastYearUtc && p.IncludesMembership && !p.Refunded);
+        => user.Payments.Any(p => p.PayedAtUtc > TimeProvider.LastYearUtc && p.IncludesMembership && !p.Refunded());
 
     [Expressionify]
     public static bool HasPayedMembershipLastYear(this User user)
-        => user.Payments.Any(p => p.PayedAtUtc > TimeProvider.LastYearUtc && p.PayedAtUtc < TimeProvider.ThisYearUtc && p.IncludesMembership && !p.Refunded);
+        => user.Payments.Any(p => p.PayedAtUtc > TimeProvider.LastYearUtc && p.PayedAtUtc < TimeProvider.ThisYearUtc && p.IncludesMembership && !p.Refunded());
 
     [Expressionify]
     public static bool HasPayedTrainingFeeThisSemester(this User user)
-        => user.Payments.Any(p => p.PayedAtUtc > TimeProvider.ThisSemesterUtc && p.IncludesTraining && !p.Refunded)
+        => user.Payments.Any(p => p.PayedAtUtc > TimeProvider.ThisSemesterUtc && p.IncludesTraining && !p.Refunded())
         || user.ExemptFromTrainingFee && user.HasPayedMembershipThisYear();
 
     [Expressionify]
     public static bool HasPayedClassesFeeThisSemester(this User user)
-        => user.Payments.Any(p => p.PayedAtUtc > TimeProvider.ThisSemesterUtc && p.IncludesClasses && !p.Refunded)
+        => user.Payments.Any(p => p.PayedAtUtc > TimeProvider.ThisSemesterUtc && p.IncludesClasses && !p.Refunded())
         || user.ExemptFromClassesFee && user.HasPayedTrainingFeeThisSemester();
 
     [Expressionify]

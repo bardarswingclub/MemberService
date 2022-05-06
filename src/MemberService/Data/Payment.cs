@@ -36,8 +36,6 @@ public class Payment : IEntityTypeConfiguration<Payment>
 
     public bool IncludesClasses { get; set; }
 
-    public bool Refunded { get; set; }
-
     [Precision(18, 2)]
     public decimal RefundedAmount { get; set; }
 

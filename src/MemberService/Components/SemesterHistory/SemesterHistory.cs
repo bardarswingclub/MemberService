@@ -24,7 +24,7 @@ public class SemesterHistory : ViewComponent
     {
         var payments = await _database.Payments
             .Where(p => p.IncludesClasses || p.IncludesMembership || p.IncludesTraining)
-            .Where(p => !p.Refunded)
+            .Where(p => !p.Refunded())
             .Where(p => p.User.Id == userId)
             .ToListAsync();
 
