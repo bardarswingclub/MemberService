@@ -38,6 +38,9 @@ public class Payment : IEntityTypeConfiguration<Payment>
 
     public bool Refunded { get; set; }
 
+    [Precision(18, 2)]
+    public decimal RefundedAmount { get; set; }
+
     [InverseProperty(nameof(Data.EventSignup.Payment))]
     public EventSignup EventSignup { get; set; }
 
