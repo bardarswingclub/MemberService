@@ -24,4 +24,6 @@ public interface IStripePaymentService
     Task<(int payments, int updates)> ImportPayments(string email);
 
     Task<bool> Refund(string paymentId);
+
+    Task GetPaymentInfo(string stripeId);
 }

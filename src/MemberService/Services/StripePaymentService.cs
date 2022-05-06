@@ -332,6 +332,12 @@ public class StripePaymentService : IStripePaymentService
         return null;
     }
 
+    public async Task GetPaymentInfo(string stripeId)
+    {
+        var charge = await _chargeService.GetAsync(stripeId);
+
+    }
+
     private enum Status
     {
         Nothing,

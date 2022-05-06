@@ -197,4 +197,9 @@ public class VippsPaymentService : IVippsPaymentService
             return null;
         }
     }
+
+    public async Task GetPaymentInfo(string vippsOrderId)
+    {
+        await _vippsClient.GetPaymentDetails(vippsOrderId);
+    }
 }

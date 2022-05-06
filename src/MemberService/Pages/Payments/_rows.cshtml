@@ -14,7 +14,14 @@
                 @payment.User?.FullName
             </a>
         </td>
-        <td class="text-nowrap">@payment.Amount.FormatMoney()</td>
+        <td class="text-nowrap">
+            @if (payment.RefundedAmount > 0 && payment.RefundedAmount < payment.Amount)
+            {
+                @((payment.Amount - payment.RefundedAmount).FormatMoney())
+                @: /
+            }
+            @payment.Amount.FormatMoney()
+        </td>
         <td>
             @if (payment.EventSignup is {} signup)
             {
@@ -48,6 +55,20 @@
                 <i class="bi-cash-coin mr-1"></i>
                 @: @payment.ManualPayment
             }
+        </td>
+        <td>
+            <details class="details-with-dialog">
+              <summary><i class="bi bi-info-circle"></i></summary>
+              <details-dialog src="/Payments/Details/@payment.Id">
+                  <include-fragment>
+                      <div class="d-flex justify-content-center">
+                        <div class="spinner-border text-light text-center" role="status">
+                          <span class="sr-only">Loading...</span>
+                        </div>
+                      </div>
+                  </include-fragment>
+              </details-dialog>
+            </details>
         </td>
     </tr>
 }

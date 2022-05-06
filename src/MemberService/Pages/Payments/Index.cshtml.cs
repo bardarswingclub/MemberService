@@ -25,7 +25,7 @@ public class IndexModel : PageModel
     public int Skip { get; set; }
 
     [BindProperty(SupportsGet = true)]
-    public int Take { get; set; } = 10;
+    public int Take { get; set; } = 50;
 
     [BindProperty(SupportsGet = true)]
     public string Query { get; set; }

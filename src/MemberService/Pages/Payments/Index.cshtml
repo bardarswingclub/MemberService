@@ -45,6 +45,7 @@
             <th>Betalt</th>
             <th>Beskrivelse</th>
             <th>Metode</th>
+            <th></th>
         </tr>
     </thead>
     <tbody id="rows">
@@ -58,6 +59,7 @@
 @section scripts {
     <script type="module">
         import "https://unpkg.com/@@github/include-fragment-element@latest?module";
+        import "https://unpkg.com/@@github/details-dialog-element@latest?module";
         let skipped = @Model.Skip;
         let take = @Model.Take;
 

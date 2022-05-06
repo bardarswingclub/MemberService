@@ -18,4 +18,6 @@ public interface IVippsPaymentService
 
     Task<bool> CompleteReservations(
         string userId);
+
+    Task GetPaymentInfo(string vippsOrderId);
 }
