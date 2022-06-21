@@ -75,8 +75,12 @@
     </div>
 
     <footer class="border-top footer text-muted bg-light">
-        <div class="container">
-            &copy; 2022 - Bårdar Swing Club | <a asp-page="/Account/Privacy">Privacy Policy</a> | <a asp-page="/Account/Salgsbetingelser">Salgsbetingelser</a> | Organisasjonsnummer: 984 120 435
+        <div class="container d-flex justify-content-between flex-wrap">
+            <div>
+                &copy; 2022 - Bårdar Swing Club | <a asp-page="/Account/Privacy">Privacy Policy</a> | <a asp-page="/Account/Salgsbetingelser">Salgsbetingelser</a> | Organisasjonsnummer: 984 120 435
+            </div>
+
+            @await Html.PartialAsync("_SelectLanguagePartial")
         </div>
     </footer>
 

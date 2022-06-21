@@ -7,6 +7,7 @@ using MemberService.Data.ValueTypes;
 using MemberService.Pages.Signup;
 
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -150,6 +151,19 @@ public class HomeController : Controller
         await _database.SaveChangesAsync();
 
         return RedirectToPage("/Home/Survey");
+    }
+
+    [HttpPost]
+    [AllowAnonymous]
+    public IActionResult SetLanguage(string culture, string returnUrl)
+    {
+        Response.Cookies.Append(
+            CookieRequestCultureProvider.DefaultCookieName,
+            CookieRequestCultureProvider.MakeCookieValue(new (culture)),
+            new() { Expires = DateTimeOffset.UtcNow.AddYears(1) }
+        );
+
+        return LocalRedirect(returnUrl);
     }
 
     private class ClassSignup
