@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Globalization;
+using System.Security.Claims;
 
 using Clave.Expressionify;
 using Clave.NamespaceViewLocationExpander;
@@ -114,7 +115,8 @@ services
 services
     .UseNamespaceViewLocations()
     .AddControllersWithViews()
-    .IfDev(env, s => s.AddRazorRuntimeCompilation());
+    .IfDev(env, s => s.AddRazorRuntimeCompilation())
+    .AddViewLocalization();
 
 services
     .AddScoped<IAuthorizationHandler, RoleRequirementsHandler>()
@@ -181,6 +183,21 @@ services
         module.EnableSqlCommandTextInstrumentation = true;
     });
 
+services
+    .AddLocalization()
+    .Configure<RequestLocalizationOptions>(o => {
+        var cultures = new CultureInfo[]
+        {
+            new("nb-NO"),
+            new("en-US")
+        };
+        o.DefaultRequestCulture = new("nb-NO");
+        // Formatting numbers, dates, etc.
+        o.SupportedCultures = cultures;
+        // UI strings that we have localized.
+        o.SupportedUICultures = cultures;
+    });
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -205,14 +222,7 @@ app
     .UseHttpsRedirection()
     .UseStaticFiles()
     .UseRouting()
-    .UseRequestLocalization(new RequestLocalizationOptions
-    {
-        DefaultRequestCulture = new("nb-NO"),
-        // Formatting numbers, dates, etc.
-        SupportedCultures = { new("nb-NO") },
-        // UI strings that we have localized.
-        SupportedUICultures = { new("nb-NO") }
-    })
+    .UseRequestLocalization()
     .UseStatusCodePagesWithReExecute("/Home/StatusCode/{0}")
     .UseAuthentication()
     .UseAuthorization()
