@@ -188,10 +188,10 @@ services
     .Configure<RequestLocalizationOptions>(o => {
         var cultures = new CultureInfo[]
         {
-            new("nb-NO"),
-            new("en-US")
+            new("nb"),
+            new("en")
         };
-        o.DefaultRequestCulture = new("nb-NO");
+        o.DefaultRequestCulture = new("nb");
         // Formatting numbers, dates, etc.
         o.SupportedCultures = cultures;
         // UI strings that we have localized.

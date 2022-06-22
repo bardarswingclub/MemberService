@@ -27,40 +27,52 @@
                     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <partial name="_LoginPartial" />
+                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row">
+                    @{
+                        var dividerNeeded = false;
+                    }
                     <ul class="navbar-nav flex-grow-1">
                         @if (await AuthorizationService.IsAuthorized(User, Policy.CanViewMembers))
                         {
+                            dividerNeeded = true;
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-page="/Members/Index">Medlemmer</a>
                             </li>
                         }
                         @if (await AuthorizationService.IsAuthorized(User, Policy.CanViewSemester))
                         {
+                            dividerNeeded = true;
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-controller="Semester" asp-action="Index">Kurs</a>
                             </li>
                         }
                         @if (await AuthorizationService.IsAuthorized(User, Policy.CanListEvents))
                         {
+                            dividerNeeded = true;
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-page="/Event/Index">Arrangementer</a>
                             </li>
                         }
                         @if (await AuthorizationService.IsAuthorized(User, Policy.CanListPayments))
                         {
+                            dividerNeeded = true;
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-page="/Payments/Index">Betalinger</a>
                             </li>
                         }
                         @if (User.IsAdministrator())
                         {
+                            dividerNeeded = true;
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-controller="Admin" asp-action="Index">Admin</a>
                             </li>
                         }
                     </ul>
+                    @if (dividerNeeded)
+                    {
+                        <div class="dropdown-divider"></div>
+                    }
+                    <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
@@ -75,12 +87,8 @@
     </div>
 
     <footer class="border-top footer text-muted bg-light">
-        <div class="container d-flex justify-content-between flex-wrap">
-            <div>
-                &copy; 2022 - Bårdar Swing Club | <a asp-page="/Account/Privacy">Privacy Policy</a> | <a asp-page="/Account/Salgsbetingelser">Salgsbetingelser</a> | Organisasjonsnummer: 984 120 435
-            </div>
-
-            @await Html.PartialAsync("_SelectLanguagePartial")
+        <div class="container">
+            &copy; 2022 - Bårdar Swing Club | <a asp-page="/Account/Privacy">Privacy Policy</a> | <a asp-page="/Account/Salgsbetingelser">Salgsbetingelser</a> | Organisasjonsnummer: 984 120 435
         </div>
     </footer>
 
