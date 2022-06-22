@@ -72,11 +72,13 @@ public static class Extensions
     private static DateTime WithKind(this DateTime dateTime, DateTimeKind kind)
         => DateTime.SpecifyKind(dateTime, kind);
 
-    public static string DisplayName(this Enum enumValue)
-        => Global.Services.GetRequiredService<IStringLocalizerFactory>().Create(enumValue.GetType())[enumValue.GetAttribute<DisplayAttribute>().Name];
+    public static string DisplayName<T>(this T enumValue)
+        where T : Enum
+        => Global.Services.GetRequiredService<IStringLocalizer<T>>()[enumValue.GetAttribute<DisplayAttribute>().Name];
 
-    public static string DisplayDescription(this Enum enumValue)
-        => Global.Services.GetRequiredService<IStringLocalizerFactory>().Create(enumValue.GetType())[enumValue.GetAttribute<DisplayAttribute>()?.Description ?? enumValue.GetAttribute<DescriptionAttribute>().Description];
+    public static string DisplayDescription<T>(this T enumValue)
+        where T : Enum
+        => Global.Services.GetRequiredService<IStringLocalizer<T>>()[enumValue.GetAttribute<DisplayAttribute>()?.Description ?? enumValue.GetAttribute<DescriptionAttribute>().Description];
 
     private static TAttribute GetAttribute<TAttribute>(this Enum enumValue)
         where TAttribute : Attribute
