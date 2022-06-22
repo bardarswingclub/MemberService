@@ -1,26 +1,76 @@
+﻿@using Microsoft.AspNetCore.Builder
+@using Microsoft.AspNetCore.Http.Features
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Options
+@using System.Globalization
 @inject SignInManager<User> SignInManager
 @inject UserManager<User> UserManager
+@inject IOptions<RequestLocalizationOptions> LocOptions
+
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.UICulture;
+    var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}";
+
+    string GetFlag(CultureInfo c) => c.Name switch
+    {
+        "nb" => "🇳🇴",
+        "en" => "🇬🇧",
+        _ => ""
+    };
+}
 
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
 {
-    <li class="nav-item">
-        <a  class="nav-link text-white" asp-page="/Manage/Index" title="Manage">Hei @User.GetFriendlyName()</a>
-    </li>
-    <li class="nav-item">
-        <form  class="form-inline" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button  type="submit" class="nav-link btn btn-link text-white">Logg ut</button>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle text-white" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
+            @Localizer["Hei {0}", User.GetFriendlyName()]
+        </a>
+        <form
+            class="dropdown-menu dropdown-menu-right"
+            aria-labelledby="cultureDropdown"
+            asp-controller="Home"
+            asp-action="SetLanguage"
+            asp-route-returnUrl="@returnUrl">
+            <a class="dropdown-item" asp-page="/Manage/Index" title="Manage">@Localizer["Min profil"]</a>
+            <div class="dropdown-divider"></div>
+            @foreach (var culture in LocOptions.Value.SupportedUICultures)
+            {
+                <button class="dropdown-item @(requestCulture.Name == culture.Name ? "disabled active" : "")" type="submit" name="culture" value="@culture.Name">@GetFlag(culture) @culture.NativeName</button>
+            }
+            <div class="dropdown-divider"></div>
+            <button type="submit" class="dropdown-item" asp-page="/Account/Logout" asp-route-returnUrl="/">@Localizer["Logg ut"]</button>
         </form>
     </li>
 }
 else
 {
     <li class="nav-item">
-        <a class="nav-link text-white" asp-page="/Account/Login">Bli medlem</a>
+        <a class="nav-link text-white" asp-page="/Account/Login">@Localizer["Logg inn"]</a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link text-white" asp-page="/Account/Login">Logg inn</a>
-    </li>
+
+    <form
+        asp-controller="Home"
+        asp-action="SetLanguage"
+        asp-route-returnUrl="@returnUrl"
+        method="post"
+        role="form">
+        <ul class="navbar-nav">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle text-white" href="#" id="cultureDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
+                    @GetFlag(requestCulture)
+                    <span class="d-sm-none">@requestCulture.DisplayName</span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="cultureDropdown">
+                    @foreach (var culture in LocOptions.Value.SupportedUICultures)
+                    {
+                        <button class="dropdown-item" type="submit" name="culture" value="@culture.Name">@GetFlag(culture) @culture.DisplayName</button>
+                    }
+                </div>
+            </li>
+        </ul>
+    </form>
 }
 </ul>
