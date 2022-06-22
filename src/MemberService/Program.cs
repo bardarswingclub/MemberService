@@ -200,6 +200,8 @@ services
 
 var app = builder.Build();
 
+Global.Services = app.Services;
+
 using (var scope = app.Services.CreateScope())
 {
     await scope.ServiceProvider
@@ -248,4 +250,9 @@ static Task EnsureUserHasFullName(HttpContext ctx, Func<Task> next)
 
     ctx.Response.Redirect($"/Account/Register?returnUrl={ctx.Request.Path}");
     return Task.CompletedTask;
+}
+
+public static class Global
+{
+    public static IServiceProvider Services { get; set; }
 }

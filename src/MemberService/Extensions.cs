@@ -16,6 +16,7 @@ using MemberService.Data.ValueTypes;
 using MemberService.Pages.Event;
 using System.Text;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.Localization;
 using NodaTime.Text;
 
 public static class Extensions
@@ -72,10 +73,10 @@ public static class Extensions
         => DateTime.SpecifyKind(dateTime, kind);
 
     public static string DisplayName(this Enum enumValue)
-        => enumValue.GetAttribute<DisplayAttribute>().Name;
+        => Global.Services.GetRequiredService<IStringLocalizerFactory>().Create(enumValue.GetType())[enumValue.GetAttribute<DisplayAttribute>().Name];
 
     public static string DisplayDescription(this Enum enumValue)
-        => enumValue.GetAttribute<DisplayAttribute>()?.Description ?? enumValue.GetAttribute<DescriptionAttribute>().Description;
+        => Global.Services.GetRequiredService<IStringLocalizerFactory>().Create(enumValue.GetType())[enumValue.GetAttribute<DisplayAttribute>()?.Description ?? enumValue.GetAttribute<DescriptionAttribute>().Description];
 
     private static TAttribute GetAttribute<TAttribute>(this Enum enumValue)
         where TAttribute : Attribute
