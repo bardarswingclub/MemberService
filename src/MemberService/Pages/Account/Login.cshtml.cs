@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.ComponentModel;
 using MemberService.Services;
+using System.ComponentModel;
 
 [AllowAnonymous]
 public class LoginModel : PageModel
@@ -34,7 +34,7 @@ public class LoginModel : PageModel
     {
         [Required]
         [EmailAddress]
-        [DisplayName("E-post")]
+        [Display(Name = "E-post")]
         public string Email { get; set; }
 
         public string ReturnUrl { get; set; }

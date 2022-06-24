@@ -57,4 +57,14 @@
     <WCFMetadata Include="Connected Services" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Update="Pages\Account\Login.en.resx">
+      <Generator></Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Pages\Account\LoginModel+InputModel.en.resx">
+      <Generator>PublicResxFileCodeGenerator</Generator>
+      <CustomToolNamespace>MemberService.Pages.Account</CustomToolNamespace>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

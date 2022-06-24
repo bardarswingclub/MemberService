@@ -110,13 +110,18 @@ services
     {
         options.ViewLocationFormats.Add("/{0}.cshtml");
         options.PageViewLocationFormats.Add("/{0}.cshtml");
-    });
+    })
+    .AddDataAnnotationsLocalization();
 
 services
     .UseNamespaceViewLocations()
     .AddControllersWithViews()
     .IfDev(env, s => s.AddRazorRuntimeCompilation())
-    .AddViewLocalization();
+    .AddViewLocalization(o =>
+    {
+        o.ResourcesPath = "";
+    })
+    .AddDataAnnotationsLocalization();
 
 services
     .AddScoped<IAuthorizationHandler, RoleRequirementsHandler>()

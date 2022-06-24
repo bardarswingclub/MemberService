@@ -10,7 +10,7 @@
         </h2>
         <div class="card-body pt-3 pb-3">
             <p class="lead text-center text-muted font-italic">
-                Det er for tiden ingen åpne påmeldinger.
+                @Localizer["Det er for tiden ingen åpne påmeldinger."]
             </p>
         </div>
     </div>
@@ -28,7 +28,7 @@
                 <a class="list-group-item list-group-item-action overflow-hidden" asp-controller="Signup" asp-action="Event" asp-route-id="@signup.Id" asp-route-slug="@signup.Title.Slugify()">
                     @if (signup.IsCancelled)
                     {
-                        <span class="diagonal-label bg-danger text-white">Avlyst</span>
+                        <span class="diagonal-label bg-danger text-white">@Localizer["Avlyst"]</span>
                     }
 
                     @if (signup.UserSignup is EventSignup userSignup)
@@ -37,7 +37,7 @@
                     }
                     else if (signup.HasClosed && !signup.IsCancelled)
                     {
-                        <span class="diagonal-label bg-warning">Stengt</span>
+                        <span class="diagonal-label bg-warning">@Localizer["Stengt"]</span>
                     }
 
                     <h5 class="card-title @(signup.HasClosed ? "text-muted" : "")">@signup.Title</h5>
@@ -52,7 +52,7 @@
 {
     <div class="card shadow mt-5">
         <h2 class="card-header text-center">
-            Kommende @Model.Title
+            @Localizer["Kommende {0}", @Model.Title]
         </h2>
         <div class="list-group list-group-flush">
             @foreach (var signup in Model.FutureEvents)
