@@ -1,14 +1,14 @@
 ﻿@page
-@model LoginModel
+@model MemberService.Pages.Account.LoginModel
 
 @{
-    ViewData["Title"] = "Logg inn / bli medlem";
+    ViewData["Title"] = Localizer["Logg inn / bli medlem"].Value;
     Layout = "~/Pages/_CoverLayout.cshtml";
 }
 
 <div class="card mt-5 shadow">
     <h3 class="card-header">
-        Logg inn / bli medlem
+        @Localizer["Logg inn / bli medlem"]
     </h3>
     <div class="card-body">
         <form method="post">
@@ -20,12 +20,12 @@
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
 
-            <button type="submit" class="btn btn-success btn-block">Gå videre &#x27a4;</button>
+            <button type="submit" class="btn btn-success btn-block">@Localizer["Gå videre"] &#x27a4;</button>
         </form>
         <hr />
         <vc:external-login return-url="@Model.Input.ReturnUrl"></vc:external-login>
         <hr />
-        Du kan lese om hva vi samler av informasjon om deg <a asp-page="/Account/Privacy">her</a>.
+        @Localizer["Du kan lese om hva vi samler av informasjon om deg"] <a asp-page="/Account/Privacy">@Localizer["her"]</a>.
     </div>
 </div>
 
