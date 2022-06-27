@@ -37,9 +37,9 @@ public class EventController : Controller
 
     [HttpPost]
     [Authorize(nameof(Policy.CanEditEvent))]
-    public async Task<IActionResult> SetStatus(Guid id, [FromForm] string status)
+    public async Task<IActionResult> SetStatus(Guid id, [FromForm] string status, [FromForm] string date)
     {
-        var ev = await _database.EditEvent(id, e => e.SetEventStatus(status));
+        var ev = await _database.EditEvent(id, e => e.SetEventStatus(status, date));
 
         if (ev.Archived)
         {

@@ -33,9 +33,11 @@ public class EventHeader : ViewComponent
                 SurveyId = e.SurveyId,
                 IsSemester = e.SemesterId.HasValue,
                 IsOpen = e.IsOpen(),
+                HasOpened = e.HasOpened(),
                 HasClosed = e.HasClosed(),
                 Archived = e.Archived,
-                Cancelled = e.Cancelled
+                Cancelled = e.Cancelled,
+                Published = e.Published
             })
             .FirstOrDefaultAsync(e => e.Id == id);
 
@@ -47,13 +49,16 @@ public class EventHeader : ViewComponent
         public Guid Id { get; init; }
         public string Title { get; init; }
         public string Description { get; init; }
+        public bool Published { get; init; }
         public bool Archived { get; init; }
         public bool Cancelled { get; init; }
+        public bool HasOpened { get; init; }
         public bool HasClosed { get; init; }
         public bool IsOpen { get; init; }
         public bool IsSemester { get; init; }
         public Guid? SurveyId { get; init; }
         public DateTime? SignupOpensAt { get; init; }
         public DateTime? SignupClosesAt { get; init; }
+        public bool CanEdit => !(Archived || Cancelled);
     }
 }

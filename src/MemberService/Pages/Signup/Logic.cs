@@ -1,10 +1,6 @@
 ﻿namespace MemberService.Pages.Signup;
 
-
-
-
 using System.Linq.Expressions;
-
 
 using Clave.Expressionify;
 using Clave.ExtensionMethods;
@@ -21,13 +17,14 @@ public static partial class Logic
             .Include(e => e.SignupOptions)
             .AsNoTracking()
             .Where(e => e.Type != EventType.Class)
-            .Where(e => e.Archived == false)
+            .Where(e => !e.Archived)
+            .Where(e => e.Published)
             .Where(predicate)
             .OrderBy(e => e.SignupOptions.SignupOpensAt)
             .Select(e => EventModel.Create(e, userId))
             .ToListAsync();
 
-    public static async Task<Data.Event> GetEditableEvent(this MemberContext db, Guid id)
+    public static async Task<Event> GetEditableEvent(this MemberContext db, Guid id)
         => await db.Events
             .Include(e => e.Signups)
                 .ThenInclude(s => s.Response)

@@ -5,8 +5,6 @@ using MemberService.Data.ValueTypes;
 
 using Microsoft.EntityFrameworkCore;
 
-using NodaTime.Text;
-
 public static class Logic
 {
     public static Task<List<EventEntry>> GetEvents(this MemberContext context, string userId, bool archived)
@@ -82,26 +80,52 @@ public static class Logic
         entity.SignupOptions.AutoAcceptedSignups = model.AutoAcceptedSignups;
     }
 
-    public static void SetEventStatus(this Data.Event model, string status)
+    public static void SetEventStatus(this Event model, string status, string date)
     {
-        if (status == "open")
+        switch (status)
         {
-            model.SignupOptions.SignupOpensAt = TimeProvider.UtcNow;
-            model.SignupOptions.SignupClosesAt = null;
-        }
-        else if (status == "close")
-        {
-            model.SignupOptions.SignupClosesAt = TimeProvider.UtcNow;
-        }
-        else if (status == "archive")
-        {
-            model.SignupOptions.SignupClosesAt ??= TimeProvider.UtcNow;
-            model.Archived = true;
-        }
-        else if (status == "cancel")
-        {
-            model.SignupOptions.SignupClosesAt ??= TimeProvider.UtcNow;
-            model.Cancelled = true;
+            case "open":
+                model.SignupOptions.SignupOpensAt = TimeProvider.UtcNow;
+                model.SignupOptions.SignupClosesAt = null;
+                break;
+            case "opens-at":
+                model.SignupOptions.SignupOpensAt = date.ToOsloDateTime();
+                if (model.SignupOptions.SignupClosesAt < model.SignupOptions.SignupOpensAt)
+                {
+                    model.SignupOptions.SignupClosesAt = null;
+                }
+                break;
+            case "close":
+                model.SignupOptions.SignupClosesAt = TimeProvider.UtcNow;
+                if (model.SignupOptions.SignupClosesAt < model.SignupOptions.SignupOpensAt)
+                {
+                    model.SignupOptions.SignupOpensAt = null;
+                }
+                break;
+            case "closes-at":
+                model.SignupOptions.SignupClosesAt = date.ToOsloDateTime();
+                if (model.SignupOptions.SignupClosesAt < model.SignupOptions.SignupOpensAt)
+                {
+                    model.SignupOptions.SignupOpensAt = null;
+                }
+                break;
+            case "archive":
+                model.SignupOptions.SignupClosesAt ??= TimeProvider.UtcNow;
+                model.Archived = true;
+                break;
+            case "cancel":
+                model.SignupOptions.SignupClosesAt ??= TimeProvider.UtcNow;
+                model.Cancelled = true;
+                break;
+            case "uncancel":
+                model.Cancelled = false;
+                break;
+            case "publish":
+                model.Published = true;
+                break;
+            case "unpublish":
+                model.Published = false;
+                break;
         }
     }
 
@@ -213,11 +237,9 @@ public static class Logic
 
     internal static DateTime GetUtc(this string date, string time)
     {
-        var dateTime = $"{date}T{time}:00";
+        var dateTime = $"{date}T{time}";
 
-        var localDateTime = LocalDateTimePattern.GeneralIso.Parse(dateTime).GetValueOrThrow();
-
-        return localDateTime.InZoneLeniently(TimeProvider.TimeZoneOslo).ToDateTimeUtc();
+        return dateTime.ToOsloDateTime();
     }
 
     internal static DateTime? GetUtcMaybe(this string date, string time)
