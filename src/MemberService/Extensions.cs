@@ -16,6 +16,7 @@ using MemberService.Data.ValueTypes;
 using MemberService.Pages.Event;
 using System.Text;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using NodaTime.Text;
 
 public static class Extensions
 {
@@ -155,6 +156,18 @@ public static class Extensions
         var time = result.TimeOfDay.ToString("HH:mm", CultureInfo.InvariantCulture);
 
         return (date, time);
+    }
+
+    public static string ToOsloString(this DateTime date)
+    {
+        return date.ToLocalTime().ToString("yyyy-MM-ddTHH:mm", CultureInfo.InvariantCulture);
+    }
+
+    public static DateTime ToOsloDateTime(this string dateTime)
+    {
+        var localDateTime = LocalDateTimePattern.GeneralIso.Parse($"{dateTime}:00").GetValueOrThrow();
+
+        return localDateTime.InZoneLeniently(TimeProvider.TimeZoneOslo).ToDateTimeUtc();
     }
 
     public static DateTime? WithOsloTime(this DateTime utc, string time)

@@ -34,11 +34,11 @@ public static partial class Extensions
 
     [Expressionify]
     public static bool HasOpened(this Event e)
-        => e.SignupOptions.SignupOpensAt == null || e.SignupOptions.SignupOpensAt < TimeProvider.UtcNow;
+        => e.SignupOptions.SignupOpensAt.HasValue && e.SignupOptions.SignupOpensAt < TimeProvider.UtcNow;
 
     [Expressionify]
     public static bool HasClosed(this Event e)
-        => e.SignupOptions.SignupClosesAt != null && e.SignupOptions.SignupClosesAt < TimeProvider.UtcNow;
+        => e.SignupOptions.SignupClosesAt.HasValue && e.SignupOptions.SignupClosesAt < TimeProvider.UtcNow;
 
     [Expressionify]
     public static bool IsOpen(this Event e)
@@ -49,7 +49,7 @@ public static partial class Extensions
 
     [Expressionify]
     public static bool WillOpen(this Event e)
-        => !e.HasOpened() && !e.HasClosed();
+        => e.SignupOptions.SignupOpensAt > TimeProvider.UtcNow && !e.HasClosed();
 
     [Expressionify]
     public static bool IsSignedUpFor(this User user, Guid id)

@@ -2,81 +2,341 @@
 @using MemberService.Data.ValueTypes
 @using MemberService.Auth
 @using Microsoft.AspNetCore.Authorization
+@using System.Globalization
 @inject IAuthorizationService AuthorizationService
 @model MemberService.Components.EventHeader.EventHeader.Model
 
 <div class="bg-light overflow-container">
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-6">
+        <div class="row justify-content-between">
+            <div class="col-auto">
                 <h2>
                     @Model.Title
                 </h2>
 
                 <h4>@Model.Description</h4>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
+                <ul class="timeline">
+                    <li data-status=@(Model.Published ? "done": "")>
+                        @if (Model.CanEdit && await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanEditEvent))
+                        {
+                            <details class="card">
+                                @if (Model.Published)
+                                {
+                                    <summary class="card-header p-1">Synlig</summary>
+                                    <form class="card-body p-1" asp-controller="Event" asp-action="SetStatus" asp-route-id="@Model.Id" method="POST">
+                                        <p class="card-text">
+                                            Dette arrangementet er synlig på forsiden.
+                                            <br>
+                                            Trykk på knappen for å skjule den.
+                                        </p>
+                                        <button type="submit" name="status" value="unpublish" class="btn btn-primary btn-sm">Skjul fra forsiden</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <summary class="card-header p-1">Ikke synlig</summary>
+                                    <form class="card-body p-1" asp-controller="Event" asp-action="SetStatus" asp-route-id="@Model.Id" method="POST">
+                                        <p class="card-text">
+                                            Dette arrangementet er ikke synlig på forsiden.
+                                            <br>
+                                            Trykk på knappen for å gjøre den synlig.
+                                        </p>
+                                        <button type="submit" name="status" value="publish" class="btn btn-success btn-sm">Publiser nå</button>
+                                    </form>
+                                }
+                            </details>
+                        }
+                        else
+                        {
+                            <div class="card">
+                                @if (Model.Published)
+                                {
+                                    <div class="card-header p-1">Synlig</div>
+                                }
+                                else
+                                {
+                                    <div class="card-header p-1">Ikke synlig</div>
+                                }
+                            </div>
+                        }
+                    </li>
+                    @if (!(!Model.SignupOpensAt.HasValue && Model.HasClosed))
+                    {
+                        <li data-status=@(Model.HasOpened ? "done" : "")>
+                            @if (Model.CanEdit && await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanEditEvent))
+                            {
+                                <details class="card">
+                                    @if (Model.HasOpened)
+                                    {
+                                        <summary class="card-header p-1">
+                                            Påmeldingen åpnet <strong>@Model.SignupOpensAt.Value.DisplayOslo()</strong>
+                                        </summary>
+                                        <form class="card-body p-1" asp-controller="Event" asp-action="SetStatus" asp-route-id="@Model.Id" method="POST">
+                                            <p class="card-text">
+                                                Dette arrangementet har åpnet for påmelding.
+                                                <br>
+                                                Vil du utsette åpningen til en senere tid?
+                                            </p>
+                                            <div class="input-group input-group-sm">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">Påmeldingen åpner</span>
+                                                </div>
+                                                <input type="datetime-local" name="date" value="@Model.SignupOpensAt?.ToOsloString()">
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-outline-success" name="status" value="opens-at">Lagre</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    }
+                                    else if (Model.SignupOpensAt.HasValue)
+                                    {
+                                        <summary class="card-header p-1">
+                                            Påmeldingen åpner <strong>@Model.SignupOpensAt.Value.DisplayOslo()</strong>
+                                        </summary>
+                                        <form class="card-body p-1" asp-controller="Event" asp-action="SetStatus" asp-route-id="@Model.Id" method="POST">
+                                            <p class="card-text">
+                                                Dette arrangementet har ikke åpnet ennå.
+                                                <br>
+                                                Du kan endre når det åpner, eller åpne det nå med en gang.
+                                            </p>
+                                            <div class="input-group input-group-sm">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">Påmeldingen åpner</span>
+                                                </div>
+                                                <input type="datetime-local" name="date" value="@Model.SignupOpensAt?.ToOsloString()">
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-outline-success" name="status" value="opens-at">Lagre</button>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <button type="submit" name="status" value="open" class="btn btn-success btn-sm">Åpne påmelding nå</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <summary class="card-header p-1">
+                                            Påmeldingen har ikke åpnet
+                                        </summary>
+                                        <form class="card-body p-1" asp-controller="Event" asp-action="SetStatus" asp-route-id="@Model.Id" method="POST">
+                                            <p class="card-text">
+                                                Dette arrangementet har ikke åpnet ennå.
+                                                <br>
+                                                Du kan sette når det åpner, eller åpne det nå med en gang.
+                                            </p>
+                                            <div class="input-group input-group-sm">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">Påmeldingen åpner</span>
+                                                </div>
+                                                <input type="datetime-local" name="date">
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-outline-success" name="status" value="opens-at">Lagre</button>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <button type="submit" name="status" value="open" class="btn btn-success btn-sm">Åpne påmelding nå</button>
+                                        </form>
+                                    }
+                                </details>
+                            }
+                            else
+                            {
+                                <div class="card">
+                                    @if (Model.HasOpened)
+                                    {
+                                        <div class="card-header p-1">
+                                            Påmeldingen åpnet <strong>@Model.SignupOpensAt.Value.DisplayOslo()</strong>
+                                        </div>
+                                    }
+                                    else if (Model.SignupOpensAt.HasValue)
+                                    {
+                                        <div class="card-header p-1">
+                                            Påmeldingen åpner <strong>@Model.SignupOpensAt.Value.DisplayOslo()</strong>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="card-header p-1">
+                                            Påmeldingen har ikke åpnet
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </li>
+                    }
+                    @if (Model.SignupOpensAt.HasValue || Model.HasClosed)
+                    {
+                        <li data-status=@(Model.HasClosed ? "done" : "")>
+                            @if (Model.CanEdit && await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanEditEvent))
+                            {
+                                <details class="card">
+                                    @if (Model.HasClosed)
+                                    {
+                                        <summary class="card-header p-1">
+                                            Påmeldingen stengte <strong>@Model.SignupClosesAt.Value.DisplayOslo()</strong>
+                                        </summary>
+                                        <form class="card-body p-1" asp-controller="Event" asp-action="SetStatus" asp-route-id="@Model.Id" method="POST">
+                                            <p class="card-text">
+                                                Dette arrangementet har stengt.
+                                                <br>
+                                                Vil du gjennåpne det?
+                                            </p>
+                                            <button type="submit" name="status" value="open" class="btn btn-success btn-sm">Gjenåpne påmelding nå</button>
+                                        </form>
+                                    }
+                                    else if (Model.SignupClosesAt.HasValue)
+                                    {
+                                        <summary class="card-header p-1">
+                                            Påmeldingen stenger <strong>@Model.SignupClosesAt.Value.DisplayOslo()</strong>
+                                        </summary>
+                                        <form class="card-body p-1" asp-controller="Event" asp-action="SetStatus" asp-route-id="@Model.Id" method="POST">
+                                            <p class="card-text">
+                                                Dette arrangemenget stenger om en stund
+                                                <br>
+                                                Du kan endre når det stenger, eller stenge det nå med en gang.
+                                            </p>
+                                            <div class="input-group input-group-sm">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">Påmeldingen stenger</span>
+                                                </div>
+                                                <input type="datetime-local" name="date" value="@Model.SignupClosesAt?.ToOsloString()">
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-outline-success" name="status" value="closes-at">Lagre</button>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <button type="submit" name="status" value="close" class="btn btn-success btn-sm">Steng påmelding nå</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <summary class="card-header p-1">
+                                            Påmeldingen stenger aldri
+                                        </summary>
+                                        <form class="card-body p-1" asp-controller="Event" asp-action="SetStatus" asp-route-id="@Model.Id" method="POST">
+                                            <p class="card-text">
+                                                Dette arrangementet har ingen begrensning på påmelding
+                                                <br>
+                                                Du kan sette når det stenger, eller stenge det nå med en gang.
+                                            </p>
+                                            <div class="input-group input-group-sm">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">Påmeldingen stenger</span>
+                                                </div>
+                                                <input type="datetime-local" name="date">
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-outline-success" name="status" value="closes-at">Lagre</button>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <button type="submit" name="status" value="close" class="btn btn-success btn-sm">Steng påmelding nå</button>
+                                        </form>
+                                    }
+                                </details>
+                            }
+                            else
+                            {
+                                <div class="card">
+                                    @if (Model.HasClosed)
+                                    {
+                                        <div class="card-header p-1">
+                                            Påmeldingen stengte <strong>@Model.SignupClosesAt.Value.DisplayOslo()</strong>
+                                        </div>
+                                    }
+                                    else if (Model.SignupClosesAt.HasValue)
+                                    {
+                                        <div class="card-header p-1">
+                                            Påmeldingen stenger <strong>@Model.SignupClosesAt.Value.DisplayOslo()</strong>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="card-header p-1">
+                                            Påmeldingen stenger aldri
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </li>
+                    }
+                    <li data-status="@(Model.CanEdit ? "" : "done")">
+                        <details class="card">
+                            <summary class="card-header p-1">
+                                @if (Model.Cancelled && Model.Archived)
+                                {
+                                    @: Avlyst og arkivert
+                                }
+                                else if (Model.Cancelled)
+                                {
+                                    @: Avlyst
+                                }
+                                else if (Model.Archived)
+                                {
+                                    @: Arkivert
+                                }
+                                else
+                                {
+                                    @: Arkiver, etc
+                                }
+                            </summary>
+                            @if (await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanEditEvent))
+                            {
+                                <form class="card-body p-1" asp-controller="Event" asp-action="SetStatus" asp-route-id="@Model.Id" method="POST">
+                                    @if (!Model.Archived)
+                                    {
+                                        <p class="card-text">
+                                            Når arrangementet er over bør det arkiveres. Da forsvinner det fra forsiden og listen over aktive arrangementer.
+                                        </p>
+                                        <button type="submit" name="status" value="archive" class="btn btn-primary btn-sm">Arkiver</button>
+                                        @if (!Model.Cancelled)
+                                        {
+                                            <hr>
+                                            <p class="card-text">
+                                                Ønsker du å avlyse arrangementet?
+                                            </p>
+                                            <button type="submit" name="status" value="cancel" class="btn btn-danger btn-sm">Avlys</button>
+                                        }
+                                        else
+                                        {
+                                            <hr />
+                                            <p class="card-text">
+                                                Arrangementet har blitt avlyst.
+                                                <br>
+                                                Var det en feil?
+                                            </p>
+                                            <button type="submit" name="status" value="uncancel" class="btn btn-primary btn-sm">Arrangementet skal ikke være avlyst</button>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <p class="card-text">
+                                            Arrangementet er arkivert og kan ikke lenger redigeres
+                                        </p>
+                                    }
+                                </form>
+                            }
+                            else
+                            {
+                                <div class="card-body p-1">
+                                    @if(Model.Cancelled)
+                                    {
+                                        <p class="card-text">
+                                            Arrangementet har blitt avlyst.
+                                        </p>
+                                    }
 
-                <form class="alert @AlertClass(Model) mt-2" asp-controller="Event" asp-action="SetStatus" asp-route-id="@Model.Id" method="POST">
-                    @if (Model.Archived)
-                    {
-                        <h4 class="alert-heading">Arrangementet er arkivert</h4>
-                        <p>Dette arrangementet er arkivert og ikke lenger åpent for redigering</p>
-                    }
-                    else if (Model.Cancelled)
-                    {
-                        <h4 class="alert-heading">Arrangementet er avlyst</h4>
-                        <p>Dette arrangementet er avlyst</p>
-                    }
-                    else if (Model.IsOpen)
-                    {
-                        <h4 class="alert-heading">
-                            Påmeldingen er åpen!
-                            @if (await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanEditEvent))
-                            {
-                                <button type="submit" name="status" value="close" class="btn btn-outline-danger float-right">Steng påmeldingen nå</button>
+                                    @if (Model.Archived)
+                                    {
+                                        <p class="card-text">
+                                            Arrangementet har blitt arkivert.
+                                        </p>
+                                    }
+                                </div>
                             }
-                        </h4>
-                        @if (Model.SignupOpensAt.HasValue)
-                        {
-                            <p>Påmeldingen åpnet @Model.SignupOpensAt.Value.DisplayOslo()</p>
-                        }
-                        @if (Model.SignupClosesAt.HasValue)
-                        {
-                            <p>Påmeldingen stenger @Model.SignupClosesAt.Value.DisplayOslo()</p>
-                        }
-                    }
-                    else if (Model.HasClosed)
-                    {
-                        <h4 class="alert-heading">
-                            Påmeldingen har stengt!
-                            @if (await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanEditEvent))
-                            {
-                                <button type="submit" name="status" value="open" class="btn btn-outline-success float-right">Gjennåpne påmeldingen nå</button>
-                            }
-                        </h4>
-                        @if (Model.SignupOpensAt.HasValue)
-                        {
-                            <p>Påmeldingen åpnet @Model.SignupOpensAt.Value.DisplayOslo()</p>
-                        }
-                        <p>Påmeldingen stengte @Model.SignupClosesAt.Value.DisplayOslo()</p>
-                    }
-                    else
-                    {
-                        <h4 class="alert-heading">
-                            Påmeldingen har ikke åpnet ennå!
-                            @if (await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanEditEvent))
-                            {
-                                <button type="submit" name="status" value="open" class="btn btn-outline-success float-right">Åpne påmeldingen nå</button>
-                            }
-                        </h4>
-                        <p>Påmeldingen åpner @Model.SignupOpensAt.Value.DisplayOslo()</p>
-                        @if (Model.SignupClosesAt.HasValue)
-                        {
-                            <p>Påmeldingen stenger @Model.SignupClosesAt.Value.DisplayOslo()</p>
-                        }
-                    }
-                </form>
+                        </details>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>

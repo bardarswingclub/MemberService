@@ -15,6 +15,10 @@ public partial class EventEntry
 
     public bool Archived { get; set; }
 
+    public bool Published { get; set; }
+
+    public bool Cancelled { get; set; }
+
     public DateTime? SignupOpensAt { get; set; }
 
     public DateTime? SignupClosesAt { get; set; }
@@ -32,6 +36,8 @@ public partial class EventEntry
         Title = e.Title,
         Type = e.Type,
         Archived = e.Archived,
+        Cancelled = e.Cancelled,
+        Published = e.Published,
         SignupOpensAt = e.SignupOptions.SignupOpensAt,
         SignupClosesAt = e.SignupOptions.SignupClosesAt,
         RoleSignup = e.SignupOptions.RoleSignup,
@@ -44,6 +50,11 @@ public partial class EventEntry
         if (Archived)
         {
             return "Arkivert";
+        }
+
+        if (Cancelled)
+        {
+            return "Avlyst";
         }
 
         if (SignupClosesAt < TimeProvider.UtcNow)
@@ -61,6 +72,11 @@ public partial class EventEntry
             return $"Åpnet {SignupOpensAt.Value.ToOsloDate()}";
         }
 
-        return "Åpen";
+        if (Published)
+        {
+            return "Synlig";
+        }
+
+        return "Ikke synlig";
     }
 }
