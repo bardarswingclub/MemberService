@@ -80,7 +80,7 @@ public static class Logic
         entity.SignupOptions.AutoAcceptedSignups = model.AutoAcceptedSignups;
     }
 
-    public static void SetEventStatus(this Event model, string status, string date)
+    public static void SetEventStatus(this Event model, string status, string date = null)
     {
         switch (status)
         {
