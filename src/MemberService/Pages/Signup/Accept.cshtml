@@ -15,93 +15,96 @@
             <p class="lead">@Model.Description</p>
 
             <div class="alert alert-success" role="alert">
-                <h3 class="alert-heading">Gratulerer, du har fått plass!</h3>
+                <h3 class="alert-heading">@Localizer["Gratulerer, du har fått plass!"]</h3>
 
                 <case value=@SignupRequirement.MustPayClassesFeeAndPrice>
                     <p>
-                        Dette arrangementet er kun åpent for medlemmer som har betalt kursavgift.
+                        @Localizer["Dette arrangementet er kun åpent for medlemmer som har betalt kursavgift."]
                     </p>
                     <ul>
-                        <li>Det koster <strong>@Model.MembersPrice.FormatMoney()</strong> å delta</li>
-                        <li>Kursavgiften koster <strong>@Model.MustPayAmount.FormatMoney()</strong> (dette semesteret).</li>
+                        <li>@Localizer["Det koster <strong>{0}</strong> å delta", Model.MembersPrice.FormatMoney()]</li>
+                        <li>@Localizer["Kursavgiften koster <strong>{0}</strong> (dette semesteret).", Model.MustPayAmount.FormatMoney()]</li>
                     </ul>
                     <div class="text-center">
-                        <vc:pay-fee type=@Fee.Classes label="Betal kursavgift" />
+                        <vc:pay-fee type=@Fee.Classes label="@Localizer["Betal kursavgift"]" />
                     </div>
                 </case>
                 <case value=@SignupRequirement.MustPayClassesFee>
                     <p>
-                        Dette arrangementet er kun åpent for medlemmer som har betalt kursavgift.
+                        @Localizer["Dette arrangementet er kun åpent for medlemmer som har betalt kursavgift."]
                     </p>
                     <ul>
-                        <li>Kursavgiften koster <strong>@Model.MustPayAmount.FormatMoney()</strong> (dette semesteret).</li>
+                        <li>@Localizer["Kursavgiften koster <strong>{0}</strong> (dette semesteret).", Model.MustPayAmount.FormatMoney()]</li>
                     </ul>
                 </case>
                 <case value=@SignupRequirement.MustPayTrainingFeeAndPrice>
                     <p>
-                        Dette arrangementet er kun åpent for medlemmer som har betalt treningsavgift/kursavgift.
+                        @Localizer["Dette arrangementet er kun åpent for medlemmer som har betalt treningsavgift/kursavgift."]
                     </p>
                     <ul>
-                        <li>Det koster <strong>@Model.MembersPrice.FormatMoney()</strong> å delta</li>
-                        <li>Treningsavgiften koster <strong>@Model.MustPayAmount.FormatMoney()</strong> (dette semesteret).</li>
+                        <li>@Localizer["Det koster <strong>{0}</strong> å delta", Model.MembersPrice.FormatMoney()]</li>
+                        <li>@Localizer["Treningsavgiften koster <strong>{0}</strong> (dette semesteret).", Model.MustPayAmount.FormatMoney()]</li>
                     </ul>
                     <div class="text-center">
-                        <vc:pay-fee type=@Fee.Training label="Betal treningsavgift" />
+                        <vc:pay-fee type=@Fee.Training label="@Localizer["Betal treningsavgift"]" />
                     </div>
                 </case>
                 <case value=@SignupRequirement.MustPayTrainingFee>
                     <p>
-                        Dette arrangementet er kun åpent for medlemmer som har betalt treningsavgift/kursavgift.
+                        @Localizer["Dette arrangementet er kun åpent for medlemmer som har betalt treningsavgift/kursavgift."]
                     </p>
                     <ul>
-                        <li>Treningsavgiften koster <strong>@Model.MustPayAmount.FormatMoney()</strong> (dette semesteret).</li>
+                        <li>@Localizer["Treningsavgiften koster <strong>{0}</strong> (dette semesteret).", Model.MustPayAmount.FormatMoney()]</li>
                     </ul>
                 </case>
                 <case value=@SignupRequirement.MustBeMemberAndPay>
                     <p>
-                        Dette arrangementet er kun åpent for medlemmer av klubben.
+                        @Localizer["Dette arrangementet er kun åpent for medlemmer av klubben."]
                     </p>
                     <ul>
-                        <li>Det koster <strong>@Model.MembersPrice.FormatMoney()</strong> for medlemmer å delta</li>
-                        <li>Medlemskap i klubben koster <strong>@Model.MustPayAmount.FormatMoney()</strong> (ut året).</li>
+                        <li>@Localizer["Det koster <strong>{0}</strong> å delta", Model.MembersPrice.FormatMoney()]</li>
+                        <li>@Localizer["Medlemskap i klubben koster <strong>{0}</strong> (ut året).", Model.MustPayAmount.FormatMoney()]</li>
                     </ul>
                     <div class="text-center">
-                        <vc:pay-fee type=@Fee.Membership label="Bli medlem" />
+                        <vc:pay-fee type=@Fee.Membership label="@Localizer["Bli medlem"]" />
                     </div>
                 </case>
                 <case value=@SignupRequirement.MustBeMember>
                     <p>
-                        Dette arrangementet er kun åpent for medlemmer av klubben.
+                        @Localizer["Dette arrangementet er kun åpent for medlemmer av klubben."]
                     </p>
-                    <p>
-                        Medlemskap i klubben koster <strong>@Model.MustPayAmount.FormatMoney()</strong> (ut året).
-                    </p>
+                    <ul>
+                        <li>@Localizer["Medlemskap i klubben koster <strong>{0}</strong> (ut året).", Model.MustPayAmount.FormatMoney()]</li>
+                    </ul>
                 </case>
                 <case value=@SignupRequirement.MustPayMembersPrice>
-                    <p>Du må betale <strong>@Model.MustPayAmount.FormatMoney()</strong> for å godta plassen</p>
+                    <p>
+                        @Localizer["Du må betale <strong>{0}</strong> for å godta plassen", Model.MustPayAmount.FormatMoney()]
+                    </p>
                 </case>
                 <case value=@SignupRequirement.MustPayNonMembersPrice>
-                    <p>Du må betale <strong>@Model.MustPayAmount.FormatMoney()</strong> for å godta plassen</p>
+                    <p>
+                        @Localizer["Du må betale <strong>{0}</strong> for å godta plassen", Model.MustPayAmount.FormatMoney()]
+                    </p>
                 </case>
                 <case value=@SignupRequirement.None>
-                    <p>Trykk på knappen under for å godta plassen.</p>
+                    <p>
+                        @Localizer["Trykk på knappen under for å godta plassen."]
+                    </p>
                 </case>
-
-
-
             </div>
 
             <case value=@SignupRequirement.MustPayNonMembersPrice>
                 @if (Model.MustPayAmount > Model.MembersPrice)
                 {
                     <details class="alert alert-info">
-                        <summary><h4 class="alert-heading d-inline">Vil du bli medlem?</h4></summary>
+                        <summary><h4 class="alert-heading d-inline">@Localizer["Vil du bli medlem?"]</h4></summary>
                         <ul>
-                            <li>Dette arrangementet koster kun <strong>@Model.MembersPrice.FormatMoney()</strong> for medlemmer av Bårdar Swing Club.</li>
-                            <li>Medlemskap koster <strong>@FeeCalculation.MembershipFee.FormatMoney()</strong> ut året og gir deg rabatt på dette og andre arrangementer.</li>
+                            <li>@Localizer["Dette arrangementet koster kun <strong>{0}</strong> for medlemmer av Bårdar Swing Club.", Model.MembersPrice.FormatMoney()]</li>
+                            <li>@Localizer["Medlemskap koster <strong>{0}</strong> ut året og gir deg rabatt på dette og andre arrangementer.", FeeCalculation.MembershipFee.FormatMoney()]</li>
                         </ul>
                         <div class="text-center">
-                            <vc:pay-fee label="Bli medlem" type=@Fee.Membership amount=@FeeCalculation.MembershipFee />
+                            <vc:pay-fee label="@Localizer["Bli medlem"]" type=@Fee.Membership amount=@FeeCalculation.MembershipFee />
                         </div>
                     </details>
                 }
@@ -112,16 +115,16 @@
             <case value=@SignupRequirement.MustPayClassesFee>
                 <div class="dropdown position-relative">
                     <button class="btn btn-success btn-block" type="button" data-toggle="dropdown">
-                        Betal kursavgift - @Model.MustPayAmount.FormatMoney()
+                        @Localizer["Betal kursavgift - {0}", Model.MustPayAmount.FormatMoney()]
                     </button>
                     <div class="dropdown-menu dropdown-menu-right w-100">
                         <button class="dropdown-item" type="submit" name="method" value="stripe">
                             <i class="bi-credit-card-fill mr-1"></i>
-                            Betal med kort
+                            @Localizer["Betal med kort"]
                         </button>
                         <button class="dropdown-item" type="submit" name="method" value="vipps">
                             <svg class="mr-1" fill="none" viewBox="0 0 48 32" width="16" xmlns="http://www.w3.org/2000/svg"><rect fill="#ff5b24" height="32" rx="3.5" width="48"/><path clip-rule="evenodd" d="m27.864 12.2625c1.377 0 2.5571-1.0454 2.5571-2.548h.0003c0-1.50296-1.1804-2.548-2.5574-2.548-1.3767 0-2.5565 1.04504-2.5565 2.548 0 1.5026 1.1798 2.548 2.5565 2.548zm3.3437 4.1169c-1.705 2.221-3.5079 3.7566-6.6879 3.7566h.0004c-3.2444 0-5.7691-1.9602-7.7358-4.8349-.787-1.1763-1.9999-1.4375-2.8851-.8168-.8194.5882-1.0156 1.8296-.2621 2.9079 2.7206 4.149 6.4902 6.5661 10.8826 6.5661 4.0325 0 7.1796-1.9598 9.6378-5.2269.9176-1.2086.8849-2.45 0-3.1362-.8198-.654-2.0326-.4243-2.9499.7842z" fill="#fff" fill-rule="evenodd"/></svg>
-                            Betal med vipps
+                            @Localizer["Betal med vipps"]
                         </button>
                     </div>
                 </div>
@@ -129,16 +132,16 @@
             <case value=@SignupRequirement.MustPayTrainingFee>
                 <div class="dropdown position-relative">
                     <button class="btn btn-success btn-block" type="button" data-toggle="dropdown">
-                        Betal treningsavgfit - @Model.MustPayAmount.FormatMoney()
+                        @Localizer["Betal treningsavgfit - {0}", Model.MustPayAmount.FormatMoney()]
                     </button>
                     <div class="dropdown-menu dropdown-menu-right w-100">
                         <button class="dropdown-item" type="submit" name="method" value="stripe">
                             <i class="bi-credit-card-fill mr-1"></i>
-                            Betal med kort
+                            @Localizer["Betal med kort"]
                         </button>
                         <button class="dropdown-item" type="submit" name="method" value="vipps">
                             <svg class="mr-1" fill="none" viewBox="0 0 48 32" width="16" xmlns="http://www.w3.org/2000/svg"><rect fill="#ff5b24" height="32" rx="3.5" width="48"/><path clip-rule="evenodd" d="m27.864 12.2625c1.377 0 2.5571-1.0454 2.5571-2.548h.0003c0-1.50296-1.1804-2.548-2.5574-2.548-1.3767 0-2.5565 1.04504-2.5565 2.548 0 1.5026 1.1798 2.548 2.5565 2.548zm3.3437 4.1169c-1.705 2.221-3.5079 3.7566-6.6879 3.7566h.0004c-3.2444 0-5.7691-1.9602-7.7358-4.8349-.787-1.1763-1.9999-1.4375-2.8851-.8168-.8194.5882-1.0156 1.8296-.2621 2.9079 2.7206 4.149 6.4902 6.5661 10.8826 6.5661 4.0325 0 7.1796-1.9598 9.6378-5.2269.9176-1.2086.8849-2.45 0-3.1362-.8198-.654-2.0326-.4243-2.9499.7842z" fill="#fff" fill-rule="evenodd"/></svg>
-                            Betal med vipps
+                            @Localizer["Betal med vipps"]
                         </button>
                     </div>
                 </div>
@@ -146,16 +149,16 @@
             <case value=@SignupRequirement.MustBeMember>
                 <div class="dropdown position-relative">
                     <button class="btn btn-success btn-block" type="button" data-toggle="dropdown">
-                        Bli medlem - @Model.MustPayAmount.FormatMoney()
+                        @Localizer["Bli medlem - {0}", Model.MustPayAmount.FormatMoney()]
                     </button>
                     <div class="dropdown-menu dropdown-menu-right w-100">
                         <button class="dropdown-item" type="submit" name="method" value="stripe">
                             <i class="bi-credit-card-fill mr-1"></i>
-                            Betal med kort
+                            @Localizer["Betal med kort"]
                         </button>
                         <button class="dropdown-item" type="submit" name="method" value="vipps">
                             <svg class="mr-1" fill="none" viewBox="0 0 48 32" width="16" xmlns="http://www.w3.org/2000/svg"><rect fill="#ff5b24" height="32" rx="3.5" width="48"/><path clip-rule="evenodd" d="m27.864 12.2625c1.377 0 2.5571-1.0454 2.5571-2.548h.0003c0-1.50296-1.1804-2.548-2.5574-2.548-1.3767 0-2.5565 1.04504-2.5565 2.548 0 1.5026 1.1798 2.548 2.5565 2.548zm3.3437 4.1169c-1.705 2.221-3.5079 3.7566-6.6879 3.7566h.0004c-3.2444 0-5.7691-1.9602-7.7358-4.8349-.787-1.1763-1.9999-1.4375-2.8851-.8168-.8194.5882-1.0156 1.8296-.2621 2.9079 2.7206 4.149 6.4902 6.5661 10.8826 6.5661 4.0325 0 7.1796-1.9598 9.6378-5.2269.9176-1.2086.8849-2.45 0-3.1362-.8198-.654-2.0326-.4243-2.9499.7842z" fill="#fff" fill-rule="evenodd"/></svg>
-                            Betal med vipps
+                            @Localizer["Betal med vipps"]
                         </button>
                     </div>
                 </div>
@@ -163,16 +166,16 @@
             <case value=@SignupRequirement.MustPayMembersPrice>
                 <div class="dropdown position-relative">
                     <button class="btn btn-success btn-block" type="button" data-toggle="dropdown">
-                        Betal @Model.MustPayAmount.FormatMoney()
+                        @Localizer["Betal {0}", Model.MustPayAmount.FormatMoney()]
                     </button>
                     <div class="dropdown-menu dropdown-menu-right w-100">
                         <button class="dropdown-item" type="submit" name="method" value="stripe">
                             <i class="bi-credit-card-fill mr-1"></i>
-                            Betal med kort
+                            @Localizer["Betal med kort"]
                         </button>
                         <button class="dropdown-item" type="submit" name="method" value="vipps">
                             <svg class="mr-1" fill="none" viewBox="0 0 48 32" width="16" xmlns="http://www.w3.org/2000/svg"><rect fill="#ff5b24" height="32" rx="3.5" width="48"/><path clip-rule="evenodd" d="m27.864 12.2625c1.377 0 2.5571-1.0454 2.5571-2.548h.0003c0-1.50296-1.1804-2.548-2.5574-2.548-1.3767 0-2.5565 1.04504-2.5565 2.548 0 1.5026 1.1798 2.548 2.5565 2.548zm3.3437 4.1169c-1.705 2.221-3.5079 3.7566-6.6879 3.7566h.0004c-3.2444 0-5.7691-1.9602-7.7358-4.8349-.787-1.1763-1.9999-1.4375-2.8851-.8168-.8194.5882-1.0156 1.8296-.2621 2.9079 2.7206 4.149 6.4902 6.5661 10.8826 6.5661 4.0325 0 7.1796-1.9598 9.6378-5.2269.9176-1.2086.8849-2.45 0-3.1362-.8198-.654-2.0326-.4243-2.9499.7842z" fill="#fff" fill-rule="evenodd"/></svg>
-                            Betal med vipps
+                            @Localizer["Betal med vipps"]
                         </button>
                     </div>
                 </div>
@@ -180,28 +183,28 @@
             <case value=@SignupRequirement.MustPayNonMembersPrice>
                 <div class="dropdown position-relative">
                     <button class="btn btn-success btn-block" type="button" data-toggle="dropdown">
-                        Betal @Model.MustPayAmount.FormatMoney()
+                        @Localizer["Betal {0}", Model.MustPayAmount.FormatMoney()]
                     </button>
                     <div class="dropdown-menu dropdown-menu-right w-100">
                         <button class="dropdown-item" type="submit" name="method" value="stripe">
                             <i class="bi-credit-card-fill mr-1"></i>
-                            Betal med kort
+                            @Localizer["Betal med kort"]
                         </button>
                         <button class="dropdown-item" type="submit" name="method" value="vipps">
                             <svg class="mr-1" fill="none" viewBox="0 0 48 32" width="16" xmlns="http://www.w3.org/2000/svg"><rect fill="#ff5b24" height="32" rx="3.5" width="48"/><path clip-rule="evenodd" d="m27.864 12.2625c1.377 0 2.5571-1.0454 2.5571-2.548h.0003c0-1.50296-1.1804-2.548-2.5574-2.548-1.3767 0-2.5565 1.04504-2.5565 2.548 0 1.5026 1.1798 2.548 2.5565 2.548zm3.3437 4.1169c-1.705 2.221-3.5079 3.7566-6.6879 3.7566h.0004c-3.2444 0-5.7691-1.9602-7.7358-4.8349-.787-1.1763-1.9999-1.4375-2.8851-.8168-.8194.5882-1.0156 1.8296-.2621 2.9079 2.7206 4.149 6.4902 6.5661 10.8826 6.5661 4.0325 0 7.1796-1.9598 9.6378-5.2269.9176-1.2086.8849-2.45 0-3.1362-.8198-.654-2.0326-.4243-2.9499.7842z" fill="#fff" fill-rule="evenodd"/></svg>
-                            Betal med vipps
+                            @Localizer["Betal med vipps"]
                         </button>
                     </div>
                 </div>
             </case>
             <case value=@SignupRequirement.None>
                 <button type="submit" name="accept" value="true" class="btn btn-success btn-block">
-                    Godta plass
+                    @Localizer["Godta plass"]
                 </button>
             </case>
             <details>
-                <summary>Nei takk</summary>
-                <button type="submit" name="accept" value="false" class="btn btn-outline-danger btn-block text-left">Jeg vil ikke delta</button>
+                <summary>@Localizer["Nei takk"]</summary>
+                <button type="submit" name="accept" value="false" class="btn btn-outline-danger btn-block text-left">@Localizer["Jeg vil ikke delta"]</button>
             </details>
         </form>
     </div>
