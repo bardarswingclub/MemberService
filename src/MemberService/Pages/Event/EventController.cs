@@ -49,7 +49,7 @@ public class EventController : Controller
             }
             else
             {
-                return RedirectToPage("/Event");
+                return RedirectToPage("/Event/Index");
             }
         }
 
