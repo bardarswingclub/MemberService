@@ -9,6 +9,7 @@
 <div class="card mt-5 shadow">
     <h3 class="card-header">
         @Localizer["Logg inn / bli medlem"]
+        @this.GetType().GetCustomAttributes(false).Select(a => a.GetType().Name)
     </h3>
     <div class="card-body">
         <form method="post">

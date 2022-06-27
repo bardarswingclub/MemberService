@@ -121,7 +121,14 @@ services
     {
         o.ResourcesPath = "";
     })
-    .AddDataAnnotationsLocalization();
+    .AddDataAnnotationsLocalization(o =>
+    {
+        o.DataAnnotationLocalizerProvider = (type, localizer) =>
+        {
+            while (type.DeclaringType != null) type = type.DeclaringType;
+            return localizer.Create(type);
+        };
+    });
 
 services
     .AddScoped<IAuthorizationHandler, RoleRequirementsHandler>()

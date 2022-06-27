@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MemberService.Services;
-using System.ComponentModel;
 
 [AllowAnonymous]
 public class LoginModel : PageModel
