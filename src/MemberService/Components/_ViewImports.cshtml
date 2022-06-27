@@ -1,10 +1,13 @@
 ﻿@using Clave.ExtensionMethods
 
 @using MemberService
+@using MemberService.Auth
 @using MemberService.Data
 @using MemberService.Configs
 @using MemberService.Services
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc.Localization
 @inject IAuthorizationService AuthorizationService
+@inject IViewLocalizer Localizer
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @addTagHelper *, MemberService

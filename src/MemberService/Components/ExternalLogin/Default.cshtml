@@ -3,13 +3,13 @@
 @if (Model.ExternalLogins?.Count > 0)
 {
     <form id="external-account" asp-controller="ExternalLogin" asp-action="Index" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-        <p>Hvis du har Hotmail eller Outlook epost kan det hende e-post innlogging ikke fungerer. Prøv heller med å trykke på knappen under</p>
+        <p>@Localizer["Har du problemer med innloggingen? Prøv heller med å trykke på en av knappene under"]</p>
         <div class="text-center">
             @foreach (var provider in Model.ExternalLogins)
             {
-                <button type="submit" class="btn btn-block signin-@provider.Name mb-2" name="provider" value="@provider.Name" title="Logg inn med din @provider.DisplayName konto">
+                <button type="submit" class="btn btn-block signin-@provider.Name mb-2" name="provider" value="@provider.Name" title="@Localizer["Logg inn med din {0} konto", provider.DisplayName]">
                     <span>
-                        Logg inn med @provider.DisplayName
+                        @Localizer["Logg inn med {0}", provider.DisplayName]
                     </span>
                 </button>
             }
