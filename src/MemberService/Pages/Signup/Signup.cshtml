@@ -17,108 +17,108 @@
             <case value=@SignupRequirement.MustPayClassesFeeAndPrice>
                 <div class="alert alert-info" role="alert">
                     <p>
-                        Dette arrangementet er kun åpent for medlemmer som har betalt kursavgift.
+                        @Localizer["Dette arrangementet er kun åpent for medlemmer som har betalt kursavgift."]
                     </p>
                     <ul>
-                        <li>Det koster <strong>@Model.PriceForMembers.FormatMoney()</strong> å delta</li>
-                        <li>Kursavgiften koster <strong>@FeeCalculation.ClassesFee.FormatMoney()</strong> (dette semesteret).</li>
+                        <li>@Localizer["Det koster <strong>{0}</strong> å delta", Model.PriceForMembers.FormatMoney()]</li>
+                        <li>@Localizer["Kursavgiften koster <strong>{0}</strong> (dette semesteret).", FeeCalculation.ClassesFee.FormatMoney()]</li>
                     </ul>
                     <p>
-                        Du kan melde deg på nå og betale først når du har fått plass.
+                        @Localizer["Du kan melde deg på nå og betale først når du har fått plass."]
                     </p>
                 </div>
             </case>
             <case value=@SignupRequirement.MustPayClassesFee>
                 <div class="alert alert-info" role="alert">
                     <p>
-                        Dette arrangementet er kun åpent for medlemmer som har betalt kursavgift.
+                        @Localizer["Dette arrangementet er kun åpent for medlemmer som har betalt kursavgift."]
                     </p>
                     <ul>
-                        <li>Kursavgiften koster <strong>@FeeCalculation.ClassesFee.FormatMoney()</strong> (dette semesteret).</li>
+                        <li>@Localizer["Kursavgiften koster <strong>{0}</strong> (dette semesteret).", FeeCalculation.ClassesFee.FormatMoney()]</li>
                     </ul>
                     <p>
-                        Du kan melde deg på nå og betale først når du har fått plass.
+                        @Localizer["Du kan melde deg på nå og betale først når du har fått plass."]
                     </p>
                 </div>
             </case>
             <case value=@SignupRequirement.MustPayTrainingFeeAndPrice>
                 <div class="alert alert-info" role="alert">
                     <p>
-                        Dette arrangementet er kun åpent for medlemmer som har betalt treningsavgift/kursavgift.
+                        @Localizer["Dette arrangementet er kun åpent for medlemmer som har betalt treningsavgift/kursavgift."]
                     </p>
                     <ul>
-                        <li>Det koster <strong>@Model.PriceForMembers.FormatMoney()</strong> å delta</li>
-                        <li>Treningsavgiften koster <strong>@FeeCalculation.TrainingFee.FormatMoney()</strong> (dette semesteret).</li>
+                        <li>@Localizer["Det koster <strong>{0}</strong> å delta", Model.PriceForMembers.FormatMoney()]</li>
+                        <li>@Localizer["Treningsavgiften koster <strong>{0}</strong> (dette semesteret).", FeeCalculation.TrainingFee.FormatMoney()]</li>
                     </ul>
                     <p>
-                        Du kan melde deg på nå og betale først når du har fått plass.
+                        @Localizer["Du kan melde deg på nå og betale først når du har fått plass."]
                     </p>
                 </div>
             </case>
             <case value=@SignupRequirement.MustPayTrainingFee>
                 <div class="alert alert-info" role="alert">
                     <p>
-                        Dette arrangementet er kun åpent for medlemmer som har betalt treningsavgift/kursavgift.
+                        @Localizer["Dette arrangementet er kun åpent for medlemmer som har betalt treningsavgift/kursavgift."]
                     </p>
                     <ul>
-                        <li>Treningsavgiften koster <strong>@FeeCalculation.TrainingFee.FormatMoney()</strong> (dette semesteret).</li>
+                        <li>@Localizer["Treningsavgiften koster <strong>{0}</strong> (dette semesteret).", FeeCalculation.TrainingFee.FormatMoney()]</li>
                     </ul>
                     <p>
-                        Du kan melde deg på nå og betale først når du har fått plass.
+                        @Localizer["Du kan melde deg på nå og betale først når du har fått plass."]
                     </p>
                 </div>
             </case>
             <case value=@SignupRequirement.MustBeMemberAndPay>
                 <div class="alert alert-info" role="alert">
                     <p>
-                        Dette arrangementet er kun åpent for klubbens medlemmer.
+                        @Localizer["Dette arrangementet er kun åpent for klubbens medlemmer."]
                     </p>
                     <ul>
-                        <li>Det koster <strong>@Model.PriceForMembers.FormatMoney()</strong> for medlemmer å delta</li>
-                        <li>Medlemskap i klubbens koster <strong>@FeeCalculation.MembershipFee.FormatMoney()</strong> (ut året).</li>
+                        <li>@Localizer["Det koster <strong>{0}</strong> å delta", Model.PriceForMembers.FormatMoney()]</li>
+                        <li>@Localizer["Medlemskap i klubbens koster <strong>{0}</strong> (ut året).", FeeCalculation.MembershipFee.FormatMoney()]</li>
                     </ul>
                     <p>
-                        Du kan melde deg på nå og betale først når du har fått plass.
+                        @Localizer["Du kan melde deg på nå og betale først når du har fått plass."]
                     </p>
                 </div>
             </case>
             <case value=@SignupRequirement.MustBeMember>
                 <div class="alert alert-info" role="alert">
                     <p>
-                        Dette arrangementet er kun åpent for klubbens medlemmer.
+                        @Localizer["Dette arrangementet er kun åpent for klubbens medlemmer."]
                     </p>
                     <ul>
-                        <li>Medlemskap i klubbens koster <strong>@FeeCalculation.MembershipFee.FormatMoney()</strong> (ut året).</li>
+                        <li>@Localizer["Medlemskap i klubbens koster <strong>{0}</strong> (ut året).", FeeCalculation.MembershipFee.FormatMoney()]</li>
                     </ul>
                     <p>
-                        Du kan melde deg på nå og betale først når du har fått plass.
+                        @Localizer["Du kan melde deg på nå og betale først når du har fått plass."]
                     </p>
                 </div>
             </case>
             <case value=@SignupRequirement.MustPayMembersPrice>
                 <div class="alert alert-info" role="alert">
                     <p>
-                        Det koster <strong>@Model.PriceForMembers.FormatMoney()</strong> for medlemmer å delta på dette arrangementet.
+                        @Localizer["Det koster <strong>{0}</strong> å delta", Model.PriceForMembers.FormatMoney()]
                     </p>
                     <p>
-                        Du kan melde deg på nå og betale først når du har fått plass.
+                        @Localizer["Du kan melde deg på nå og betale først når du har fått plass."]
                     </p>
                 </div>
             </case>
             <case value=@SignupRequirement.MustPayNonMembersPrice>
                 <div class="alert alert-info" role="alert">
                     <p>
-                        Det koster <strong>@Model.PriceForNonMembers.FormatMoney()</strong> å delta på dette arrangementet.
+                        @Localizer["Det koster <strong>{0}</strong> å delta", Model.PriceForNonMembers.FormatMoney()]
                     </p>
                     @if (Model.PriceForMembers < Model.PriceForNonMembers)
                     {
                         <ul>
-                            <li>Medlemmer av Bårdar Swing Club betaler kun <strong>@Model.PriceForMembers.FormatMoney()</strong> for å delta!</li>
-                            <li>Medlemskap koster <strong>@FeeCalculation.MembershipFee.FormatMoney()</strong> ut året og gir deg rabatt på dette og andre arrangementer.</li>
+                            <li>@Localizer["Medlemmer av Bårdar Swing Club betaler kun <strong>{0}</strong> for å delta!", Model.PriceForMembers.FormatMoney()]</li>
+                            <li>@Localizer["Medlemskap koster <strong>{0}</strong> ut året og gir deg rabatt på dette og andre arrangementer.", FeeCalculation.MembershipFee.FormatMoney()]</li>
                         </ul>
                     }
                     <p>
-                        Du kan melde deg på nå og betale først når du har fått plass.
+                        @Localizer["Du kan melde deg på nå og betale først når du har fått plass."]
                     </p>
                 </div>
             </case>
@@ -127,6 +127,6 @@
         <partial name="_SignupResponse" model=Model />
     </div>
     <div class="card-footer">
-        <button type="submit" class="btn btn-success btn-block">Meld deg på</button>
+        <button type="submit" class="btn btn-success btn-block">@Localizer["Meld deg på"]</button>
     </div>
 </form>
