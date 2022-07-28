@@ -12,8 +12,8 @@ public enum FeeStatus
 public static class FeeCalculation
 {
     public const decimal MembershipFee = 100; // TODO: change this back to 300 before 2022-12-31
-    public const decimal TrainingFee = 425;
-    public const decimal ClassesFee = 900;
+    public const decimal TrainingFee = 500;
+    public const decimal ClassesFee = 1000;
 
     public static (FeeStatus FeeStatus, Fee Fee) GetFee(this User user, string key)
     {
