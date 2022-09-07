@@ -6,6 +6,7 @@ using MemberService.Data;
 using MemberService.Services;
 
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -73,7 +74,7 @@ public class PayController : Controller
             description: fee.Description,
             amount: fee.Amount,
             successUrl: Url.ActionLink(nameof(FeePaid), values: new { fee.Description, returnUrl, sessionId = "{CHECKOUT_SESSION_ID}" }),
-            cancelUrl: returnUrl,
+            cancelUrl: new Uri(new Uri(Request.GetDisplayUrl()), returnUrl).AbsoluteUri,
             includesMembership: fee.IncludesMembership,
             includesTraining: fee.IncludesTraining,
             includesClasses: fee.IncludesClasses);
