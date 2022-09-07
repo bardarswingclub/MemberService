@@ -73,42 +73,49 @@ public class StripePaymentService : IStripePaymentService
     {
         var customerId = await GetCustomerId(email, name);
 
-        var session = await _sessionService.CreateAsync(new SessionCreateOptions
+        try
         {
-            Customer = customerId,
-            PaymentIntentData = new()
+            var session = await _sessionService.CreateAsync(new SessionCreateOptions
             {
-                Description = title,
-                Metadata = new()
+                Customer = customerId,
+                PaymentIntentData = new()
                 {
-                    [Name] = name,
-                    [Email] = email,
-                    [AmountOwed] = amount.ToString(),
-                    [LongDescription] = description,
-                    [ShortDescription] = title,
-                    [IncludesMembership] = includesMembership ? "yes" : "no",
-                    [IncludesTraining] = includesTraining ? "yes" : "no",
-                    [IncludesClasses] = includesClasses ? "yes" : "no",
-                    [Event] = eventId?.ToString()
-                }
-            },
-            PaymentMethodTypes = new() { "card" },
-            LineItems = new()
-            {
-                new()
+                    Description = title,
+                    Metadata = new()
+                    {
+                        [Name] = name,
+                        [Email] = email,
+                        [AmountOwed] = amount.ToString(),
+                        [LongDescription] = description,
+                        [ShortDescription] = title,
+                        [IncludesMembership] = includesMembership ? "yes" : "no",
+                        [IncludesTraining] = includesTraining ? "yes" : "no",
+                        [IncludesClasses] = includesClasses ? "yes" : "no",
+                        [Event] = eventId?.ToString()
+                    }
+                },
+                PaymentMethodTypes = new() { "card" },
+                LineItems = new()
                 {
-                    Name = title,
-                    Description = description,
-                    Amount = (long) amount*100L,
-                    Currency = "nok",
-                    Quantity = 1
-                }
-            },
-            SuccessUrl = successUrl.Replace("%7BCHECKOUT_SESSION_ID%7D", "{CHECKOUT_SESSION_ID}"),
-            CancelUrl = cancelUrl,
-        });
+                    new()
+                    {
+                        Name = title,
+                        Description = description,
+                        Amount = (long)amount * 100L,
+                        Currency = "nok",
+                        Quantity = 1
+                    }
+                },
+                SuccessUrl = successUrl.Replace("%7BCHECKOUT_SESSION_ID%7D", "{CHECKOUT_SESSION_ID}"),
+                CancelUrl = cancelUrl,
+            });
 
-        return session.Url;
+            return session.Url;
+        }
+        catch(StripeException ex) when (ex.Message == "Not a valid URL")
+        {
+            throw new Exception($"Not a valid URL: {successUrl}, {cancelUrl}", ex);
+        }
     }
 
     private async Task<string> GetCustomerId(string email, string name)
