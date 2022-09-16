@@ -59,7 +59,7 @@
                                             Historikk for @signup.FullName
                                             @if (await AuthorizationService.IsAuthorized(User, Model.EventId, Policy.CanEditEventSignup))
                                             {
-                                                <a asp-action="EditSignup" asp-route-id="@signup.Id">Rediger</a>
+                                                <a asp-page="/Event/EditSignup" asp-route-id="@signup.Id">Rediger</a>
                                             }
                                         </h5>
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
