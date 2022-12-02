@@ -149,7 +149,7 @@
             $("[data-action='ajax-form']").submit(e => {
                 e.preventDefault(); // avoid to execute the actual submit of the form.
 
-                var form = $(event.currentTarget);
+                var form = $(e.currentTarget);
                 var url = form.attr('action');
 
                 form.prop('disabled', true);
