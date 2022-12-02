@@ -129,7 +129,7 @@ public class EditOrganizersModel : PageModel
 
         if (organizer != null)
         {
-            var currentUser = await _database.Users.FindAsync(User);
+            var currentUser = await _database.Get(User);
             organizer.UpdatedAt = DateTime.UtcNow;
             organizer.UpdatedByUser = currentUser;
             organizer.CanEdit = CanEdit;
