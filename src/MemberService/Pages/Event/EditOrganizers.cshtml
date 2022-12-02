@@ -35,34 +35,34 @@
                 <td class="text-center">✔</td>
                 <td>
                     <label class="text-center d-block">
-                        <input type="checkbox" form="edit-@organizer.Id" name="CanSetSignupStatus" value="true" checked="@organizer.CanSetSignupStatus">
+                        <input type="checkbox" form="edit-@organizer.Id" name="CanSetSignupStatus" value="true" checked="@organizer.CanSetSignupStatus" onchange="form.submit()">
                     </label>
                 </td>
                 <td>
                     <label class="text-center d-block">
-                        <input type="checkbox" form="edit-@organizer.Id" name="CanSetPresence" value="true" checked="@organizer.CanSetPresence">
+                        <input type="checkbox" form="edit-@organizer.Id" name="CanSetPresence" value="true" checked="@organizer.CanSetPresence" onchange="form.submit()">
                     </label>
                 </td>
                 <td>
                     <label class="text-center d-block">
-                        <input type="checkbox" form="edit-@organizer.Id" name="CanAddPresenceLesson" value="true" checked="@organizer.CanAddPresenceLesson">
+                        <input type="checkbox" form="edit-@organizer.Id" name="CanAddPresenceLesson" value="true" checked="@organizer.CanAddPresenceLesson" onchange="form.submit()">
                     </label>
                 </td>
                 <td>
                     <label class="text-center d-block">
-                        <input type="checkbox" form="edit-@organizer.Id" name="CanEdit" value="true" checked="@organizer.CanEdit">
+                        <input type="checkbox" form="edit-@organizer.Id" name="CanEdit" value="true" checked="@organizer.CanEdit" onchange="form.submit()">
                     </label>
                 </td>
                 <td>
                     <label class="text-center d-block">
-                        <input type="checkbox" form="edit-@organizer.Id" name="CanEditOrganizers" value="true" checked="@organizer.CanEditOrganizers">
+                        <input type="checkbox" form="edit-@organizer.Id" name="CanEditOrganizers" value="true" checked="@organizer.CanEditOrganizers" onchange="form.submit()">
                     </label>
                 </td>
                 @if (await AuthorizationService.IsAuthorized(User, Model.EventId, Policy.CanEditEventSignup))
                 {
                     <td>
                         <label class="text-center d-block">
-                            <input type="checkbox" form="edit-@organizer.Id" name="CanEditSignup" value="true" checked="@organizer.CanEditSignup">
+                            <input type="checkbox" form="edit-@organizer.Id" name="CanEditSignup" value="true" checked="@organizer.CanEditSignup" onchange="form.submit()">
                         </label>
                     </td>
                 }
