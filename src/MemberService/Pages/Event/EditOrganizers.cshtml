@@ -35,34 +35,34 @@
                 <td class="text-center">✔</td>
                 <td>
                     <label class="text-center d-block">
-                        <input type="checkbox" form="edit-@organizer.Id" name="CanSetSignupStatus" value="true" checked="@organizer.CanSetSignupStatus" onchange="form.submit()">
+                        <input type="checkbox" form="edit-@organizer.Id" name="CanSetSignupStatus" value="true" checked="@organizer.CanSetSignupStatus" onchange="$(form).submit()">
                     </label>
                 </td>
                 <td>
                     <label class="text-center d-block">
-                        <input type="checkbox" form="edit-@organizer.Id" name="CanSetPresence" value="true" checked="@organizer.CanSetPresence" onchange="form.submit()">
+                        <input type="checkbox" form="edit-@organizer.Id" name="CanSetPresence" value="true" checked="@organizer.CanSetPresence" onchange="$(form).submit()">
                     </label>
                 </td>
                 <td>
                     <label class="text-center d-block">
-                        <input type="checkbox" form="edit-@organizer.Id" name="CanAddPresenceLesson" value="true" checked="@organizer.CanAddPresenceLesson" onchange="form.submit()">
+                        <input type="checkbox" form="edit-@organizer.Id" name="CanAddPresenceLesson" value="true" checked="@organizer.CanAddPresenceLesson" onchange="$(form).submit()">
                     </label>
                 </td>
                 <td>
                     <label class="text-center d-block">
-                        <input type="checkbox" form="edit-@organizer.Id" name="CanEdit" value="true" checked="@organizer.CanEdit" onchange="form.submit()">
+                        <input type="checkbox" form="edit-@organizer.Id" name="CanEdit" value="true" checked="@organizer.CanEdit" onchange="$(form).submit()">
                     </label>
                 </td>
                 <td>
                     <label class="text-center d-block">
-                        <input type="checkbox" form="edit-@organizer.Id" name="CanEditOrganizers" value="true" checked="@organizer.CanEditOrganizers" onchange="form.submit()">
+                        <input type="checkbox" form="edit-@organizer.Id" name="CanEditOrganizers" value="true" checked="@organizer.CanEditOrganizers" onchange="$(form).submit()">
                     </label>
                 </td>
                 @if (await AuthorizationService.IsAuthorized(User, Model.EventId, Policy.CanEditEventSignup))
                 {
                     <td>
                         <label class="text-center d-block">
-                            <input type="checkbox" form="edit-@organizer.Id" name="CanEditSignup" value="true" checked="@organizer.CanEditSignup" onchange="form.submit()">
+                            <input type="checkbox" form="edit-@organizer.Id" name="CanEditSignup" value="true" checked="@organizer.CanEditSignup" onchange="$(form).submit()">
                         </label>
                     </td>
                 }
@@ -146,22 +146,21 @@
 
     <script>
         $(function () {
-            $("[data-action='ajax-form']").submit(
-                function (e) {
-                    e.preventDefault(); // avoid to execute the actual submit of the form.
+            $("[data-action='ajax-form']").submit(e => {
+                e.preventDefault(); // avoid to execute the actual submit of the form.
 
-                    var form = $(this);
-                    var url = form.attr('action');
+                var form = $(this);
+                var url = form.attr('action');
 
-                    form.prop('disabled', true);
+                form.prop('disabled', true);
 
-                    $.ajax({
-                        type: form.attr('method'),
-                        url: url,
-                        data: form.serialize(), // serializes the form's elements.
-                        success: () => form.prop('disabled', false)
-                    });
+                $.ajax({
+                    type: form.attr('method'),
+                    url: url,
+                    data: form.serialize(), // serializes the form's elements.
+                    success: () => form.prop('disabled', false)
                 });
+            });
         });
     </script>
 }
