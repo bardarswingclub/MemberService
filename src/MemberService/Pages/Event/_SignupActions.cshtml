@@ -42,10 +42,56 @@
                 </div>
             </div>
         </div>
+
+
+        <div class="modal fade" id="modal-@key" tabindex="-1" role="dialog" aria-labelledby="modal-@key-title" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modal-@key-title">
+                            Endre status
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="@key-email-subject">Emne</label>
+                            <input type="text" class="form-control" id="@key-email-subject" name="Subject" value="Info om {TITLE}">
+                        </div>
+                        <div class="form-group">
+                            <label>Send svar til</label>
+                            <input type="text" class="form-control-plaintext" readonly value="@User.GetEmail()">
+                        </div>
+                        <div class="form-group">
+                            <label for="@key-email-message">Melding</label>
+                            <textarea class="form-control" id="@key-email-message" name="Message" rows="8">@EmailBodies.Default</textarea>
+                            <hr />
+                            <small class="text-muted">
+                                Du kan bruke <a href="https://www.markdownguide.org/basic-syntax/" target="_blank">Markdown</a>, f.eks <code>**<b>bold</b>**</code>, <code>_<i>italics</i>_</code> og <code>[link](https://bardarswingclub.no)</code>
+                                <br>
+                                Du kan flette inn
+                                <br>
+                                <code>{NAME}</code>: Personens navn
+                                <br>
+                                <code>{TITLE}</code>: Navnet på arrangementet
+                                <br>
+                                <code>[skriv noe her]({LINK})</code>: Link til arrangementet
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success btn-block" name="SendEmail" value="true">Oppdater status og send epost til påmeldte</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     }
     else if (await AuthorizationService.IsAuthorized(User, Model.Id, Policy.CanSendEventEmail))
     {
-        <input type="hidden" name="handler" value="SendEmail" />
         <div class="col-lg-12 justify-content-end input-group">
             <span class="input-group-prepend">
                 <span class="input-group-text">
@@ -58,50 +104,52 @@
                 </a>
             </div>
         </div>
-    }
-</div>
 
-<div class="modal fade" id="modal-@key" tabindex="-1" role="dialog" aria-labelledby="modal-@key-title" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modal-@key-title">
-                    Endre status
-                </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="@key-email-subject">Emne</label>
-                    <input type="text" class="form-control" id="@key-email-subject" name="Subject" value="Info om {TITLE}">
-                </div>
-                <div class="form-group">
-                    <label>Send svar til</label>
-                    <input type="text" class="form-control-plaintext" readonly value="@User.GetEmail()">
-                </div>
-                <div class="form-group">
-                    <label for="@key-email-message">Melding</label>
-                    <textarea class="form-control" id="@key-email-message" name="Message" rows="8">@EmailBodies.Default</textarea>
-                    <hr />
-                    <small class="text-muted">
-                        Du kan bruke <a href="https://www.markdownguide.org/basic-syntax/" target="_blank">Markdown</a>, f.eks <code>**<b>bold</b>**</code>, <code>_<i>italics</i>_</code> og <code>[link](https://bardarswingclub.no)</code>
-                        <br>
-                        Du kan flette inn
-                        <br>
-                        <code>{NAME}</code>: Personens navn
-                        <br>
-                        <code>{TITLE}</code>: Navnet på arrangementet
-                        <br>
-                        <code>[skriv noe her]({LINK})</code>: Link til arrangementet
-                    </small>
-                </div>
-            </div>
 
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-success btn-block" name="SendEmail" value="true">Oppdater status og send melding til påmeldte</button>
+        <div class="modal fade" id="modal-@key" tabindex="-1" role="dialog" aria-labelledby="modal-@key-title" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modal-@key-title">
+                            Send epost
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="@key-email-subject">Emne</label>
+                            <input type="text" class="form-control" id="@key-email-subject" name="Subject" value="Info om {TITLE}">
+                        </div>
+                        <div class="form-group">
+                            <label>Send svar til</label>
+                            <input type="text" class="form-control-plaintext" readonly value="@User.GetEmail()">
+                        </div>
+                        <div class="form-group">
+                            <label for="@key-email-message">Melding</label>
+                            <textarea class="form-control" id="@key-email-message" name="Message" rows="8">@EmailBodies.Default</textarea>
+                            <hr />
+                            <small class="text-muted">
+                                Du kan bruke <a href="https://www.markdownguide.org/basic-syntax/" target="_blank">Markdown</a>, f.eks <code>**<b>bold</b>**</code>, <code>_<i>italics</i>_</code> og <code>[link](https://bardarswingclub.no)</code>
+                                <br>
+                                Du kan flette inn
+                                <br>
+                                <code>{NAME}</code>: Personens navn
+                                <br>
+                                <code>{TITLE}</code>: Navnet på arrangementet
+                                <br>
+                                <code>[skriv noe her]({LINK})</code>: Link til arrangementet
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success btn-block" name="SendEmail" value="true" asp-page-handler="sendEmail">Send epost til påmeldte</button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+
+    }
 </div>
