@@ -77,8 +77,8 @@ public class FeeCalculationTests
         status.ShouldBe(FeeStatus.Unpaid);
 
         fee.Description.ShouldBe("Medlemskap og treningsavgift");
-        fee.Amount.ShouldBe(800);
-        fee.AmountInCents.ShouldBe(800_00);
+        fee.Amount.ShouldBe(900);
+        fee.AmountInCents.ShouldBe(900_00);
         fee.IncludesMembership.ShouldBeTrue();
         fee.IncludesTraining.ShouldBeTrue();
         fee.IncludesClasses.ShouldBeFalse();
@@ -120,8 +120,8 @@ public class FeeCalculationTests
         status.ShouldBe(FeeStatus.Unpaid);
 
         fee.Description.ShouldBe("Medlemskap og treningsavgift");
-        fee.Amount.ShouldBe(800);
-        fee.AmountInCents.ShouldBe(800_00);
+        fee.Amount.ShouldBe(900);
+        fee.AmountInCents.ShouldBe(900_00);
         fee.IncludesMembership.ShouldBeTrue();
         fee.IncludesTraining.ShouldBeTrue();
         fee.IncludesClasses.ShouldBeFalse();
@@ -143,8 +143,8 @@ public class FeeCalculationTests
         status.ShouldBe(FeeStatus.Unpaid);
 
         fee.Description.ShouldBe("Treningsavgift");
-        fee.Amount.ShouldBe(500);
-        fee.AmountInCents.ShouldBe(500_00);
+        fee.Amount.ShouldBe(600);
+        fee.AmountInCents.ShouldBe(600_00);
         fee.IncludesMembership.ShouldBeFalse();
         fee.IncludesTraining.ShouldBeTrue();
         fee.IncludesClasses.ShouldBeFalse();
@@ -160,8 +160,8 @@ public class FeeCalculationTests
         status.ShouldBe(FeeStatus.Unpaid);
 
         fee.Description.ShouldBe("Medlemskap og kursavgift");
-        fee.Amount.ShouldBe(1300);
-        fee.AmountInCents.ShouldBe(1300_00);
+        fee.Amount.ShouldBe(1500);
+        fee.AmountInCents.ShouldBe(1500_00);
         fee.IncludesMembership.ShouldBeTrue();
         fee.IncludesTraining.ShouldBeTrue();
         fee.IncludesClasses.ShouldBeTrue();
@@ -205,8 +205,8 @@ public class FeeCalculationTests
         status.ShouldBe(FeeStatus.Unpaid);
 
         fee.Description.ShouldBe("Medlemskap og kursavgift");
-        fee.Amount.ShouldBe(1300);
-        fee.AmountInCents.ShouldBe(1300_00);
+        fee.Amount.ShouldBe(1500);
+        fee.AmountInCents.ShouldBe(1500_00);
         fee.IncludesMembership.ShouldBeTrue();
         fee.IncludesTraining.ShouldBeTrue();
         fee.IncludesClasses.ShouldBeTrue();
@@ -228,8 +228,8 @@ public class FeeCalculationTests
         status.ShouldBe(FeeStatus.Unpaid);
 
         fee.Description.ShouldBe("Kursavgift");
-        fee.Amount.ShouldBe(1000);
-        fee.AmountInCents.ShouldBe(1000_00);
+        fee.Amount.ShouldBe(1200);
+        fee.AmountInCents.ShouldBe(1200_00);
         fee.IncludesMembership.ShouldBeFalse();
         fee.IncludesTraining.ShouldBeTrue();
         fee.IncludesClasses.ShouldBeTrue();
@@ -252,8 +252,8 @@ public class FeeCalculationTests
         status.ShouldBe(FeeStatus.Unpaid);
 
         fee.Description.ShouldBe("Kursavgift");
-        fee.Amount.ShouldBe(500);
-        fee.AmountInCents.ShouldBe(500_00);
+        fee.Amount.ShouldBe(600);
+        fee.AmountInCents.ShouldBe(600_00);
         fee.IncludesMembership.ShouldBeFalse();
         fee.IncludesTraining.ShouldBeFalse();
         fee.IncludesClasses.ShouldBeTrue();
@@ -307,8 +307,8 @@ public class FeeCalculationTests
         status.ShouldBe(FeeStatus.Unpaid);
 
         fee.Description.ShouldBe("Medlemskap og kursavgift");
-        fee.Amount.ShouldBe(800);
-        fee.AmountInCents.ShouldBe(800_00);
+        fee.Amount.ShouldBe(900);
+        fee.AmountInCents.ShouldBe(900_00);
         fee.IncludesMembership.ShouldBeTrue();
         fee.IncludesTraining.ShouldBeFalse();
         fee.IncludesClasses.ShouldBeTrue();
@@ -331,8 +331,8 @@ public class FeeCalculationTests
         status.ShouldBe(FeeStatus.Unpaid);
 
         fee.Description.ShouldBe("Kursavgift");
-        fee.Amount.ShouldBe(500);
-        fee.AmountInCents.ShouldBe(500_00);
+        fee.Amount.ShouldBe(600);
+        fee.AmountInCents.ShouldBe(600_00);
         fee.IncludesMembership.ShouldBeFalse();
         fee.IncludesTraining.ShouldBeFalse();
         fee.IncludesClasses.ShouldBeTrue();
@@ -444,8 +444,8 @@ public class FeeCalculationTests
         status.ShouldBe(FeeStatus.Unpaid);
 
         fee.Description.ShouldBe("Medlemskap og treningsavgift");
-        fee.Amount.ShouldBe(800);
-        fee.AmountInCents.ShouldBe(800_00);
+        fee.Amount.ShouldBe(900);
+        fee.AmountInCents.ShouldBe(900_00);
         fee.IncludesMembership.ShouldBeTrue();
         fee.IncludesTraining.ShouldBeTrue();
         fee.IncludesClasses.ShouldBeFalse();
