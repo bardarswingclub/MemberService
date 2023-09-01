@@ -67,13 +67,16 @@ public partial class SurveyModel
             [DisplayName("Beskrivelse")]
             public string Description { get; set; }
 
+            public bool HasAnswers { get; set; }
+
             [Expressionify]
             public static OptionModel Create(QuestionOption o)
                 => new()
                 {
                     Id = o.Id,
                     Title = o.Title,
-                    Description = o.Description
+                    Description = o.Description,
+                    HasAnswers = o.Answers.Any(),
                 };
         }
     }

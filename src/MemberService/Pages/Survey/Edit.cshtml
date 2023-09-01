@@ -45,7 +45,7 @@
                                 Alternativ @(i + 1)
                             </span>
 
-                            <button type="submit" name="options[@i].Action" value="delete" class="btn btn-outline-danger">Fjern</button>
+                            <button type="submit" name="options[@i].Action" value="delete" class="btn btn-outline-danger" onclick="@(options[i].HasAnswers ? "confirm('Folk har svart på dette spørsmålet, er du sikker på at du vil slette det?') || event.preventDefault()" : null)">Fjern</button>
                         </h5>
                         <input type="hidden" asp-for="@options[i].Id" />
                         <div class="form-group row">
@@ -69,7 +69,7 @@
             </div>
             <div class="card-footer d-flex justify-content-between">
                 <button type="submit" class="btn btn-success">Lagre</button>
-                <button type="submit" class="btn btn-outline-danger" name="action" value="delete">Slett</button>
+                <button type="submit" class="btn btn-outline-danger" name="action" value="delete" onclick="@(options.Any(o => o.HasAnswers) ? "confirm('Folk har svart på dette spørsmålet, er du sikker på at du vil slette det?') || event.preventDefault()" : null)">Slett</button>
             </div>
         </form>
     }
