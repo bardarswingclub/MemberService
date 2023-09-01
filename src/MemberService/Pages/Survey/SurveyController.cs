@@ -159,12 +159,22 @@ public class SurveyController : Controller
 
             if (o.Action == "delete")
             {
+                var answers = await _database.QuestionAnswers.Where(a => a.OptionId == option.Id).ToListAsync();
+                foreach (var answer in answers)
+                {
+                    _database.QuestionAnswers.Remove(answer);
+                }
                 question.Options.Remove(option);
             }
         }
 
         if (action == "delete")
         {
+            var answers = await _database.QuestionAnswers.Where(a => a.Option.QuestionId == questionId).ToListAsync();
+            foreach(var answer in answers)
+            {
+                _database.QuestionAnswers.Remove(answer);
+            }
             _database.Questions.Remove(question);
         }
         else if (action == "add-option")
