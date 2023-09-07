@@ -1,5 +1,7 @@
 ﻿namespace MemberService.Pages.Survey;
 
+using MemberService.Data.ValueTypes;
+
 public class QuestionInput
 {
     public string Title { get; set; }
@@ -7,6 +9,8 @@ public class QuestionInput
     public string Description { get; set; }
 
     public IList<OptionInput> Options { get; set; } = new List<OptionInput>();
+
+    public QuestionType Type { get; set; }
 
     public class OptionInput
     {

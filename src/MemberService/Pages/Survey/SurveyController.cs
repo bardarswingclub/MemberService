@@ -150,6 +150,7 @@ public class SurveyController : Controller
 
         question.Title = input.Title;
         question.Description = input.Description;
+        question.Type = input.Type;
 
         foreach (var (o, option) in input.Options.Join(question.Options, o => o.Id, o => o.Id))
         {

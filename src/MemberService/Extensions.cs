@@ -74,11 +74,11 @@ public static class Extensions
 
     public static string DisplayName<T>(this T enumValue)
         where T : Enum
-        => Global.Services.GetRequiredService<IStringLocalizer<T>>()[enumValue.GetAttribute<DisplayAttribute>().Name];
+        => Global.Services.GetRequiredService<IStringLocalizer<T>>()[enumValue.GetAttribute<DisplayAttribute>()?.Name ?? "missing"];
 
     public static string DisplayDescription<T>(this T enumValue)
         where T : Enum
-        => Global.Services.GetRequiredService<IStringLocalizer<T>>()[enumValue.GetAttribute<DisplayAttribute>()?.Description ?? enumValue.GetAttribute<DescriptionAttribute>().Description];
+        => Global.Services.GetRequiredService<IStringLocalizer<T>>()[enumValue.GetAttribute<DisplayAttribute>()?.Description ?? enumValue.GetAttribute<DescriptionAttribute>()?.Description ?? "missing"];
 
     private static TAttribute GetAttribute<TAttribute>(this Enum enumValue)
         where TAttribute : Attribute
