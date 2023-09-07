@@ -12,7 +12,10 @@ using MemberService.Data;
 using MemberService.Services;
 using MemberService.Services.Vipps;
 
+using Microsoft.ApplicationInsights.Channel;
+using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.DependencyCollector;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
@@ -190,6 +193,7 @@ services
 
 services
     .AddApplicationInsightsTelemetry()
+    .AddApplicationInsightsTelemetryProcessor<Fix404Filter>()
     .ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module, o) =>
     {
         module.EnableSqlCommandTextInstrumentation = true;
@@ -267,4 +271,27 @@ static Task EnsureUserHasFullName(HttpContext ctx, Func<Task> next)
 public static class Global
 {
     public static IServiceProvider Services { get; set; }
+}
+
+public class Fix404Filter : ITelemetryProcessor
+{
+    private ITelemetryProcessor Next { get; set; }
+
+    // next will point to the next TelemetryProcessor in the chain.
+    public Fix404Filter(ITelemetryProcessor next)
+    {
+        Next = next;
+    }
+
+    public void Process(ITelemetry item)
+    {
+        if(item is RequestTelemetry requestItem)
+        {
+            var method = requestItem.Name.Split(' ').FirstOrDefault("UNKNOWN");
+
+            requestItem.Name = $"{method} {requestItem.Url.AbsolutePath}";
+        }
+
+        Next.Process(item);
+    }
 }

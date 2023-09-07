@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using MemberService.Data;
 using MemberService.Auth;
 using Microsoft.AspNetCore.Authorization;
+using System.ComponentModel.DataAnnotations;
 
 [Authorize(nameof(Policy.CanEditSemesterRoles))]
 public class RolesModel : PageModel
@@ -55,8 +56,13 @@ public class RolesModel : PageModel
         return Page();
     }
 
-    public async Task<IActionResult> OnPostAddAsync([FromForm] string userId, [FromForm] SemesterRole.RoleType role)
+    public async Task<IActionResult> OnPostAddAsync([FromForm][Required] string userId, [FromForm][Required] SemesterRole.RoleType role)
     {
+        if(!ModelState.IsValid)
+        {
+            return RedirectToPage();
+        }
+
         var id = await _database.Semesters
             .Current(s => s.Id);
 

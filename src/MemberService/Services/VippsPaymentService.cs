@@ -86,7 +86,7 @@ public class VippsPaymentService : IVippsPaymentService
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogError(ex, "Concurrency issue");
+            _logger.LogWarning(ex, "Concurrency issue");
         }
     }
 
@@ -109,7 +109,7 @@ public class VippsPaymentService : IVippsPaymentService
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogError(ex, "Concurrency issue");
+            _logger.LogWarning(ex, "Concurrency issue");
         }
 
         return result;
