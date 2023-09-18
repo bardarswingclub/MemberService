@@ -123,9 +123,12 @@ public class VippsPaymentService : IVippsPaymentService
         if (paymentDetails?.TransactionSummary?.RemainingAmountToCapture > 0)
         {
             success = await Capture(reservation);
-        }
 
-        _database.VippsReservations.Remove(reservation);
+            if (success)
+            {
+                _database.VippsReservations.Remove(reservation);
+            }
+        }
 
         return success;
     }
