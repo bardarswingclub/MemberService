@@ -26,7 +26,7 @@
                         <li>@Localizer["Kursavgiften koster <strong>{0}</strong> (dette semesteret).", Model.MustPayAmount.FormatMoney()]</li>
                     </ul>
                     <div class="text-center">
-                        <vc:pay-fee type=@Fee.Classes label="@Localizer["Betal kursavgift"]" />
+                        <vc:pay-fee type=@Fee.Classes label="@Localizer["Betal kursavgift"].Value" />
                     </div>
                 </case>
                 <case value=@SignupRequirement.MustPayClassesFee>
@@ -46,7 +46,7 @@
                         <li>@Localizer["Treningsavgiften koster <strong>{0}</strong> (dette semesteret).", Model.MustPayAmount.FormatMoney()]</li>
                     </ul>
                     <div class="text-center">
-                        <vc:pay-fee type=@Fee.Training label="@Localizer["Betal treningsavgift"]" />
+                        <vc:pay-fee type=@Fee.Training label="@Localizer["Betal treningsavgift"].Value" />
                     </div>
                 </case>
                 <case value=@SignupRequirement.MustPayTrainingFee>
@@ -66,7 +66,7 @@
                         <li>@Localizer["Medlemskap i klubben koster <strong>{0}</strong> (ut året).", Model.MustPayAmount.FormatMoney()]</li>
                     </ul>
                     <div class="text-center">
-                        <vc:pay-fee type=@Fee.Membership label="@Localizer["Bli medlem"]" />
+                        <vc:pay-fee type=@Fee.Membership label="@Localizer["Bli medlem"].Value" />
                     </div>
                 </case>
                 <case value=@SignupRequirement.MustBeMember>
@@ -104,7 +104,7 @@
                             <li>@Localizer["Medlemskap koster <strong>{0}</strong> ut året og gir deg rabatt på dette og andre arrangementer.", FeeCalculation.MembershipFee.FormatMoney()]</li>
                         </ul>
                         <div class="text-center">
-                            <vc:pay-fee label="@Localizer["Bli medlem"]" type=@Fee.Membership amount=@FeeCalculation.MembershipFee />
+                            <vc:pay-fee label="@Localizer["Bli medlem"].Value" type=@Fee.Membership amount=@FeeCalculation.MembershipFee />
                         </div>
                     </details>
                 }

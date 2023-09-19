@@ -80,7 +80,7 @@ services.AddHttpClient("Vipps", client =>
 services
     .AddDbContext<MemberContext>(o => o
         .UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
-        .UseExpressionify());
+        .UseExpressionify(o => o.WithEvaluationMode(ExpressionEvaluationMode.FullCompatibilityButSlow)));
 
 services
     .AddDataProtection()

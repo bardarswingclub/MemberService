@@ -95,15 +95,22 @@ public class StripePaymentService : IStripePaymentService
                     }
                 },
                 PaymentMethodTypes = new() { "card" },
+                Mode = "payment",
                 LineItems = new()
                 {
                     new()
                     {
-                        Name = title,
-                        Description = description,
-                        Amount = (long)amount * 100L,
-                        Currency = "nok",
-                        Quantity = 1
+                        Quantity = 1,
+                        PriceData = new()
+                        {
+                            UnitAmount = (long)amount * 100L,
+                            Currency = "nok",
+                            ProductData = new()
+                            {
+                                Name = title,
+                                Description = description,
+                            }
+                        }
                     }
                 },
                 SuccessUrl = successUrl.Replace("%7BCHECKOUT_SESSION_ID%7D", "{CHECKOUT_SESSION_ID}"),
