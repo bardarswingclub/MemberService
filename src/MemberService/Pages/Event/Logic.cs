@@ -210,7 +210,7 @@ public static class Logic
                         Options = q.Options.Select(o => new QuestionOption
                         {
                             Title = o.Title,
-                            Description = q.Description
+                            Description = o.Description
                         }).ToList()
                     }).ToList()
                 },
