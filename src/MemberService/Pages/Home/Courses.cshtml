@@ -99,13 +99,18 @@
             <button type="submit" class="btn btn-success btn-block">Ja, jeg er ferdig!</button>
         </div>
     }
-    else
-    {
-        <div class="card-body">
-            <p class="text-center text-muted font-italic">
-                Det finnes ingen @(Model.Courses.Any() ? "flere" : "") kurs du kan melde deg på
-            </p>
-        </div>
+    else if (Model.Sortable)
+        {
+            <div class="card-footer">
+                <p>Du kan ikke melde deg på flere kurs, men du kan endre rekkefølgen på dem</p>
+                <button type="submit" class="btn btn-success btn-block">OK, jeg er ferdig!</button>
+            </div>
+        } else {
+            <div class="card-body">
+                <p class="text-center text-muted font-italic">
+                    Det finnes ingen @(Model.Courses.Any() ? "flere" : "") kurs du kan melde deg på
+                </p>
+            </div>
     }
     <div class="card-footer text-center">
         <a asp-page="/Home/Fees">Jeg vil ikke gå kurs, jeg vil bare bli medlem</a>
@@ -121,15 +126,6 @@
                 placeholder: '<div class="list-group-item bg-light pt-1 pb-1"><div class="lead text-center">Endre prioritet på kurset</div></div>',
                 handle: '.sort-drag'
                 //placeholderClass: 'none'
-            });
-
-            $(sortableGroup).on('sortupdate', function (e) {
-                var group = $(e.originalEvent.detail.item);
-
-                var form = group.parents('form');
-                if (form[0].checkValidity()) {
-                    form.submit();
-                }
             });
 
             var select = $("#class-select");
@@ -176,11 +172,6 @@
                 // enable the select option again
                 $("option[value=" + id + "]").prop("disabled", false);
             });
-
-            $("#courses-form").on("submit",
-                function(e) {
-
-                });
         })
     </script>
 }
