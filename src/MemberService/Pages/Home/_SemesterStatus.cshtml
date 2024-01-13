@@ -52,7 +52,12 @@
                 </div>
             }
         </div>
-        @if (Model.AnyOpenSignups)
+        @if (Model.Signups.All(s => s.Status == Status.Pending)) {
+            <div class="card-body text-center">
+                <a asp-action="Courses" class="btn btn-sm btn-outline-primary">Endre prioritet på kurs</a>
+            </div>
+        }
+        else if (Model.AnyOpenSignups)
         {
             <div class="card-body text-center">
                 <a asp-action="Courses" class="btn btn-sm btn-outline-primary">Meld deg på flere kurs</a>
