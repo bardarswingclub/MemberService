@@ -65,6 +65,7 @@ public class EditModel : PageModel
         AllowPartnerSignup = model.SignupOptions.AllowPartnerSignup;
         AllowPartnerSignupHelp = model.SignupOptions.AllowPartnerSignupHelp;
         SurveyId = model.SurveyId;
+
         Input = new()
         {
             Role = signup.Role,
@@ -121,6 +122,34 @@ public class EditModel : PageModel
                 return RedirectToPage(new { id });
             }
 
+            await _database.SaveChangesAsync();
+        }
+
+        if (redirectTo == null)
+        {
+            return RedirectToAction(nameof(SignupController.Event), "Signup", new { id });
+        }
+        else
+        {
+            return Redirect(redirectTo);
+        }
+    }
+
+    public async Task<IActionResult> OnPostReject(Guid id, string redirectTo = null)
+    {
+        var model = await _database.GetEditableEvent(id);
+
+        if (model == null)
+        {
+            return NotFound();
+        }
+
+        var user = await _database.GetEditableUser(User.GetId());
+
+        if (user.GetEditableEvent(id) is EventSignup eventSignup)
+        {
+            eventSignup.Status = Data.ValueTypes.Status.RejectedOrNotPayed;
+            eventSignup.AuditLog.Add("Rejected", user);
             await _database.SaveChangesAsync();
         }
 
