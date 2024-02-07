@@ -1,11 +1,14 @@
 using System.ComponentModel;
 using System.Linq.Expressions;
+using System.Text;
 
 using Clave.Expressionify;
+using Clave.ExtensionMethods;
 
 using MemberService.Auth;
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
+using MemberService.Pages.Shared;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -68,6 +71,54 @@ public partial class SurveyModel : PageModel
         Filter = filter;
 
         return Page();
+    }
+
+    public async Task<IActionResult> OnGetDownload(Guid id)
+    {
+        var model = await _database.Surveys
+            .Select(s => new
+            {
+                EventId = s.Event.Id,
+                Questions = s.Questions
+                    .Select(q => q.Title)
+                    .ToList(),
+                Signups = s.Event.Signups
+                    .Select(s => new
+                    {
+                        Name = s.User.FullName,
+                        Email = s.User.Email,
+                        Role = s.Role,
+                        Status = s.Status
+                    })
+                    .ToList(),
+                Responses = s.Event.Signups
+                    .Select(s => new
+                    {
+                        Responses = s.Response.Answers.Select(a => new
+                        {
+                            Question = a.Option.Question.Title,
+                            Answer = a.Option.Title
+                        })
+                    })
+                    .ToList()
+            })
+            .FirstOrDefaultAsync(s => s.EventId == id);
+
+        var csv = model.Signups.ToCsv();
+
+        csv = csv.Split(Environment.NewLine).Select((line, i) =>
+        {
+            if (i == 0)
+            {
+                return line + ", " + model.Questions.Join(", ");
+            }
+            else
+            {
+                return line + ", " + model.Questions.Select(q => model.Responses[i - 1].Responses.Where(r => r.Question == q).Select(r => r.Answer).Join(" & ")).Join(", ");
+            }
+        }).Join(Environment.NewLine);
+
+        return new CsvResult(csv, "survey.csv");
     }
 
     private static Expression<Func<EventSignup, bool>> GetFilter(string filter) =>

@@ -15,7 +15,7 @@
         <a class="float-right btn btn-outline-primary" asp-controller="Survey" asp-action="Edit" asp-route-id="@Model.Id">
             Rediger
         </a>
-    }    
+    }
 </h2>
 
 @if (Model.Questions.NotAny())
@@ -45,6 +45,7 @@ else
             @*<span class="badge badge-light">@Model.SignupsByPaid</span>*@
         </button>
     </form>
+    <a class="btn btn-link d-inline" asp-page-handler="download"><i class="bi-download"></i> CSV fil</a>
 
     <div class="card-columns card-columns-2 mt-5">
         @foreach (var question in Model.Questions)
