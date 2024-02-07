@@ -10,10 +10,14 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2CFE0730-0C5B-4D24-8763-8E36B6E24BC8}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		azure-pipelines.yml = azure-pipelines.yml
-		pipelines\build.yml = pipelines\build.yml
-		pipelines\deploy.yml = pipelines\deploy.yml
+		.github\workflows\build.yml = .github\workflows\build.yml
 		Readme.md = Readme.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{B0F0F466-4467-48B6-A43A-F911E5796CEC}"
+	ProjectSection(SolutionItems) = preProject
+		infrastructure\appsettings.bicep = infrastructure\appsettings.bicep
+		infrastructure\main.bicep = infrastructure\main.bicep
 	EndProjectSection
 EndProject
 Global
@@ -33,6 +37,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B0F0F466-4467-48B6-A43A-F911E5796CEC} = {2CFE0730-0C5B-4D24-8763-8E36B6E24BC8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {76B574ED-AF12-4382-8C0E-0D3D89D8B7C3}

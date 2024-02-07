@@ -5,7 +5,7 @@
     <h2 class="card-header text-center">
         Kurs @Model?.Title
     </h2>
-    @if (Model?.SignupOpensAt > TimeProvider.UtcNow)
+    @if (Model?.SignupOpensAt > MemberService.TimeProvider.UtcNow)
     {
         <div class="card-body text-center pt-5 pb-5">
             <p style="font-size: 1.2em">
