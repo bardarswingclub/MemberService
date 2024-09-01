@@ -8,6 +8,8 @@ public static class Roles
 
     public const string STYRET = "Styret";
 
+    public const string WORKSHOPADM = "Workshopadm";
+
     public static string[] All { get; } = typeof(Roles)
         .GetFields()
         .Select(p => p.GetValue(null))
