@@ -37,9 +37,9 @@ public class RoleRequirementsHandler : IAuthorizationHandler
             Policy.CanToggleRoles => user.IsInAnyRole(R.ADMIN),
             Policy.CanToggleUserFeeExemption => user.IsInAnyRole(R.STYRET),
 
-            Policy.CanCreateEvent => user.IsInAnyRole(R.FESTKOM, R.STYRET),
+            Policy.CanCreateEvent => user.IsInAnyRole(R.FESTKOM, R.STYRET, R.WORKSHOPADM),
 
-            Policy.CanListEvents => user.IsInAnyRole(R.STYRET, R.FESTKOM),
+            Policy.CanListEvents => user.IsInAnyRole(R.STYRET, R.FESTKOM, R.WORKSHOPADM),
             Policy.CanViewEvent => user.IsInAnyRole(R.STYRET),
             Policy.CanEditEventOrganizers => user.IsInAnyRole(R.STYRET),
 
