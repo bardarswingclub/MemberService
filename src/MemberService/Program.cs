@@ -61,15 +61,6 @@ services
         .GetRequiredService<IUrlHelperFactory>()
         .GetUrlHelper(x.GetRequiredService<IActionContextAccessor>().ActionContext));
 
-services.AddHttpClient("Vipps-auth", client =>
-{
-    client.BaseAddress = new Uri(config.Vipps.BaseUrl);
-    client.DefaultRequestHeaders.Add("client_id", config.Authentication.Vipps.ClientId);
-    client.DefaultRequestHeaders.Add("client_secret", config.Authentication.Vipps.ClientSecret);
-    client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", config.Vipps.SubscriptionKey);
-    client.Timeout = TimeSpan.FromSeconds(5);
-});
-
 services.AddHttpClient("Vipps", client =>
 {
     client.BaseAddress = new Uri(config.Vipps.BaseUrl);
@@ -157,24 +148,6 @@ services
         options.AppId = config.Authentication.Facebook.AppId;
         options.AppSecret = config.Authentication.Facebook.AppSecret;
         options.AccessDeniedPath = "/account/accessDenied";
-    })
-    .AddOpenIdConnect("Vipps", "Vipps", options =>
-    {
-        options.Authority = $"{config.Vipps.BaseUrl}/access-management-1.0/access/";
-        options.ClientId = config.Authentication.Vipps.ClientId;
-        options.ClientSecret = config.Authentication.Vipps.ClientSecret;
-        options.AccessDeniedPath = "/account/accessDenied";
-        options.CallbackPath = "/signin-vipps";
-        options.ResponseType = "code";
-        options.Scope.Clear();
-        options.Scope.Add("openid");
-        options.Scope.Add("email");
-        options.Scope.Add("name");
-        //options.Scope.Add("api_version_2");
-        options.GetClaimsFromUserInfoEndpoint = true;
-        options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
-        options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
-        options.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "given_name");
     });
 
 services
