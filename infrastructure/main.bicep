@@ -28,6 +28,9 @@ module testAppSettings './appsettings.bicep' = {
       'Authentication:Vipps:ClientSecret': '@Microsoft.KeyVault(VaultName=${vaultName};SecretName=Vipps-ClientSecret)'
       'Vipps:SubscriptionKey': '@Microsoft.KeyVault(VaultName=${vaultName};SecretName=Vipps-SubscriptionKey)'
       'Vipps:MerchantSerialNumber': '@Microsoft.KeyVault(VaultName=${vaultName};SecretName=Vipps-MerchantSerialNumber)'
+       'SmtpSettings:Password': '@Microsoft.KeyVault(VaultName=${vaultName};SecretName=GoogleAppPassword)'
+      'SmtpSettings:Username': '@Microsoft.KeyVault(VaultName=${vaultName};SecretName=GoogleAppUsername)'
+      'SmtpSettings:SenderEmail': '@Microsoft.KeyVault(VaultName=${vaultName};SecretName=GoogleAppUsername)'
     }
   }
 }
