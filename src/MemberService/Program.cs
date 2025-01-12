@@ -61,14 +61,14 @@ services
         .GetRequiredService<IUrlHelperFactory>()
         .GetUrlHelper(x.GetRequiredService<IActionContextAccessor>().ActionContext));
 
-/*services.AddHttpClient("Vipps-auth", client =>
+services.AddHttpClient("Vipps-auth", client =>
 {
     client.BaseAddress = new Uri(config.Vipps.BaseUrl);
     client.DefaultRequestHeaders.Add("client_id", config.Authentication.Vipps.ClientId);
     client.DefaultRequestHeaders.Add("client_secret", config.Authentication.Vipps.ClientSecret);
     client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", config.Vipps.SubscriptionKey);
     client.Timeout = TimeSpan.FromSeconds(5);
-});*/
+});
 
 services.AddHttpClient("Vipps", client =>
 {
@@ -158,7 +158,7 @@ services
         options.AppSecret = config.Authentication.Facebook.AppSecret;
         options.AccessDeniedPath = "/account/accessDenied";
     })
-    .AddOpenIdConnect("Vipps", "Vipps", options =>
+    /*.AddOpenIdConnect("Vipps", "Vipps", options =>
     {
         options.Authority = $"{config.Vipps.BaseUrl}/access-management-1.0/access/";
         options.ClientId = config.Authentication.Vipps.ClientId;
@@ -175,7 +175,7 @@ services
         options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
         options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
         options.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "given_name");
-    });
+    })*/;
 
 services
     .Configure<CookiePolicyOptions>(options =>
