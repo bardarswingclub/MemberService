@@ -61,14 +61,14 @@ services
         .GetRequiredService<IUrlHelperFactory>()
         .GetUrlHelper(x.GetRequiredService<IActionContextAccessor>().ActionContext));
 
-/*services.AddHttpClient("Vipps-auth", client =>
+services.AddHttpClient("Vipps-auth", client =>
 {
     client.BaseAddress = new Uri(config.Vipps.BaseUrl);
     client.DefaultRequestHeaders.Add("client_id", config.Authentication.Vipps.ClientId);
     client.DefaultRequestHeaders.Add("client_secret", config.Authentication.Vipps.ClientSecret);
     client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", config.Vipps.SubscriptionKey);
     client.Timeout = TimeSpan.FromSeconds(5);
-});*/
+});
 
 services.AddHttpClient("Vipps", client =>
 {
