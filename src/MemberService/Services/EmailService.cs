@@ -46,11 +46,18 @@ public class EmailService : IEmailService
             replyTo != null ? new MailboxAddress(replyTo.Email, replyTo.FullName) : null);
     }
     
-    public async Task SendEmailAsync(string toAddress, string toEmail, string subject, string message, MailboxAddress replyTo = null)
+    public async Task SendEmailAsync(string toAddress, string toName, string subject, string message, MailboxAddress replyTo = null)
     {
+#if DEBUG
+        await Console.Out.WriteLineAsync($"Email address: {toAddress} ({toName})");
+        await Console.Out.WriteLineAsync($"From: {replyTo}");
+        await Console.Out.WriteLineAsync($"Subject: {subject}");
+        await Console.Out.WriteLineAsync("Email body:");
+        await Console.Out.WriteLineAsync(message);
+#else
         var emailMessage = new MimeMessage();
         emailMessage.From.Add(new MailboxAddress(_configuration["SmtpSettings:SenderName"], _configuration["SmtpSettings:SenderEmail"]));
-        emailMessage.To.Add(new MailboxAddress(toAddress, toEmail));
+        emailMessage.To.Add(new MailboxAddress(toName, toAddress));
         if (replyTo != null){
             emailMessage.ReplyTo.Add(replyTo);
         }
@@ -63,6 +70,7 @@ public class EmailService : IEmailService
             await client.SendAsync(emailMessage);
             await client.DisconnectAsync(true);
         }
+#endif
     }
 
     private static string Replace(string value, User user, EventStatusModel model)
