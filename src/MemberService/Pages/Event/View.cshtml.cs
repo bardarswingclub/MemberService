@@ -243,7 +243,7 @@ public class ViewModel : PageModel
                     {
                         // Mail sending might fail, but that should't stop us
                         eventSignup.AuditLog.Add($"Tried to send email, but failed with message {e.Message}", currentUser);
-                        _logger.LogError(e, $"Failed to send email to {eventSignup.User.Email}");
+                        _logger.LogError(e, $"Failed to send email to {eventSignup.User.Email} {e.Message}");
                         failures.Add($"Klarte ikke sende epost til {eventSignup.User.FullName} ({eventSignup.User.Email})");
                     }
                 }

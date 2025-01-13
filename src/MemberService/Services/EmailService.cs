@@ -43,7 +43,7 @@ public class EmailService : IEmailService
             to.Email, to.FullName,
             Replace(subject, to, eventStatusModel),
             Markdown.ToHtml(Replace(message, to, eventStatusModel)),
-            replyTo != null ? new MailboxAddress(replyTo.Email, replyTo.FullName) : null);
+            replyTo != null ? new MailboxAddress(replyTo.FullName, replyTo.Email) : null);
     }
     
     public async Task SendEmailAsync(string toAddress, string toName, string subject, string message, MailboxAddress replyTo = null)
