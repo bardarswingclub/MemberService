@@ -62,7 +62,7 @@ jobs:
         if: success()
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
-        uses: voxmedia/github-action-slack-notify-build@v1
+        uses: voxmedia/github-action-slack-notify-build@v2
         with:
           channel: edb
           status: BUILD COMPLETED
@@ -73,7 +73,7 @@ jobs:
         if: failure()
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
-        uses: voxmedia/github-action-slack-notify-build@v1
+        uses: voxmedia/github-action-slack-notify-build@v2
         with:
           channel: edb
           status: BUILD FAILED
@@ -88,7 +88,7 @@ jobs:
     environment:
       name: Test
     steps:
-      - uses: voxmedia/github-action-slack-notify-build@v1
+      - uses: voxmedia/github-action-slack-notify-build@v2
         with:
           channel: edb
           status: TEST DEPLOY STARTED
@@ -117,7 +117,7 @@ jobs:
         if: success()
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
-        uses: voxmedia/github-action-slack-notify-build@v1
+        uses: voxmedia/github-action-slack-notify-build@v2
         with:
           channel: edb
           status: TEST DEPLOY COMPLETED
@@ -128,7 +128,7 @@ jobs:
         if: failure()
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
-        uses: voxmedia/github-action-slack-notify-build@v1
+        uses: voxmedia/github-action-slack-notify-build@v2
         with:
           channel: edb
           status: TEST DEPLOY FAILED
@@ -141,7 +141,7 @@ jobs:
     environment:
       name: Prod
     steps:
-      - uses: voxmedia/github-action-slack-notify-build@v1
+      - uses: voxmedia/github-action-slack-notify-build@v2
         with:
           channel: edb
           status: PROD SWAP STARTED
@@ -162,7 +162,7 @@ jobs:
         if: success()
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
-        uses: voxmedia/github-action-slack-notify-build@v1
+        uses: voxmedia/github-action-slack-notify-build@v2
         with:
           channel: edb
           status: PROD SWAP COMPLETED
@@ -173,7 +173,7 @@ jobs:
         if: failure()
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
-        uses: voxmedia/github-action-slack-notify-build@v1
+        uses: voxmedia/github-action-slack-notify-build@v2
         with:
           channel: edb
           status: PROD SWAP FAILED
