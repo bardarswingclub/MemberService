@@ -214,6 +214,9 @@ services
         o.SupportedUICultures = cultures;
     });
 
+services.
+    Configure<RecaptchaSettings>(builder.Configuration.GetSection("GoogleRecaptcha"));
+
 var app = builder.Build();
 
 Global.Services = app.Services;
@@ -294,4 +297,10 @@ public class Fix404Filter : ITelemetryProcessor
 
         Next.Process(item);
     }
+}
+
+public class RecaptchaSettings
+{
+    public string SiteKey { get; set; }
+    public string SecretKey { get; set; }
 }
