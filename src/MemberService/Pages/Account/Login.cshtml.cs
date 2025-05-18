@@ -1,6 +1,7 @@
 namespace MemberService.Pages.Account;
 
 using System.ComponentModel.DataAnnotations;
+using Microsoft.Extensions.Options;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
@@ -14,13 +15,16 @@ public class LoginModel : PageModel
 {
     private readonly ILoginService _loginService;
     private readonly IEmailService _emailService;
+    private readonly RecaptchaSettings _recaptchaSettings;
 
     public LoginModel(
         ILoginService loginService,
-        IEmailService emailService)
+        IEmailService emailService,
+        IOptions<RecaptchaSettings> recaptchaOptions)
     {
         _loginService = loginService;
         _emailService = emailService;
+        _recaptchaSettings = recaptchaOptions.Value;
     }
 
     [BindProperty]
@@ -29,6 +33,8 @@ public class LoginModel : PageModel
     [TempData]
     public string ErrorMessage { get; set; }
 
+    public string SiteKey => _recaptchaSettings.SiteKey;
+    
     public class InputModel
     {
         [Required]
@@ -70,6 +76,21 @@ public class LoginModel : PageModel
             return Page();
         }
 
+        var response = Request.Form["g-recaptcha-response"];
+        var secret = _recaptchaSettings.SecretKey;
+        if (string.IsNullOrEmpty(response))
+        {
+            ModelState.AddModelError(string.Empty, "reCAPCHA key missing");
+            return Page();
+        }
+        var isValid = await ValidateRecaptcha(response, secret);
+
+        if (!isValid)
+        {
+            ModelState.AddModelError(string.Empty, "reCAPTCHA-feil");
+            return Page();
+        }
+
         var email = Input.Email.Trim();
         var user = await _loginService.GetOrCreateUser(email);
 
@@ -81,5 +102,17 @@ public class LoginModel : PageModel
         });
 
         return RedirectToPage("/Account/LoginConfirmation", null, new { email, returnUrl = Input.ReturnUrl });
+    }
+
+    private async Task<bool> ValidateRecaptcha(string response, string secret)
+    {
+        using var client = new HttpClient();
+        var result = await client.PostAsync(
+            $"https://www.google.com/recaptcha/api/siteverify?secret={secret}&response={response}",
+            null);
+
+        var json = await result.Content.ReadAsStringAsync();
+        dynamic parsed = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
+        return parsed.success == true;
     }
 }
