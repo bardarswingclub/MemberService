@@ -26,7 +26,7 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: .NET Core 8 for building
         uses: actions/setup-dotnet@v1
         with:
@@ -51,7 +51,7 @@ jobs:
           directory: output
           filename: ../webapp.zip
       - name: Publish artifact WebApp
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: |
             webapp.zip
