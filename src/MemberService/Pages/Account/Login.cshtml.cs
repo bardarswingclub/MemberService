@@ -112,7 +112,6 @@ public class LoginModel : PageModel
             null);
 
         var json = await result.Content.ReadAsStringAsync();
-        ModelState.AddModelError(string.Empty, "RC:" + json);
         dynamic parsed = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
         return parsed.success == true;
     }
