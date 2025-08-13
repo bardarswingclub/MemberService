@@ -158,10 +158,13 @@
                                 break;
                         }
                     </td>
-                    <td>
-                        @(signup.Ressursperson ? "RP" : "")
-                    </td>
                 }
+                <td>
+                    @if(signup.Ressursperson)
+                    {
+                         <span class="badge badge-success"/>
+                    }
+                </td>
             </tr>
         }
     </tbody>

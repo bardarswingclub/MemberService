@@ -176,7 +176,8 @@ public class ViewModel : PageModel
                 partner = _database.Users
                     .Include(u => u.EventSignups)
                     .FirstOrDefault(u => u.NormalizedEmail == signup.PartnerEmail),
-                ressursperson = signup.User.UserRoles.Any(u => u.RoleId == Roles.RESSURSPERSON)
+                ressursperson = signup.User.UserRoles.Any(u => u.Role.UserRoles.Any(r => r.Role.Name == Roles.RESSURSPERSON))
+
             })
             .ToListAsync();
 
