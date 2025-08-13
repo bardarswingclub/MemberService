@@ -24,6 +24,7 @@
                 <label for="Input.Email">@Localizer["E-post"]</label>
                 <input name="Input.Email" class="form-control" placeholder="epost@eksempel.no" autofocus />
             </div>
+            <div class="g-recaptcha" data-sitekey="@Model.SiteKey"></div>
 
             <button type="submit" class="btn btn-success btn-block">@Localizer["Fortsett til påmelding"]</button>
         </form>
@@ -31,3 +32,7 @@
         <vc:external-login return-url="/Signup/Event/@Model.Id/@Model.Title.Slugify()"></vc:external-login>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+}
