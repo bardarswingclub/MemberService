@@ -175,12 +175,14 @@ public class ViewModel : PageModel
                 signup,
                 partner = _database.Users
                     .Include(u => u.EventSignups)
-                    .FirstOrDefault(u => u.NormalizedEmail == signup.PartnerEmail)
+                    .FirstOrDefault(u => u.NormalizedEmail == signup.PartnerEmail),
+                ressursperson = signup.User.UserRoles.Any(u => u.Role.UserRoles.Any(r => r.Role.Name == Roles.RESSURSPERSON))
+
             })
             .ToListAsync();
 
         var signupsWithPartner = signups
-            .Select(s => EventSignupModel.Create(s.signup, s.partner))
+            .Select(s => EventSignupModel.Create(s.signup, s.partner, s.ressursperson))
             .ToList();
 
         Signups = Statuses

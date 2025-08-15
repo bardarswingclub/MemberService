@@ -23,11 +23,13 @@ public class EventSignupModel
 
     public bool Selected { get; private set; }
 
+    public bool Ressursperson { get; set; }
+
     public IReadOnlyCollection<EventSignupAuditEntry> AuditLog { get; private set; }
 
     public PartnerSignupModel Partner { get; private set; }
 
-    public static EventSignupModel Create(EventSignup s, User partner)
+    public static EventSignupModel Create(EventSignup s, User partner, bool ressursperson)
         => new()
         {
             Id = s.Id,
@@ -39,6 +41,9 @@ public class EventSignupModel
             Status = s.Status,
             Partner = PartnerSignupModel.Create(s.PartnerEmail, partner, s.EventId),
             Role = s.Role,
-            AuditLog = s.AuditLog.ToList()
+            AuditLog = s.AuditLog.ToList(),
+            Ressursperson = ressursperson
+
         };
+
 }

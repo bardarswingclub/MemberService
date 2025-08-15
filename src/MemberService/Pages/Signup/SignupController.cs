@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 using CreateFeePayment = Func<Guid, Data.User, Services.Fee, Task<string>>;
 using CreateEventPayment = Func<Guid, string, string, Data.User, decimal, Task<string>>;
@@ -18,15 +19,18 @@ public class SignupController : Controller
     private readonly MemberContext _database;
     private readonly IStripePaymentService _stripePaymentService;
     private readonly IVippsPaymentService _vippsPaymentService;
+    private readonly RecaptchaSettings _recaptchaSettings;
 
     public SignupController(
         MemberContext database,
         IStripePaymentService stripePaymentService,
-        IVippsPaymentService vippsPaymentService)
+        IVippsPaymentService vippsPaymentService,
+        IOptions<RecaptchaSettings> recaptchaOptions)
     {
         _database = database;
         _stripePaymentService = stripePaymentService;
         _vippsPaymentService = vippsPaymentService;
+        _recaptchaSettings = recaptchaOptions.Value;
     }
 
     [AllowAnonymous]
@@ -107,6 +111,7 @@ public class SignupController : Controller
                     Id = id,
                     Title = ev.Title,
                     Description = ev.Description,
+                    recaptchaSettings = this._recaptchaSettings,
                 });
             }
             else
