@@ -22,6 +22,8 @@ public class User : IdentityUser
 
     public ICollection<SemesterRole> SemesterRoles { get; set; } = new List<SemesterRole>();
 
+    public ICollection<SomeConsentRecord> ConsentRecords{ get; set; } = new List<SomeConsentRecord>();
+
     public bool ExemptFromTrainingFee { get; set; }
 
     public bool ExemptFromClassesFee { get; set; }

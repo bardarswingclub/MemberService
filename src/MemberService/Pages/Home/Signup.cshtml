@@ -1,4 +1,5 @@
-﻿@model SignupInputModel
+﻿@page
+@model MemberService.Pages.Home.SignupPageModel
 
 @{
     ViewData["Title"] = "Meld deg på kurs";
@@ -24,12 +25,28 @@
             <li>Det er viktig å betale så fort som mulig, ellers kan plassen din bli gitt til noen andre</li>
             <li>Kursene starter opp en uke etter påmeldingen åpner</li>
             <li>Du må godta våre <a href="https://bardarswingclub.com/index.php/om-klubben/code-of-conduct/" target="_blank">rettningslinjer</a> (Code of conduct) for å delta på kurs</li>
+            <li>Du må ta et valg om hvorvidt du samtykker at bilder og video hvor du er motivet kan brukes av klubben på sosiale medier, eller bekrefte ditt tidligere valg</li>
         </ul>
+
+        
+        <!-- Consent Dropdown -->
+        <div class="form-group">
+            <label asp-for="Input.NewConsent.SelectedState"></label>
+            <select asp-for="Input.NewConsent.SelectedState"
+                    asp-items="Model.Input.NewConsent.Options"
+                    class="form-control">
+                <option value="">-- Velg samtykke --</option>
+            </select>
+            <span asp-validation-for="Input.NewConsent.SelectedState" class="text-danger"></span>
+        </div>
+
+        <!-- Accept checkbox -->
         <div class="form-group form-check">
-            <input type="checkbox" class="form-check-input" asp-for="Accept">
-            <label asp-for="Accept"></label>
-            <span asp-validation-for="Accept" class="text-danger"></span>
-                    </div>
+            <input type="checkbox" class="form-check-input" asp-for="Input.Accept" />
+            <label class="form-check-label" asp-for="Input.Accept"></label>
+            <span asp-validation-for="Input.Accept" class="text-danger"></span>
+        </div>
+
         <button type="submit" class="btn btn-success btn-block">OK</button>
         </div>
 

@@ -17,6 +17,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
+public class AddConsentModel
+{
+    [Required(ErrorMessage = "Du må ta et valg om samtykke.")]
+    [DisplayName("Samtykke")]
+    public SomeConsentState? State { get; set; }
+}
+
+public class UpdateUserModel
+{
+    [BindProperty]
+    [DisplayName("Fullt navn")]
+    public string FullName { get; set; }
+
+    [BindProperty]
+    [DisplayName("Tiltalsnavn")]
+    public string FriendlyName { get; set; }
+    
+}
+
 [Authorize]
 public partial class IndexModel : PageModel
 {
@@ -39,21 +58,16 @@ public partial class IndexModel : PageModel
     [DisplayName("E-post")]
     public string Email { get; set; }
 
+    public UpdateUserModel UpdateUser { get; set; } = new();
+    public AddConsentModel NewConsent { get; set; } = new();
+
     public IReadOnlyCollection<Payment> Payments { get; private set; }
 
     public IReadOnlyCollection<SignupModel> EventSignups { get; private set; }
+    public IReadOnlyCollection<SomeConsentRecord> ConsentRecords{ get; private set; }
 
     [TempData]
     public string SuccessMessage { get; set; }
-
-    [BindProperty]
-    [Required]
-    [DisplayName("Fullt navn")]
-    public string FullName { get; set; }
-
-    [BindProperty]
-    [DisplayName("Tiltalsnavn")]
-    public string FriendlyName { get; set; }
 
     public async Task<IActionResult> OnGetAsync()
     {
@@ -61,6 +75,7 @@ public partial class IndexModel : PageModel
 
         var user = await _memberContext.Users
             .Include(x => x.Payments)
+            .Include(u => u.ConsentRecords)
             .Include(x => x.EventSignups.Where(e => !e.Event.SemesterId.HasValue))
                 .ThenInclude(s => s.Event)
             .SingleUser(UserId);
@@ -81,14 +96,24 @@ public partial class IndexModel : PageModel
             .Select(SignupModel.Create)
             .ToReadOnlyCollection();
 
-        FullName = user.FullName;
-        FriendlyName = user.FriendlyName;
+        ConsentRecords = user.ConsentRecords
+            .OrderByDescending(p => p.ChangedAtUtc)
+            .ToReadOnlyCollection();
+
+        UpdateUser.FullName = user.FullName;
+        UpdateUser.FriendlyName = user.FriendlyName;
 
         return Page();
     }
-
-    public async Task<IActionResult> OnPostAsync()
+    
+    public async Task<IActionResult> OnPostAsync([FromForm] UpdateUserModel updateUser)
     {
+        if (string.IsNullOrWhiteSpace(updateUser.FullName))
+        {
+            // Add a model validation error
+            ModelState.AddModelError(nameof(updateUser.FullName), "Fullt navn kan ikke være tomt");
+        }
+
         if (!ModelState.IsValid)
         {
             return Page();
@@ -100,8 +125,8 @@ public partial class IndexModel : PageModel
             return NotFound($"Unable to load user with ID '{User.GetId()}'.");
         }
 
-        user.FullName = FullName;
-        user.FriendlyName = FriendlyName;
+        user.FullName = updateUser.FullName;
+        user.FriendlyName = updateUser.FriendlyName;
 
         await _userManager.UpdateAsync(user);
         await _signInManager.RefreshSignInAsync(user);
@@ -131,4 +156,22 @@ public partial class IndexModel : PageModel
         }
     }
 
+    public async Task<IActionResult> OnPostAddConsentAsync([FromForm] AddConsentModel newConsent)
+    {
+        if (!ModelState.IsValid)
+        {
+            return Page();
+        }
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return NotFound("User not found");
+
+        var record = new SomeConsentRecord(newConsent.State!.Value, user.Id);
+
+        _memberContext.SomeConsentRecords.Add(record);
+        await _memberContext.SaveChangesAsync();
+
+        SuccessMessage = "Samtykket dit er oppdatert";
+        return RedirectToPage(); // reload page so list updates
+    }
 }
