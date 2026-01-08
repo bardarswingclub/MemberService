@@ -1,4 +1,4 @@
-﻿using System;
+﻿ellusing System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -16,10 +16,10 @@ namespace MemberService.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UserId = table.Column<string>(type: "text", nullable: false),
-                    ChangedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    State = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"), // SQL Server identity column
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ChangedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    State = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -32,14 +32,17 @@ namespace MemberService.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            
+            migrationBuilder.CreateIndex(
+                name: "IX_SomeConsentRecords_UserId",
+                table: "SomeConsentRecords",
+                column: "UserId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "SomeConsentRecords");            
+                name: "SomeConsentRecords");
         }
     }
 }
