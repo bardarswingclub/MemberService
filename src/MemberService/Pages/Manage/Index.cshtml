@@ -6,6 +6,9 @@
     ViewData["BodyClass"] = "cover";
 }
 
+@using System.ComponentModel.DataAnnotations
+@using System.Reflection
+
 <div class="card-columns card-columns-2">
     <div class="card shadow-sm">
         <h3 class="card-header">
@@ -18,15 +21,15 @@
                 <input asp-for="Email" class="form-control" disabled />
             </div>
             <div class="form-group">
-                <label asp-for="FullName"></label>
-                <input asp-for="FullName" class="form-control" />
-                <span asp-validation-for="FullName" class="text-danger"></span>
+                <label asp-for="UpdateUser.FullName"></label>
+                <input asp-for="UpdateUser.FullName" class="form-control" />
+                <span asp-validation-for="UpdateUser.FullName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="FriendlyName"></label>
-                <input asp-for="FriendlyName" class="form-control" />
+                <label asp-for="UpdateUser.FriendlyName"></label>
+                <input asp-for="UpdateUser.FriendlyName" class="form-control" />
                 <span class="text-muted text-small">Vi kommer til å bruke dette navnet på kurs og arrangementer</span>
-                <span asp-validation-for="FriendlyName" class="text-danger"></span>
+                <span asp-validation-for="UpdateUser.FriendlyName" class="text-danger"></span>
             </div>
             <button id="update-profile-button" type="submit" class="btn btn-success btn-block">Lagre</button>
         </form>
@@ -115,5 +118,60 @@
                 </em>
             </div>
         }
+    </div>
+    <div class="card shadow-sm">
+        <h3 class="card-header">
+            Samtykker om sosiale medier
+        </h3>
+
+        @if (Model.ConsentRecords.NotAny())
+        {
+            <div class="card-body text-center">
+                <em class="text-muted">
+                    Ingen samtykker registrert
+                </em>
+            </div>
+        }
+        else
+        {
+            <table class="table card-body">
+                <thead>
+                    <tr>
+                        <th>Dato</th>
+                        <th>State</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var record in Model.ConsentRecords)
+                    {
+                        <tr>
+                            <td class="text-nowrap">
+                                @record.ChangedAtUtc.ToOsloDate()
+                                <span class="text-muted text-small">
+                                    @record.ChangedAtUtc.ToOsloTime()
+                                </span>
+                            </td>
+                            <td>
+                                @record.State.GetDisplayName()
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
+    <h4>Oppdater samtykke</h4>
+    <form method="post" asp-page-handler="AddConsent">
+        <div class="form-group">
+            <label for="NewConsent.State">Samtykke</label>
+            <select asp-for="NewConsent.State" class="form-control"
+                    asp-items="Html.GetEnumSelectList<SomeConsentState>()">
+                <option value="">-- Velg samtykke --</option>
+            </select>
+            <span asp-validation-summary="All" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Legg til</button>
+    </form>
+
     </div>
 </div>

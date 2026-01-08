@@ -96,6 +96,49 @@
 
     <div class="card shadow-sm">
         <h3 class="card-header">
+            Samtykker om sosiale medier
+        </h3>
+
+        @if (Model.ConsentRecords.NotAny())
+        {
+            <div class="card-body text-center">
+                <em class="text-muted">
+                    Ingen samtykker registrert
+                </em>
+            </div>
+        }
+        else
+        {
+            <table class="table card-body">
+                <thead>
+                    <tr>
+                        <th>Dato</th>
+                        <th>State</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var record in Model.ConsentRecords)
+                    {
+                        <tr>
+                            <td class="text-nowrap">
+                                @record.ChangedAtUtc.ToOsloDate()
+                                <span class="text-muted text-small">
+                                    @record.ChangedAtUtc.ToOsloTime()
+                                </span>
+                            </td>
+                            <td>
+                                @record.State.GetDisplayName()
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
+    </div>
+
+    <div class="card shadow-sm">
+        <h3 class="card-header">
             Arrangementer
         </h3>
 

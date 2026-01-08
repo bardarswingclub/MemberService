@@ -39,6 +39,8 @@ public class MemberContext : IdentityDbContext<User, MemberRole, string, Identit
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
 
     public DbSet<VippsReservation> VippsReservations { get; set; }
+    
+    public DbSet<SomeConsentRecord> SomeConsentRecords { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

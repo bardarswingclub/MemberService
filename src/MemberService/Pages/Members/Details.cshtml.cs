@@ -37,6 +37,7 @@ public class DetailsModel : PageModel
     public string Email { get; set; }
     public IReadOnlyCollection<Payment> Payments { get; set; }
     public IReadOnlyCollection<EventSignup> EventSignups { get; set; }
+    public IReadOnlyCollection<SomeConsentRecord> ConsentRecords{ get; set; }
     public bool HasPayedMembershipThisYear { get; private set; }
     public bool HasPayedTrainingFeeThisSemester { get; private set; }
     public bool HasPayedClassesFeeThisSemester { get; private set; }
@@ -54,6 +55,7 @@ public class DetailsModel : PageModel
                 .ThenInclude(r => r.Role)
             .Include(u => u.EventSignups.Where(s => !s.Event.SemesterId.HasValue))
                 .ThenInclude(s => s.Event)
+            .Include(u => u.ConsentRecords)
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.Id == id);
 
@@ -67,6 +69,7 @@ public class DetailsModel : PageModel
         Email = user.Email;
         Payments = user.Payments.OrderByDescending(p => p.PayedAtUtc).ToList();
         EventSignups = user.EventSignups.OrderByDescending(p => p.SignedUpAt).ToList();
+        ConsentRecords = user.ConsentRecords.OrderByDescending(p => p.ChangedAtUtc).ToList();
         HasPayedMembershipThisYear = user.HasPayedMembershipThisYear();
         HasPayedTrainingFeeThisSemester = user.HasPayedTrainingFeeThisSemester();
         HasPayedClassesFeeThisSemester = user.HasPayedClassesFeeThisSemester();
