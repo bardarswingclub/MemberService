@@ -59,7 +59,7 @@ namespace MemberService.Pages.Home
             await _memberContext.SaveChangesAsync();
 
             // handle accept box etc.
-            return RedirectToPage("/Home/Confirmation");
+            return RedirectToAction("Courses", "Home");
         }
     }
 }

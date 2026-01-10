@@ -21,7 +21,7 @@ public enum SomeConsentState
     [Display(Name = "Spør hver gang")]
     Ask = 1,
 
-    [Display(Name = "Jeg samtykker, ikke spør meg")]
+    [Display(Name = "Bare bruk video/bilder av meg, ikke spør hver gang")]
     Always = 2
 }
 
