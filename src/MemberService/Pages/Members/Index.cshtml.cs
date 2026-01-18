@@ -202,7 +202,7 @@ public class IndexModel : PageModel
             u.ConsentRecords
              .OrderByDescending(r => r.ChangedAtUtc)
              .Select(r => r.State)
-             .FirstOrDefault() == state;
+             .First() == state;
     }
 
     private static Expression<Func<User, bool>> Search(string query)
