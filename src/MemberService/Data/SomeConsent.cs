@@ -37,6 +37,16 @@ public static class SomeConsentStateExtensions
             .FirstOrDefault() as DisplayAttribute;
         return attr?.Name ?? state.ToString();
     }
+    public static string GetDisplayCharacter(this SomeConsentState state)
+    {
+        return state switch
+        {
+            SomeConsentState.None   => "N",
+            SomeConsentState.Ask    => "A",
+            SomeConsentState.Always => "J",
+            _ => ""
+        };
+    }
 }
 
 

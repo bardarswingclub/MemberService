@@ -53,6 +53,9 @@ public class IndexModel : PageModel
     public string ExemptClassesFilter { get; set; }
 
     [BindProperty(SupportsGet = true)]
+    public SomeConsentState? SomeStatusFilter{ get; set; }
+
+    [BindProperty(SupportsGet = true)]
     public string Role { get; set; }
 
     public async Task<IActionResult> OnGet()
@@ -85,6 +88,7 @@ public class IndexModel : PageModel
             .Where(Filter(ClassesFilter, u => u.HasPayedClassesFeeThisSemester()))
             .Where(Filter(ExemptTrainingFilter, u => u.ExemptFromTrainingFee))
             .Where(Filter(ExemptClassesFilter, u => u.ExemptFromClassesFee))
+            .Where(FilterSomeStatus(SomeStatusFilter))
             .Where(FilterRole(Role, canToggleRoles))
             .Where(Search(Query))
             .OrderBy(u => u.FullName)
@@ -98,6 +102,11 @@ public class IndexModel : PageModel
                 HasPayedClassesFeeThisSemester = u.HasPayedClassesFeeThisSemester(),
                 ExemptFromTrainingFee = u.ExemptFromTrainingFee,
                 ExemptFromClassesFee = u.ExemptFromClassesFee,
+                SomeStatus =
+                    u.ConsentRecords
+                    .OrderByDescending(r => r.ChangedAtUtc)
+                    .Select(r => r.State)
+                    .FirstOrDefault()
             })
             .ToListAsync();
     }
@@ -182,6 +191,20 @@ public class IndexModel : PageModel
             ? user => user.UserRoles.Any(r => r.Role.Name == filter)
             : user => true;
 
+    private static Expression<Func<User, bool>> FilterSomeStatus(SomeConsentState? filter)
+    {
+        if (!filter.HasValue)
+            return u => true;
+
+        var state = filter.Value;
+
+        return u =>
+            u.ConsentRecords
+             .OrderByDescending(r => r.ChangedAtUtc)
+             .Select(r => r.State)
+             .FirstOrDefault() == state;
+    }
+
     private static Expression<Func<User, bool>> Search(string query)
         => string.IsNullOrWhiteSpace(query)
             ? (u => true)
@@ -197,5 +220,6 @@ public class IndexModel : PageModel
         public bool HasPayedClassesFeeThisSemester { get; set; }
         public bool ExemptFromTrainingFee { get; set; }
         public bool ExemptFromClassesFee { get; set; }
+        public SomeConsentState? SomeStatus { get; set; }
     }
 }
