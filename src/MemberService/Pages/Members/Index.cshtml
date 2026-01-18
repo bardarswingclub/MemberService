@@ -62,6 +62,15 @@
                 <option value="Not">&#x2717; Som ikke er fritatt kursavgift</option>
             </select>
         </div>
+        <div class="col">
+            <select class="custom-select"
+                    asp-for="SomeStatusFilter"
+                    asp-items="Html.GetEnumSelectList<SomeConsentState>()"
+                    onchange="this.form.submit()">
+
+                <option value="">Alle</option>
+            </select>
+        </div>
 
         @if (await AuthorizationService.IsAuthorized(User, Policy.CanToggleRoles))
         {
@@ -84,6 +93,7 @@
                 <th class="text-center"><abbr title="Medlemskap">M</abbr></th>
                 <th class="text-center"><abbr title="Treningsavgift">T</abbr></th>
                 <th class="text-center"><abbr title="Kurs">K</abbr></th>
+                <th class="text-center"><abbr title="Samtykke for sosiale medier">S</abbr></th>
                 <th>Navn</th>
                 <th>
                     @if (await AuthorizationService.IsAuthorized(User, Policy.CanSendEmailToMembers)) {
@@ -97,7 +107,7 @@
         {
             <thead class="thead-light">
                 <tr>
-                    <th colspan="5" class="text-uppercase">@character</th>
+                    <th colspan="7" class="text-uppercase">@character</th>
                 </tr>
             </thead>
             <tbody>
@@ -109,6 +119,10 @@
                             @Checkmark(user.HasPayedTrainingFeeThisSemester)</td>
                         <td class="font-weight-bold text-center @Color(user.ExemptFromClassesFee)">
                             @Checkmark(user.HasPayedClassesFeeThisSemester)</td>
+                        <td class="font-weight-bold text-center">
+                            <abbr title="@(user.SomeStatus.HasValue ? user.SomeStatus.Value.GetDisplayName() : "")">
+                                @(user.SomeStatus.HasValue ? user.SomeStatus.Value.GetDisplayCharacter() : "")</abbr>
+                        </td>
                         <td>
                             <a asp-page="Details" asp-route-id="@user.Id">
                                 @if (string.IsNullOrWhiteSpace(user.FullName))
