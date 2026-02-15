@@ -42,6 +42,10 @@ public class MemberContext : IdentityDbContext<User, MemberRole, string, Identit
     
     public DbSet<SomeConsentRecord> SomeConsentRecords { get; set; }
 
+    public DbSet<EventCommunication> EventCommunications { get; set; }
+
+    public DbSet<EventCommunicationRecipient> EventCommunicationRecipients { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
