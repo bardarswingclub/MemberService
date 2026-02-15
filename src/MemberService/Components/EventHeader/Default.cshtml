@@ -354,6 +354,9 @@
         <li class="nav-item">
             <a class="nav-link" highlight-active asp-controller="Presence" asp-action="Index" asp-route-id="@Model.Id">Oppmøte</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" highlight-active asp-page="/Event/Communication" asp-route-id="@Model.Id">Kommunikasjon</a>
+        </li>
         @if (!Model.IsSemester)
         {
             if (Model.SurveyId.HasValue)

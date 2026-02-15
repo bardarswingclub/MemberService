@@ -36,6 +36,8 @@ public class Event
 
     public ICollection<EventOrganizer> Organizers { get; set; } = new List<EventOrganizer>();
 
+    public ICollection<EventCommunication> Communications { get; set; } = new List<EventCommunication>();
+
     public bool Published { get; set; }
 
     public bool Archived { get; set; }

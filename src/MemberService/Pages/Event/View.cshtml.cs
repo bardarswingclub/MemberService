@@ -212,6 +212,16 @@ public class ViewModel : PageModel
 
         await _database.EditEvent(id, async eventEntry =>
         {
+            var communication = SendEmail ? new EventCommunication
+            {
+                EventId = id,
+                SentByUser = currentUser,
+                Subject = Subject,
+                Message = Message,
+                SentAtUtc = MemberService.TimeProvider.UtcNow
+            } : null;
+            if (communication != null) _database.EventCommunications.Add(communication);
+
             foreach (var signup in selected)
             {
                 var eventSignup = eventEntry.Signups.Single(s => s.Id == signup);
@@ -232,6 +242,12 @@ public class ViewModel : PageModel
                             new(eventEntry.Title, await SignupLink(eventSignup.User, eventEntry)),
                             currentUser);
 
+                        communication.Recipients.Add(new EventCommunicationRecipient
+                        {
+                            RecipientUser = eventSignup.User,
+                            Success = true
+                        });
+
                         if (statusChanged)
                         {
                             eventSignup.AuditLog.Add($"Moved to {Status} and sent email\n\n---\n\n> {Subject}\n\n{Message}", currentUser);
@@ -244,6 +260,11 @@ public class ViewModel : PageModel
                     catch (Exception e)
                     {
                         // Mail sending might fail, but that should't stop us
+                        communication.Recipients.Add(new EventCommunicationRecipient
+                        {
+                            RecipientUser = eventSignup.User,
+                            Success = false
+                        });
                         eventSignup.AuditLog.Add($"Tried to send email, but failed with message {e.Message}", currentUser);
                         _logger.LogError(e, $"Failed to send email to {eventSignup.User.Email} {e.Message}");
                         failures.Add($"Klarte ikke sende epost til {eventSignup.User.FullName} ({eventSignup.User.Email})");
@@ -294,6 +315,16 @@ public class ViewModel : PageModel
             .Where(e => selected.Contains(e.Id))
             .ToListAsync();
 
+        var communication = new EventCommunication
+        {
+            EventId = id,
+            SentByUser = currentUser,
+            Subject = Subject,
+            Message = Message,
+            SentAtUtc = MemberService.TimeProvider.UtcNow
+        };
+        _database.EventCommunications.Add(communication);
+
         foreach (var signup in eventSignups)
         {
             try
@@ -305,16 +336,29 @@ public class ViewModel : PageModel
                     new(signup.Event.Title, await SignupLink(signup.User, signup.Event)),
                     currentUser);
 
+                communication.Recipients.Add(new EventCommunicationRecipient
+                {
+                    RecipientUser = signup.User,
+                    Success = true
+                });
+
                 signup.AuditLog.Add($"Sent email\n\n---\n\n> {Subject}\n\n{Message}", currentUser);
             }
             catch (Exception e)
             {
                 // Mail sending might fail, but that should't stop us
+                communication.Recipients.Add(new EventCommunicationRecipient
+                {
+                    RecipientUser = signup.User,
+                    Success = false
+                });
                 signup.AuditLog.Add($"Tried to send email, but failed with message {e.Message}", currentUser);
                 _logger.LogError(e, $"Failed to send email to {signup.User.Email}");
                 failures.Add($"Klarte ikke sende epost til {signup.User.FullName} ({signup.User.Email})");
             }
         }
+
+        await _database.SaveChangesAsync();
 
         if (failures.Any())
         {

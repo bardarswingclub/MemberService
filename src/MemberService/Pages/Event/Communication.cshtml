@@ -1,0 +1,59 @@
+@page "{id}"
+@model MemberService.Pages.Event.CommunicationModel
+
+@{
+    ViewData["ContainerClass"] = "container-fluid";
+    ViewData["Title"] = Model.Title;
+}
+<vc:event-header id="@Model.EventId"></vc:event-header>
+
+<h2>Kommunikasjon</h2>
+
+@if (Model.Communications.Count == 0)
+{
+    <div class="alert alert-info">
+        Ingen eposter er sendt enn&aring;.
+    </div>
+}
+else
+{
+    foreach (var comm in Model.Communications)
+    {
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between">
+                <div>
+                    <strong>@comm.Subject</strong>
+                </div>
+                <div class="text-muted">
+                    @comm.SentAtUtc.DisplayOslo() &mdash; sendt av @comm.SentByName
+                </div>
+            </div>
+            <div class="card-body">
+                <details>
+                    <summary>Vis melding</summary>
+                    <pre class="mt-2 mb-0">@comm.Message</pre>
+                </details>
+
+                <hr />
+
+                <h6>Mottakere (@comm.Recipients.Count)</h6>
+                <ul class="list-unstyled mb-0">
+                    @foreach (var r in comm.Recipients)
+                    {
+                        <li>
+                            @if (r.Success)
+                            {
+                                <span class="badge bg-success">OK</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Feilet</span>
+                            }
+                            @r.Name (@r.Email)
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    }
+}
