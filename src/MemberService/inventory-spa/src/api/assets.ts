@@ -27,6 +27,11 @@ export interface CsvImportResult {
   errors: { rowNumber: number; message: string }[];
 }
 
+export interface AssetLookupResult {
+  assets: InventoryAsset[];
+  notFound: string[];
+}
+
 export const assetsApi = {
   list: (search?: string, borrowedOnly?: boolean): Promise<InventoryAsset[]> => {
     const params = new URLSearchParams();
@@ -60,5 +65,11 @@ export const assetsApi = {
     apiFetch('/api/inventory/assets/import', {
       method: 'POST',
       body: JSON.stringify({ content }),
+    }),
+
+  lookup: (tags: string[]): Promise<AssetLookupResult> =>
+    apiFetch('/api/inventory/assets/lookup', {
+      method: 'POST',
+      body: JSON.stringify({ tags }),
     }),
 };

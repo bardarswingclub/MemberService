@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { borrowsApi, BorrowSession } from '../api/borrows';
+import { assetsApi, InventoryAsset } from '../api/assets';
 import { ApiError } from '../api/client';
 import { QrScanner } from '../components/QrScanner';
 
@@ -15,6 +16,7 @@ export function BorrowScan() {
   const navigate = useNavigate();
 
   const [session, setSession] = useState<BorrowSession | null>(null);
+  const [borrowedAssets, setBorrowedAssets] = useState<InventoryAsset[]>([]);
   const [error, setError] = useState('');
   const [lastScanned, setLastScanned] = useState('');
   const [scanning, setScanning] = useState(false);
@@ -23,7 +25,14 @@ export function BorrowScan() {
 
   useEffect(() => {
     if (!sessionId) return;
-    borrowsApi.get(sessionId).then(setSession).catch((e: Error) => setError(e.message));
+    borrowsApi.get(sessionId).then(s => {
+      setSession(s);
+      if (s.type === 'Return') {
+        assetsApi.list(undefined, true).then(all => {
+          setBorrowedAssets(all.filter(a => a.borrowedByEventName === s.eventName));
+        }).catch(() => {});
+      }
+    }).catch((e: Error) => setError(e.message));
   }, [sessionId]);
 
   const handleScan = async (tag: string) => {
@@ -154,6 +163,37 @@ export function BorrowScan() {
           </button>
         </div>
       ))}
+
+      {session.type === 'Return' && borrowedAssets.length > 0 && (
+        <div style={{ marginTop: '24px' }}>
+          <div style={{ fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>
+            Lånt av {session.eventName} ({borrowedAssets.length})
+          </div>
+          {borrowedAssets.map(asset => {
+            const alreadyScanned = session.items.some(i => i.tag === asset.tag);
+            return (
+              <div
+                key={asset.id}
+                style={{
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  padding: '10px 12px',
+                  backgroundColor: alreadyScanned ? '#e8f5e9' : '#fff',
+                  border: '1px solid',
+                  borderColor: alreadyScanned ? '#a5d6a7' : '#e0e0e0',
+                  borderRadius: '6px', marginBottom: '6px',
+                  opacity: alreadyScanned ? 0.6 : 1,
+                }}
+              >
+                <div>
+                  <code style={{ fontWeight: 'bold', color: '#1a1a1a', marginRight: '8px' }}>{asset.tag}</code>
+                  <span style={{ color: '#333', fontSize: '14px' }}>{asset.beskrivelse}</span>
+                </div>
+                {alreadyScanned && <span style={{ fontSize: '18px', color: '#43a047' }}>✓</span>}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

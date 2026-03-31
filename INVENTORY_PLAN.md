@@ -162,10 +162,9 @@ CSV import: `Tag` is the upsert key. Header row skipped. Quoted fields (e.g. `"2
 ---
 
 ### WP5 — Asset Management UI ✅ DONE (partial)
-- [x] `AssetList.tsx` — search, "Vis kun utlånt" filter, borrow info (event + user name), availability badge
+- [x] `AssetList.tsx` — search, "Vis kun utlånt" filter, borrow info (event + user name), availability badge, photo thumbnails with lightbox
 - [x] `CsvImport.tsx` — file upload + textarea paste + result display
 - [ ] `AssetForm.tsx` — create/edit form with all fields including PhotoUrl + live preview (not yet built)
-- [ ] Photo thumbnails in `AssetList.tsx` — clickable thumbnail if `photoUrl` set (see WP8)
 
 ---
 
@@ -194,7 +193,7 @@ CSV import: `Tag` is the upsert key. Header row skipped. Quoted fields (e.g. `"2
 
 ---
 
-### WP8 — Pick List + Asset Photos
+### WP8 — Pick List + Asset Photos ✅ DONE
 
 **Purpose:** Allow users to paste free-form text containing tag IDs to generate a pick list before borrowing. Also adds photo thumbnails throughout the UI.
 
@@ -255,7 +254,7 @@ const extractTags = (text: string): string[] => {
 
 ---
 
-### WP9 — Asset Maintenance UI (InventoryManager only)
+### WP9 — Asset Maintenance UI (InventoryManager only) ✅ DONE
 
 **Purpose:** Allow managers to view and edit individual assets — primarily to set `PhotoUrl`, fix descriptions, mark items as out-of-inventory, etc.
 
@@ -294,8 +293,8 @@ const extractTags = (text: string): string[] => {
 - [x] Asset list shows event name + user name for borrowed items
 - [x] "Vis kun utlånt" filter works
 - [x] "Importer CSV" hidden for non-managers
-- [ ] Pick list: paste text → extract tags → show checklist with photos → start session (WP8)
-- [ ] Photo thumbnails in asset list and pick list (WP8)
-- [ ] Asset edit form: click asset → edit all fields incl. PhotoUrl with preview (WP9)
-- [ ] "Rediger utstyr" only visible to managers (WP9)
+- [x] Pick list: paste text → extract tags → show checklist with photos → start session (WP8)
+- [x] Photo thumbnails in asset list and pick list with lightbox (WP8)
+- [x] Asset edit form: click asset → edit all fields incl. PhotoUrl with preview (WP9)
+- [x] "Rediger utstyr" only visible to managers (WP9)
 - [ ] `dotnet test` passes (WP7)

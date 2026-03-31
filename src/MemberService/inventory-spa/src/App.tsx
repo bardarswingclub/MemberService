@@ -7,6 +7,7 @@ import { AssetList } from './pages/AssetList';
 import { AssetManageList } from './pages/AssetManageList';
 import { AssetEditForm } from './pages/AssetEditForm';
 import { CsvImport } from './pages/CsvImport';
+import { PickList } from './pages/PickList';
 import { Home } from './pages/Home';
 
 export const PermissionsContext = createContext({ canManage: false });
@@ -38,6 +39,7 @@ export default function App({ canManage }: { canManage: boolean }) {
             <Route path="/assets/manage" element={<AssetManageList />} />
             <Route path="/assets/:tag/edit" element={<AssetEditForm />} />
             <Route path="/import" element={<CsvImport />} />
+            <Route path="/pick-list" element={<PickList />} />
           </Routes>
         </div>
       </Router>

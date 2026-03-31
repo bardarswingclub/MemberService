@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { assetsApi, InventoryAsset } from '../api/assets';
+import { AssetPhoto } from '../components/AssetPhoto';
 
 export function AssetList() {
   const navigate = useNavigate();
@@ -68,6 +69,7 @@ export function AssetList() {
         <div
           key={asset.id}
           style={{
+            display: 'flex', gap: '12px', alignItems: 'flex-start',
             padding: '12px 14px',
             backgroundColor: '#fff',
             border: '1px solid',
@@ -76,30 +78,39 @@ export function AssetList() {
             marginBottom: '8px',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <code style={{ fontWeight: 'bold', fontSize: '16px', color: '#1a1a1a' }}>{asset.tag}</code>
-              {asset.kategori && <span style={{ marginLeft: '8px', fontSize: '12px', color: '#666', backgroundColor: '#f0f0f0', padding: '2px 6px', borderRadius: '10px' }}>{asset.kategori}</span>}
+          {asset.photoUrl && (
+            <AssetPhoto
+              url={asset.photoUrl}
+              tag={asset.tag}
+              style={{ width: '52px', height: '52px', objectFit: 'cover', borderRadius: '4px', flexShrink: 0 }}
+            />
+          )}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <code style={{ fontWeight: 'bold', fontSize: '16px', color: '#1a1a1a' }}>{asset.tag}</code>
+                {asset.kategori && <span style={{ marginLeft: '8px', fontSize: '12px', color: '#666', backgroundColor: '#f0f0f0', padding: '2px 6px', borderRadius: '10px' }}>{asset.kategori}</span>}
+              </div>
+              {asset.currentBorrowId ? (
+                <span style={{ fontSize: '12px', backgroundColor: '#fff3e0', color: '#e65100', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold', whiteSpace: 'nowrap' }}>Utlånt</span>
+              ) : (
+                <span style={{ fontSize: '12px', backgroundColor: '#e8f5e9', color: '#2e7d32', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold', whiteSpace: 'nowrap' }}>Tilgjengelig</span>
+              )}
             </div>
-            {asset.currentBorrowId ? (
-              <span style={{ fontSize: '12px', backgroundColor: '#fff3e0', color: '#e65100', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold', whiteSpace: 'nowrap' }}>Utlånt</span>
-            ) : (
-              <span style={{ fontSize: '12px', backgroundColor: '#e8f5e9', color: '#2e7d32', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold', whiteSpace: 'nowrap' }}>Tilgjengelig</span>
+            <div style={{ marginTop: '4px', color: '#333' }}>{asset.beskrivelse}</div>
+            {(asset.merke || asset.modell) && (
+              <div style={{ marginTop: '2px', color: '#666', fontSize: '13px' }}>
+                {[asset.merke, asset.modell].filter(Boolean).join(' · ')}
+              </div>
+            )}
+            {asset.currentBorrowId && (asset.borrowedByEventName || asset.borrowedByUserName) && (
+              <div style={{ marginTop: '6px', fontSize: '13px', color: '#bf360c', backgroundColor: '#fff3e0', padding: '4px 8px', borderRadius: '4px' }}>
+                {asset.borrowedByEventName && <span>{asset.borrowedByEventName}</span>}
+                {asset.borrowedByEventName && asset.borrowedByUserName && <span> · </span>}
+                {asset.borrowedByUserName && <span>{asset.borrowedByUserName}</span>}
+              </div>
             )}
           </div>
-          <div style={{ marginTop: '4px', color: '#333' }}>{asset.beskrivelse}</div>
-          {(asset.merke || asset.modell) && (
-            <div style={{ marginTop: '2px', color: '#666', fontSize: '13px' }}>
-              {[asset.merke, asset.modell].filter(Boolean).join(' · ')}
-            </div>
-          )}
-          {asset.currentBorrowId && (asset.borrowedByEventName || asset.borrowedByUserName) && (
-            <div style={{ marginTop: '6px', fontSize: '13px', color: '#bf360c', backgroundColor: '#fff3e0', padding: '4px 8px', borderRadius: '4px' }}>
-              {asset.borrowedByEventName && <span>{asset.borrowedByEventName}</span>}
-              {asset.borrowedByEventName && asset.borrowedByUserName && <span> · </span>}
-              {asset.borrowedByUserName && <span>{asset.borrowedByUserName}</span>}
-            </div>
-          )}
         </div>
       ))}
     </div>

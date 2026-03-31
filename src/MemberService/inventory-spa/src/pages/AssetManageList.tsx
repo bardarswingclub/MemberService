@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { assetsApi, InventoryAsset } from '../api/assets';
+import { AssetPhoto } from '../components/AssetPhoto';
 
 export function AssetManageList() {
   const navigate = useNavigate();
@@ -60,11 +61,10 @@ export function AssetManageList() {
           }}
         >
           {asset.photoUrl ? (
-            <img
-              src={asset.photoUrl}
-              alt={asset.tag}
+            <AssetPhoto
+              url={asset.photoUrl}
+              tag={asset.tag}
               style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '4px', flexShrink: 0 }}
-              onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
             />
           ) : (
             <div style={{ width: '48px', height: '48px', backgroundColor: '#f0f0f0', borderRadius: '4px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', color: '#bbb' }}>

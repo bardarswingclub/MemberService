@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { assetsApi, InventoryAsset } from '../api/assets';
+import { AssetPhoto } from '../components/AssetPhoto';
 
 type FormState = {
   beskrivelse: string;
@@ -126,11 +127,11 @@ export function AssetEditForm() {
               Bildet kunne ikke lastes. Google Drive-lenker fungerer ikke direkte — bruk en direkte bilde-URL (f.eks. fra Imgur eller Google Foto).
             </div>
           ) : (
-            <img
-              src={form.photoUrl}
-              alt="Forhåndsvisning"
+            <AssetPhoto
+              url={form.photoUrl}
+              tag={tag ?? ''}
               style={{ maxWidth: '100%', maxHeight: '240px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #e0e0e0' }}
-              onError={() => setPhotoError(true)}
+              onLoadError={() => setPhotoError(true)}
             />
           )}
         </div>

@@ -26,6 +26,10 @@ export function Home() {
         Lån / Retur / Tell
       </button>
 
+      <button onClick={() => navigate('/pick-list')} style={{ ...btn, backgroundColor: '#00838f' }}>
+        Plukkliste
+      </button>
+
       <button onClick={() => navigate('/assets')} style={{ ...btn, backgroundColor: '#388e3c' }}>
         Utstyrsliste
       </button>

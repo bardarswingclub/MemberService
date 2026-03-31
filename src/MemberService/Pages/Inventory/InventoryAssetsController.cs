@@ -149,6 +149,33 @@ public class InventoryAssetsController(MemberContext context, CsvImportService c
         return NoContent();
     }
 
+    [HttpPost("lookup")]
+    [Authorize(Policy = "CanBorrowInventory")]
+    public async Task<ActionResult<AssetLookupResult>> LookupAssets([FromBody] AssetLookupRequest request)
+    {
+        var tags = request.Tags
+            .Where(t => !string.IsNullOrWhiteSpace(t))
+            .Select(t => t.Trim().ToUpper())
+            .Distinct()
+            .ToList();
+
+        var assets = await context.InventoryAssets
+            .Include(a => a.CurrentBorrow)
+            .ThenInclude(b => b.BorrowedByUser)
+            .Where(a => tags.Contains(a.Tag.ToUpper()))
+            .OrderBy(a => a.Tag)
+            .ToListAsync();
+
+        var foundTags = assets.Select(a => a.Tag.ToUpper()).ToHashSet();
+        var notFound = tags.Where(t => !foundTags.Contains(t)).ToList();
+
+        return Ok(new AssetLookupResult
+        {
+            Assets = assets.Select(MapToDto).ToList(),
+            NotFound = notFound,
+        });
+    }
+
     [HttpPost("import")]
     [Authorize(Policy = "CanManageInventory")]
     public async Task<ActionResult<CsvImportResult>> ImportCsv([FromBody] CsvImportRequest request)

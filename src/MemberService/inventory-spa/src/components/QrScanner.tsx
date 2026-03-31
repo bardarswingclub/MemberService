@@ -11,25 +11,22 @@ interface QrScannerProps {
 export function QrScanner({ onScan, onError, fps = 10, qrbox = 250 }: QrScannerProps) {
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
   const isInitialized = useRef(false);
+  const onScanRef = useRef(onScan);
+  const onErrorRef = useRef(onError);
 
-  const handleScan = useCallback(
-    (decodedText: string) => {
-      onScan(decodedText);
-    },
-    [onScan]
-  );
+  // Keep refs current on every render so the scanner always calls the latest callbacks
+  onScanRef.current = onScan;
+  onErrorRef.current = onError;
 
-  const handleError = useCallback(
-    (error: string) => {
-      // Ignore "NotFound" errors which happen constantly during scanning
-      if (!error.includes('NotFoundError') && !error.includes('NotFoundException')) {
-        if (onError) {
-          onError(error);
-        }
-      }
-    },
-    [onError]
-  );
+  const handleScan = useCallback((decodedText: string) => {
+    onScanRef.current(decodedText);
+  }, []);
+
+  const handleError = useCallback((error: string) => {
+    if (!error.includes('NotFoundError') && !error.includes('NotFoundException')) {
+      onErrorRef.current?.(error);
+    }
+  }, []);
 
   useEffect(() => {
     // Only initialize once

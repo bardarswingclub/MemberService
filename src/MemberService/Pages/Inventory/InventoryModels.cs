@@ -102,3 +102,14 @@ public class CsvImportRequest
 {
     public required string Content { get; set; }
 }
+
+public class AssetLookupRequest
+{
+    public required List<string> Tags { get; set; }
+}
+
+public class AssetLookupResult
+{
+    public List<InventoryAssetDto> Assets { get; set; } = [];
+    public List<string> NotFound { get; set; } = [];
+}
