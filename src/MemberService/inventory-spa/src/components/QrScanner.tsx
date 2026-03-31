@@ -1,5 +1,5 @@
-import { useEffect, useRef, useCallback } from 'react';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+import { useEffect, useRef, useCallback, useState } from 'react';
+import { Html5Qrcode, CameraDevice } from 'html5-qrcode';
 
 interface QrScannerProps {
   onScan: (decodedText: string) => void;
@@ -8,68 +8,89 @@ interface QrScannerProps {
   qrbox?: number;
 }
 
-export function QrScanner({ onScan, onError, fps = 10, qrbox = 250 }: QrScannerProps) {
-  const scannerRef = useRef<Html5QrcodeScanner | null>(null);
-  const isInitialized = useRef(false);
+export function QrScanner({ onScan, fps = 10, qrbox = 250 }: QrScannerProps) {
+  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const runningRef = useRef(false);
   const onScanRef = useRef(onScan);
-  const onErrorRef = useRef(onError);
+  const [cameras, setCameras] = useState<CameraDevice[]>([]);
+  const [selectedCamera, setSelectedCamera] = useState<string>('');
+  const [error, setError] = useState('');
 
-  // Keep refs current on every render so the scanner always calls the latest callbacks
   onScanRef.current = onScan;
-  onErrorRef.current = onError;
 
-  const handleScan = useCallback((decodedText: string) => {
-    onScanRef.current(decodedText);
+  const handleScan = useCallback((text: string) => {
+    onScanRef.current(text);
   }, []);
 
-  const handleError = useCallback((error: string) => {
-    if (!error.includes('NotFoundError') && !error.includes('NotFoundException')) {
-      onErrorRef.current?.(error);
-    }
-  }, []);
-
+  // List cameras on mount
   useEffect(() => {
-    // Only initialize once
-    if (isInitialized.current) {
-      return;
-    }
+    Html5Qrcode.getCameras()
+      .then(devices => {
+        if (devices.length === 0) { setError('Ingen kamera funnet'); return; }
+        setCameras(devices);
+        // Prefer back/environment camera
+        const back = devices.find(d =>
+          /back|rear|environment/i.test(d.label)
+        );
+        setSelectedCamera((back ?? devices[0]).id);
+      })
+      .catch(() => setError('Kameratilgang nektet'));
+  }, []);
 
-    try {
-      const scanner = new Html5QrcodeScanner(
-        'qr-reader',
-        {
-          fps: fps,
-          qrbox: qrbox,
-        },
-        false
-      );
+  // Start/restart scanner when selectedCamera changes
+  useEffect(() => {
+    if (!selectedCamera) return;
 
-      scannerRef.current = scanner;
-      isInitialized.current = true;
+    const scanner = new Html5Qrcode('qr-reader-video');
+    scannerRef.current = scanner;
 
-      scanner.render(handleScan, handleError);
-    } catch (error) {
-      console.error('Error initializing scanner:', error);
-    }
+    scanner.start(
+      selectedCamera,
+      { fps, qrbox: { width: qrbox, height: qrbox } },
+      handleScan,
+      () => {} // ignore per-frame errors
+    ).then(() => {
+      runningRef.current = true;
+    }).catch(err => {
+      setError(`Kunne ikke starte kamera: ${err}`);
+    });
 
     return () => {
-      // Don't clear on unmount - keep scanner ready
-      // Only clear if component is truly being destroyed
-      if (scannerRef.current && !document.getElementById('qr-reader')) {
-        scannerRef.current.clear().catch((error: string) => {
-          console.error('Failed to clear scanner:', error);
+      if (runningRef.current) {
+        scanner.stop().catch(() => {}).finally(() => {
+          runningRef.current = false;
         });
       }
     };
-  }, []);
+  }, [selectedCamera]);
+
+  if (error) {
+    return (
+      <div style={{ padding: '16px', backgroundColor: '#ffebee', color: '#c62828', borderRadius: '8px', textAlign: 'center' }}>
+        {error}
+      </div>
+    );
+  }
 
   return (
-    <div
-      id="qr-reader"
-      style={{
-        width: '100%',
-        minHeight: '300px',
-      }}
-    ></div>
+    <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid #e0e0e0' }}>
+      {cameras.length > 1 && (
+        <div style={{ padding: '8px 10px', backgroundColor: '#1a237e', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ color: '#90caf9', fontSize: '13px', whiteSpace: 'nowrap', flexShrink: 0 }}>Bytt kamera</span>
+          <select
+            value={selectedCamera}
+            onChange={e => setSelectedCamera(e.target.value)}
+            style={{ flex: 1, padding: '6px 10px', fontSize: '14px', borderRadius: '6px', border: '2px solid #90caf9', backgroundColor: '#283593', color: '#fff', appearance: 'auto', cursor: 'pointer' }}
+          >
+            {cameras.map(c => (
+              <option key={c.id} value={c.id} style={{ backgroundColor: '#283593', color: '#fff' }}>
+                {c.label || `Kamera ${c.id}`}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+      <div id="qr-reader-video" style={{ width: '100%' }} />
+    </div>
   );
 }
