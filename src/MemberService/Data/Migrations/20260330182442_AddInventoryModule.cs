@@ -167,7 +167,7 @@ namespace MemberService.Data.Migrations
                 column: "SentByUserId",
                 principalTable: "AspNetUsers",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.NoAction);
         }
 
         /// <inheritdoc />

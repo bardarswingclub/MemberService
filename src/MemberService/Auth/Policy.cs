@@ -42,5 +42,8 @@ public enum Policy
     CanEditAnnualMeeting,
     CanViewAnnualMeetingAttendees,
 
-    CanListPayments
+    CanListPayments,
+
+    CanManageInventory,
+    CanBorrowInventory,
 }

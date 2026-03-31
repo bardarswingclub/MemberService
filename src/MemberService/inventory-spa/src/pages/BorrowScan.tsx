@@ -1,144 +1,159 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { borrowsApi, BorrowSession } from '../api/borrows';
+import { ApiError } from '../api/client';
 import { QrScanner } from '../components/QrScanner';
-import { AssetCard } from '../components/AssetCard';
-import { InventoryAsset } from '../types/inventory';
-import { MOCK_ASSETS } from '../data/mockAssets';
+
+const TYPE_LABELS: Record<string, string> = {
+  Borrow: 'Lån ut',
+  Return: 'Returner',
+  InventoryCheck: 'Tell lager',
+};
 
 export function BorrowScan() {
+  const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
-  const [scannedTags, setScannedTags] = useState<Set<string>>(new Set());
-  const [scannedAssets, setScannedAssets] = useState<InventoryAsset[]>([]);
-  const [lastScannedTag, setLastScannedTag] = useState<string>('');
-  const [notification, setNotification] = useState<string>('');
 
-  const handleScan = (decodedText: string) => {
-    const tag = decodedText.trim();
+  const [session, setSession] = useState<BorrowSession | null>(null);
+  const [error, setError] = useState('');
+  const [lastScanned, setLastScanned] = useState('');
+  const [scanning, setScanning] = useState(false);
+  const [manualTag, setManualTag] = useState('');
+  const lastTagRef = useRef('');
 
-    // Skip if already scanned
-    if (scannedTags.has(tag)) {
-      beepError();
-      return;
-    }
+  useEffect(() => {
+    if (!sessionId) return;
+    borrowsApi.get(sessionId).then(setSession).catch((e: Error) => setError(e.message));
+  }, [sessionId]);
 
-    // Find asset by tag
-    const asset = MOCK_ASSETS.find((a) => a.tag === tag);
-    if (!asset) {
-      beepError();
-      setNotification(`Unknown tag: ${tag}`);
-      setTimeout(() => setNotification(''), 2000);
-      return;
-    }
+  const handleScan = async (tag: string) => {
+    if (!sessionId || tag === lastTagRef.current) return;
+    lastTagRef.current = tag;
+    setTimeout(() => { lastTagRef.current = ''; }, 2000);
 
-    // Add to scanned
-    setScannedTags((prev) => new Set([...prev, tag]));
-    setScannedAssets((prev) => [...prev, asset]);
-    setLastScannedTag(tag);
+    if (navigator.vibrate) navigator.vibrate(100);
+    setLastScanned(tag);
 
-    // Haptic feedback
     try {
-      navigator.vibrate([200]);
-    } catch (e) {
-      // Vibration not supported
+      const updated = await borrowsApi.scan(sessionId, tag);
+      setSession(updated);
+      setError('');
+    } catch (e: unknown) {
+      if (e instanceof ApiError && e.status === 404) {
+        setError(`Tag "${tag}" ikke funnet i lageret`);
+      } else if (e instanceof Error) {
+        setError(e.message || 'Skanningsfeil');
+      }
     }
-
-    // Show notification
-    setNotification(`Scanned: ${asset.beskrivelse}`);
-    setTimeout(() => setNotification(''), 2000);
   };
 
-  const beepError = () => {
+  const handleManualSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!manualTag.trim()) return;
+    await handleScan(manualTag.trim());
+    setManualTag('');
+  };
+
+  const handleRemoveItem = async (itemId: string) => {
+    if (!sessionId) return;
     try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const gain = audioContext.createGain();
-      oscillator.connect(gain);
-      gain.connect(audioContext.destination);
-      oscillator.frequency.value = 800;
-      oscillator.type = 'sine';
-      gain.gain.setValueAtTime(0.3, audioContext.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + 0.1);
-    } catch (e) {
-      // Audio not supported
+      await borrowsApi.removeItem(sessionId, itemId);
+      const updated = await borrowsApi.get(sessionId);
+      setSession(updated);
+    } catch (e: unknown) {
+      if (e instanceof Error) setError(e.message);
     }
   };
 
-  const removeScannedAsset = (tag: string) => {
-    setScannedTags((prev) => {
-      const newSet = new Set(prev);
-      newSet.delete(tag);
-      return newSet;
-    });
-    setScannedAssets((prev) => prev.filter((a) => a.tag !== tag));
-  };
+  if (!session) {
+    return <div style={{ padding: '24px', textAlign: 'center' }}>Laster...</div>;
+  }
 
   return (
     <div style={{ padding: '16px', maxWidth: '600px', margin: '0 auto' }}>
-      <h2>Free Scan Mode</h2>
-      <p>Point your camera at a QR code to scan items.</p>
-
-      {notification && (
-        <div
-          style={{
-            padding: '12px',
-            marginBottom: '16px',
-            backgroundColor: '#e8f5e9',
-            border: '1px solid #4caf50',
-            borderRadius: '4px',
-            color: '#2e7d32',
-          }}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', fontSize: '14px', color: '#1976d2', cursor: 'pointer', padding: 0 }}>
+          ← Hjem
+        </button>
+        <button
+          onClick={() => navigate(`/borrow/${sessionId}/review`)}
+          style={{ padding: '10px 20px', backgroundColor: '#1976d2', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '15px' }}
         >
-          {notification}
+          Gjennomgang ({session.items.length})
+        </button>
+      </div>
+
+      <div style={{ backgroundColor: '#e3f2fd', padding: '10px 14px', borderRadius: '6px', marginBottom: '12px' }}>
+        <strong>{session.eventName}</strong> · {TYPE_LABELS[session.type] || session.type}
+      </div>
+
+      <button
+        onClick={() => setScanning(s => !s)}
+        style={{
+          width: '100%',
+          padding: '14px',
+          fontSize: '16px',
+          fontWeight: 'bold',
+          borderRadius: '8px',
+          border: '2px solid #1976d2',
+          backgroundColor: scanning ? '#1976d2' : '#fff',
+          color: scanning ? '#fff' : '#1976d2',
+          cursor: 'pointer',
+          marginBottom: '12px',
+        }}
+      >
+        {scanning ? 'Stopp kamera' : 'Start kamera'}
+      </button>
+
+      {scanning && <QrScanner onScan={handleScan} />}
+
+      <form onSubmit={handleManualSubmit} style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+        <input
+          type="text"
+          value={manualTag}
+          onChange={e => setManualTag(e.target.value)}
+          placeholder="Skriv inn tag (f.eks. S-001)"
+          style={{ flex: 1, padding: '10px', fontSize: '16px', borderRadius: '6px', border: '1px solid #ccc' }}
+        />
+        <button type="submit" style={{ padding: '10px 16px', backgroundColor: '#388e3c', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+          +
+        </button>
+      </form>
+
+      {lastScanned && (
+        <div style={{ padding: '8px 12px', backgroundColor: '#e8f5e9', borderRadius: '6px', marginBottom: '8px', color: '#1b5e20', fontFamily: 'monospace' }}>
+          Skannet: {lastScanned}
         </div>
       )}
 
-      <QrScanner onScan={handleScan} qrbox={200} />
+      {error && (
+        <div style={{ padding: '10px 12px', backgroundColor: '#ffebee', color: '#c62828', borderRadius: '6px', marginBottom: '8px' }}>
+          {error}
+        </div>
+      )}
 
-      <div style={{ marginTop: '24px' }}>
-        <h3>Scanned Items ({scannedAssets.length})</h3>
-        {scannedAssets.length > 0 ? (
-          <>
-            {scannedAssets.map((asset) => (
-              <div key={asset.id} style={{ position: 'relative' }}>
-                <AssetCard asset={asset} showStatus={false} />
-                <button
-                  onClick={() => removeScannedAsset(asset.tag)}
-                  style={{
-                    position: 'absolute',
-                    top: '8px',
-                    right: '8px',
-                    padding: '4px 8px',
-                    fontSize: '0.8em',
-                  }}
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-          </>
-        ) : (
-          <p style={{ color: '#333' }}>No items scanned yet.</p>
-        )}
+      <div style={{ fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>
+        Skannet ({session.items.length})
       </div>
-
-      <div
-        style={{
-          display: 'flex',
-          gap: '12px',
-          marginTop: '24px',
-          justifyContent: 'space-between',
-        }}
-      >
-        <button onClick={() => navigate('/')}>Back</button>
-        <button
-          onClick={() => navigate('/review', { state: { scannedAssets } })}
-          disabled={scannedAssets.length === 0}
-        >
-          Review & Complete
-        </button>
-      </div>
+      {session.items.length === 0 && (
+        <div style={{ color: '#666', fontStyle: 'italic', padding: '20px', textAlign: 'center', border: '1px dashed #ccc', borderRadius: '8px' }}>
+          Ingen gjenstander skannet ennå
+        </div>
+      )}
+      {[...session.items].reverse().map(item => (
+        <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', backgroundColor: '#fff', border: '1px solid #e0e0e0', borderRadius: '6px', marginBottom: '6px' }}>
+          <div>
+            <code style={{ fontWeight: 'bold', color: '#1a1a1a', marginRight: '8px' }}>{item.tag}</code>
+            <span style={{ color: '#333', fontSize: '14px' }}>{item.beskrivelse}</span>
+          </div>
+          <button
+            onClick={() => handleRemoveItem(item.id)}
+            style={{ background: 'none', border: 'none', color: '#c62828', cursor: 'pointer', fontSize: '20px', lineHeight: 1, padding: '0 4px' }}
+          >
+            ×
+          </button>
+        </div>
+      ))}
     </div>
   );
 }

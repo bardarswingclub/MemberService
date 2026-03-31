@@ -67,6 +67,9 @@ public class RoleRequirementsHandler : IAuthorizationHandler
 
             Policy.CanListPayments => user.IsInAnyRole(R.STYRET),
 
+            Policy.CanManageInventory => user.IsInAnyRole(R.INVENTORY_MANAGER),
+            Policy.CanBorrowInventory => user.IsInAnyRole(R.INVENTORY_MANAGER, R.INVENTORY_USER),
+
             _ => false,
         };
 }

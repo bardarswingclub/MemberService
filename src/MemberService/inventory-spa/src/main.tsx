@@ -3,8 +3,11 @@ import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 
-ReactDOM.createRoot(document.getElementById('inventory-root')!).render(
+const rootEl = document.getElementById('inventory-root')!;
+const canManage = rootEl.dataset.canManage === 'true';
+
+ReactDOM.createRoot(rootEl).render(
   <React.StrictMode>
-    <App />
+    <App canManage={canManage} />
   </React.StrictMode>,
 )

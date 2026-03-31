@@ -5,6 +5,22 @@
 
 ---
 
+## Initial Data Load
+
+To seed the inventory data on a new environment, use the CSV import REST endpoint:
+
+```bash
+curl -X POST https://<host>/api/inventory/assets/import \
+  -H "Content-Type: application/json" \
+  -H "RequestVerificationToken: <csrf>" \
+  --cookie "<session-cookie>" \
+  -d "{\"content\": $(jq -Rs . < 'Inventarliste for utstyr - Inventar.csv')}"
+```
+
+Or use the **Importer CSV** page in the UI at `/Inventory` (paste or upload the file). Requires `InventoryManager` or `Admin` role. The CSV file lives outside the repo at `data/Inventarliste for utstyr - Inventar.csv` — do not add auto-seeding to startup code, as the path is machine-specific.
+
+---
+
 ## Context
 
 Bårdar Swing Club needs an inventory management system integrated into the existing MemberService application (ASP.NET Core 8, C#, SQL Server, Razor Pages). The club has ~140 audio/AV items (speakers, cables, microphones, stands, etc.) tracked in a CSV file that needs to be imported and managed. Members need to borrow equipment for events, return it, and do storage inventory checks from mobile phones using QR code scanning.
@@ -17,7 +33,6 @@ The module is a React SPA (Vite + TypeScript) served from a Razor shell page at 
 - Policies: enum values in `Policy.cs` (auto-registered via `Enum.GetValues<Policy>()`)
 - Policy enforcement: switch expression in `RoleRequirementsHandler.IsAuthorized`; Admin granted everything unconditionally before the switch
 - Controllers: co-located in feature folder under `Pages/`
-- No existing JSON API controllers — this module introduces `[ApiController]`
 - Tests: NUnit 4 + Shouldly, unit tests only (no integration test infra yet)
 
 ---
@@ -37,7 +52,7 @@ From the actual CSV at `/Users/knuterikborgen/code/data/Inventarliste for utstyr
 | `Detaljer` | `Detaljer` | `string?` | Extra notes |
 | `LengdeM` | `Lengde [m]` | `decimal?` | Length in meters (cables). NB: Norwegian decimal comma |
 | `Diameter` | `Diameter` | `int?` | Connector diameter in mm |
-| `PhotoUrl` | — | `string?` | Not in CSV; added via UI |
+| `PhotoUrl` | — | `string?` | Not in CSV; added via UI or asset edit form |
 | `InInventory` | `Inventory` | `bool` | 1 = active in inventory |
 | `Lokasjon` | `Lokasjon` | `string?` | Location (empty for now, single storage) |
 | `CreatedAt` | — | `DateTime` | Auto-set |
@@ -58,16 +73,10 @@ CSV import: `Tag` is the upsert key. Header row skipped. Quoted fields (e.g. `"2
 
 - **Backend**: ASP.NET Core 8, EF Core + SQL Server
 - **Frontend**: React 18 + TypeScript, Vite, output to `wwwroot/dist/inventory/`
-- **SPA shell**: Razor page at `/Inventory/Index.cshtml`
+- **SPA shell**: Razor page at `/Inventory/Index.cshtml`; `data-can-manage` attribute embeds server-side permission for the React app
 - **Auth**: existing session cookie (same-origin) + anti-forgery token in `<meta name="csrf-token">`
 - **QR Scanning**: `html5-qrcode` npm package — on-device, iOS/Android, no server calls
-
-**QR/Camera feasibility notes:**
-- Uses browser `getUserMedia` API — mature, iOS Safari 14.5+ / Android Chrome ✅
-- Requires HTTPS — satisfied by Azure deployment ✅
-- iOS requires user gesture to start camera — `html5-qrcode` handles this with a "Start" button ✅
-- ZXing engine (underlying) is very reliable for printed QR codes at normal scanning distance ✅
-- **Risk: Low.** WP0 (POC) confirms it works in actual deployment context before committing to full backend.
+- **Build**: SPA built manually via `npm run build` in `inventory-spa/`; output goes to `wwwroot/dist/inventory/`. No MSBuild target yet — add in future if CI needed.
 
 ---
 
@@ -76,6 +85,7 @@ CSV import: `Tag` is the upsert key. Header row skipped. Quoted fields (e.g. `"2
 **`InventoryAsset`** — all fields from attribute table above, plus:
 - `Guid Id`
 - `Guid? CurrentBorrowId` — null = available; set to borrow session Id on checkout; cleared on return/check-complete
+- `InventoryBorrow? CurrentBorrow` — navigation property (loaded on demand)
 
 **`InventoryBorrow`** — a session
 - `Guid Id`, `string BorrowedByUserId` (FK → AspNetUsers), `string EventName`
@@ -90,131 +100,93 @@ CSV import: `Tag` is the upsert key. Header row skipped. Quoted fields (e.g. `"2
 
 ## Work Packages
 
-### WP0 — QR Scanning Proof of Concept (Frontend Only) ✅ DONE
-> **Purpose**: Validate camera/QR flow on real iOS and Android devices before investing in backend. Can be done as a standalone Vite+React app with mock data.
-
+### WP0 — QR Scanning Proof of Concept ✅ DONE
 - [x] Scaffold `inventory-spa/` with Vite + React + TypeScript
 - [x] Install `html5-qrcode`
-- [x] Build `QrScanner.tsx` component
-- [x] Build `BorrowScan.tsx` page (free-scan mode with mock asset lookup from hardcoded JSON)
-- [x] Build `BorrowPickList.tsx` page (paste + QR scan tabs with mock data)
-- [x] Deploy to staging (or test via `localhost` + ngrok for mobile testing)
-- [x] Confirm: camera opens on iOS Safari, QR decodes correctly, haptic feedback works
-
-**Status:** POC tested on Mac. QR scanning works with Html5QrcodeScanner providing camera input selection UI. Ready for backend integration.
-
-**Files created in this WP:**
-```
-src/MemberService/inventory-spa/
-  package.json
-  vite.config.ts
-  tsconfig.json
-  src/
-    main.tsx
-    App.tsx                    (just the two scan routes + mock data)
-    types/inventory.ts
-    components/QrScanner.tsx
-    components/AssetCard.tsx
-    pages/BorrowScan.tsx
-    pages/BorrowPickList.tsx
-```
+- [x] Build `QrScanner.tsx` component (Html5QrcodeScanner with camera selector UI)
+- [x] Test on iOS Safari and Android — camera + QR decode + haptic feedback confirmed
 
 ---
 
 ### WP1 — Backend Models + EF Migration ✅ DONE
-- [x] Create `src/MemberService/Data/Inventory/InventoryAsset.cs`
-- [x] Create `src/MemberService/Data/Inventory/InventoryBorrow.cs` (+ `BorrowType` enum)
-- [x] Create `src/MemberService/Data/Inventory/InventoryBorrowItem.cs`
-- [x] Create `src/MemberService/Data/Inventory/InventoryConfiguration.cs` (`IEntityTypeConfiguration<T>` for all three)
-- [x] Add 3 `DbSet<T>` to `src/MemberService/Data/MemberContext.cs`
-- [x] Generate migration: `dotnet ef migrations add AddInventoryModule` ✅ Created: `20260330182442_AddInventoryModule.cs`
-- [ ] Verify `dotnet run` creates DB tables
-
-**Status:** All entities created with proper EF Core configuration. Migration file generated with correct schema (tables, FKs, constraints, defaults). Next: verify migration applies successfully when DB is available.
+- [x] `InventoryAsset.cs`, `InventoryBorrow.cs` (+ `BorrowType` enum), `InventoryBorrowItem.cs`
+- [x] `InventoryConfiguration.cs` with `IEntityTypeConfiguration<T>` for all three
+- [x] 3 `DbSet<T>` added to `MemberContext.cs`
+- [x] Migration `20260330182442_AddInventoryModule` applied — all tables created
 
 ---
 
-### WP2 — Roles, Policies, Auth Wiring
-- [ ] Add `INVENTORY_MANAGER` and `INVENTORY_USER` to `src/MemberService/Data/ValueTypes/Roles.cs`
-- [ ] Add `CanManageInventory` and `CanBorrowInventory` to `src/MemberService/Auth/Policy.cs`
-- [ ] Add 2 cases to switch in `src/MemberService/Auth/Requirements/RoleRequirementsHandler.cs`
-- [ ] Verify roles appear in admin panel after `dotnet run`
+### WP2 — Roles, Policies, Auth Wiring ✅ DONE
+- [x] `INVENTORY_MANAGER`, `INVENTORY_USER` added to `Roles.cs`
+- [x] `CanManageInventory`, `CanBorrowInventory` added to `Policy.cs`
+- [x] Two switch cases added to `RoleRequirementsHandler.cs`
+- [x] "Lager" nav link in `_Layout.cshtml` — visible to `CanBorrowInventory`
+- [x] "Importer CSV" button hidden for non-managers (via `data-can-manage` on root element)
 
 ---
 
-### WP3 — JSON API Controllers
-- [ ] Create `src/MemberService/Pages/Inventory/InventoryModels.cs` (all DTOs)
-- [ ] Create `src/MemberService/Pages/Inventory/CsvImportService.cs`
-- [ ] Create `src/MemberService/Pages/Inventory/InventoryAssetsController.cs`
-  - [ ] `GET /api/inventory/assets` (list with search/filter)
-  - [ ] `GET /api/inventory/assets/{tag}`
-  - [ ] `POST /api/inventory/assets` (create)
-  - [ ] `PUT /api/inventory/assets/{tag}` (update)
-  - [ ] `DELETE /api/inventory/assets/{tag}` (delete)
-  - [ ] `POST /api/inventory/assets/import` (CSV upsert)
-- [ ] Create `src/MemberService/Pages/Inventory/InventoryBorrowsController.cs`
-  - [ ] `GET /api/inventory/borrows`
-  - [ ] `GET /api/inventory/borrows/{id}`
-  - [ ] `POST /api/inventory/borrows` (start session)
-  - [ ] `POST /api/inventory/borrows/{id}/scan`
-  - [ ] `DELETE /api/inventory/borrows/{id}/items/{itemId}`
-  - [ ] `POST /api/inventory/borrows/{id}/complete`
-- [ ] Add `MapFallbackToPage` to `src/MemberService/Program.cs`
-- [ ] Test all endpoints with curl/Postman
-- [ ] Import real CSV: verify 139 rows created, empty rows skipped
+### WP3 — JSON API Controllers ✅ DONE
+- [x] `InventoryModels.cs` — all DTOs including `BorrowedByEventName`, `BorrowedByUserName` on asset DTO
+- [x] `CsvImportService.cs` — upsert by tag, Norwegian decimal comma, quoted fields, empty row skip
+- [x] `InventoryAssetsController.cs`
+  - [x] `GET /api/inventory/assets?search=&borrowedOnly=` — includes current borrow event + user name
+  - [x] `GET /api/inventory/assets/{tag}`
+  - [x] `POST /api/inventory/assets`
+  - [x] `PUT /api/inventory/assets/{tag}`
+  - [x] `DELETE /api/inventory/assets/{tag}`
+  - [x] `POST /api/inventory/assets/import`
+- [x] `InventoryBorrowsController.cs`
+  - [x] `GET /api/inventory/borrows`
+  - [x] `GET /api/inventory/borrows/{id}`
+  - [x] `POST /api/inventory/borrows` — start session
+  - [x] `POST /api/inventory/borrows/{id}/scan` — no-op on duplicate, reloads with ThenInclude
+  - [x] `DELETE /api/inventory/borrows/{id}/items/{itemId}`
+  - [x] `POST /api/inventory/borrows/{id}/complete` — sets/clears `CurrentBorrowId` on assets
+- [x] `MapControllers()` added to `Program.cs`
+- [x] Real CSV imported — 139 assets in DB
 
 ---
 
-### WP4 — Frontend Build Setup (connect to backend)
-> WP0 creates the SPA scaffold; this WP wires it to the real backend and integrates with the .NET build.
-
-- [ ] Update `vite.config.ts` base and outDir for production
-- [ ] Create `src/MemberService/inventory-spa/src/api/client.ts` (fetch wrapper with CSRF)
-- [ ] Create `src/MemberService/inventory-spa/src/api/assets.ts`
-- [ ] Create `src/MemberService/inventory-spa/src/api/borrows.ts`
-- [ ] Add `BuildSpa` MSBuild target to `src/MemberService/MemberService.csproj`
-- [ ] Add entries to `.gitignore` (`wwwroot/dist/`, `node_modules/`)
-- [ ] Create `src/MemberService/Pages/Inventory/Index.cshtml` (SPA shell)
-- [ ] Create `src/MemberService/Pages/Inventory/Index.cshtml.cs`
-- [ ] Create `src/MemberService/Pages/Inventory/_InventoryLayout.cshtml`
-- [ ] Add Inventory nav link to `src/MemberService/Pages/_Layout.cshtml`
-- [ ] Verify SPA loads at `/inventory` with auth cookie
+### WP4 — Frontend Build + SPA Shell ✅ DONE
+- [x] `api/client.ts` — fetch wrapper with CSRF token from meta tag
+- [x] `api/assets.ts`, `api/borrows.ts`
+- [x] `Index.cshtml` with `data-can-manage` attribute read from `IndexModel`
+- [x] `Index.cshtml.cs` — `[Authorize(Policy = "CanBorrowInventory")]`, exposes `CanManageInventory`
+- [x] `_InventoryLayout.cshtml` — minimal layout with CSRF meta tag, loads `main.js` + `main.css`
+- [x] `PermissionsContext` in `App.tsx` — passes `canManage` to all pages
+- [x] `TopBar` with "← BSC" link back to main site
+- [x] SPA basename: `/Inventory` in prod, `/` in dev
+- [ ] `BuildSpa` MSBuild target — not yet; build manually with `npm run build` in `inventory-spa/`
+- [ ] `.gitignore` entries for `wwwroot/dist/` and `node_modules/` — verify these are excluded
 
 ---
 
-### WP5 — Asset Management UI
-- [ ] `AssetList.tsx` — searchable/filterable card grid, status badges
-- [ ] `AssetForm.tsx` — create/edit form for all asset fields
-- [ ] `CsvImport.tsx` — textarea paste + file upload + results display
-- [ ] Wire `App.tsx` routes: `/inventory`, `/inventory/assets/new`, `/inventory/assets/:tag/edit`, `/inventory/assets/import`
-- [ ] Test: CRUD an asset, import CSV, verify availability status
+### WP5 — Asset Management UI ✅ DONE (partial)
+- [x] `AssetList.tsx` — search, "Vis kun utlånt" filter, borrow info (event + user name), availability badge
+- [x] `CsvImport.tsx` — file upload + textarea paste + result display
+- [ ] `AssetForm.tsx` — create/edit form with all fields including PhotoUrl + live preview (not yet built)
+- [ ] Photo thumbnails in `AssetList.tsx` — clickable thumbnail if `photoUrl` set (see WP8)
 
 ---
 
-### WP6 — Borrow/Return/InventoryCheck Workflow UI
-- [ ] `BorrowStart.tsx` — event name buttons + mode selector + session start
-- [ ] `BorrowPickList.tsx` — paste tab + QR scan tab (wired to real API)
-- [ ] `BorrowScan.tsx` — free-scan mode (wired to real API)
-- [ ] `BorrowReview.tsx` — session review + complete
-- [ ] Wire `App.tsx` routes for all workflow pages
-- [ ] Test full borrow flow end-to-end (mobile + desktop)
-- [ ] Test return flow
-- [ ] Test inventory check flow
-
-**Fixed event name buttons:**
-`"Winter Jump"` `"Juni Jazz"` `"Shag up"` `"Sosialdanskomiteen"` `"O'Slow"` `"Oslo Balboa Weekend"` `"Just me"`
+### WP6 — Borrow/Return/InventoryCheck Workflow UI ✅ DONE (partial)
+- [x] `BorrowStart.tsx` — fixed event name buttons + "Annet..." free-text + type selector
+- [x] `BorrowScan.tsx` — QR camera toggle + manual tag input + scanned item list with remove
+- [x] `BorrowReview.tsx` — item list, remove items, complete session with success state
+- [x] `Home.tsx` — "Lån / Retur / Tell", "Utstyrsliste", "Importer CSV" (managers only), "Tilbake til BSC"
+- [ ] `PickList.tsx` — paste-to-pick workflow (see WP8)
 
 ---
 
 ### WP7 — Tests
-- [ ] Create `tests/MemberService.Tests/Inventory/CsvImportServiceTests.cs`
+- [ ] `tests/MemberService.Tests/Inventory/CsvImportServiceTests.cs`
   - [ ] Valid 5-row import (3 new, 2 updates)
   - [ ] Missing tag field → row error, others proceed
   - [ ] Quoted field with comma decimal `"2,5"` → `decimal 2.5`
   - [ ] Windows line endings (CRLF)
   - [ ] Empty rows skipped
   - [ ] Header row skipped
-- [ ] Create `tests/MemberService.Tests/Inventory/BorrowSessionLogicTests.cs`
+- [ ] `tests/MemberService.Tests/Inventory/BorrowSessionLogicTests.cs`
   - [ ] Scan into completed session → 400
   - [ ] Double-scan same tag → no-op, no duplicate row
   - [ ] `CurrentBorrowId` null → set after borrow complete → null after return complete
@@ -222,68 +194,108 @@ src/MemberService/inventory-spa/
 
 ---
 
-## Complete File Manifest
+### WP8 — Pick List + Asset Photos
 
-### New files
+**Purpose:** Allow users to paste free-form text containing tag IDs to generate a pick list before borrowing. Also adds photo thumbnails throughout the UI.
 
-| Path | WP | Purpose |
-|------|----|---------|
-| `src/MemberService/Data/Inventory/InventoryAsset.cs` | WP1 | EF entity |
-| `src/MemberService/Data/Inventory/InventoryBorrow.cs` | WP1 | EF entity + `BorrowType` enum |
-| `src/MemberService/Data/Inventory/InventoryBorrowItem.cs` | WP1 | EF entity |
-| `src/MemberService/Data/Inventory/InventoryConfiguration.cs` | WP1 | EF configurations |
-| `src/MemberService/Migrations/YYYYMMDD_AddInventoryModule.cs` | WP1 | Generated migration |
-| `src/MemberService/Pages/Inventory/InventoryModels.cs` | WP3 | DTOs |
-| `src/MemberService/Pages/Inventory/CsvImportService.cs` | WP3 | CSV parser |
-| `src/MemberService/Pages/Inventory/InventoryAssetsController.cs` | WP3 | Assets JSON API |
-| `src/MemberService/Pages/Inventory/InventoryBorrowsController.cs` | WP3 | Borrows JSON API |
-| `src/MemberService/Pages/Inventory/Index.cshtml` | WP4 | SPA shell page |
-| `src/MemberService/Pages/Inventory/Index.cshtml.cs` | WP4 | Shell page model |
-| `src/MemberService/Pages/Inventory/_InventoryLayout.cshtml` | WP4 | Minimal layout |
-| `src/MemberService/inventory-spa/package.json` | WP0 | npm manifest |
-| `src/MemberService/inventory-spa/vite.config.ts` | WP0 | Vite config |
-| `src/MemberService/inventory-spa/tsconfig.json` | WP0 | TypeScript config |
-| `src/MemberService/inventory-spa/src/main.tsx` | WP0 | React entry |
-| `src/MemberService/inventory-spa/src/App.tsx` | WP0 | Router routes |
-| `src/MemberService/inventory-spa/src/types/inventory.ts` | WP0 | TS interfaces |
-| `src/MemberService/inventory-spa/src/components/QrScanner.tsx` | WP0 | html5-qrcode wrapper |
-| `src/MemberService/inventory-spa/src/components/AssetCard.tsx` | WP0 | Asset display card |
-| `src/MemberService/inventory-spa/src/pages/BorrowScan.tsx` | WP0 | Free-scan page |
-| `src/MemberService/inventory-spa/src/pages/BorrowPickList.tsx` | WP0 | Pick list page |
-| `src/MemberService/inventory-spa/src/api/client.ts` | WP4 | Fetch wrapper |
-| `src/MemberService/inventory-spa/src/api/assets.ts` | WP4 | Asset API calls |
-| `src/MemberService/inventory-spa/src/api/borrows.ts` | WP4 | Borrow API calls |
-| `src/MemberService/inventory-spa/src/pages/AssetList.tsx` | WP5 | Asset list page |
-| `src/MemberService/inventory-spa/src/pages/AssetForm.tsx` | WP5 | Asset form page |
-| `src/MemberService/inventory-spa/src/pages/CsvImport.tsx` | WP5 | CSV import page |
-| `src/MemberService/inventory-spa/src/pages/BorrowStart.tsx` | WP6 | Start session page |
-| `src/MemberService/inventory-spa/src/pages/BorrowReview.tsx` | WP6 | Review + complete page |
-| `tests/MemberService.Tests/Inventory/CsvImportServiceTests.cs` | WP7 | CSV tests |
-| `tests/MemberService.Tests/Inventory/BorrowSessionLogicTests.cs` | WP7 | Session logic tests |
+#### Pick List feature
 
-### Existing files to modify
+**UX flow:**
+1. User opens pick list from Home (new button) or from within a borrow session
+2. User pastes any text (email, spreadsheet, chat message) containing tag-like patterns
+3. Smart parser extracts all tag patterns using regex `/\b[A-ZÆØÅ]+-\d+\b/gi` — ignores surrounding text
+4. Deduplicates found tags; shows preview of what was found before looking up
+5. Batch API call fetches all matched assets in one request
+6. Shows checklist of assets:
+   - Tag + beskrivelse + kategori
+   - Photo thumbnail if `photoUrl` is set (click to enlarge)
+   - Availability badge (tilgjengelig / utlånt)
+   - Checkbox — pre-checked, user can deselect items they don't want
+7. "Start lånesession med valgte" button — creates a new borrow session and adds all checked items, then navigates to BorrowReview
 
-| Path | WP | Change |
-|------|----|--------|
-| `src/MemberService/Data/ValueTypes/Roles.cs` | WP2 | Add `INVENTORY_MANAGER`, `INVENTORY_USER` |
-| `src/MemberService/Auth/Policy.cs` | WP2 | Add `CanManageInventory`, `CanBorrowInventory` |
-| `src/MemberService/Auth/Requirements/RoleRequirementsHandler.cs` | WP2 | Add 2 switch cases |
-| `src/MemberService/Data/MemberContext.cs` | WP1 | Add 3 `DbSet<T>` |
-| `src/MemberService/MemberService.csproj` | WP4 | Add `BuildSpa` target |
-| `src/MemberService/Program.cs` | WP3 | Add `MapFallbackToPage` |
-| `src/MemberService/Pages/_Layout.cshtml` | WP4 | Add Inventory nav link |
-| `.gitignore` | WP4 | Exclude dist + node_modules |
+**Backend changes needed:**
+- Add `POST /api/inventory/assets/lookup` endpoint — accepts `{ tags: string[] }`, returns matching assets (same DTO as list). Does not 404 on unknown tags; returns found subset with a `notFound` list for unknowns.
+
+**Frontend files:**
+- `src/inventory-spa/src/pages/PickList.tsx` — paste input, tag extraction preview, asset checklist, start session button
+- Route: `/pick-list` added to `App.tsx`
+- Button "Plukkliste" added to `Home.tsx`
+
+**Tag extraction logic (client-side only):**
+```ts
+const extractTags = (text: string): string[] => {
+  const matches = text.match(/\b[A-ZÆØÅ]+-\d+\b/gi) ?? [];
+  return [...new Set(matches.map(t => t.toUpperCase()))];
+};
+```
+
+---
+
+#### Asset Photo support
+
+**UX:**
+- In `AssetList.tsx`: if asset has `photoUrl`, show a small thumbnail (max 60×60px) to the right of the tag. Clicking opens the full image in a lightbox overlay (simple: fixed-position dark overlay + centered `<img>`).
+- In `PickList.tsx`: show photo thumbnail on each pick list card (same lightbox).
+- In `AssetForm.tsx` (future): `PhotoUrl` text input with live `<img>` preview below.
+
+**No backend changes needed** — `PhotoUrl` is already in the data model and returned by the API.
+
+#### Files to create/modify (WP8)
+
+| File | Change |
+|------|--------|
+| `src/inventory-spa/src/pages/PickList.tsx` | New page |
+| `src/inventory-spa/src/components/AssetPhoto.tsx` | Thumbnail + lightbox component |
+| `src/inventory-spa/src/pages/AssetList.tsx` | Add photo thumbnail |
+| `src/inventory-spa/src/pages/Home.tsx` | Add "Plukkliste" button |
+| `src/inventory-spa/src/App.tsx` | Add `/pick-list` route |
+| `src/inventory-spa/src/api/assets.ts` | Add `lookup(tags)` function |
+| `src/MemberService/Pages/Inventory/InventoryAssetsController.cs` | Add `POST /api/inventory/assets/lookup` |
+| `src/MemberService/Pages/Inventory/InventoryModels.cs` | Add `AssetLookupRequest`, `AssetLookupResult` DTOs |
+
+---
+
+### WP9 — Asset Maintenance UI (InventoryManager only)
+
+**Purpose:** Allow managers to view and edit individual assets — primarily to set `PhotoUrl`, fix descriptions, mark items as out-of-inventory, etc.
+
+**Access:** Only shown to users with `CanManageInventory` (i.e. `InventoryManager` or `Admin`). "Rediger utstyr" button on `Home.tsx` hidden for regular users (same `canManage` flag already in context).
+
+**UX flow:**
+1. "Rediger utstyr" button on Home → navigates to `/assets/manage`
+2. Shows same searchable list as `AssetList.tsx` but each row has an "Rediger" button
+3. Clicking navigates to `/assets/:tag/edit`
+4. Edit form shows all fields: Beskrivelse, Kategori, SubKategori, Merke, Modell, Detaljer, LengdeM, Diameter, PhotoUrl (with live `<img>` preview below the input), InInventory toggle, Lokasjon
+5. Save → `PUT /api/inventory/assets/{tag}` → back to list
+6. Tag field is read-only (it's the key)
+
+**Notes:**
+- Create/delete are lower priority; edit is the primary need (especially for adding `PhotoUrl`)
+- The existing `PUT /api/inventory/assets/{tag}` endpoint already handles all fields
+- Route guard: if `canManage` is false, redirect to `/` from this page
+
+#### Files to create/modify (WP9)
+
+| File | Change |
+|------|--------|
+| `src/inventory-spa/src/pages/AssetManageList.tsx` | New — manager asset list with edit buttons |
+| `src/inventory-spa/src/pages/AssetEditForm.tsx` | New — edit form with all fields + photo preview |
+| `src/inventory-spa/src/pages/Home.tsx` | Add "Rediger utstyr" button (managers only) |
+| `src/inventory-spa/src/App.tsx` | Add `/assets/manage` and `/assets/:tag/edit` routes |
 
 ---
 
 ## Verification Checklist
 
-- [ ] `dotnet ef migrations add AddInventoryModule` succeeds
-- [ ] `dotnet run` creates inventory tables in DB
-- [ ] Assign `InventoryUser` role → `/inventory` accessible; assign `InventoryManager` → import returns 200
-- [ ] POST real CSV → 139 assets created, empty rows skipped
-- [ ] Duplicate tag → 409 Conflict
-- [ ] Full borrow flow on mobile: camera opens → QR decoded → asset registered → complete → `CurrentBorrowId` set
-- [ ] Full return flow: `CurrentBorrowId` cleared after complete
-- [ ] Deep link to `/inventory/assets/new` → SPA loads (no 404)
-- [ ] `dotnet test` passes
+- [x] Migration applied, DB tables created
+- [x] Real CSV imported — 139 assets in DB
+- [x] Borrow flow: start → scan QR/type tag → review → complete → `CurrentBorrowId` set on assets
+- [x] Return flow: `CurrentBorrowId` cleared after complete
+- [x] Asset list shows event name + user name for borrowed items
+- [x] "Vis kun utlånt" filter works
+- [x] "Importer CSV" hidden for non-managers
+- [ ] Pick list: paste text → extract tags → show checklist with photos → start session (WP8)
+- [ ] Photo thumbnails in asset list and pick list (WP8)
+- [ ] Asset edit form: click asset → edit all fields incl. PhotoUrl with preview (WP9)
+- [ ] "Rediger utstyr" only visible to managers (WP9)
+- [ ] `dotnet test` passes (WP7)

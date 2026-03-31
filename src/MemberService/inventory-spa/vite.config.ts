@@ -4,10 +4,16 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: process.env.NODE_ENV === 'production' ? '/dist/inventory/' : '/',
+  base: '/',
   build: {
     outDir: '../wwwroot/dist/inventory',
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        entryFileNames: 'assets/main.js',
+        assetFileNames: 'assets/main[extname]',
+      },
+    },
   },
   server: {
     allowedHosts: [

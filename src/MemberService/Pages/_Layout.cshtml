@@ -60,6 +60,13 @@
                                 <a class="nav-link text-white" asp-page="/Payments/Index">Betalinger</a>
                             </li>
                         }
+                        @if (await AuthorizationService.IsAuthorized(User, Policy.CanBorrowInventory))
+                        {
+                            dividerNeeded = true;
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-page="/Inventory/Index">Lager</a>
+                            </li>
+                        }
                         @if (User.IsAdministrator())
                         {
                             dividerNeeded = true;
