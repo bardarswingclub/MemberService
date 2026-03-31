@@ -177,19 +177,19 @@ CSV import: `Tag` is the upsert key. Header row skipped. Quoted fields (e.g. `"2
 
 ---
 
-### WP7 — Tests
-- [ ] `tests/MemberService.Tests/Inventory/CsvImportServiceTests.cs`
-  - [ ] Valid 5-row import (3 new, 2 updates)
-  - [ ] Missing tag field → row error, others proceed
-  - [ ] Quoted field with comma decimal `"2,5"` → `decimal 2.5`
-  - [ ] Windows line endings (CRLF)
-  - [ ] Empty rows skipped
-  - [ ] Header row skipped
-- [ ] `tests/MemberService.Tests/Inventory/BorrowSessionLogicTests.cs`
-  - [ ] Scan into completed session → 400
-  - [ ] Double-scan same tag → no-op, no duplicate row
-  - [ ] `CurrentBorrowId` null → set after borrow complete → null after return complete
-- [ ] `dotnet test` passes
+### WP7 — Tests ✅ DONE
+- [x] `tests/MemberService.Tests/Inventory/CsvImportServiceTests.cs`
+  - [x] Valid 5-row import (3 new, 2 updates)
+  - [x] Missing tag field → row error, others proceed
+  - [x] Quoted field with comma decimal `"2,5"` → `decimal 2.5`
+  - [x] Windows line endings (CRLF)
+  - [x] Empty rows skipped
+  - [x] Header row skipped
+- [x] `tests/MemberService.Tests/Inventory/BorrowSessionLogicTests.cs`
+  - [x] Scan into completed session → 400
+  - [x] Double-scan same tag → no-op, no duplicate row
+  - [x] `CurrentBorrowId` null → set after borrow complete → null after return complete
+- [x] `dotnet test` passes (123/123)
 
 ---
 
