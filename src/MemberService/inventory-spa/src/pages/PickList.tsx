@@ -98,7 +98,8 @@ export function PickList() {
 
   const currentItem = queue[currentIndex];
 
-  const handleScan = async (tag: string) => {
+  const handleScan = async (tag_scanned: string) => {
+    const tag = tag_scanned.trim();
     if (tag === lastTagRef.current || !currentItem) return;
     lastTagRef.current = tag;
     setTimeout(() => { lastTagRef.current = ''; }, 2000);

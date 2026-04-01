@@ -35,7 +35,8 @@ export function BorrowScan() {
     }).catch((e: Error) => setError(e.message));
   }, [sessionId]);
 
-  const handleScan = async (tag: string) => {
+  const handleScan = async (tag_scanned: string) => {
+    const tag = tag_scanned.trim();
     if (!sessionId || tag === lastTagRef.current) return;
     lastTagRef.current = tag;
     setTimeout(() => { lastTagRef.current = ''; }, 2000);
