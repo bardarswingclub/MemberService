@@ -5,6 +5,8 @@ export interface BorrowItem {
   assetId: string;
   tag: string;
   beskrivelse: string;
+  merke?: string;
+  modell?: string;
   scannedAt: string;
 }
 

@@ -130,8 +130,9 @@ public class InventoryBorrowsController(MemberContext context) : ControllerBase
         context.InventoryAssets.Update(asset);
         await context.SaveChangesAsync();
 
-        // Reload session with all navigation properties
+        // Reload session with all navigation properties (AsNoTracking avoids EF returning cached items without Asset)
         var updated = await context.InventoryBorrows
+            .AsNoTracking()
             .Include(b => b.Items).ThenInclude(i => i.Asset)
             .Include(b => b.BorrowedByUser)
             .FirstAsync(b => b.Id == id);
@@ -225,6 +226,8 @@ public class InventoryBorrowsController(MemberContext context) : ControllerBase
                 AssetId = i.AssetId,
                 Tag = i.Asset?.Tag ?? "",
                 Beskrivelse = i.Asset?.Beskrivelse ?? "",
+                Merke = i.Asset?.Merke,
+                Modell = i.Asset?.Modell,
                 ScannedAt = i.ScannedAt
             }).ToList()
         };

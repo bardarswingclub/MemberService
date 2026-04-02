@@ -35,23 +35,43 @@ export function BorrowScan() {
     }).catch((e: Error) => setError(e.message));
   }, [sessionId]);
 
+  const speak = (text: string) => {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'nb-NO';
+    u.rate = 1.2;
+    window.speechSynthesis.speak(u);
+  };
+
   const handleScan = async (tag_scanned: string) => {
     const tag = tag_scanned.trim();
     if (!sessionId || tag === lastTagRef.current) return;
     lastTagRef.current = tag;
     setTimeout(() => { lastTagRef.current = ''; }, 2000);
 
-    if (navigator.vibrate) navigator.vibrate(100);
     setLastScanned(tag);
+
+    const alreadyInSession = session?.items.some(i => i.tag === tag);
+    if (alreadyInSession) {
+      if (navigator.vibrate) navigator.vibrate([80, 60, 80]);
+      speak('Scannet fra før');
+      return;
+    }
 
     try {
       const updated = await borrowsApi.scan(sessionId, tag);
       setSession(updated);
       setError('');
+      if (navigator.vibrate) navigator.vibrate(120);
+      speak('Scannet');
     } catch (e: unknown) {
       if (e instanceof ApiError && e.status === 404) {
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]);
+        speak('Ukjent QR kode');
         setError(`Tag "${tag}" ikke funnet i lageret`);
       } else if (e instanceof Error) {
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]);
         setError(e.message || 'Skanningsfeil');
       }
     }
@@ -152,13 +172,16 @@ export function BorrowScan() {
       )}
       {[...session.items].reverse().map(item => (
         <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', backgroundColor: '#fff', border: '1px solid #e0e0e0', borderRadius: '6px', marginBottom: '6px' }}>
-          <div>
-            <code style={{ fontWeight: 'bold', color: '#1a1a1a', marginRight: '8px' }}>{item.tag}</code>
-            <span style={{ color: '#333', fontSize: '14px' }}>{item.beskrivelse}</span>
+          <div style={{ minWidth: 0 }}>
+            <code style={{ fontWeight: 'bold', color: '#1a1a1a', display: 'block' }}>{item.tag}</code>
+            {item.beskrivelse && <div style={{ color: '#333', fontSize: '13px' }}>{item.beskrivelse}</div>}
+            {(item.merke || item.modell) && (
+              <div style={{ color: '#666', fontSize: '12px' }}>{[item.merke, item.modell].filter(Boolean).join(' · ')}</div>
+            )}
           </div>
           <button
             onClick={() => handleRemoveItem(item.id)}
-            style={{ background: 'none', border: 'none', color: '#c62828', cursor: 'pointer', fontSize: '20px', lineHeight: 1, padding: '0 4px' }}
+            style={{ background: 'none', border: 'none', color: '#c62828', cursor: 'pointer', fontSize: '20px', lineHeight: 1, padding: '0 4px', flexShrink: 0 }}
           >
             ×
           </button>

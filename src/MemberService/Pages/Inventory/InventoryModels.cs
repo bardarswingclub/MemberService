@@ -72,6 +72,8 @@ public class BorrowItemDto
     public Guid AssetId { get; set; }
     public string Tag { get; set; }
     public string Beskrivelse { get; set; }
+    public string? Merke { get; set; }
+    public string? Modell { get; set; }
     public DateTime ScannedAt { get; set; }
 }
 
