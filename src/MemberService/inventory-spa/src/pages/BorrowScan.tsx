@@ -229,9 +229,12 @@ export function BorrowScan() {
                   opacity: alreadyScanned ? 0.6 : 1,
                 }}
               >
-                <div>
-                  <code style={{ fontWeight: 'bold', color: '#1a1a1a', marginRight: '8px' }}>{asset.tag}</code>
-                  <span style={{ color: '#333', fontSize: '14px' }}>{asset.beskrivelse}</span>
+                <div style={{ minWidth: 0 }}>
+                  <code style={{ fontWeight: 'bold', color: '#1a1a1a', display: 'block' }}>{asset.tag}</code>
+                  {asset.beskrivelse && <div style={{ color: '#333', fontSize: '13px' }}>{asset.beskrivelse}</div>}
+                  {(asset.merke || asset.modell) && (
+                    <div style={{ color: '#666', fontSize: '12px' }}>{[asset.merke, asset.modell].filter(Boolean).join(' · ')}</div>
+                  )}
                 </div>
                 {alreadyScanned && <span style={{ fontSize: '18px', color: '#43a047' }}>✓</span>}
               </div>
