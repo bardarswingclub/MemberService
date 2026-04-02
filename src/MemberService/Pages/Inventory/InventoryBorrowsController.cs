@@ -178,23 +178,29 @@ public class InventoryBorrowsController(MemberContext context) : ControllerBase
         // Update asset state based on borrow type
         if (session.Type == Data.Inventory.BorrowType.Borrow)
         {
-            // Set CurrentBorrowId for all assets in this borrow
             foreach (var item in session.Items)
             {
                 item.Asset.CurrentBorrowId = session.Id;
                 item.Asset.UpdatedAt = DateTime.UtcNow;
+                item.Asset.LastObservedAt = session.CompletedAt;
             }
         }
         else if (session.Type == Data.Inventory.BorrowType.Return)
         {
-            // Clear CurrentBorrowId for all assets in this return
             foreach (var item in session.Items)
             {
                 item.Asset.CurrentBorrowId = null;
                 item.Asset.UpdatedAt = DateTime.UtcNow;
+                item.Asset.LastObservedAt = session.CompletedAt;
             }
         }
-        // InventoryCheck type doesn't modify CurrentBorrowId
+        else if (session.Type == Data.Inventory.BorrowType.InventoryCheck)
+        {
+            foreach (var item in session.Items)
+            {
+                item.Asset.LastObservedAt = session.CompletedAt;
+            }
+        }
 
         context.InventoryBorrows.Update(session);
         await context.SaveChangesAsync();

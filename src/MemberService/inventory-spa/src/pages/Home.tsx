@@ -47,6 +47,12 @@ export function Home() {
       )}
 
       {canManage && (
+        <a href="/api/inventory/assets/export" download style={{ ...btn, backgroundColor: '#0288d1', textAlign: 'center', textDecoration: 'none', display: 'block', boxSizing: 'border-box' }}>
+          Eksporter CSV
+        </a>
+      )}
+
+      {canManage && (
         <button onClick={() => navigate('/import')} style={{ ...btn, backgroundColor: '#f57c00' }}>
           Importer CSV
         </button>

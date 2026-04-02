@@ -149,6 +149,48 @@ public class InventoryAssetsController(MemberContext context, CsvImportService c
         return NoContent();
     }
 
+    [HttpGet("export")]
+    [Authorize(Policy = "CanBorrowInventory")]
+    public async Task<IActionResult> ExportCsv()
+    {
+        var assets = await context.InventoryAssets
+            .OrderBy(a => a.Tag)
+            .ToListAsync();
+
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("No,Tag,Inventory,Lokasjon,Kategori,Sub-kategori,Beskrivelse,Merke,Modell,Detaljer,Lengde [m],Diameter");
+
+        var no = 1;
+        foreach (var asset in assets)
+        {
+            sb.AppendLine(string.Join(",",
+                no++,
+                CsvField(asset.Tag),
+                asset.InInventory ? "1" : "0",
+                CsvField(asset.Lokasjon),
+                CsvField(asset.Kategori),
+                CsvField(asset.SubKategori),
+                CsvField(asset.Beskrivelse),
+                CsvField(asset.Merke),
+                CsvField(asset.Modell),
+                CsvField(asset.Detaljer),
+                asset.LengdeM.HasValue ? asset.LengdeM.Value.ToString("G", System.Globalization.CultureInfo.InvariantCulture) : "",
+                asset.Diameter.HasValue ? asset.Diameter.Value.ToString() : ""
+            ));
+        }
+
+        var bytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
+        return File(bytes, "text/csv", $"inventar-{DateTime.UtcNow:yyyy-MM-dd}.csv");
+    }
+
+    private static string CsvField(string? value)
+    {
+        if (string.IsNullOrEmpty(value)) return "";
+        if (value.Contains(',') || value.Contains('"') || value.Contains('\n'))
+            return $"\"{value.Replace("\"", "\"\"")}\"";
+        return value;
+    }
+
     [HttpPost("lookup")]
     [Authorize(Policy = "CanBorrowInventory")]
     public async Task<ActionResult<AssetLookupResult>> LookupAssets([FromBody] AssetLookupRequest request)

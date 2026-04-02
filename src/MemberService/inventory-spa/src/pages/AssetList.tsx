@@ -2,12 +2,37 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { assetsApi, InventoryAsset } from '../api/assets';
 import { AssetPhoto } from '../components/AssetPhoto';
+import { usePermissions } from '../App';
+
+type SortKey = 'tag' | 'beskrivelse' | 'lastObservedAt';
+type SortDir = 'asc' | 'desc';
+
+const SORT_OPTIONS: { key: SortKey; label: string }[] = [
+  { key: 'tag', label: 'Tag' },
+  { key: 'beskrivelse', label: 'Navn' },
+  { key: 'lastObservedAt', label: 'Observert' },
+];
+
+function sortAssets(assets: InventoryAsset[], key: SortKey, dir: SortDir): InventoryAsset[] {
+  const sorted = [...assets].sort((a, b) => {
+    if (key === 'lastObservedAt') {
+      const av = a.lastObservedAt ? new Date(a.lastObservedAt).getTime() : 0;
+      const bv = b.lastObservedAt ? new Date(b.lastObservedAt).getTime() : 0;
+      return av - bv;
+    }
+    return (a[key] ?? '').localeCompare(b[key] ?? '', 'nb');
+  });
+  return dir === 'desc' ? sorted.reverse() : sorted;
+}
 
 export function AssetList() {
   const navigate = useNavigate();
+  const { canManage } = usePermissions();
   const [assets, setAssets] = useState<InventoryAsset[]>([]);
   const [search, setSearch] = useState('');
   const [borrowedOnly, setBorrowedOnly] = useState(false);
+  const [sortKey, setSortKey] = useState<SortKey>('tag');
+  const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -24,6 +49,17 @@ export function AssetList() {
     }, 300);
     return () => clearTimeout(t);
   }, [search, borrowedOnly]);
+
+  const handleSort = (key: SortKey) => {
+    if (key === sortKey) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortKey(key);
+      setSortDir('asc');
+    }
+  };
+
+  const displayedAssets = sortAssets(assets, sortKey, sortDir);
 
   return (
     <div style={{ padding: '16px', maxWidth: '700px', margin: '0 auto' }}>
@@ -44,7 +80,7 @@ export function AssetList() {
       <button
         onClick={() => setBorrowedOnly(b => !b)}
         style={{
-          marginBottom: '12px',
+          marginBottom: '8px',
           padding: '8px 16px',
           borderRadius: '20px',
           border: '2px solid',
@@ -59,13 +95,49 @@ export function AssetList() {
         {borrowedOnly ? '✕ ' : ''}Vis kun utlånt
       </button>
 
-      {error && <div style={{ color: '#c62828', padding: '10px', backgroundColor: '#ffebee', borderRadius: '6px', marginBottom: '12px' }}>{error}</div>}
-
-      <div style={{ marginBottom: '8px', color: '#555', fontSize: '14px' }}>
-        {loading ? 'Laster...' : `${assets.length} gjenstander`}
+      <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', flexWrap: 'wrap' }}>
+        {SORT_OPTIONS.map(opt => {
+          const active = sortKey === opt.key;
+          return (
+            <button
+              key={opt.key}
+              onClick={() => handleSort(opt.key)}
+              style={{
+                padding: '6px 12px',
+                borderRadius: '20px',
+                border: '2px solid',
+                borderColor: active ? '#1976d2' : '#ccc',
+                backgroundColor: active ? '#e3f2fd' : '#fff',
+                color: active ? '#1976d2' : '#555',
+                fontWeight: active ? 'bold' : 'normal',
+                cursor: 'pointer',
+                fontSize: '13px',
+              }}
+            >
+              {opt.label} {active ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+            </button>
+          );
+        })}
       </div>
 
-      {assets.map(asset => (
+      {error && <div style={{ color: '#c62828', padding: '10px', backgroundColor: '#ffebee', borderRadius: '6px', marginBottom: '12px' }}>{error}</div>}
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+        <span style={{ color: '#555', fontSize: '14px' }}>
+          {loading ? 'Laster...' : `${displayedAssets.length} gjenstander`}
+        </span>
+        {canManage && (
+          <a
+            href="/api/inventory/assets/export"
+            download
+            style={{ fontSize: '13px', color: '#1976d2', textDecoration: 'none', padding: '4px 10px', border: '1px solid #1976d2', borderRadius: '6px' }}
+          >
+            Eksporter CSV
+          </a>
+        )}
+      </div>
+
+      {displayedAssets.map(asset => (
         <div
           key={asset.id}
           style={{
