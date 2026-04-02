@@ -75,7 +75,7 @@ export function BorrowReview() {
           <div style={{ color: '#388e3c', marginTop: '4px' }}>{session.items.length} gjenstander {TYPE_LABELS[session.type]?.toLowerCase()}</div>
         </div>
       ) : (
-        <h2 style={{ marginBottom: '16px' }}>Gjennomgang</h2>
+        <h2 style={{ marginBottom: '16px', color: '#1a1a1a' }}>Gjennomgang</h2>
       )}
 
       <div style={{ backgroundColor: '#f5f5f5', padding: '10px 14px', borderRadius: '6px', marginBottom: '16px' }}>
@@ -125,8 +125,8 @@ export function BorrowReview() {
             fontWeight: 'bold',
             borderRadius: '8px',
             border: 'none',
-            backgroundColor: completing || session.items.length === 0 ? '#ccc' : '#388e3c',
-            color: '#fff',
+            backgroundColor: completing || session.items.length === 0 ? '#e0e0e0' : '#388e3c',
+            color: completing || session.items.length === 0 ? '#888' : '#fff',
             cursor: completing || session.items.length === 0 ? 'not-allowed' : 'pointer',
           }}
         >

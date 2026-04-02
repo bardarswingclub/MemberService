@@ -206,8 +206,8 @@ export function AssetEditForm() {
             fontWeight: 'bold',
             borderRadius: '8px',
             border: 'none',
-            backgroundColor: saved ? '#388e3c' : saving ? '#ccc' : '#1976d2',
-            color: '#fff',
+            backgroundColor: saved ? '#388e3c' : saving ? '#e0e0e0' : '#1976d2',
+            color: saving ? '#888' : '#fff',
             cursor: saving || saved ? 'not-allowed' : 'pointer',
           }}
         >

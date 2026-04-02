@@ -49,7 +49,7 @@ export function BorrowStart() {
       <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', fontSize: '14px', color: '#1976d2', cursor: 'pointer', padding: 0, marginBottom: '16px' }}>
         ← Tilbake
       </button>
-      <h2 style={{ marginBottom: '24px' }}>Start session</h2>
+      <h2 style={{ marginBottom: '24px', color: '#1a1a1a' }}>Start session</h2>
 
       <div style={{ marginBottom: '24px' }}>
         <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Arrangement</div>
@@ -139,8 +139,8 @@ export function BorrowStart() {
           fontWeight: 'bold',
           borderRadius: '8px',
           border: 'none',
-          backgroundColor: loading || !eventName.trim() ? '#ccc' : '#1976d2',
-          color: '#fff',
+          backgroundColor: loading || !eventName.trim() ? '#e0e0e0' : '#1976d2',
+          color: loading || !eventName.trim() ? '#888' : '#fff',
           cursor: loading || !eventName.trim() ? 'not-allowed' : 'pointer',
         }}
       >

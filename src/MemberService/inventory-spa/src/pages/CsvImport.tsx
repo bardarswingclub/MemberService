@@ -37,7 +37,7 @@ export function CsvImport() {
       <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', fontSize: '14px', color: '#1976d2', cursor: 'pointer', padding: 0, marginBottom: '16px' }}>
         ← Hjem
       </button>
-      <h2 style={{ marginBottom: '20px' }}>Importer CSV</h2>
+      <h2 style={{ marginBottom: '20px', color: '#1a1a1a' }}>Importer CSV</h2>
 
       <div style={{ marginBottom: '16px' }}>
         <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>Last opp CSV-fil</label>
@@ -72,8 +72,8 @@ export function CsvImport() {
           fontWeight: 'bold',
           borderRadius: '8px',
           border: 'none',
-          backgroundColor: loading || !content.trim() ? '#ccc' : '#f57c00',
-          color: '#fff',
+          backgroundColor: loading || !content.trim() ? '#e0e0e0' : '#f57c00',
+          color: loading || !content.trim() ? '#888' : '#fff',
           cursor: loading || !content.trim() ? 'not-allowed' : 'pointer',
           marginBottom: '20px',
         }}

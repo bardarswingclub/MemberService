@@ -31,7 +31,7 @@ export function Home() {
       </button>
 
       <button onClick={() => navigate('/assets')} style={{ ...btn, backgroundColor: '#388e3c' }}>
-        Utstyrsliste
+        Utstyrsoversikt
       </button>
 
       {canManage && (
@@ -47,7 +47,7 @@ export function Home() {
       )}
 
       <a href="/" style={{ ...btn, backgroundColor: '#546e7a', textAlign: 'center', textDecoration: 'none', display: 'block', marginTop: '24px', boxSizing: 'border-box' }}>
-        Tilbake til BSC
+        Tilbake til medlemssiden
       </a>
     </div>
   );

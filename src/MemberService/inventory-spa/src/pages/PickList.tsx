@@ -144,7 +144,7 @@ export function PickList() {
     return (
       <div style={{ padding: '32px 24px', maxWidth: '480px', margin: '0 auto', textAlign: 'center' }}>
         <div style={{ fontSize: '72px', marginBottom: '16px', color: '#2e7d32' }}>✓</div>
-        <h2 style={{ marginBottom: '8px' }}>Plukking ferdig!</h2>
+        <h2 style={{ marginBottom: '8px', color: '#1a1a1a' }}>Plukking ferdig!</h2>
         <div style={{ color: '#555', fontSize: '16px', marginBottom: '32px' }}>
           {pickedCount} av {queue.length} gjenstander plukket
         </div>
@@ -274,7 +274,7 @@ export function PickList() {
       <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', fontSize: '14px', color: '#1976d2', cursor: 'pointer', padding: 0, marginBottom: '16px' }}>
         ← Hjem
       </button>
-      <h2 style={{ marginBottom: '12px' }}>Plukkliste</h2>
+      <h2 style={{ marginBottom: '12px', color: '#1a1a1a' }}>Plukkliste</h2>
 
       <div style={{ marginBottom: '10px', color: '#555', fontSize: '14px' }}>
         Lim inn tekst (e-post, regneark, chat) som inneholder tag-IDer som K-001, S-003 osv.
@@ -301,7 +301,7 @@ export function PickList() {
         <button
           onClick={handleLookup}
           disabled={lookupLoading || extractedTags.length === 0}
-          style={{ width: '100%', padding: '12px', fontSize: '16px', fontWeight: 'bold', borderRadius: '8px', border: 'none', backgroundColor: lookupLoading || extractedTags.length === 0 ? '#ccc' : '#1976d2', color: '#fff', cursor: lookupLoading || extractedTags.length === 0 ? 'not-allowed' : 'pointer', marginBottom: '16px', boxSizing: 'border-box' }}
+          style={{ width: '100%', padding: '12px', fontSize: '16px', fontWeight: 'bold', borderRadius: '8px', border: 'none', backgroundColor: lookupLoading || extractedTags.length === 0 ? '#e0e0e0' : '#1976d2', color: lookupLoading || extractedTags.length === 0 ? '#888' : '#fff', cursor: lookupLoading || extractedTags.length === 0 ? 'not-allowed' : 'pointer', marginBottom: '16px', boxSizing: 'border-box' }}
         >
           {lookupLoading ? 'Søker...' : 'Søk opp utstyr'}
         </button>
@@ -377,7 +377,7 @@ export function PickList() {
           <button
             onClick={handleStartPick}
             disabled={starting || checked.size === 0 || !eventName.trim()}
-            style={{ width: '100%', marginTop: '16px', padding: '14px', fontSize: '16px', fontWeight: 'bold', borderRadius: '8px', border: 'none', backgroundColor: starting || checked.size === 0 || !eventName.trim() ? '#ccc' : '#00838f', color: '#fff', cursor: starting || checked.size === 0 || !eventName.trim() ? 'not-allowed' : 'pointer', boxSizing: 'border-box' }}
+            style={{ width: '100%', marginTop: '16px', padding: '14px', fontSize: '16px', fontWeight: 'bold', borderRadius: '8px', border: 'none', backgroundColor: starting || checked.size === 0 || !eventName.trim() ? '#e0e0e0' : '#00838f', color: starting || checked.size === 0 || !eventName.trim() ? '#888' : '#fff', cursor: starting || checked.size === 0 || !eventName.trim() ? 'not-allowed' : 'pointer', boxSizing: 'border-box' }}
           >
             {starting ? 'Starter...' : `Start plukking av ${checked.size} gjenstander`}
           </button>
