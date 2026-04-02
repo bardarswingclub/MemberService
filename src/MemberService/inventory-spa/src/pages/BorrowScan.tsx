@@ -131,7 +131,15 @@ export function BorrowScan() {
       </div>
 
       <button
-        onClick={() => setScanning(s => !s)}
+        onClick={() => {
+          // Prime speechSynthesis on user gesture so iOS allows it from camera callbacks
+          if (!scanning && window.speechSynthesis) {
+            const primer = new SpeechSynthesisUtterance('');
+            primer.volume = 0;
+            window.speechSynthesis.speak(primer);
+          }
+          setScanning(s => !s);
+        }}
         style={{
           width: '100%',
           padding: '14px',
