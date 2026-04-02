@@ -110,6 +110,11 @@ export function AssetList() {
                 {asset.borrowedByUserName && <span>{asset.borrowedByUserName}</span>}
               </div>
             )}
+            {asset.lastObservedAt && (
+              <div style={{ marginTop: '4px', textAlign: 'right', fontSize: '11px', color: '#aaa' }}>
+                Observert: {new Date(asset.lastObservedAt).toLocaleString('nb-NO', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              </div>
+            )}
           </div>
         </div>
       ))}

@@ -23,7 +23,7 @@ export function Home() {
       <h1 style={{ textAlign: 'center', marginBottom: '32px', color: '#1a1a1a' }}>Lager</h1>
 
       <button onClick={() => navigate('/borrow/start')} style={{ ...btn, backgroundColor: '#1976d2' }}>
-        Lån / Retur / Tell
+        Lån / Retur
       </button>
 
       <button onClick={() => navigate('/pick-list')} style={{ ...btn, backgroundColor: '#00838f' }}>
@@ -33,6 +33,12 @@ export function Home() {
       <button onClick={() => navigate('/assets')} style={{ ...btn, backgroundColor: '#388e3c' }}>
         Utstyrsoversikt
       </button>
+
+      {canManage && (
+        <button onClick={() => navigate('/inventory-check')} style={{ ...btn, backgroundColor: '#7b1fa2' }}>
+          Tell lager
+        </button>
+      )}
 
       {canManage && (
         <button onClick={() => navigate('/assets/manage')} style={{ ...btn, backgroundColor: '#6a1b9a' }}>

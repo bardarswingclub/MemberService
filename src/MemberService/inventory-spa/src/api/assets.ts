@@ -19,6 +19,7 @@ export interface InventoryAsset {
   currentBorrowId?: string;
   borrowedByEventName?: string;
   borrowedByUserName?: string;
+  lastObservedAt?: string;
 }
 
 export interface CsvImportResult {

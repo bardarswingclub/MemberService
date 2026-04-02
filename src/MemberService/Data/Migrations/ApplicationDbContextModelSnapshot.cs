@@ -433,8 +433,12 @@ namespace MemberService.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<DateTime?>("LastObservedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<decimal?>("LengdeM")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<string>("Lokasjon")
                         .HasMaxLength(200)
@@ -1171,7 +1175,7 @@ namespace MemberService.Data.Migrations
                     b.HasOne("MemberService.Data.User", "SentByUser")
                         .WithMany()
                         .HasForeignKey("SentByUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Event");

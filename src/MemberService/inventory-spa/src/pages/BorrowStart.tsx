@@ -15,7 +15,6 @@ const EVENT_NAMES = [
 const TYPES: { value: BorrowSession['type']; label: string; color: string }[] = [
   { value: 'Borrow', label: 'Lån ut', color: '#1976d2' },
   { value: 'Return', label: 'Returner', color: '#388e3c' },
-  { value: 'InventoryCheck', label: 'Tell lager', color: '#7b1fa2' },
 ];
 
 export function BorrowStart() {

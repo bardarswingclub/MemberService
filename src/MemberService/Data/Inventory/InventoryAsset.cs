@@ -17,6 +17,7 @@ public class InventoryAsset
     public string? Lokasjon { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    public DateTime? LastObservedAt { get; set; }
 
     // Denormalized: which borrow session currently holds this asset (null = available)
     public Guid? CurrentBorrowId { get; set; }

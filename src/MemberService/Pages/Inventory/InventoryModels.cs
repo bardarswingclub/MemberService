@@ -20,6 +20,7 @@ public class InventoryAssetDto
     public Guid? CurrentBorrowId { get; set; }
     public string? BorrowedByEventName { get; set; }
     public string? BorrowedByUserName { get; set; }
+    public DateTime? LastObservedAt { get; set; }
 }
 
 public class CreateAssetRequest

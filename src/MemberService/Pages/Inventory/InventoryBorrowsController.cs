@@ -123,8 +123,12 @@ public class InventoryBorrowsController(MemberContext context) : ControllerBase
             };
 
             context.InventoryBorrowItems.Add(borrowItem);
-            await context.SaveChangesAsync();
         }
+
+        // Always update LastObservedAt on every scan
+        asset.LastObservedAt = DateTime.UtcNow;
+        context.InventoryAssets.Update(asset);
+        await context.SaveChangesAsync();
 
         // Reload session with all navigation properties
         var updated = await context.InventoryBorrows

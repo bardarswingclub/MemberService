@@ -8,6 +8,7 @@ import { AssetManageList } from './pages/AssetManageList';
 import { AssetEditForm } from './pages/AssetEditForm';
 import { CsvImport } from './pages/CsvImport';
 import { PickList } from './pages/PickList';
+import { InventoryCheckStart } from './pages/InventoryCheckStart';
 import { Home } from './pages/Home';
 
 export const PermissionsContext = createContext({ canManage: false });
@@ -15,8 +16,7 @@ export const usePermissions = () => useContext(PermissionsContext);
 
 function TopBar() {
   return (
-    <div style={{ backgroundColor: '#1a237e', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-      <a href="/" style={{ color: '#90caf9', fontSize: '13px', textDecoration: 'none' }}>← BSC</a>
+    <div style={{ backgroundColor: '#1a237e', padding: '8px 16px', display: 'flex', alignItems: 'center' }}>
       <span style={{ color: '#fff', fontWeight: 'bold', fontSize: '15px' }}>Lager</span>
     </div>
   );
@@ -40,6 +40,7 @@ export default function App({ canManage }: { canManage: boolean }) {
             <Route path="/assets/:tag/edit" element={<AssetEditForm />} />
             <Route path="/import" element={<CsvImport />} />
             <Route path="/pick-list" element={<PickList />} />
+            <Route path="/inventory-check" element={<InventoryCheckStart />} />
           </Routes>
         </div>
       </Router>

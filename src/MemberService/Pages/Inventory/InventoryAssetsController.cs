@@ -212,6 +212,7 @@ public class InventoryAssetsController(MemberContext context, CsvImportService c
             BorrowedByEventName = asset.CurrentBorrow?.EventName,
             BorrowedByUserName = asset.CurrentBorrow?.BorrowedByUser?.FullName
                 ?? asset.CurrentBorrow?.BorrowedByUser?.UserName,
+            LastObservedAt = asset.LastObservedAt,
         };
     }
 }
