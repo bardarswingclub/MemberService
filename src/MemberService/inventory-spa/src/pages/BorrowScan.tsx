@@ -35,13 +35,26 @@ export function BorrowScan() {
     }).catch((e: Error) => setError(e.message));
   }, [sessionId]);
 
+  useEffect(() => {
+    if (!window.speechSynthesis) return;
+    // Chrome pauses speechSynthesis after ~15s of silence — keep it alive
+    const id = setInterval(() => {
+      if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+    }, 10000);
+    return () => clearInterval(id);
+  }, []);
+
   const speak = (text: string) => {
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'nb-NO';
-    u.rate = 1.2;
-    window.speechSynthesis.speak(u);
+    // Small delay needed on iOS after cancel(), and resumes if paused (Chrome bug)
+    setTimeout(() => {
+      if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'nb-NO';
+      u.rate = 1.2;
+      window.speechSynthesis.speak(u);
+    }, 50);
   };
 
   const handleScan = async (tag_scanned: string) => {
