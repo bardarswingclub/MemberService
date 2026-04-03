@@ -9,6 +9,7 @@ import { AssetEditForm } from './pages/AssetEditForm';
 import { CsvImport } from './pages/CsvImport';
 import { PickList } from './pages/PickList';
 import { InventoryCheckStart } from './pages/InventoryCheckStart';
+import { AssetPickList } from './pages/AssetPickList';
 import { Home } from './pages/Home';
 
 export const PermissionsContext = createContext({ canManage: false });
@@ -36,6 +37,7 @@ export default function App({ canManage }: { canManage: boolean }) {
             <Route path="/borrow/:sessionId/scan" element={<BorrowScan />} />
             <Route path="/borrow/:sessionId/review" element={<BorrowReview />} />
             <Route path="/assets" element={<AssetList />} />
+            <Route path="/assets/pick-list" element={<AssetPickList />} />
             <Route path="/assets/manage" element={<AssetManageList />} />
             <Route path="/assets/:tag/edit" element={<AssetEditForm />} />
             <Route path="/import" element={<CsvImport />} />
