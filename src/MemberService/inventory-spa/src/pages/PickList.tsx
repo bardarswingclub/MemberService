@@ -360,7 +360,7 @@ export function PickList() {
 
           {/* Event selector */}
           <div style={{ marginTop: '20px' }}>
-            <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Arrangement</div>
+            <div style={{ fontWeight: 'bold', marginBottom: '8px', color: '#1a1a1a' }}>Arrangement</div>
             {EVENT_NAMES.map(name => (
               <button key={name} onClick={() => setSelectedEvent(name)} style={{ display: 'inline-block', margin: '4px', padding: '8px 14px', borderRadius: '20px', border: '2px solid', borderColor: selectedEvent === name ? '#1976d2' : '#ccc', backgroundColor: selectedEvent === name ? '#e3f2fd' : '#fff', color: '#1a1a1a', cursor: 'pointer', fontSize: '14px' }}>
                 {name}

@@ -51,7 +51,7 @@ export function BorrowStart() {
       <h2 style={{ marginBottom: '24px', color: '#1a1a1a' }}>Start session</h2>
 
       <div style={{ marginBottom: '24px' }}>
-        <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Arrangement</div>
+        <div style={{ fontWeight: 'bold', marginBottom: '8px', color: '#1a1a1a' }}>Arrangement</div>
         {EVENT_NAMES.map(name => (
           <button
             key={name}

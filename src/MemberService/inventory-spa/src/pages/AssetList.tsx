@@ -162,6 +162,7 @@ export function AssetList() {
               <div>
                 <code style={{ fontWeight: 'bold', fontSize: '16px', color: '#1a1a1a' }}>{asset.tag}</code>
                 {asset.kategori && <span style={{ marginLeft: '8px', fontSize: '12px', color: '#666', backgroundColor: '#f0f0f0', padding: '2px 6px', borderRadius: '10px' }}>{asset.kategori}</span>}
+                {asset.subKategori && <span style={{ marginLeft: '4px', fontSize: '12px', color: '#555', backgroundColor: '#e8eaf6', padding: '2px 6px', borderRadius: '10px' }}>{asset.subKategori}</span>}
               </div>
               {asset.currentBorrowId ? (
                 <span style={{ fontSize: '12px', backgroundColor: '#fff3e0', color: '#e65100', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold', whiteSpace: 'nowrap' }}>Utlånt</span>
