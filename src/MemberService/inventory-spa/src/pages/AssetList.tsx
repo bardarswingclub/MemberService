@@ -170,9 +170,10 @@ export function AssetList() {
               )}
             </div>
             <div style={{ marginTop: '4px', color: '#333' }}>{asset.beskrivelse}</div>
-            {(asset.merke || asset.modell) && (
+            {(asset.merke || asset.modell || asset.lengdeM) && (
               <div style={{ marginTop: '2px', color: '#666', fontSize: '13px' }}>
                 {[asset.merke, asset.modell].filter(Boolean).join(' · ')}
+                {asset.lengdeM != null && <span style={{ marginLeft: asset.merke || asset.modell ? '6px' : 0 }}>{asset.lengdeM} m</span>}
               </div>
             )}
             {asset.currentBorrowId && (asset.borrowedByEventName || asset.borrowedByUserName) && (

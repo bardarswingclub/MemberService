@@ -40,17 +40,30 @@ export function CsvImport() {
       <h2 style={{ marginBottom: '20px', color: '#1a1a1a' }}>Importer CSV</h2>
 
       <div style={{ marginBottom: '16px' }}>
-        <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>Last opp CSV-fil</label>
-        <input
-          type="file"
-          accept=".csv,text/csv"
-          onChange={handleFileChange}
-          style={{ display: 'block', marginBottom: '8px' }}
-        />
+        <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#1a1a1a' }}>Last opp CSV-fil</label>
+        <label style={{
+          display: 'inline-block',
+          padding: '9px 18px',
+          backgroundColor: '#1976d2',
+          color: '#fff',
+          borderRadius: '6px',
+          cursor: 'pointer',
+          fontSize: '14px',
+          fontWeight: 'bold',
+        }}>
+          Velg fil
+          <input
+            type="file"
+            accept=".csv,text/csv"
+            onChange={handleFileChange}
+            style={{ display: 'none' }}
+          />
+        </label>
+        {content && <span style={{ marginLeft: '10px', fontSize: '13px', color: '#555' }}>Fil lastet inn</span>}
       </div>
 
       <div style={{ marginBottom: '16px' }}>
-        <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>Eller lim inn CSV-innhold</label>
+        <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#1a1a1a' }}>Eller lim inn CSV-innhold</label>
         <textarea
           value={content}
           onChange={e => { setContent(e.target.value); setResult(null); }}

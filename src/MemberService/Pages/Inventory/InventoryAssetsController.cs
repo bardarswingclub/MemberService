@@ -158,7 +158,7 @@ public class InventoryAssetsController(MemberContext context, CsvImportService c
             .ToListAsync();
 
         var sb = new System.Text.StringBuilder();
-        sb.AppendLine("No,Tag,Inventory,Lokasjon,Kategori,Sub-kategori,Beskrivelse,Merke,Modell,Detaljer,Lengde [m],Diameter");
+        sb.AppendLine("No,Tag,Inventory,Lokasjon,Kategori,Sub-kategori,Beskrivelse,Merke,Modell,Detaljer,Lengde [m],Diameter,PhotoUrl,Sist sett");
 
         var no = 1;
         foreach (var asset in assets)
@@ -175,7 +175,9 @@ public class InventoryAssetsController(MemberContext context, CsvImportService c
                 CsvField(asset.Modell),
                 CsvField(asset.Detaljer),
                 asset.LengdeM.HasValue ? asset.LengdeM.Value.ToString("G", System.Globalization.CultureInfo.InvariantCulture) : "",
-                asset.Diameter.HasValue ? asset.Diameter.Value.ToString() : ""
+                asset.Diameter.HasValue ? asset.Diameter.Value.ToString() : "",
+                CsvField(asset.PhotoUrl),
+                asset.LastObservedAt.HasValue ? asset.LastObservedAt.Value.ToString("yyyy-MM-dd HH:mm:ss") : ""
             ));
         }
 

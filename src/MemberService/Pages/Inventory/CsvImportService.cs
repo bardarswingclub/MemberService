@@ -37,7 +37,7 @@ public class CsvImportService(MemberContext context)
             {
                 var fields = ParseCsvLine(line);
 
-                // Columns: No, Tag, Inventory, Lokasjon, Kategori, Sub-kategori, Beskrivelse, Merke, Modell, Detaljer, Lengde [m], Diameter
+                // Columns: No, Tag, Inventory, Lokasjon, Kategori, Sub-kategori, Beskrivelse, Merke, Modell, Detaljer, Lengde [m], Diameter, PhotoUrl
                 if (fields.Count < 2)
                 {
                     result.Errors.Add(new CsvImportError { RowNumber = rowNumber, Message = "Row has fewer than 2 fields" });
@@ -63,6 +63,8 @@ public class CsvImportService(MemberContext context)
                 var detaljer = fields.Count > 9 ? fields[9]?.Trim() : null;
                 var lengdeStr = fields.Count > 10 ? fields[10]?.Trim() : null;
                 var diameterStr = fields.Count > 11 ? fields[11]?.Trim() : null;
+                var photoUrl = fields.Count > 12 ? fields[12]?.Trim() : null;
+                if (string.IsNullOrWhiteSpace(photoUrl)) photoUrl = null;
 
                 decimal? lengdeM = null;
                 if (!string.IsNullOrWhiteSpace(lengdeStr))
@@ -96,6 +98,7 @@ public class CsvImportService(MemberContext context)
                     existing.Diameter = diameter;
                     existing.InInventory = inventory;
                     existing.Lokasjon = lokasjon;
+                    if (photoUrl != null) existing.PhotoUrl = photoUrl;
                     existing.UpdatedAt = DateTime.UtcNow;
                     context.InventoryAssets.Update(existing);
                 }
@@ -115,6 +118,7 @@ public class CsvImportService(MemberContext context)
                         Diameter = diameter,
                         InInventory = inventory,
                         Lokasjon = lokasjon,
+                        PhotoUrl = photoUrl,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     };
