@@ -42,27 +42,6 @@ namespace MemberService.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SomeConsentRecords",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ChangedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    State = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SomeConsentRecords", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_SomeConsentRecords_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "InventoryAssets",
                 columns: table => new
                 {
@@ -147,12 +126,6 @@ namespace MemberService.Data.Migrations
                 table: "InventoryBorrows",
                 column: "BorrowedByUserId");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_SomeConsentRecords_UserId_ChangedAtUtc",
-                table: "SomeConsentRecords",
-                columns: new[] { "UserId", "ChangedAtUtc" },
-                unique: true);
-
             migrationBuilder.AddForeignKey(
                 name: "FK_EventCommunicationRecipients_AspNetUsers_RecipientUserId",
                 table: "EventCommunicationRecipients",
@@ -183,9 +156,6 @@ namespace MemberService.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "InventoryBorrowItems");
-
-            migrationBuilder.DropTable(
-                name: "SomeConsentRecords");
 
             migrationBuilder.DropTable(
                 name: "InventoryAssets");
