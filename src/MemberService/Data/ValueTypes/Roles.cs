@@ -12,6 +12,10 @@ public static class Roles
     
     public const string RESSURSPERSON = "Ressursperson";
 
+    public const string INVENTORY_MANAGER = "InventoryManager";
+
+    public const string INVENTORY_USER = "InventoryUser";
+
     public static string[] All { get; } = typeof(Roles)
         .GetFields()
         .Select(p => p.GetValue(null))

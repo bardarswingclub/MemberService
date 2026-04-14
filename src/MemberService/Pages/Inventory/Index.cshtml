@@ -1,0 +1,6 @@
+@page "/Inventory/{**slug}"
+@model MemberService.Pages.Inventory.IndexModel
+@{
+    Layout = "_InventoryLayout";
+}
+<div id="inventory-root" data-can-manage="@Model.CanManageInventory.ToString().ToLower()"></div>

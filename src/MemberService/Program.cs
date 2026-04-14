@@ -9,6 +9,7 @@ using MemberService.Auth;
 using MemberService.Auth.Requirements;
 using MemberService.Configs;
 using MemberService.Data;
+using MemberService.Pages.Inventory;
 using MemberService.Services;
 using MemberService.Services.Vipps;
 
@@ -137,6 +138,7 @@ services
     .AddScoped<IAuthorizationHandler, RoleRequirementsHandler>()
     .AddScoped<IAuthorizationHandler, EventRequirementsHandler>()
     .AddScoped<IAuthorizationHandler, SemesterRequirementsHandler>()
+    .AddScoped<CsvImportService>()
     .AddAuthorization(options =>
     {
         foreach (var policy in Enum.GetValues<Policy>())
@@ -234,6 +236,7 @@ using (var scope = app.Services.CreateScope())
     await scope.ServiceProvider
         .GetRequiredService<UserManager<User>>()
         .SeedUserRoles(config.AdminEmails.Split(","));
+
 }
 
 app
@@ -250,8 +253,11 @@ app
     .Use(EnsureUserHasFullName)
     .UseEndpoints(endpoints =>
     {
+        endpoints.MapControllers();
         endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
         endpoints.MapRazorPages();
+        // Note: MapFallbackToPage for /Inventory/Index will be added after the page is created
+        // For now, API endpoints under /api/* are available
     });
 
 await app.RunAsync();

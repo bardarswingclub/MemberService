@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using MemberService.Data.Inventory;
 
 public class MemberContext : IdentityDbContext<User, MemberRole, string, IdentityUserClaim<string>, UserRole, IdentityUserLogin<string>, IdentityRoleClaim<string>, IdentityUserToken<string>>, IDataProtectionKeyContext
 {
@@ -45,6 +46,12 @@ public class MemberContext : IdentityDbContext<User, MemberRole, string, Identit
     public DbSet<EventCommunication> EventCommunications { get; set; }
 
     public DbSet<EventCommunicationRecipient> EventCommunicationRecipients { get; set; }
+
+    public DbSet<Inventory.InventoryAsset> InventoryAssets { get; set; }
+
+    public DbSet<Inventory.InventoryBorrow> InventoryBorrows { get; set; }
+
+    public DbSet<Inventory.InventoryBorrowItem> InventoryBorrowItems { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -113,5 +120,13 @@ public class MemberContext : IdentityDbContext<User, MemberRole, string, Identit
                 .HasForeignKey(q => q.OptionId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
+
+        // Fix multiple cascade paths issue: EventCommunication.SentByUser and EventCommunicationRecipient.RecipientUser
+        // both point to User. Set SentByUser to NoAction to prevent cascade cycle.
+        builder.Entity<EventCommunication>()
+            .HasOne(e => e.SentByUser)
+            .WithMany()
+            .HasForeignKey(e => e.SentByUserId)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }
