@@ -1,10 +1,10 @@
 @model MemberService.Pages.Reports.MultiClassModel
 @{
-    ViewData["Title"] = "Rapport: Påmeldt flere kurs";
+    ViewData["Title"] = "Dansestilrapport";
 }
 
-<h2>Påmeldt flere kurs per semester</h2>
-<p class="text-muted">Viser de siste 3 år. Kun godkjente og betalte påmeldinger i kurssemestre.</p>
+<h2>Påmeldte på kurs per semester</h2>
+<p class="text-muted">Viser de siste 3 år. Kun godkjente og betalte påmeldinger i kurssemestre. Hver person telles én gang per semester uavhengig av antall kurs i samme stil.</p>
 
 @if (!Model.Semesters.Any())
 {
@@ -18,7 +18,7 @@
     <table class="table table-sm table-bordered table-hover">
         <thead class="thead-light">
             <tr>
-                <th rowspan="2">Antall kurs</th>
+                <th rowspan="2">Antall stiler</th>
                 <th rowspan="2">Totalt</th>
                 <th colspan="6" class="text-center">Kun én stil</th>
                 <th colspan="5" class="text-center">Lindy Hop +</th>
@@ -61,7 +61,7 @@
         </tbody>
         <tfoot>
             <tr class="font-weight-bold">
-                <td>Totalt</td>
+                <td>Totalt (stiler)</td>
                 <td>@semester.Rows.Sum(r => r.Total)</td>
                 <td>@semester.Rows.Sum(r => r.LindyHopOnly)</td>
                 <td>@semester.Rows.Sum(r => r.SlowBalobaOnly)</td>
