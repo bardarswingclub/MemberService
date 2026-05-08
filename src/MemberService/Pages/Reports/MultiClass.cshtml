@@ -1,0 +1,82 @@
+@model MemberService.Pages.Reports.MultiClassModel
+@{
+    ViewData["Title"] = "Rapport: Påmeldt flere kurs";
+}
+
+<h2>Påmeldt flere kurs per semester</h2>
+<p class="text-muted">Viser de siste 3 år. Kun godkjente og betalte påmeldinger i kurssemestre.</p>
+
+@if (!Model.Semesters.Any())
+{
+    <p>Ingen data funnet.</p>
+}
+
+@foreach (var semester in Model.Semesters)
+{
+    <h4 class="mt-4">@semester.Title</h4>
+    <div class="table-responsive">
+    <table class="table table-sm table-bordered table-hover">
+        <thead class="thead-light">
+            <tr>
+                <th rowspan="2">Antall kurs</th>
+                <th rowspan="2">Totalt</th>
+                <th colspan="6" class="text-center">Kun én stil</th>
+                <th colspan="5" class="text-center">Lindy Hop +</th>
+                <th rowspan="2">Andre blandinger</th>
+            </tr>
+            <tr>
+                <th>Lindy Hop</th>
+                <th>Slow Balboa</th>
+                <th>Balboa</th>
+                <th>Shag</th>
+                <th>Solo Jazz</th>
+                <th>Ukjent</th>
+                <th>Slow Balboa</th>
+                <th>Balboa</th>
+                <th>Shag</th>
+                <th>Solo Jazz</th>
+                <th>Flere stiler</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in semester.Rows)
+            {
+                <tr>
+                    <td>@row.ClassCount</td>
+                    <td><strong>@row.Total</strong></td>
+                    <td>@(row.LindyHopOnly   > 0 ? row.LindyHopOnly.ToString()   : "-")</td>
+                    <td>@(row.SlowBalobaOnly > 0 ? row.SlowBalobaOnly.ToString() : "-")</td>
+                    <td>@(row.BalobaOnly     > 0 ? row.BalobaOnly.ToString()     : "-")</td>
+                    <td>@(row.ShagOnly       > 0 ? row.ShagOnly.ToString()       : "-")</td>
+                    <td>@(row.SoloJazzOnly   > 0 ? row.SoloJazzOnly.ToString()   : "-")</td>
+                    <td>@(row.UnknownOnly    > 0 ? row.UnknownOnly.ToString()    : "-")</td>
+                    <td>@(row.LHAndSlowBalboa > 0 ? row.LHAndSlowBalboa.ToString() : "-")</td>
+                    <td>@(row.LHAndBalboa    > 0 ? row.LHAndBalboa.ToString()    : "-")</td>
+                    <td>@(row.LHAndShag      > 0 ? row.LHAndShag.ToString()      : "-")</td>
+                    <td>@(row.LHAndSoloJazz  > 0 ? row.LHAndSoloJazz.ToString()  : "-")</td>
+                    <td>@(row.LHAndMultiple  > 0 ? row.LHAndMultiple.ToString()  : "-")</td>
+                    <td>@(row.OtherMixed     > 0 ? row.OtherMixed.ToString()     : "-")</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr class="font-weight-bold">
+                <td>Totalt</td>
+                <td>@semester.Rows.Sum(r => r.Total)</td>
+                <td>@semester.Rows.Sum(r => r.LindyHopOnly)</td>
+                <td>@semester.Rows.Sum(r => r.SlowBalobaOnly)</td>
+                <td>@semester.Rows.Sum(r => r.BalobaOnly)</td>
+                <td>@semester.Rows.Sum(r => r.ShagOnly)</td>
+                <td>@semester.Rows.Sum(r => r.SoloJazzOnly)</td>
+                <td>@semester.Rows.Sum(r => r.UnknownOnly)</td>
+                <td>@semester.Rows.Sum(r => r.LHAndSlowBalboa)</td>
+                <td>@semester.Rows.Sum(r => r.LHAndBalboa)</td>
+                <td>@semester.Rows.Sum(r => r.LHAndShag)</td>
+                <td>@semester.Rows.Sum(r => r.LHAndSoloJazz)</td>
+                <td>@semester.Rows.Sum(r => r.LHAndMultiple)</td>
+                <td>@semester.Rows.Sum(r => r.OtherMixed)</td>
+            </tr>
+        </tfoot>
+    </table>
+    </div>
+}

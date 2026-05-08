@@ -46,4 +46,6 @@ public enum Policy
 
     CanManageInventory,
     CanBorrowInventory,
+
+    CanViewReports,
 }
