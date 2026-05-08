@@ -46,14 +46,13 @@ public class ReportsController : Controller
         {
             var perUser = semester.Signups
                 .GroupBy(sg => sg.UserId)
-                .Where(g => g.Count() >= 2)
                 .ToList();
 
             if (!perUser.Any()) continue;
 
             var block = new MultiClassModel.SemesterBlock { Title = semester.Title };
 
-            foreach (var countGroup in perUser.GroupBy(g => g.Count()).OrderByDescending(g => g.Key))
+            foreach (var countGroup in perUser.GroupBy(g => g.Select(c => ClassifyTitle(c.Title)).Distinct().Count()).OrderByDescending(g => g.Key))
             {
                 var row = new ClassCountRow { ClassCount = countGroup.Key };
 
