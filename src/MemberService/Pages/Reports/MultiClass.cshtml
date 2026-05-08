@@ -20,17 +20,19 @@
             <tr>
                 <th rowspan="2">Antall stiler</th>
                 <th rowspan="2">Totalt</th>
-                <th colspan="6" class="text-center">Kun én stil</th>
-                <th colspan="5" class="text-center">Lindy Hop +</th>
+                <th colspan="7" class="text-center">Kun én stil</th>
+                <th colspan="6" class="text-center">Lindy Hop +</th>
                 <th rowspan="2">Andre blandinger</th>
             </tr>
             <tr>
                 <th>Lindy Hop</th>
+                <th>Boogie Woogie</th>
                 <th>Slow Balboa</th>
                 <th>Balboa</th>
                 <th>Shag</th>
                 <th>Solo Jazz</th>
                 <th>Ukjent</th>
+                <th>Boogie Woogie</th>
                 <th>Slow Balboa</th>
                 <th>Balboa</th>
                 <th>Shag</th>
@@ -44,13 +46,15 @@
                 <tr>
                     <td>@row.ClassCount</td>
                     <td><strong>@row.Total</strong></td>
-                    <td>@(row.LindyHopOnly   > 0 ? row.LindyHopOnly.ToString()   : "-")</td>
-                    <td>@(row.SlowBalobaOnly > 0 ? row.SlowBalobaOnly.ToString() : "-")</td>
+                    <td>@(row.LindyHopOnly    > 0 ? row.LindyHopOnly.ToString()    : "-")</td>
+                    <td>@(row.BoogieWoogieOnly > 0 ? row.BoogieWoogieOnly.ToString() : "-")</td>
+                    <td>@(row.SlowBalobaOnly  > 0 ? row.SlowBalobaOnly.ToString()  : "-")</td>
                     <td>@(row.BalobaOnly     > 0 ? row.BalobaOnly.ToString()     : "-")</td>
                     <td>@(row.ShagOnly       > 0 ? row.ShagOnly.ToString()       : "-")</td>
                     <td>@(row.SoloJazzOnly   > 0 ? row.SoloJazzOnly.ToString()   : "-")</td>
                     <td>@(row.UnknownOnly    > 0 ? row.UnknownOnly.ToString()    : "-")</td>
-                    <td>@(row.LHAndSlowBalboa > 0 ? row.LHAndSlowBalboa.ToString() : "-")</td>
+                    <td>@(row.LHAndBoogieWoogie > 0 ? row.LHAndBoogieWoogie.ToString() : "-")</td>
+                    <td>@(row.LHAndSlowBalboa  > 0 ? row.LHAndSlowBalboa.ToString()  : "-")</td>
                     <td>@(row.LHAndBalboa    > 0 ? row.LHAndBalboa.ToString()    : "-")</td>
                     <td>@(row.LHAndShag      > 0 ? row.LHAndShag.ToString()      : "-")</td>
                     <td>@(row.LHAndSoloJazz  > 0 ? row.LHAndSoloJazz.ToString()  : "-")</td>
@@ -64,11 +68,13 @@
                 <td>Totalt (stiler)</td>
                 <td>@semester.Rows.Sum(r => r.Total)</td>
                 <td>@semester.Rows.Sum(r => r.LindyHopOnly)</td>
+                <td>@semester.Rows.Sum(r => r.BoogieWoogieOnly)</td>
                 <td>@semester.Rows.Sum(r => r.SlowBalobaOnly)</td>
                 <td>@semester.Rows.Sum(r => r.BalobaOnly)</td>
                 <td>@semester.Rows.Sum(r => r.ShagOnly)</td>
                 <td>@semester.Rows.Sum(r => r.SoloJazzOnly)</td>
                 <td>@semester.Rows.Sum(r => r.UnknownOnly)</td>
+                <td>@semester.Rows.Sum(r => r.LHAndBoogieWoogie)</td>
                 <td>@semester.Rows.Sum(r => r.LHAndSlowBalboa)</td>
                 <td>@semester.Rows.Sum(r => r.LHAndBalboa)</td>
                 <td>@semester.Rows.Sum(r => r.LHAndShag)</td>

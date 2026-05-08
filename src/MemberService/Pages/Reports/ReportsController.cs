@@ -69,12 +69,13 @@ public class ReportsController : Controller
                     {
                         switch (styles[0])
                         {
-                            case DanceStyle.LindyHop:   row.LindyHopOnly++;   break;
-                            case DanceStyle.SlowBalboa: row.SlowBalobaOnly++; break;
-                            case DanceStyle.Balboa:     row.BalobaOnly++;     break;
-                            case DanceStyle.Shag:       row.ShagOnly++;       break;
-                            case DanceStyle.SoloJazz:   row.SoloJazzOnly++;   break;
-                            default:                    row.UnknownOnly++;    break;
+                            case DanceStyle.LindyHop:    row.LindyHopOnly++;    break;
+                            case DanceStyle.BoogieWoogie: row.BoogieWoogieOnly++; break;
+                            case DanceStyle.SlowBalboa:  row.SlowBalobaOnly++;  break;
+                            case DanceStyle.Balboa:      row.BalobaOnly++;      break;
+                            case DanceStyle.Shag:        row.ShagOnly++;        break;
+                            case DanceStyle.SoloJazz:    row.SoloJazzOnly++;    break;
+                            default:                     row.UnknownOnly++;     break;
                         }
                     }
                     else if (styles.Contains(DanceStyle.LindyHop))
@@ -88,11 +89,12 @@ public class ReportsController : Controller
                         {
                             switch (others[0])
                             {
-                                case DanceStyle.SlowBalboa: row.LHAndSlowBalboa++; break;
-                                case DanceStyle.Balboa:     row.LHAndBalboa++;     break;
-                                case DanceStyle.Shag:       row.LHAndShag++;       break;
-                                case DanceStyle.SoloJazz:   row.LHAndSoloJazz++;   break;
-                                default:                    row.OtherMixed++;      break;
+                                case DanceStyle.BoogieWoogie: row.LHAndBoogieWoogie++; break;
+                                case DanceStyle.SlowBalboa:   row.LHAndSlowBalboa++;   break;
+                                case DanceStyle.Balboa:       row.LHAndBalboa++;       break;
+                                case DanceStyle.Shag:         row.LHAndShag++;         break;
+                                case DanceStyle.SoloJazz:     row.LHAndSoloJazz++;     break;
+                                default:                      row.OtherMixed++;        break;
                             }
                         }
                     }
