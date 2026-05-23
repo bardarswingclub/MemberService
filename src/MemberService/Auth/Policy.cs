@@ -48,4 +48,6 @@ public enum Policy
     CanBorrowInventory,
 
     CanViewReports,
+
+    CanEditMemberConsent,
 }

@@ -37,7 +37,9 @@ public class DetailsModel : PageModel
     public string Email { get; set; }
     public IReadOnlyCollection<Payment> Payments { get; set; }
     public IReadOnlyCollection<EventSignup> EventSignups { get; set; }
-    public IReadOnlyCollection<SomeConsentRecord> ConsentRecords{ get; set; }
+    public IReadOnlyCollection<SomeConsentRecord> ConsentRecords { get; set; }
+    [BindProperty]
+    public SomeConsentState? NewConsentState { get; set; }
     public bool HasPayedMembershipThisYear { get; private set; }
     public bool HasPayedTrainingFeeThisSemester { get; private set; }
     public bool HasPayedClassesFeeThisSemester { get; private set; }
@@ -56,6 +58,7 @@ public class DetailsModel : PageModel
             .Include(u => u.EventSignups.Where(s => !s.Event.SemesterId.HasValue))
                 .ThenInclude(s => s.Event)
             .Include(u => u.ConsentRecords)
+                .ThenInclude(r => r.ChangedByAdmin)
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.Id == id);
 
@@ -138,6 +141,22 @@ public class DetailsModel : PageModel
             ManualPayment = User.Identity.Name
         });
 
+        await _memberContext.SaveChangesAsync();
+
+        return RedirectToPage(new { id });
+    }
+
+    public async Task<IActionResult> OnPostSetConsent(string id)
+    {
+        if (!await _authorizationService.IsAuthorized(User, Policy.CanEditMemberConsent)) return Forbid();
+
+        if (NewConsentState is null) return RedirectToPage(new { id });
+
+        if (await _memberContext.Users.FindAsync(id) is not User user) return NotFound();
+
+        var adminId = User.GetId();
+        var record = new SomeConsentRecord(NewConsentState.Value, user.Id, adminId);
+        _memberContext.SomeConsentRecords.Add(record);
         await _memberContext.SaveChangesAsync();
 
         return RedirectToPage(new { id });

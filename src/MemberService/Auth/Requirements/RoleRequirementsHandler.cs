@@ -72,6 +72,8 @@ public class RoleRequirementsHandler : IAuthorizationHandler
 
             Policy.CanViewReports => user.IsInAnyRole(R.STYRET),
 
+            Policy.CanEditMemberConsent => user.IsInAnyRole(R.STYRET),
+
             _ => false,
         };
 }
