@@ -843,6 +843,9 @@ namespace MemberService.Data.Migrations
                     b.Property<DateTime>("ChangedAtUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("ChangedByAdminId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<int>("State")
                         .HasColumnType("int");
 
@@ -851,6 +854,8 @@ namespace MemberService.Data.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ChangedByAdminId");
 
                     b.HasIndex("UserId", "ChangedAtUtc")
                         .IsUnique();
@@ -1450,11 +1455,18 @@ namespace MemberService.Data.Migrations
 
             modelBuilder.Entity("MemberService.Data.SomeConsentRecord", b =>
                 {
+                    b.HasOne("MemberService.Data.User", "ChangedByAdmin")
+                        .WithMany()
+                        .HasForeignKey("ChangedByAdminId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
                     b.HasOne("MemberService.Data.User", "User")
                         .WithMany("ConsentRecords")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("ChangedByAdmin");
 
                     b.Navigation("User");
                 });

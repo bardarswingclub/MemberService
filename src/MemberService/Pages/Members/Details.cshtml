@@ -113,7 +113,8 @@
                 <thead>
                     <tr>
                         <th>Dato</th>
-                        <th>State</th>
+                        <th>Samtykke</th>
+                        <th>Endret av</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -129,12 +130,42 @@
                             <td>
                                 @record.State.GetDisplayName()
                             </td>
+                            <td>
+                                @if (record.ChangedByAdmin != null)
+                                {
+                                    <span class="badge badge-warning" title="Endret av administrator">
+                                        @record.ChangedByAdmin.FullName
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Brukeren selv</span>
+                                }
+                            </td>
                         </tr>
                     }
                 </tbody>
             </table>
         }
 
+        @if (await AuthorizationService.IsAuthorized(User, Policy.CanEditMemberConsent))
+        {
+            <div class="card-footer">
+                <form asp-page-handler="SetConsent" asp-route-id="@Model.Id" method="post">
+                    <div class="form-inline">
+                        <label class="mr-2">Endre samtykke:</label>
+                        <select name="NewConsentState" class="form-control form-control-sm mr-2">
+                            @foreach (SomeConsentState state in Enum.GetValues(typeof(SomeConsentState)))
+                            {
+                                <option value="@((int)state)">@state.GetDisplayName()</option>
+                            }
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-warning">Lagre</button>
+                    </div>
+                    <small class="text-muted">Endringen vil bli loggført med ditt navn.</small>
+                </form>
+            </div>
+        }
     </div>
 
     <div class="card shadow-sm">

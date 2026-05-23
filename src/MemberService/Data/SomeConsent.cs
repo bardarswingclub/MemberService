@@ -67,6 +67,10 @@ public class SomeConsentRecord
     [Required]
     public SomeConsentState State { get; private set; }
 
+    public string? ChangedByAdminId { get; set; }
+
+    public User? ChangedByAdmin { get; set; }
+
     private SomeConsentRecord() { } // for entity framework
 
     public SomeConsentRecord(SomeConsentState state, string userId)
@@ -74,6 +78,12 @@ public class SomeConsentRecord
         State = state;
         UserId = userId;
         ChangedAtUtc = DateTime.UtcNow;
+    }
+
+    public SomeConsentRecord(SomeConsentState state, string userId, string adminId)
+        : this(state, userId)
+    {
+        ChangedByAdminId = adminId;
     }
 }
 
@@ -91,5 +101,10 @@ public class SomeConsentRecordConfiguration
               .WithMany(u => u.ConsentRecords)
               .HasForeignKey(e => e.UserId)
               .OnDelete(DeleteBehavior.Cascade);
+
+        entity.HasOne(e => e.ChangedByAdmin)
+              .WithMany()
+              .HasForeignKey(e => e.ChangedByAdminId)
+              .OnDelete(DeleteBehavior.NoAction);
     }
 }
