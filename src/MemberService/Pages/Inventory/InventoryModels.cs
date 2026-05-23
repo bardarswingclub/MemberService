@@ -1,3 +1,4 @@
+#nullable enable
 namespace MemberService.Pages.Inventory;
 
 public class InventoryAssetDto
@@ -57,8 +58,8 @@ public class UpdateAssetRequest
 public class BorrowSessionDto
 {
     public Guid Id { get; set; }
-    public string BorrowedByUserId { get; set; }
-    public string BorrowedByUserName { get; set; }
+    public string BorrowedByUserId { get; set; } = null!;
+    public string BorrowedByUserName { get; set; } = null!;
     public required string EventName { get; set; }
     public required string Type { get; set; } // "Borrow", "Return", "InventoryCheck"
     public DateTime StartedAt { get; set; }
@@ -70,8 +71,8 @@ public class BorrowItemDto
 {
     public Guid Id { get; set; }
     public Guid AssetId { get; set; }
-    public string Tag { get; set; }
-    public string Beskrivelse { get; set; }
+    public string Tag { get; set; } = null!;
+    public string Beskrivelse { get; set; } = null!;
     public string? Merke { get; set; }
     public string? Modell { get; set; }
     public DateTime ScannedAt { get; set; }
