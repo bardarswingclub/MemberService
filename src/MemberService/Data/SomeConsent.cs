@@ -1,3 +1,4 @@
+#nullable enable
 namespace MemberService.Data;
 
 using Microsoft.AspNetCore.Identity;
@@ -7,9 +8,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-using System;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 // Social Media Consent State

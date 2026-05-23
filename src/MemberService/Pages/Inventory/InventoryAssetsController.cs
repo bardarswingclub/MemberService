@@ -1,3 +1,4 @@
+#nullable enable
 namespace MemberService.Pages.Inventory;
 
 using Microsoft.AspNetCore.Authorization;
@@ -18,7 +19,7 @@ public class InventoryAssetsController(MemberContext context, CsvImportService c
     {
         var query = context.InventoryAssets
             .Include(a => a.CurrentBorrow)
-            .ThenInclude(b => b.BorrowedByUser)
+            .ThenInclude(b => b!.BorrowedByUser)
             .AsQueryable();
 
         if (borrowedOnly)
@@ -48,7 +49,7 @@ public class InventoryAssetsController(MemberContext context, CsvImportService c
     {
         var asset = await context.InventoryAssets
             .Include(a => a.CurrentBorrow)
-            .ThenInclude(b => b.BorrowedByUser)
+            .ThenInclude(b => b!.BorrowedByUser)
             .FirstOrDefaultAsync(a => a.Tag == tag);
 
         if (asset == null)
@@ -205,7 +206,7 @@ public class InventoryAssetsController(MemberContext context, CsvImportService c
 
         var assets = await context.InventoryAssets
             .Include(a => a.CurrentBorrow)
-            .ThenInclude(b => b.BorrowedByUser)
+            .ThenInclude(b => b!.BorrowedByUser)
             .Where(a => tags.Contains(a.Tag.ToUpper()))
             .OrderBy(a => a.Tag)
             .ToListAsync();

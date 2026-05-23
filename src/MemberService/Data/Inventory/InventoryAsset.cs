@@ -1,3 +1,4 @@
+#nullable enable
 namespace MemberService.Data.Inventory;
 
 public class InventoryAsset

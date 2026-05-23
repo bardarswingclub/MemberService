@@ -1,3 +1,4 @@
+#nullable enable
 namespace MemberService.Pages.Inventory;
 
 using System.Globalization;
