@@ -144,6 +144,11 @@ public class IndexModel : PageModel
             }
         }
 
+        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+        {
+            return new JsonResult(new { successes = successes.Count, failures = failures.Count });
+        }
+
         if (users.NotAny())
         {
             TempData.SetInfoMessage("No emails to send");

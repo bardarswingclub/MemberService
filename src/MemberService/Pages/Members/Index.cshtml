@@ -213,10 +213,92 @@
         $(function () {
             $("input[data-action=select-all]").on('click', function () {
                 var table = $(this).parents('table');
-
                 var checked = this.checked;
-
                 table.find('input[type=checkbox]').prop('checked', checked);
+            });
+
+            var $emailForm = $('form[action$="?handler=SendEmail"]');
+
+            $emailForm.on('submit', async function (e) {
+                e.preventDefault();
+
+                var $form = $(this);
+                var subject = $form.find('input[name=subject]').val();
+                var body = $form.find('textarea[name=body]').val();
+                var token = $form.find('input[name=__RequestVerificationToken]').val();
+                var formAction = $form.attr('action');
+                var userIds = $form.find('input[name=users]:checked').map(function () { return this.value; }).get();
+
+                if (userIds.length === 0) {
+                    this.submit();
+                    return;
+                }
+
+                var batchSize = 50;
+                var batches = [];
+                for (var i = 0; i < userIds.length; i += batchSize) {
+                    batches.push(userIds.slice(i, i + batchSize));
+                }
+
+                var $sendBtn = $('#modal-email').find('button[type=submit]');
+                var $modalFooter = $('#modal-email').find('.modal-footer');
+                var $status = $('<span class="text-muted mr-auto"></span>');
+                $modalFooter.prepend($status);
+                $sendBtn.prop('disabled', true);
+
+                var totalSuccesses = 0;
+                var totalFailures = 0;
+
+                for (var b = 0; b < batches.length; b++) {
+                    $status.text('Sender ' + (b + 1) + ' av ' + batches.length + ' batches...');
+
+                    var formData = new FormData();
+                    formData.append('subject', subject);
+                    formData.append('body', body);
+                    formData.append('__RequestVerificationToken', token);
+                    batches[b].forEach(function (id) { formData.append('users', id); });
+
+                    try {
+                        var response = await fetch(formAction, {
+                            method: 'POST',
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                            body: formData
+                        });
+
+                        if (response.ok) {
+                            var result = await response.json();
+                            totalSuccesses += result.successes;
+                            totalFailures += result.failures;
+                        } else {
+                            totalFailures += batches[b].length;
+                        }
+                    } catch (err) {
+                        totalFailures += batches[b].length;
+                    }
+                }
+
+                $sendBtn.prop('disabled', false);
+                $status.remove();
+                $('#modal-email').modal('hide');
+
+                var $alerts = $('<div></div>');
+                if (totalSuccesses > 0) {
+                    $alerts.append(
+                        '<div class="alert alert-success alert-dismissible" role="alert">' +
+                        '<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>' +
+                        'Epost sent til ' + totalSuccesses + ' brukere' +
+                        '</div>'
+                    );
+                }
+                if (totalFailures > 0) {
+                    $alerts.append(
+                        '<div class="alert alert-danger alert-dismissible" role="alert">' +
+                        '<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>' +
+                        'Kunne ikke sende epost til ' + totalFailures + ' brukere' +
+                        '</div>'
+                    );
+                }
+                $('h2').after($alerts.children());
             });
         });
     </script>
