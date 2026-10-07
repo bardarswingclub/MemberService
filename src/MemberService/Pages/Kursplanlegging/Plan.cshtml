@@ -1,0 +1,199 @@
+@model CoursePlan
+
+@{
+    ViewData["Title"] = $"Kursplanlegging {Model.Title}";
+    ViewData["ContainerClass"] = "container-fluid";
+}
+
+@section Head {
+    <link rel="stylesheet" href="~/css/kursplanlegging.css" asp-append-version="true" />
+}
+
+<div id="planner" data-plan-id="@Model.Id" data-api="@Url.Content("~/api/kursplanlegging")">
+    @Html.AntiForgeryToken()
+
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-2">
+        <h2 class="mb-0">
+            <a class="link-unstyled" asp-action="Index">Kursplanlegging</a> – @Model.Title
+            <button type="button" class="btn btn-sm btn-link" data-toggle="collapse" data-target="#plan-settings" title="Endre semesteret"><i class="bi bi-pencil"></i></button>
+        </h2>
+        <div class="btn-group">
+            <a class="btn btn-outline-secondary" asp-action="Fridager" asp-route-id="@Model.Id"><i class="bi bi-calendar-x"></i> Fridager</a>
+            <a class="btn btn-outline-secondary" asp-action="HentKurs" asp-route-id="@Model.Id"><i class="bi bi-arrow-repeat"></i> Hent kurs fra forrige semester</a>
+            <a class="btn btn-outline-secondary" asp-action="Timeplan" asp-route-id="@Model.Id"><i class="bi bi-image"></i> Timeplan for nettsiden</a>
+            <a class="btn btn-outline-secondary" asp-action="Import" asp-route-id="@Model.Id"><i class="bi bi-box-arrow-in-right"></i> Opprett kurs for påmelding</a>
+        </div>
+    </div>
+
+    <div class="collapse" id="plan-settings">
+        <div class="card card-body mb-3">
+            <form method="post" asp-action="Edit" asp-route-id="@Model.Id" class="form-inline">
+                <label class="mr-2" for="Title">Navn</label>
+                <input class="form-control mr-3" id="Title" name="Title" value="@Model.Title" required />
+                <label class="mr-2" for="StartDate">Fra</label>
+                <input class="form-control mr-3" type="date" id="StartDate" name="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" required />
+                <label class="mr-2" for="EndDate">Til</label>
+                <input class="form-control mr-3" type="date" id="EndDate" name="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" required />
+                <button type="submit" class="btn btn-primary mr-2">Lagre</button>
+            </form>
+            <form method="post" asp-action="Delete" asp-route-id="@Model.Id" class="mt-3" data-confirm="Slette hele planen for @Model.Title? Kurs som er opprettet for påmelding blir ikke slettet." onsubmit="return confirm(this.dataset.confirm)">
+                <button type="submit" class="btn btn-sm btn-outline-danger">Slett planen</button>
+            </form>
+        </div>
+    </div>
+
+    <ul class="nav nav-tabs mb-3" id="kp-tabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="kp-tab-timeplan" data-toggle="tab" href="#timeplan" role="tab" aria-controls="timeplan" aria-selected="true">Timeplan</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="kp-tab-saler" data-toggle="tab" href="#saler" role="tab" aria-controls="saler" aria-selected="false">Saler <span class="badge badge-secondary" id="kp-room-count"></span></a>
+        </li>
+        <li class="nav-item ml-auto align-self-center">
+            <span class="text-muted small" id="kp-status"></span>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="timeplan" role="tabpanel" aria-labelledby="kp-tab-timeplan">
+            <div class="d-flex flex-wrap align-items-center mb-3 kp-toolbar">
+                <div class="btn-group btn-group-toggle mr-3" role="group">
+                    <button type="button" class="btn btn-outline-primary active" data-mode="week">Ukevisning</button>
+                    <button type="button" class="btn btn-outline-primary" data-mode="semester">Semestervisning</button>
+                </div>
+                <select class="form-control w-auto mr-3" id="kp-week" title="Hvilken uke som vises"></select>
+            </div>
+
+            <div id="kp-board"></div>
+
+            <div class="kp-pool-wrapper">
+                <div class="d-flex flex-wrap align-items-center mb-2">
+                    <h4 class="mb-0 mr-3">Kurs som ikke er plassert</h4>
+                    <form id="kp-new-course" class="form-inline">
+                        <input class="form-control form-control-sm mr-2" name="title" placeholder="Navn, f.eks. Balboa Basic" required />
+                        <select class="form-control form-control-sm mr-2" name="weeks">
+                            <option value="12">12 uker</option>
+                            <option value="6">6 uker</option>
+                            <option value="1">1 gang</option>
+                        </select>
+                        <button class="btn btn-sm btn-success" type="submit">Legg til kurs</button>
+                    </form>
+                </div>
+                <div id="kp-pool" class="kp-pool" data-drop="pool"></div>
+                <p class="small text-muted mt-1">Dra kursene inn på salene i timeplanen. Dra dem hit igjen for å fjerne dem fra timeplanen. Klikk på et kurs for å endre det.</p>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="saler" role="tabpanel" aria-labelledby="kp-tab-saler">
+            <div class="d-flex flex-wrap align-items-center mb-3">
+                <button type="button" class="btn btn-outline-secondary mr-2" id="kp-add-room"><i class="bi bi-plus"></i> Ny sal</button>
+                <button type="button" class="btn btn-outline-secondary mr-2" id="kp-paste"><i class="bi bi-clipboard"></i> Lim inn bestilling</button>
+                <span class="text-muted small">Salene vi leier, med ukedager og tider. Endringer lagres automatisk.</span>
+            </div>
+            <div id="kp-rooms"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="kp-course-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <form class="modal-content" id="kp-course-form">
+            <div class="modal-header">
+                <h5 class="modal-title">Kurs</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Lukk"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="kp-c-title">Navn</label>
+                    <input class="form-control" id="kp-c-title" name="title" required />
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-4">
+                        <label for="kp-c-weeks">Antall uker</label>
+                        <input class="form-control" type="number" min="1" max="52" id="kp-c-weeks" name="weeks" required />
+                    </div>
+                    <div class="form-group col-8">
+                        <label for="kp-c-color">Farge</label>
+                        <div id="kp-c-colors" class="kp-colors"></div>
+                    </div>
+                </div>
+                <div class="kp-placed-only">
+                    <div class="form-row">
+                        <div class="form-group col-4">
+                            <label for="kp-c-start">Fra</label>
+                            <input class="form-control" type="time" step="300" id="kp-c-start" name="startTime" />
+                        </div>
+                        <div class="form-group col-4">
+                            <label for="kp-c-end">Til</label>
+                            <input class="form-control" type="time" step="300" id="kp-c-end" name="endTime" />
+                        </div>
+                        <div class="form-group col-4">
+                            <label for="kp-c-first">Første gang</label>
+                            <select class="form-control" id="kp-c-first" name="firstDate"></select>
+                        </div>
+                    </div>
+                    <p class="small text-muted" id="kp-c-place"></p>
+                </div>
+                <div class="form-group">
+                    <label for="kp-c-description">Beskrivelse</label>
+                    <input class="form-control" id="kp-c-description" name="description" placeholder="Kort, f.eks. Nybegynner nivå." />
+                    <small class="form-text text-muted" id="kp-c-description-help">Tid og sted legges automatisk til etter beskrivelsen når kurset opprettes for påmelding.</small>
+                </div>
+                <div class="form-group">
+                    <label for="kp-c-signuphelp">Hjelpetekst</label>
+                    <textarea class="form-control" id="kp-c-signuphelp" name="signupHelp" rows="2" placeholder="Vises ved påmeldingen, f.eks. krav til forkunnskaper"></textarea>
+                    <small class="form-text text-muted">Støtter markdown.</small>
+                </div>
+                <div class="form-group">
+                    <label for="kp-c-note">Notat (bare for planleggingen)</label>
+                    <textarea class="form-control" id="kp-c-note" name="note" rows="2"></textarea>
+                </div>
+                <p class="small text-muted mb-0" id="kp-c-event"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-danger mr-auto" id="kp-c-delete">Slett</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Avbryt</button>
+                <button type="submit" class="btn btn-primary">Lagre</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="kp-paste-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <form class="modal-content" id="kp-paste-form">
+            <div class="modal-header">
+                <h5 class="modal-title">Lim inn saler og bestillinger</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Lukk"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <textarea class="form-control text-monospace small" name="text" rows="10" required placeholder="Bestilling av Storsalen for Bårdar Swing Club
+
+Storsalen  27.4.2027 19:00 - 22:30:  Bestilt
+Storsalen  4.5.2027 19:00 - 22:30:  Bestilt
+
+Sal 3  Mandag 20:00 - 21:30
+Sal 5  Tirsdag 19:00 - 20:30"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="kp-p-venue">Sted for nye saler</label>
+                    <input class="form-control" id="kp-p-venue" name="venue" placeholder="F.eks. BLS eller Bårdar Danseinstitutt (kan endres etterpå)" />
+                    <small class="form-text text-muted">
+                        Saler som finnes fra før (samme navn) får tidene lagt til. Linjer med ukedag, f.eks. «Sal 3  Mandag 20:00 - 21:30», gjelder alle uker i semesteret.
+                    </small>
+                </div>
+                <div id="kp-p-preview" class="small"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Avbryt</button>
+                <button type="button" class="btn btn-outline-primary" id="kp-p-check">Les inn</button>
+                <button type="submit" class="btn btn-primary" id="kp-p-save" disabled>Legg til</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/kursplanlegging.js" asp-append-version="true"></script>
+}

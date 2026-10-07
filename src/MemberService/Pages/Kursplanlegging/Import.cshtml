@@ -1,0 +1,92 @@
+@model ImportModel
+
+@{
+    ViewData["Title"] = $"Opprett kurs fra {Model.Plan.Title}";
+    var selectable = Model.Courses.Where(c => c.Course.EventId == null).ToList();
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<p>
+    Kursene opprettes som upubliserte kurs uten åpen påmelding. Navn, beskrivelse (med tid og sted til slutt) og hjelpetekst
+    hentes fra planen. Pris, påmeldingstidspunkt og lignende må redigeres før påmeldingen åpnes. Kurs med «solo jazz» i navnet får påmelding for enkeltpersoner,
+    alle andre får fører og følger og påmelding som par.
+</p>
+
+@if (Model.Semesters.Count == 0)
+{
+    <div class="alert alert-warning">
+        Det finnes ikke noe semester å opprette kursene i ennå. Opprett semesteret under <a asp-controller="Semester" asp-action="Create">Kurs</a> først.
+    </div>
+}
+else
+{
+    <form method="post">
+        <div class="form-group" style="max-width: 400px">
+            <label for="semesterId">Opprett kursene i semester</label>
+            <select class="form-control" id="semesterId" name="semesterId" required>
+                @foreach (var semester in Model.Semesters)
+                {
+                    <option value="@semester.Id">@semester.Title@(semester.IsActive ? "" : " (avsluttet)")</option>
+                }
+            </select>
+            <small class="form-text text-muted">Står ikke riktig semester her, må det opprettes først.</small>
+        </div>
+
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" checked onchange="document.querySelectorAll('input[name=courseIds]').forEach(c => c.checked = this.checked)" title="Velg alle" /></th>
+                    <th>Navn</th>
+                    <th>Beskrivelse</th>
+                    <th>Hjelpetekst</th>
+                    <th>Ganger</th>
+                    <th>Påmelding</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var entry in Model.Courses)
+                {
+                    var course = entry.Course;
+                    <tr class="@(course.EventId != null ? "text-muted" : "")">
+                        <td>
+                            @if (course.EventId == null)
+                            {
+                                <input type="checkbox" name="courseIds" value="@course.Id" checked />
+                            }
+                        </td>
+                        <td>
+                            @course.Title
+                            @if (course.EventId != null)
+                            {
+                                <br /><a asp-controller="Event" asp-action="View" asp-route-id="@course.EventId">Allerede opprettet</a>
+                            }
+                        </td>
+                        <td>
+                            @(entry.Description ?? "Ikke plassert i timeplanen")
+                            @if (string.IsNullOrWhiteSpace(course.Description))
+                            {
+                                <br /><small class="text-warning">Mangler beskrivelse (bare tid og sted)</small>
+                            }
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(course.SignupHelp))
+                            {
+                                <i class="bi bi-check2 text-success" title="@course.SignupHelp"></i>
+                            }
+                            else
+                            {
+                                <span class="text-muted">–</span>
+                            }
+                        </td>
+                        <td>@course.Dates.Count</td>
+                        <td>@(entry.Couples ? "Fører/følger, par" : "Enkeltpersoner")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <button type="submit" class="btn btn-success" disabled="@(selectable.Count == 0)">Opprett valgte kurs</button>
+        <a class="btn btn-link" asp-action="Plan" asp-route-id="@Model.Plan.Id">Tilbake til planleggingen</a>
+    </form>
+}

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 using R = Data.SemesterRole.RoleType;
+using Roles = Data.ValueTypes.Roles;
 
 public class SemesterRequirementsHandler : IAuthorizationHandler
 {
@@ -36,7 +37,37 @@ public class SemesterRequirementsHandler : IAuthorizationHandler
         }
     }
 
+    private static readonly Policy[] ClassAdministrationPolicies =
+    [
+        Policy.CanViewEvent,
+        Policy.CanEditEvent,
+        Policy.CanSetEventSignupStatus,
+        Policy.CanSendEventEmail,
+        Policy.CanEditEventSignup,
+        Policy.CanEditEventOrganizers,
+        Policy.CanSetPresence,
+        Policy.CanAddPresenceLesson,
+        Policy.CanCreateSurvey,
+        Policy.CanViewSurvey,
+    ];
+
     private async Task<bool> IsAuthorized(ClaimsPrincipal user, Guid? id, Requirement requirement)
+    {
+        if (id is Guid eventId
+            && ClassAdministrationPolicies.Contains(requirement.Policy)
+            && user.IsInRole(Roles.INSTRUKTORKOORDINATOR)
+            && await IsClass(eventId))
+        {
+            return true;
+        }
+
+        return await IsAuthorizedBySemesterRole(user, id, requirement);
+    }
+
+    private async Task<bool> IsClass(Guid eventId)
+        => await _database.Events.AnyAsync(e => e.Id == eventId && e.SemesterId != null);
+
+    private async Task<bool> IsAuthorizedBySemesterRole(ClaimsPrincipal user, Guid? id, Requirement requirement)
         => requirement.Policy switch
         {
             Policy.CanCreateSemesterEvent => await CheckCurrentSemesterRole(user, R.Coordinator),

@@ -47,19 +47,19 @@ public class RoleRequirementsHandler : IAuthorizationHandler
             Policy.CanViewSurvey => user.IsInAnyRole(R.STYRET),
             Policy.CanEditSurvey => user.IsInAnyRole(R.STYRET),
 
-            Policy.CanViewMembers => user.IsInAnyRole(R.STYRET, R.FESTKOM),
+            Policy.CanViewMembers => user.IsInAnyRole(R.STYRET, R.FESTKOM, R.INSTRUKTORKOORDINATOR),
             Policy.CanViewOlderMembers => user.IsInAnyRole(R.STYRET),
             Policy.CanSendEmailToMembers => user.IsInAnyRole(R.STYRET),
             Policy.CanAddManualPayment => user.IsInAnyRole(R.STYRET),
             Policy.CanUpdatePayments => user.IsInAnyRole(R.STYRET),
             Policy.CanSeeStripeLink => user.IsInAnyRole(R.STYRET),
 
-            Policy.CanViewSemester => user.IsInAnyRole(R.STYRET),
-            Policy.CanCreateSemester => user.IsInAnyRole(R.STYRET),
-            Policy.CanCreateSemesterEvent => user.IsInAnyRole(R.STYRET),
-            Policy.CanEditSemester => user.IsInAnyRole(R.STYRET),
-            Policy.CanEditSemesterRoles => user.IsInAnyRole(R.STYRET),
-            Policy.CanPreviewSemesterSignup => user.IsInAnyRole(R.STYRET),
+            Policy.CanViewSemester => user.IsInAnyRole(R.STYRET, R.INSTRUKTORKOORDINATOR),
+            Policy.CanCreateSemester => user.IsInAnyRole(R.STYRET, R.INSTRUKTORKOORDINATOR),
+            Policy.CanCreateSemesterEvent => user.IsInAnyRole(R.STYRET, R.INSTRUKTORKOORDINATOR),
+            Policy.CanEditSemester => user.IsInAnyRole(R.STYRET, R.INSTRUKTORKOORDINATOR),
+            Policy.CanEditSemesterRoles => user.IsInAnyRole(R.STYRET, R.INSTRUKTORKOORDINATOR),
+            Policy.CanPreviewSemesterSignup => user.IsInAnyRole(R.STYRET, R.INSTRUKTORKOORDINATOR),
 
             Policy.CanCreateAnnualMeeting => user.IsInAnyRole(R.STYRET),
             Policy.CanEditAnnualMeeting => user.IsInAnyRole(R.STYRET),
@@ -73,6 +73,8 @@ public class RoleRequirementsHandler : IAuthorizationHandler
             Policy.CanViewReports => user.IsInAnyRole(R.STYRET),
 
             Policy.CanEditMemberConsent => user.IsInAnyRole(R.STYRET),
+
+            Policy.CanPlanCourses => user.IsInAnyRole(R.STYRET, R.INSTRUKTORKOORDINATOR),
 
             _ => false,
         };

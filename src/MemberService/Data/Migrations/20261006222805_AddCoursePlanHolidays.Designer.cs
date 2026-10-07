@@ -4,6 +4,7 @@ using MemberService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MemberService.Data.Migrations
 {
     [DbContext(typeof(MemberContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261006222805_AddCoursePlanHolidays")]
+    partial class AddCoursePlanHolidays
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -141,9 +144,6 @@ namespace MemberService.Data.Migrations
                     b.Property<string>("Dates")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("EndTime")
                         .HasMaxLength(5)
                         .HasColumnType("nvarchar(5)");
@@ -157,9 +157,6 @@ namespace MemberService.Data.Migrations
                     b.Property<string>("RoomId")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("SignupHelp")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SlotId")
                         .HasMaxLength(50)
