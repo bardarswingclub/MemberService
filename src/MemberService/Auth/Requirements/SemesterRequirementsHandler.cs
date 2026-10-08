@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 using R = Data.SemesterRole.RoleType;
+using EventType = Data.ValueTypes.EventType;
 using Roles = Data.ValueTypes.Roles;
 
 public class SemesterRequirementsHandler : IAuthorizationHandler
@@ -68,8 +69,8 @@ public class SemesterRequirementsHandler : IAuthorizationHandler
 
     // Id-en er et kurs, eller en påmelding til et kurs (redigering av påmelding bruker påmeldingens id)
     private async Task<bool> IsClassInActiveSemester(Guid id)
-        => await _database.Events.AnyAsync(e => e.Id == id && e.Semester != null && e.Semester.IsActive())
-        || await _database.EventSignups.AnyAsync(s => s.Id == id && s.Event.Semester != null && s.Event.Semester.IsActive());
+        => await _database.Events.AnyAsync(e => e.Id == id && e.Type == EventType.Class && e.Semester != null && e.Semester.IsActive())
+        || await _database.EventSignups.AnyAsync(s => s.Id == id && s.Event.Type == EventType.Class && s.Event.Semester != null && s.Event.Semester.IsActive());
 
     private async Task<bool> IsAuthorizedBySemesterRole(ClaimsPrincipal user, Guid? id, Requirement requirement)
         => requirement.Policy switch
