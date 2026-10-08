@@ -319,6 +319,12 @@ public static partial class CoursePlanLogic
 
         foreach (var line in (text ?? "").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0))
         {
+            if (line.Length > 300)
+            {
+                skipped.Add(line[..100] + "…");
+                continue;
+            }
+
             var header = HeaderRegex().Match(line);
             if (header.Success)
             {

@@ -16,7 +16,7 @@
 @if (Model.Semesters.Count == 0)
 {
     <div class="alert alert-warning">
-        Det finnes ikke noe semester å opprette kursene i ennå. Opprett semesteret under <a asp-controller="Semester" asp-action="Create">Kurs</a> først.
+        Det finnes ikke noe aktivt semester å opprette kursene i ennå. Opprett semesteret under <a asp-controller="Semester" asp-action="Create">Kurs</a> først.
     </div>
 }
 else
@@ -27,10 +27,10 @@ else
             <select class="form-control" id="semesterId" name="semesterId" required>
                 @foreach (var semester in Model.Semesters)
                 {
-                    <option value="@semester.Id">@semester.Title@(semester.IsActive ? "" : " (avsluttet)")</option>
+                    <option value="@semester.Id">@semester.Title</option>
                 }
             </select>
-            <small class="form-text text-muted">Står ikke riktig semester her, må det opprettes først.</small>
+            <small class="form-text text-muted">Bare aktive semestre vises. Står ikke riktig semester her, må det opprettes først. Kurs med samme navn som et kurs som allerede finnes i semesteret, hoppes over.</small>
         </div>
 
         <table class="table table-sm">

@@ -58,7 +58,7 @@ public class RoleRequirementsHandler : IAuthorizationHandler
             Policy.CanCreateSemester => user.IsInAnyRole(R.STYRET, R.INSTRUKTORKOORDINATOR),
             Policy.CanCreateSemesterEvent => user.IsInAnyRole(R.STYRET, R.INSTRUKTORKOORDINATOR),
             Policy.CanEditSemester => user.IsInAnyRole(R.STYRET, R.INSTRUKTORKOORDINATOR),
-            Policy.CanEditSemesterRoles => user.IsInAnyRole(R.STYRET, R.INSTRUKTORKOORDINATOR),
+            Policy.CanEditSemesterRoles => user.IsInAnyRole(R.STYRET),
             Policy.CanPreviewSemesterSignup => user.IsInAnyRole(R.STYRET, R.INSTRUKTORKOORDINATOR),
 
             Policy.CanCreateAnnualMeeting => user.IsInAnyRole(R.STYRET),

@@ -37,6 +37,8 @@ public class SemesterRequirementsHandler : IAuthorizationHandler
         }
     }
 
+    // Instruktørkoordinatorer kan gjøre alt med kurs i aktive semestre. Kurs i tidligere semestre,
+    // andre arrangementer, semesterroller og avgiftsfritak har de ikke tilgang til.
     private static readonly Policy[] ClassAdministrationPolicies =
     [
         Policy.CanViewEvent,
@@ -56,7 +58,7 @@ public class SemesterRequirementsHandler : IAuthorizationHandler
         if (id is Guid eventId
             && ClassAdministrationPolicies.Contains(requirement.Policy)
             && user.IsInRole(Roles.INSTRUKTORKOORDINATOR)
-            && await IsClass(eventId))
+            && await IsClassInActiveSemester(eventId))
         {
             return true;
         }
@@ -64,8 +66,10 @@ public class SemesterRequirementsHandler : IAuthorizationHandler
         return await IsAuthorizedBySemesterRole(user, id, requirement);
     }
 
-    private async Task<bool> IsClass(Guid eventId)
-        => await _database.Events.AnyAsync(e => e.Id == eventId && e.SemesterId != null);
+    // Id-en er et kurs, eller en påmelding til et kurs (redigering av påmelding bruker påmeldingens id)
+    private async Task<bool> IsClassInActiveSemester(Guid id)
+        => await _database.Events.AnyAsync(e => e.Id == id && e.Semester != null && e.Semester.IsActive())
+        || await _database.EventSignups.AnyAsync(s => s.Id == id && s.Event.Semester != null && s.Event.Semester.IsActive());
 
     private async Task<bool> IsAuthorizedBySemesterRole(ClaimsPrincipal user, Guid? id, Requirement requirement)
         => requirement.Policy switch

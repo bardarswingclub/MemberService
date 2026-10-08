@@ -41,6 +41,8 @@ public class CoursePlanApiController(MemberContext database) : ControllerBase
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SaveRooms(Guid id, [FromBody] List<Room> rooms)
     {
+        if (Limits.Validate(rooms ?? new()) is string error) return BadRequest(error);
+
         var plan = await database.CoursePlans.FindAsync(id);
         if (plan is null) return NotFound();
 
@@ -56,7 +58,7 @@ public class CoursePlanApiController(MemberContext database) : ControllerBase
     [ValidateAntiForgeryToken]
     public async Task<ActionResult<CourseDto>> CreateCourse(Guid id, [FromBody] CourseDto input)
     {
-        if (string.IsNullOrWhiteSpace(input.Title)) return BadRequest("Kurset må ha et navn");
+        if (input.Validate() is string error) return BadRequest(error);
 
         var plan = await database.CoursePlans.FindAsync(id);
         if (plan is null) return NotFound();
@@ -75,7 +77,7 @@ public class CoursePlanApiController(MemberContext database) : ControllerBase
     [ValidateAntiForgeryToken]
     public async Task<ActionResult<CourseDto>> UpdateCourse(Guid courseId, [FromBody] CourseDto input)
     {
-        if (string.IsNullOrWhiteSpace(input.Title)) return BadRequest("Kurset må ha et navn");
+        if (input.Validate() is string error) return BadRequest(error);
 
         var course = await database.PlannedCourses.Include(c => c.CoursePlan).FirstOrDefaultAsync(c => c.Id == courseId);
         if (course is null) return NotFound();
@@ -103,10 +105,43 @@ public class CoursePlanApiController(MemberContext database) : ControllerBase
     [HttpPost("parse-booking")]
     [ValidateAntiForgeryToken]
     public ActionResult<CoursePlanLogic.ParsedBooking> ParseBooking([FromBody] ParseBookingRequest request)
-        => CoursePlanLogic.ParseBooking(request.Text);
+    {
+        if ((request?.Text?.Length ?? 0) > Limits.BookingText) return BadRequest($"Teksten kan ikke være lengre enn {Limits.BookingText} tegn");
+
+        return CoursePlanLogic.ParseBooking(request?.Text);
+    }
 }
 
 public record ParseBookingRequest(string Text);
+
+/// <summary>Øvre grenser for det klienten kan lagre, så planen ikke kan vokse ubegrenset.</summary>
+public static class Limits
+{
+    public const int Rooms = 50;
+    public const int SlotsPerRoom = 30;
+    public const int Dates = 60;
+    public const int Name = 100;
+    public const int Title = 200;
+    public const int Description = 500;
+    public const int SignupHelp = 4000;
+    public const int Note = 2000;
+    public const int BookingText = 20_000;
+    public const int Holidays = 50;
+
+    public static string Validate(List<Room> rooms)
+    {
+        if (rooms.Count > Rooms) return $"Planen kan ha maks {Rooms} saler";
+
+        foreach (var room in rooms.Where(r => r is not null))
+        {
+            if ((room.Name?.Length ?? 0) > Name || (room.Venue?.Length ?? 0) > Name) return $"Navn og sted på salen kan være maks {Name} tegn";
+            if ((room.Slots?.Count ?? 0) > SlotsPerRoom) return $"En sal kan ha maks {SlotsPerRoom} tidspunkter";
+            if (room.Slots?.Any(s => (s?.Dates?.Count ?? 0) > Dates) == true) return $"Et tidspunkt kan ha maks {Dates} datoer";
+        }
+
+        return null;
+    }
+}
 
 public record PlanDto(Guid Id, string Title, DateOnly StartDate, DateOnly EndDate, List<Room> Rooms, List<Holiday> Holidays, List<CourseDto> Courses);
 
@@ -139,6 +174,17 @@ public record CourseDto
     public List<DateOnly> Dates { get; init; } = new();
 
     public Guid? EventId { get; init; }
+
+    public string Validate()
+    {
+        if (string.IsNullOrWhiteSpace(Title)) return "Kurset må ha et navn";
+        if (Title.Trim().Length > Limits.Title) return $"Navnet kan være maks {Limits.Title} tegn";
+        if ((Description?.Length ?? 0) > Limits.Description) return $"Beskrivelsen kan være maks {Limits.Description} tegn";
+        if ((SignupHelp?.Length ?? 0) > Limits.SignupHelp) return $"Hjelpeteksten kan være maks {Limits.SignupHelp} tegn";
+        if ((Note?.Length ?? 0) > Limits.Note) return $"Notatet kan være maks {Limits.Note} tegn";
+        if ((Dates?.Count ?? 0) > Limits.Dates) return $"Kurset kan ha maks {Limits.Dates} datoer";
+        return null;
+    }
 
     public static CourseDto Create(PlannedCourse c) => new()
     {

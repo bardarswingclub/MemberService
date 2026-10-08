@@ -42,9 +42,9 @@ public class KursplanleggingController(MemberContext database) : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([FromForm] CreatePlanInput input)
     {
-        if (string.IsNullOrWhiteSpace(input.Title) || input.EndDate < input.StartDate)
+        if (string.IsNullOrWhiteSpace(input.Title) || input.Title.Trim().Length > Limits.Name || input.EndDate < input.StartDate)
         {
-            TempData["ErrorMessage"] = "Semesteret må ha et navn, og sluttdato må være etter startdato";
+            TempData["ErrorMessage"] = $"Semesteret må ha et navn (maks {Limits.Name} tegn), og sluttdato må være etter startdato";
             return RedirectToAction(nameof(Index));
         }
 
@@ -109,7 +109,7 @@ public class KursplanleggingController(MemberContext database) : Controller
         var plan = await database.CoursePlans.FindAsync(id);
         if (plan is null) return NotFound();
 
-        if (!string.IsNullOrWhiteSpace(input.Title) && input.EndDate >= input.StartDate)
+        if (!string.IsNullOrWhiteSpace(input.Title) && input.Title.Trim().Length <= Limits.Name && input.EndDate >= input.StartDate)
         {
             plan.Title = input.Title.Trim();
             plan.StartDate = input.StartDate;
@@ -168,18 +168,29 @@ public class KursplanleggingController(MemberContext database) : Controller
 
         if (plan is null) return NotFound();
 
-        var semester = await database.Semesters.FindAsync(semesterId);
+        var semester = await database.Semesters
+            .Where(s => s.IsActive())
+            .FirstOrDefaultAsync(s => s.Id == semesterId);
         if (semester is null)
         {
-            TempData["ErrorMessage"] = "Du må velge et semester å opprette kursene i. Opprett semesteret først.";
+            TempData["ErrorMessage"] = "Du må velge et aktivt semester å opprette kursene i. Opprett semesteret først.";
             return RedirectToAction(nameof(Import), new { id });
         }
+
+        // Ikke lag kurs med samme navn som et kurs som allerede finnes i semesteret
+        var existingTitles = await database.Events
+            .Where(e => e.SemesterId == semester.Id && !e.Cancelled)
+            .Select(e => e.Title)
+            .ToListAsync();
 
         var user = await database.Get(User);
         var rooms = RoomsJson.Parse(plan.RoomsJson);
         var count = 0;
+        var selected = plan.Courses.Where(c => courseIds.Contains(c.Id) && c.EventId == null).ToList();
+        var toCreate = CoursePlanLogic.ExceptExisting(selected, c => c.Title, existingTitles);
+        var skipped = selected.Count - toCreate.Count;
 
-        foreach (var course in plan.Courses.Where(c => courseIds.Contains(c.Id) && c.EventId == null))
+        foreach (var course in toCreate)
         {
             var room = rooms.FirstOrDefault(r => r.Id == course.RoomId);
             var slot = room?.Slots.FirstOrDefault(s => s.Id == course.SlotId);
@@ -192,7 +203,8 @@ public class KursplanleggingController(MemberContext database) : Controller
 
         await database.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = $"Opprettet {count} kurs i {semester.Title}. Påmeldingen er ikke åpnet.";
+        TempData["SuccessMessage"] = $"Opprettet {count} kurs i {semester.Title}. Påmeldingen er ikke åpnet."
+            + (skipped > 0 ? $" {skipped} kurs ble hoppet over fordi {semester.Title} allerede har et kurs med samme navn." : "");
         return RedirectToAction("Index", "Semester", new { id = semester.Id });
     }
 
@@ -236,9 +248,10 @@ public class KursplanleggingController(MemberContext database) : Controller
 
         var valid = (holidays ?? new())
             .Where(h => h.Keep)
+            .Take(Limits.Holidays)
             .Select(h => new Holiday
             {
-                Name = string.IsNullOrWhiteSpace(h.Name) ? "Fri" : h.Name.Trim(),
+                Name = string.IsNullOrWhiteSpace(h.Name) ? "Fri" : CoursePlanLogic.SingleLine(h.Name) is { Length: > Limits.Name } name ? name[..Limits.Name] : CoursePlanLogic.SingleLine(h.Name),
                 From = h.From.Value,
                 To = h.To is DateOnly to && to >= h.From.Value ? to : h.From.Value,
             })
@@ -416,6 +429,7 @@ public class KursplanleggingController(MemberContext database) : Controller
         var rooms = RoomsJson.Parse(plan.RoomsJson);
 
         var semesters = await database.Semesters
+            .Where(s => s.IsActive())
             .OrderByDescending(s => s.SignupOpensAt)
             .Select(s => new ImportModel.SemesterOption(s.Id, s.Title, s.IsActive()))
             .ToListAsync();

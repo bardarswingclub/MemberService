@@ -124,8 +124,13 @@ public class RolesModel : PageModel
                 semesterRole.Role = role;
                 semesterRole.UpdatedAt = DateTime.UtcNow;
                 semesterRole.UpdatedByUser = await GetCurrentUser();
-                semesterRole.User.ExemptFromTrainingFee = exemptFromTrainingFee;
-                semesterRole.User.ExemptFromClassesFee = exemptFromClassesFee;
+
+                // Fritak fra avgifter endrer hva medlemmet betaler, og krever egen tilgang
+                if (await _authorizationService.IsAuthorized(User, Policy.CanToggleUserFeeExemption))
+                {
+                    semesterRole.User.ExemptFromTrainingFee = exemptFromTrainingFee;
+                    semesterRole.User.ExemptFromClassesFee = exemptFromClassesFee;
+                }
             }
 
             await _database.SaveChangesAsync();
