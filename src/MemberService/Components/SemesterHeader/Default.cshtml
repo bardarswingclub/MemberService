@@ -26,6 +26,11 @@
                 <a class="btn btn-secondary" asp-controller="Survey" asp-action="CreateSemesterSurvey" asp-route-id="@Model.Id">Spørreundersøkelse</a>
             }
 
+            @if (await AuthorizationService.IsAuthorized(User, Policy.CanPlanCourses))
+            {
+                <a class="btn btn-secondary" asp-controller="Kursplanlegging" asp-action="Index">Kursplanlegging</a>
+            }
+
             @if (await AuthorizationService.IsAuthorized(User, Policy.CanEditSemesterRoles) && Model.IsActive)
             {
                 <a class="btn btn-secondary" asp-page="/Semester/Roles">Roller</a>

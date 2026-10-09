@@ -12,6 +12,8 @@ public static class Roles
     
     public const string RESSURSPERSON = "Ressursperson";
 
+    public const string INSTRUKTORKOORDINATOR = "Instruktørkoordinator";
+
     public const string INVENTORY_MANAGER = "InventoryManager";
 
     public const string INVENTORY_USER = "InventoryUser";

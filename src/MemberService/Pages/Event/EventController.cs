@@ -69,8 +69,14 @@ public class EventController : Controller
 
     [HttpPost]
     [Authorize(nameof(Policy.CanEditEventSignup))]
-    public async Task<IActionResult> EditSignup(Guid id, [FromForm] DanceRole role, [FromForm] string partnerEmail, [FromForm] Guid? eventId)
+    public async Task<IActionResult> EditSignup(Guid id, [FromForm] DanceRole role, [FromForm] string partnerEmail, [FromForm] Guid? eventId, [FromServices] IAuthorizationService authorization)
     {
+        // Flyttes påmeldingen til et annet arrangement, må man også ha tilgang til det arrangementet
+        if (eventId.HasValue && !await authorization.IsAuthorized(User, eventId.Value, Policy.CanEditEventSignup))
+        {
+            return Forbid();
+        }
+
         var signup = await _database.EventSignups
             .Include(e => e.AuditLog)
             .FirstOrDefaultAsync(e => e.Id == id);

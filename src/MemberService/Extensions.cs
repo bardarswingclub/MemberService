@@ -60,6 +60,9 @@ public static class Extensions
 
     public static DateTime GetStartOfYear(this DateTime d) => new(d.Year, 1, 1);
 
+    /// <summary>"Våren 2027" eller "Høsten 2026" for semesteret datoen ligger i.</summary>
+    public static string GetSemesterTitle(this DateTime d) => $"{(d.Month >= 7 ? "Høsten" : "Våren")} {d.Year}";
+
     public static ZonedDateTime ToOsloZone(this DateTime utc)
         => Instant.FromDateTimeUtc(utc.WithKind(DateTimeKind.Utc)).InZone(TimeProvider.TimeZoneOslo);
 
