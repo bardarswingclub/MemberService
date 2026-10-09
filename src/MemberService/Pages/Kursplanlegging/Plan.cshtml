@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="~/css/kursplanlegging.css" asp-append-version="true" />
 }
 
-<div id="planner" data-plan-id="@Model.Id" data-api="@Url.Content("~/api/kursplanlegging")">
+<div id="planner" data-plan-id="@Model.Id" data-api="@Url.Content("~/api/kursplanlegging")" data-colors="@string.Join(",", CoursePlanLogic.Colors)">
     @Html.AntiForgeryToken()
 
     <div class="d-flex flex-wrap align-items-center justify-content-between mb-2">

@@ -309,3 +309,68 @@ public class DescriptionTests
     public void StripSchedule_RemovesTimeAndPlace(string input, string expected)
         => CoursePlanLogic.StripSchedule(input).ShouldBe(expected);
 }
+
+[TestFixture]
+public class SharedHelperTests
+{
+    [TestCase("Solo Jazz 1", true)]
+    [TestCase("Solojazz for viderekomne", true)]
+    [TestCase("Balboa Basic", false)]
+    [TestCase(null, false)]
+    public void IsSoloJazzTitle(string title, bool expected) => title.IsSoloJazzTitle().ShouldBe(expected);
+
+    [Test]
+    public void Report_ClassifiesSolojazzAsSoloJazz()
+        => MemberService.Pages.Reports.MultiClassModel.ClassifyTitle("Solojazz 1").ShouldBe(MemberService.Pages.Reports.MultiClassModel.DanceStyle.SoloJazz);
+
+    [TestCase(2026, 10, "Våren 2027")]
+    [TestCase(2027, 3, "Høsten 2027")]
+    public void NextSemesterTitle(int year, int month, string expected)
+        => new DateTime(year, month, 15).GetStartOfNextSemester().GetSemesterTitle().ShouldBe(expected);
+
+    [Test]
+    public void FindPlacement_ReturnsRoomAndSlot_OrNothing()
+    {
+        var rooms = new List<Room> { new() { Id = "r1", Name = "Sal 3", Slots = [new() { Id = "s1", Day = 3 }] } };
+
+        rooms.FindPlacement(new PlannedCourse { RoomId = "r1", SlotId = "s1" }).Slot.Id.ShouldBe("s1");
+        rooms.FindPlacement(new PlannedCourse { RoomId = "r1", SlotId = "gone" }).ShouldBe((null, null));
+        rooms.FindPlacement(new PlannedCourse()).ShouldBe((null, null));
+    }
+
+    [Test]
+    public void EventDescription_IsNullWhenNotPlaced()
+    {
+        var course = new PlannedCourse { Description = "Nybegynner", StartTime = "18:00", EndTime = "19:30" };
+
+        CoursePlanLogic.EventDescription(course, null, null).ShouldBeNull();
+        CoursePlanLogic.EventDescription(course, new Room { Name = "Sal 3", Venue = " " }, new RoomSlot { Day = 3 })
+            .ShouldBe("Nybegynner. Onsdag kl 18.00-19.30 Sal 3");
+    }
+
+    [Test]
+    public void Sanitize_TrimsRoomNameAndVenue()
+    {
+        var room = CoursePlanLogic.Sanitize([new Room { Name = "  Sal 3 ", Venue = "   " }]).Single();
+
+        room.Name.ShouldBe("Sal 3");
+        room.Venue.ShouldBeNull();
+    }
+
+    [TestCase("", 2027, 1, 4, 2027, 6, 15, false)]
+    [TestCase("Våren 2027", 2027, 6, 15, 2027, 1, 4, false)]
+    [TestCase("Våren 2027", 2027, 1, 4, 2027, 6, 15, true)]
+    public void CreatePlanInput_Validate(string title, int y1, int m1, int d1, int y2, int m2, int d2, bool valid)
+        => (new CreatePlanInput { Title = title, StartDate = new(y1, m1, d1), EndDate = new(y2, m2, d2) }.Validate() is null).ShouldBe(valid);
+
+    [Test]
+    public void ImportedCourse_GetsSameCreatorRightsAsOtherCourses()
+    {
+        var user = new User();
+        var imported = new PlannedCourse { Title = "Shag" }.ToEvent(null, null, Guid.NewGuid(), user).Organizers.Single();
+        var expected = MemberService.Pages.Event.Logic.CreatorOrganizer(user);
+
+        (imported.CanEdit, imported.CanEditOrganizers, imported.CanSetSignupStatus, imported.CanSetPresence, imported.CanAddPresenceLesson, imported.CanEditSignup)
+            .ShouldBe((expected.CanEdit, expected.CanEditOrganizers, expected.CanSetSignupStatus, expected.CanSetPresence, expected.CanAddPresenceLesson, expected.CanEditSignup));
+    }
+}

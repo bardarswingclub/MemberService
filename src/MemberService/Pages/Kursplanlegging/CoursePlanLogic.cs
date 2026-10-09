@@ -7,6 +7,8 @@ using MemberService.Data;
 using MemberService.Data.CoursePlanning;
 using MemberService.Data.ValueTypes;
 
+using EventLogic = MemberService.Pages.Event.Logic;
+
 public static partial class CoursePlanLogic
 {
     public static readonly string[] DayNames = ["", "Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag", "Lørdag", "Søndag"];
@@ -61,6 +63,8 @@ public static partial class CoursePlanLogic
             .Select(r => r with
             {
                 Id = string.IsNullOrWhiteSpace(r.Id) ? Guid.NewGuid().ToString("N")[..8] : r.Id,
+                Name = SingleLine(r.Name),
+                Venue = SingleLine(r.Venue),
                 Color = SafeColor(r.Color),
                 Slots = (r.Slots ?? new())
                     .Where(s => s is not null && s.Day is >= 1 and <= 7)
@@ -93,11 +97,7 @@ public static partial class CoursePlanLogic
         return candidates.Where(c => seen.Add(NormalizeTitle(title(c)))).ToList();
     }
 
-    public static bool IsSoloJazz(string title)
-        => title?.Contains("solo jazz", StringComparison.OrdinalIgnoreCase) == true
-        || title?.Contains("solojazz", StringComparison.OrdinalIgnoreCase) == true;
-
-    /// <summary>F.eks. "Onsdag kl 18.00-19.30 Sal 3 på Bårdar Instituttet".</summary>
+    /// <summary>F.eks. "Onsdag kl 18.00-19.30 Sal 3 på Bårdar Instituttet". Null når kurset ikke er plassert.</summary>
     public static string Describe(PlannedCourse course, Room room, RoomSlot slot)
     {
         if (room is null || slot is null) return null;
@@ -118,6 +118,8 @@ public static partial class CoursePlanLogic
         var end = description[^1];
         return end is '.' or '!' or '?' or ':' ? $"{description} {schedule}" : $"{description}. {schedule}";
     }
+
+    public static string Truncate(string text, int max) => text is null || text.Length <= max ? text : text[..max];
 
     public static string SingleLine(string text)
     {
@@ -140,10 +142,13 @@ public static partial class CoursePlanLogic
         return SingleLine(ScheduleRegex().Replace(line, ""));
     }
 
+    /// <summary>Hele beskrivelsen kurset får i påmeldingen, eller null når kurset ikke er plassert.</summary>
+    public static string EventDescription(PlannedCourse course, Room room, RoomSlot slot)
+        => Describe(course, room, slot) is string schedule ? CombineDescription(schedule, course.Description) : null;
+
     public static Event ToEvent(this PlannedCourse course, Room room, RoomSlot slot, Guid semesterId, User user)
     {
-        var couples = !IsSoloJazz(course.Title);
-        var dates = course.Dates.OrderBy(d => d).ToList();
+        var couples = !course.Title.IsSoloJazzTitle();
         return new Event
         {
             Title = course.Title,
@@ -152,7 +157,7 @@ public static partial class CoursePlanLogic
             SemesterId = semesterId,
             CreatedAt = TimeProvider.UtcNow,
             CreatedByUser = user,
-            LessonCount = dates.Count > 0 ? dates.Count : course.Weeks,
+            LessonCount = course.Dates.Count > 0 ? course.Dates.Count : course.Weeks,
             Published = false,
             SignupOptions = new()
             {
@@ -162,20 +167,7 @@ public static partial class CoursePlanLogic
                 RoleSignup = couples,
                 AllowPartnerSignup = couples,
             },
-            Organizers =
-            {
-                new()
-                {
-                    User = user,
-                    UpdatedByUser = user,
-                    UpdatedAt = TimeProvider.UtcNow,
-                    CanEdit = true,
-                    CanEditOrganizers = true,
-                    CanSetSignupStatus = true,
-                    CanSetPresence = true,
-                    CanAddPresenceLesson = true
-                }
-            }
+            Organizers = { EventLogic.CreatorOrganizer(user) },
         };
     }
 
@@ -253,11 +245,11 @@ public static partial class CoursePlanLogic
     {
         var kept = dates.Where(d => !holidays.IsClosed(d)).OrderBy(d => d).ToList();
         var missing = dates.Count - kept.Count;
-        if (missing == 0 || dates.Count == 0) return kept;
+        if (missing == 0) return kept;
 
         var after = dates.Max();
         kept.AddRange(slotDates
-            .Where(d => d > after && !holidays.IsClosed(d) && !kept.Contains(d))
+            .Where(d => d > after && !holidays.IsClosed(d))
             .OrderBy(d => d)
             .Take(missing));
 
@@ -266,7 +258,7 @@ public static partial class CoursePlanLogic
 
     public static PlannedCourse CopyCourse(PlannedCourse course, List<Room> rooms, IReadOnlyList<Holiday> holidays)
     {
-        var slot = rooms.FirstOrDefault(r => r.Id == course.RoomId)?.Slots.FirstOrDefault(s => s.Id == course.SlotId);
+        var (_, slot) = rooms.FindPlacement(course);
         return new PlannedCourse
         {
             Title = course.Title,
@@ -333,8 +325,7 @@ public static partial class CoursePlanLogic
             }
 
             var dateLine = DateLineRegex().Match(line);
-            var weekdayLine = dateLine.Success ? Match.Empty : WeekdayLineRegex().Match(line);
-            var match = dateLine.Success ? dateLine : weekdayLine;
+            var match = dateLine.Success ? dateLine : WeekdayLineRegex().Match(line);
 
             if (!match.Success)
             {

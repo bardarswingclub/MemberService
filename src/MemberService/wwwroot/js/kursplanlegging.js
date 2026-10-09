@@ -12,7 +12,8 @@
     const token = root.querySelector('input[name="__RequestVerificationToken"]').value;
 
     const DAYS = ['', 'Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag', 'Søndag'];
-    const COLORS = ['#dbe7f3', '#fde2c8', '#d5f0d8', '#f8d7e3', '#e6dcf5', '#fff3bf', '#cdeeee', '#e9ecef'];
+    // Fargene kommer fra serveren (CoursePlanLogic.Colors), så planleggeren og timeplanen bruker samme palett
+    const COLORS = root.dataset.colors.split(',');
     const PX_PER_MINUTE = 1.1;
     const DEFAULT_LENGTH = 90;
     const SNAP = 15;
@@ -130,12 +131,15 @@
 
     const colorOf = (course, room) => course.color || (room && room.color) || COLORS[0];
 
-    function overlaps(a, b) {
-        return a.id !== b.id
-            && toMin(a.startTime) < toMin(b.endTime)
-            && toMin(b.startTime) < toMin(a.endTime)
-            && a.dates.some(d => b.dates.includes(d));
-    }
+    const firstDate = c => [...c.dates].sort()[0] || '';
+    const lastDate = c => [...c.dates].sort().pop() || '';
+    const timesOverlap = (a, b) => toMin(a.startTime) < toMin(b.endTime) && toMin(b.startTime) < toMin(a.endTime);
+    const periodsOverlap = (a, b) => firstDate(a) <= lastDate(b) && firstDate(b) <= lastDate(a);
+    const overlaps = (a, b) => a.id !== b.id && timesOverlap(a, b) && a.dates.some(d => b.dates.includes(d));
+
+    // Datoene salen er leid som ikke er fridager, og de første av dem fra en gitt dato
+    const openDates = slot => [...slot.dates].filter(isOpen).sort();
+    const datesFrom = (slot, from, weeks) => openDates(slot).filter(d => d >= from).slice(0, weeks);
 
     // ---------- Lagring ----------
 
@@ -173,8 +177,25 @@
     function saveRooms() {
         clearTimeout(roomsTimer);
         status('Lagrer…');
-        roomsTimer = setTimeout(() => saving(() => request('PUT', `/${planId}/rooms`, plan.rooms)), 400);
+        roomsTimer = setTimeout(() => {
+            roomsTimer = null;
+            saving(() => request('PUT', `/${planId}/rooms`, plan.rooms));
+        }, 400);
     }
+
+    // Forlater man siden før forsinket lagring av salene har gått, sendes den med en gang
+    window.addEventListener('pagehide', () => {
+        if (!roomsTimer) return;
+        clearTimeout(roomsTimer);
+        roomsTimer = null;
+        fetch(`${api}/${planId}/rooms`, {
+            method: 'PUT',
+            keepalive: true,
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': token },
+            body: JSON.stringify(plan.rooms),
+        });
+    });
 
     async function saveCourse(course) {
         const saved = await saving(() => course.id
@@ -194,27 +215,20 @@
 
     // ---------- Plassering ----------
 
-    function place(course, room, slot, startMinute) {
-        const length = course.startTime && course.endTime
-            ? toMin(course.endTime) - toMin(course.startTime)
-            : DEFAULT_LENGTH;
+    const lengthOf = course => course.startTime && course.endTime
+        ? toMin(course.endTime) - toMin(course.startTime)
+        : DEFAULT_LENGTH;
+
+    // Tidsrommet så nær ønsket start som mulig, innenfor tiden salen er leid
+    function fit(course, slot, wanted) {
+        const length = lengthOf(course);
         const slotStart = toMin(slot.start);
         const slotEnd = toMin(slot.end);
+        const start = Math.max(slotStart, Math.min(wanted, slotEnd - length));
+        return { start, end: Math.min(start + length, slotEnd) };
+    }
 
-        let start = Math.max(slotStart, startMinute);
-        if (start + length > slotEnd) start = Math.max(slotStart, slotEnd - length);
-        const end = Math.min(start + length, slotEnd);
-
-        let dates = course.dates;
-        if (course.slotId !== slot.id) {
-            const available = [...slot.dates].filter(isOpen).sort();
-            const fromWeek = week === 'semester'
-                ? available.find(inSemester)
-                : week && available.find(d => inWeekOf(d, week));
-            const from = fromWeek || available[0];
-            dates = available.filter(d => d >= from).slice(0, course.weeks);
-        }
-
+    function savePlacement(course, room, slot, { start, end }, dates) {
         return saveCourse({
             ...course,
             roomId: room.id,
@@ -225,21 +239,25 @@
         });
     }
 
+    function place(course, room, slot, startMinute) {
+        let dates = course.dates;
+        if (course.slotId !== slot.id) {
+            const available = openDates(slot);
+            const fromWeek = week === 'semester'
+                ? available.find(inSemester)
+                : week && available.find(d => inWeekOf(d, week));
+            dates = datesFrom(slot, fromWeek || available[0], course.weeks);
+        }
+
+        return savePlacement(course, room, slot, fit(course, slot, startMinute), dates);
+    }
+
     // Kurset legges i ukene etter kurset det slippes på, og nederst i boksen til det kurset
     // (slutter samtidig). Er det ingen uker igjen etter, legges det i ukene før.
     function placeAfter(course, room, slot, other) {
-        const length = course.startTime && course.endTime
-            ? toMin(course.endTime) - toMin(course.startTime)
-            : DEFAULT_LENGTH;
-        const slotStart = toMin(slot.start);
-        const slotEnd = toMin(slot.end);
+        let { start, end } = fit(course, slot, toMin(other.endTime) - lengthOf(course));
 
-        let end = Math.min(toMin(other.endTime), slotEnd);
-        let start = Math.max(slotStart, end - length);
-        end = Math.min(start + length, slotEnd);
-
-
-        const available = [...slot.dates].filter(isOpen).sort();
+        const available = openDates(slot);
         let dates = available.filter(d => d > lastDate(other)).slice(0, course.weeks);
         if (!dates.length) {
             dates = available.filter(d => d < firstDate(other)).slice(-course.weeks);
@@ -264,14 +282,7 @@
             return;
         }
 
-        return saveCourse({
-            ...course,
-            roomId: room.id,
-            slotId: slot.id,
-            startTime: fromMin(start),
-            endTime: fromMin(end),
-            dates,
-        });
+        return savePlacement(course, room, slot, { start, end }, dates);
     }
 
     function unplace(course) {
@@ -322,10 +333,6 @@
         return groups;
     }
 
-    const firstDate = c => [...c.dates].sort()[0] || '';
-    const lastDate = c => [...c.dates].sort().pop() || '';
-    const timesOverlap = (a, b) => toMin(a.startTime) < toMin(b.endTime) && toMin(b.startTime) < toMin(a.endTime);
-    const periodsOverlap = (a, b) => firstDate(a) <= lastDate(b) && firstDate(b) <= lastDate(a);
     const periodText = dates => dates.length ? `uke ${isoWeek([...dates].sort()[0])}–${isoWeek([...dates].sort().pop())}` : '';
 
     // Kurs på samme tid i samme sal, men i hver sin periode (f.eks. to 6-ukers kurs etter hverandre),
@@ -351,11 +358,46 @@
         $(`#kp-tabs a[href="#${name}"]`).tab('show');
     }
 
-    // Salen blir bredere når kurs deler den i flere kolonner, så teksten får plass
-    function columnWidth(slot) {
-        const lanes = assignLanes(coursesIn(slot).filter(c => visibleInWeek(c.dates)));
+    // Fri-merknad i overskriften på salen når én bestemt uke vises
+    function holidayNote(slot) {
+        const date = week && week !== 'semester' && slot.dates.find(d => inWeekOf(d, week));
+        const holiday = date && holidayOf(date);
+        return holiday ? el('small', { class: 'text-danger' }, `Fri ${short(date)}: ${holiday.name}`) : null;
+    }
+
+    // En sal i ukevisningen. Salen blir bredere når kurs deler den i flere kolonner, så teksten får plass.
+    function slotColumn(room, slot, layout) {
+        const visible = coursesIn(slot).filter(c => visibleInWeek(c.dates));
+        const lanes = assignLanes(visible);
         const count = Math.max(1, ...[...lanes.values()].map(l => l.count));
-        return count > 1 ? { minWidth: `${9 * count}rem`, flexBasis: `${9 * count}rem` } : null;
+
+        const cards = visible.map(c => {
+            const lane = lanes.get(c.id);
+            const card = courseCard(c, { room, slot }, 'kp-placed');
+            card.style.top = layout.top(toMin(c.startTime));
+            card.style.height = Math.max(20, (toMin(c.endTime) - toMin(c.startTime)) * PX_PER_MINUTE - 2) + 'px';
+            if (lane.count > 1) {
+                card.style.left = `calc(${(lane.lane / lane.count) * 100}% + 2px)`;
+                card.style.right = `calc(${((lane.count - lane.lane - 1) / lane.count) * 100}% + 2px)`;
+                card.append(el('span', { class: 'kp-period' }, periodText(c.dates)));
+            }
+            return card;
+        });
+
+        return el('div', { class: 'kp-col', style: count > 1 ? { minWidth: `${9 * count}rem`, flexBasis: `${9 * count}rem` } : null },
+            el('div', { class: 'kp-colhead', style: { borderTopColor: room.color || COLORS[7] } },
+                el('strong', {}, room.name || 'Uten navn'),
+                el('small', {}, [room.venue, `${slot.start}–${slot.end}`].filter(Boolean).join(' · ')),
+                el('small', {}, datesSummary(slot.dates)),
+                holidayNote(slot)),
+            el('div', {
+                class: 'kp-body',
+                style: { height: layout.height },
+                dataset: { drop: 'slot', room: room.id, slot: slot.id, first: layout.first },
+            },
+                layout.hours.map(m => el('div', { class: 'kp-line', style: { top: layout.top(m) } })),
+                el('div', { class: 'kp-open', style: { top: layout.top(toMin(slot.start)), height: (toMin(slot.end) - toMin(slot.start)) * PX_PER_MINUTE + 'px' } }),
+                cards));
     }
 
     function renderWeek() {
@@ -367,55 +409,27 @@
 
         const first = Math.floor(Math.min(...slots.map(x => toMin(x.slot.start))) / 60) * 60;
         const last = Math.ceil(Math.max(...slots.map(x => toMin(x.slot.end))) / 60) * 60;
-        const height = (last - first) * PX_PER_MINUTE + 'px';
-        const top = m => (m - first) * PX_PER_MINUTE + 'px';
         const hours = [];
         for (let m = first; m < last; m += 60) hours.push(m);
+        const layout = {
+            first,
+            hours,
+            height: (last - first) * PX_PER_MINUTE + 'px',
+            top: m => (m - first) * PX_PER_MINUTE + 'px',
+        };
 
         const days = [...new Set(slots.map(x => x.slot.day))];
 
         return el('div', { class: 'kp-week' },
             el('div', { class: 'kp-axis' },
-                el('div', { class: 'kp-dayhead' }, ' '),
-                el('div', { class: 'kp-colhead' }, ' '),
-                el('div', { class: 'kp-body', style: { height } },
-                    hours.map(m => el('div', { class: 'kp-hour', style: { top: top(m) } }, fromMin(m))))),
+                el('div', { class: 'kp-dayhead' }, '\u00a0'),
+                el('div', { class: 'kp-colhead' }, '\u00a0'),
+                el('div', { class: 'kp-body', style: { height: layout.height } },
+                    hours.map(m => el('div', { class: 'kp-hour', style: { top: layout.top(m) } }, fromMin(m))))),
             days.map(day => el('div', { class: 'kp-day' },
                 el('div', { class: 'kp-dayhead' }, DAYS[day]),
                 el('div', { class: 'kp-cols' },
-                    slots.filter(x => x.slot.day === day).map(({ room, slot }) => el('div', { class: 'kp-col', style: columnWidth(slot) },
-                        el('div', { class: 'kp-colhead', style: { borderTopColor: room.color || COLORS[7] } },
-                            el('strong', {}, room.name || 'Uten navn'),
-                            el('small', {}, [room.venue, `${slot.start}–${slot.end}`].filter(Boolean).join(' · ')),
-                            el('small', {}, datesSummary(slot.dates)),
-                            (() => {
-                                const date = week && week !== 'semester' && slot.dates.find(d => inWeekOf(d, week));
-                                const holiday = date && holidayOf(date);
-                                return holiday ? el('small', { class: 'text-danger' }, `Fri ${short(date)}: ${holiday.name}`) : null;
-                            })()),
-                        el('div', {
-                            class: 'kp-body',
-                            style: { height },
-                            dataset: { drop: 'slot', room: room.id, slot: slot.id, first: first },
-                        },
-                            hours.map(m => el('div', { class: 'kp-line', style: { top: top(m) } })),
-                            el('div', { class: 'kp-open', style: { top: top(toMin(slot.start)), height: (toMin(slot.end) - toMin(slot.start)) * PX_PER_MINUTE + 'px' } }),
-                            (() => {
-                                const visible = coursesIn(slot).filter(c => visibleInWeek(c.dates));
-                                const lanes = assignLanes(visible);
-                                return visible.map(c => {
-                                    const { lane, count } = lanes.get(c.id);
-                                    const card = courseCard(c, { room, slot }, 'kp-placed');
-                                    card.style.top = top(toMin(c.startTime));
-                                    card.style.height = Math.max(20, (toMin(c.endTime) - toMin(c.startTime)) * PX_PER_MINUTE - 2) + 'px';
-                                    if (count > 1) {
-                                        card.style.left = `calc(${(lane / count) * 100}% + 2px)`;
-                                        card.style.right = `calc(${((count - lane - 1) / count) * 100}% + 2px)`;
-                                        card.append(el('span', { class: 'kp-period' }, periodText(c.dates)));
-                                    }
-                                    return card;
-                                });
-                            })())))))));
+                    slots.filter(x => x.slot.day === day).map(({ room, slot }) => slotColumn(room, slot, layout))))));
     }
 
     function renderSemester() {
@@ -517,9 +531,7 @@
 
     function slotRow(room, slot) {
         const weeksRow = el('tr', { class: 'd-none' }, el('td', { colspan: 5 },
-            el('div', { class: 'kp-weekpicker' }, semesterWeeks().map(w => {
-                const date = addDays(w, slot.day - 1);
-                if (date < plan.startDate || date > plan.endDate) return null;
+            el('div', { class: 'kp-weekpicker' }, weeklyDates(slot.day).map(date => {
                 return el('label', { class: 'kp-weekbox', title: short(date) },
                     el('input', {
                         type: 'checkbox',
@@ -646,23 +658,35 @@
         if (placement) {
             f.startTime.value = course.startTime;
             f.endTime.value = course.endTime;
-            const first = [...course.dates].sort()[0];
-            f.firstDate.replaceChildren(...[...placement.slot.dates].filter(isOpen).sort().map(d => el('option', { value: d, selected: d === first }, `${short(d)} (uke ${isoWeek(d)})`)));
+            const first = firstDate(course);
+            f.firstDate.replaceChildren(...openDates(placement.slot).map(d => el('option', { value: d, selected: d === first }, `${short(d)} (uke ${isoWeek(d)})`)));
             document.getElementById('kp-c-place').textContent =
                 `${DAYS[placement.slot.day]} i ${placement.room.name}${placement.room.venue ? ' på ' + placement.room.venue : ''}. Salen er leid ${placement.slot.start}–${placement.slot.end}. Kurset går ${datesSummary(course.dates)}.`;
         }
         const help = document.getElementById('kp-c-description-help');
+        let previewTimer = null;
+        // Forhåndsvisningen lages av serveren, slik at den blir nøyaktig det kurset får i påmeldingen
         const updateHelp = () => {
-            if (!placement) {
-                help.textContent = 'Tid og sted legges automatisk til etter beskrivelsen når kurset opprettes for påmelding.';
-                return;
-            }
-            const schedule = `${DAYS[placement.slot.day]} kl ${course.startTime.replace(':', '.')}-${course.endTime.replace(':', '.')} ${placement.room.name}${placement.room.venue ? ' på ' + placement.room.venue : ''}`;
-            const text = f.description.value.trim().replace(/\s+/g, ' ');
-            const full = text ? `${text}${/[.!?:]$/.test(text) ? '' : '.'} ${schedule}` : schedule;
-            help.textContent = `Blir i påmeldingen: «${full}»`;
+            clearTimeout(previewTimer);
+            previewTimer = setTimeout(async () => {
+                try {
+                    const preview = await request('POST', `/${planId}/preview-description`, {
+                        ...course,
+                        description: f.description.value,
+                        startTime: placement ? f.startTime.value : null,
+                        endTime: placement ? f.endTime.value : null,
+                    });
+                    help.textContent = preview.placed
+                        ? `Blir i påmeldingen: «${preview.description}»`
+                        : 'Tid og sted legges automatisk til etter beskrivelsen når kurset er plassert i timeplanen.';
+                } catch {
+                    help.textContent = '';
+                }
+            }, 250);
         };
         f.description.oninput = updateHelp;
+        f.startTime.oninput = updateHelp;
+        f.endTime.oninput = updateHelp;
         updateHelp();
         document.getElementById('kp-c-event').textContent = course.eventId ? 'Kurset er allerede opprettet for påmelding. Endringer her oppdaterer ikke påmeldingen.' : '';
         courseModal.modal('show');
@@ -689,9 +713,8 @@
             }
             updated.startTime = f.startTime.value;
             updated.endTime = f.endTime.value;
-            const first = [...editing.dates].sort()[0];
-            if (f.firstDate.value !== first || updated.weeks !== editing.weeks) {
-                updated.dates = [...placement.slot.dates].filter(isOpen).sort().filter(d => d >= f.firstDate.value).slice(0, updated.weeks);
+            if (f.firstDate.value !== firstDate(editing) || updated.weeks !== editing.weeks) {
+                updated.dates = datesFrom(placement.slot, f.firstDate.value, updated.weeks);
             }
         }
 
@@ -820,9 +843,9 @@
             return;
         }
 
-        const room = plan.rooms.find(r => r.id === target.dataset.room);
-        const slot = room && room.slots.find(s => s.id === target.dataset.slot);
-        if (!slot) return;
+        const dropTarget = findPlacement({ roomId: target.dataset.room, slotId: target.dataset.slot });
+        if (!dropTarget) return;
+        const { room, slot } = dropTarget;
 
         const onCourse = e.target.closest('.kp-placed');
         const other = onCourse && plan.courses.find(c => c.id === onCourse.dataset.id && c.id !== course.id && c.slotId === slot.id);

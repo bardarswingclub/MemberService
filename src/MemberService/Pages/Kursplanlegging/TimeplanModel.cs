@@ -93,8 +93,7 @@ public class TimeplanModel
         var entries = plan.Courses
             .Select(c =>
             {
-                var room = rooms.FirstOrDefault(r => r.Id == c.RoomId);
-                var slot = room?.Slots.FirstOrDefault(s => s.Id == c.SlotId);
+                var (room, slot) = rooms.FindPlacement(c);
                 return slot is null || c.Dates.Count == 0
                     ? null
                     : new Entry(c, room, slot, ToMinutes(c.StartTime), ToMinutes(c.EndTime));

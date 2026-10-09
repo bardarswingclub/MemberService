@@ -19,16 +19,17 @@ public class KursplanleggingController(MemberContext database) : Controller
             .Select(p => new PlanListModel.Entry(p.Id, p.Title, p.StartDate, p.EndDate, p.Courses.Count, p.Courses.Count(c => c.EventId != null)))
             .ToListAsync();
 
-        var today = DateOnly.FromDateTime(TimeProvider.UtcToday);
-        var spring = today.Month >= 7;
-        var year = spring ? today.Year + 1 : today.Year;
+        // Vi planlegger neste semester
+        var next = TimeProvider.NextSemesterUtc;
+        var spring = next.Month < 7;
+        var year = next.Year;
 
         return View(new PlanListModel
         {
             Plans = plans,
             Input = new CreatePlanInput
             {
-                Title = spring ? $"Våren {year}" : $"Høsten {year}",
+                Title = next.GetSemesterTitle(),
                 StartDate = spring ? new DateOnly(year, 1, 5) : new DateOnly(year, 8, 15),
                 EndDate = spring ? new DateOnly(year, 6, 15) : new DateOnly(year, 12, 15),
                 CopyFromId = plans.FirstOrDefault()?.Id,
@@ -42,9 +43,9 @@ public class KursplanleggingController(MemberContext database) : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([FromForm] CreatePlanInput input)
     {
-        if (string.IsNullOrWhiteSpace(input.Title) || input.Title.Trim().Length > Limits.Name || input.EndDate < input.StartDate)
+        if (input.Validate() is string error)
         {
-            TempData["ErrorMessage"] = $"Semesteret må ha et navn (maks {Limits.Name} tegn), og sluttdato må være etter startdato";
+            TempData.SetErrorMessage(error);
             return RedirectToAction(nameof(Index));
         }
 
@@ -69,20 +70,17 @@ public class KursplanleggingController(MemberContext database) : Controller
 
             if (source is not null)
             {
-                var rooms = CoursePlanLogic.CopyRooms(RoomsJson.Parse(source.RoomsJson), input.StartDate, input.EndDate);
+                var rooms = input.CopyRooms
+                    ? CoursePlanLogic.CopyRooms(RoomsJson.Parse(source.RoomsJson), input.StartDate, input.EndDate)
+                    : new List<Room>();
                 plan.RoomsJson = RoomsJson.Serialize(rooms);
 
                 if (input.CopyCourses)
                 {
                     foreach (var course in source.Courses)
                     {
-                        plan.Courses.Add(CoursePlanLogic.CopyCourse(course, input.CopyRooms ? rooms : new(), holidays));
+                        plan.Courses.Add(CoursePlanLogic.CopyCourse(course, rooms, holidays));
                     }
-                }
-
-                if (!input.CopyRooms)
-                {
-                    plan.RoomsJson = "[]";
                 }
             }
         }
@@ -109,7 +107,11 @@ public class KursplanleggingController(MemberContext database) : Controller
         var plan = await database.CoursePlans.FindAsync(id);
         if (plan is null) return NotFound();
 
-        if (!string.IsNullOrWhiteSpace(input.Title) && input.Title.Trim().Length <= Limits.Name && input.EndDate >= input.StartDate)
+        if (input.Validate() is string error)
+        {
+            TempData.SetErrorMessage(error);
+        }
+        else
         {
             plan.Title = input.Title.Trim();
             plan.StartDate = input.StartDate;
@@ -173,7 +175,7 @@ public class KursplanleggingController(MemberContext database) : Controller
             .FirstOrDefaultAsync(s => s.Id == semesterId);
         if (semester is null)
         {
-            TempData["ErrorMessage"] = "Du må velge et aktivt semester å opprette kursene i. Opprett semesteret først.";
+            TempData.SetErrorMessage("Du må velge et aktivt semester å opprette kursene i. Opprett semesteret først.");
             return RedirectToAction(nameof(Import), new { id });
         }
 
@@ -187,13 +189,15 @@ public class KursplanleggingController(MemberContext database) : Controller
         var rooms = RoomsJson.Parse(plan.RoomsJson);
         var count = 0;
         var selected = plan.Courses.Where(c => courseIds.Contains(c.Id) && c.EventId == null).ToList();
-        var toCreate = CoursePlanLogic.ExceptExisting(selected, c => c.Title, existingTitles);
+        // Bare kurs som allerede finnes i semesteret hoppes over. Flere planlagte kurs med samme navn
+        // (f.eks. sosialdans på to dager) blir hvert sitt kurs.
+        var existing = existingTitles.Select(CoursePlanLogic.NormalizeTitle).ToHashSet();
+        var toCreate = selected.Where(c => !existing.Contains(CoursePlanLogic.NormalizeTitle(c.Title))).ToList();
         var skipped = selected.Count - toCreate.Count;
 
         foreach (var course in toCreate)
         {
-            var room = rooms.FirstOrDefault(r => r.Id == course.RoomId);
-            var slot = room?.Slots.FirstOrDefault(s => s.Id == course.SlotId);
+            var (room, slot) = rooms.FindPlacement(course);
             var entity = course.ToEvent(room, slot, semester.Id, user);
 
             database.Events.Add(entity);
@@ -203,8 +207,8 @@ public class KursplanleggingController(MemberContext database) : Controller
 
         await database.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = $"Opprettet {count} kurs i {semester.Title}. Påmeldingen er ikke åpnet."
-            + (skipped > 0 ? $" {skipped} kurs ble hoppet over fordi {semester.Title} allerede har et kurs med samme navn." : "");
+        TempData.SetSuccessMessage($"Opprettet {count} kurs i {semester.Title}. Påmeldingen er ikke åpnet."
+            + (skipped > 0 ? $" {skipped} kurs ble hoppet over fordi {semester.Title} allerede har et kurs med samme navn." : ""));
         return RedirectToAction("Index", "Semester", new { id = semester.Id });
     }
 
@@ -251,7 +255,7 @@ public class KursplanleggingController(MemberContext database) : Controller
             .Take(Limits.Holidays)
             .Select(h => new Holiday
             {
-                Name = string.IsNullOrWhiteSpace(h.Name) ? "Fri" : CoursePlanLogic.SingleLine(h.Name) is { Length: > Limits.Name } name ? name[..Limits.Name] : CoursePlanLogic.SingleLine(h.Name),
+                Name = CoursePlanLogic.Truncate(CoursePlanLogic.SingleLine(h.Name) ?? "Fri", Limits.Name),
                 From = h.From.Value,
                 To = h.To is DateOnly to && to >= h.From.Value ? to : h.From.Value,
             })
@@ -267,7 +271,7 @@ public class KursplanleggingController(MemberContext database) : Controller
             var rooms = RoomsJson.Parse(plan.RoomsJson);
             foreach (var course in plan.Courses.Where(c => c.Dates.Any(valid.IsClosed)))
             {
-                var slot = rooms.FirstOrDefault(r => r.Id == course.RoomId)?.Slots.FirstOrDefault(s => s.Id == course.SlotId);
+                var (_, slot) = rooms.FindPlacement(course);
                 course.Dates = CoursePlanLogic.MoveOffHolidays(course.Dates, slot?.Dates ?? new(), valid);
                 moved++;
             }
@@ -275,9 +279,9 @@ public class KursplanleggingController(MemberContext database) : Controller
 
         await database.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = moved > 0
+        TempData.SetSuccessMessage(moved > 0
             ? $"Fridagene er lagret. {moved} kurs ble flyttet til uka etter der de falt på en fridag."
-            : "Fridagene er lagret.";
+            : "Fridagene er lagret.");
 
         return RedirectToAction(nameof(Fridager), new { id });
     }
@@ -355,9 +359,9 @@ public class KursplanleggingController(MemberContext database) : Controller
         plan.UpdatedBy = User.GetId();
         await database.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = toAdd.Count == 0
+        TempData.SetSuccessMessage(toAdd.Count == 0
             ? "Ingen nye kurs ble lagt til."
-            : $"La til {toAdd.Count} kurs. De ligger under timeplanen og kan dras inn i salene.";
+            : $"La til {toAdd.Count} kurs. De ligger under timeplanen og kan dras inn i salene.");
 
         return RedirectToAction(nameof(Plan), new { id });
     }
@@ -400,8 +404,7 @@ public class KursplanleggingController(MemberContext database) : Controller
                 .OrderBy(c => c.Title)
                 .Select(c =>
                 {
-                    var room = rooms.FirstOrDefault(r => r.Id == c.RoomId);
-                    var slot = room?.Slots.FirstOrDefault(s => s.Id == c.SlotId);
+                    var (room, slot) = rooms.FindPlacement(c);
                     return new CopyCoursesModel.Candidate(c.Id.ToString(), c.Title, c.Weeks, CoursePlanLogic.Describe(c, room, slot), c.Description, c.SignupHelp);
                 })
                 .ToList();
@@ -431,7 +434,7 @@ public class KursplanleggingController(MemberContext database) : Controller
         var semesters = await database.Semesters
             .Where(s => s.IsActive())
             .OrderByDescending(s => s.SignupOpensAt)
-            .Select(s => new ImportModel.SemesterOption(s.Id, s.Title, s.IsActive()))
+            .Select(s => new ImportModel.SemesterOption(s.Id, s.Title))
             .ToListAsync();
 
         return new ImportModel
@@ -439,17 +442,15 @@ public class KursplanleggingController(MemberContext database) : Controller
             Plan = plan,
             Semesters = semesters,
             Courses = plan.Courses
-                .OrderBy(c => c.Dates.Count == 0)
-                .ThenBy(c => rooms.FirstOrDefault(r => r.Id == c.RoomId)?.Slots.FirstOrDefault(s => s.Id == c.SlotId)?.Day ?? 8)
-                .ThenBy(c => c.StartTime)
-                .ThenBy(c => c.Title)
-                .Select(c =>
-                {
-                    var room = rooms.FirstOrDefault(r => r.Id == c.RoomId);
-                    var slot = room?.Slots.FirstOrDefault(s => s.Id == c.SlotId);
-                    var schedule = CoursePlanLogic.Describe(c, room, slot);
-                    return new ImportModel.CourseEntry(c, schedule is null ? null : CoursePlanLogic.CombineDescription(schedule, c.Description), !CoursePlanLogic.IsSoloJazz(c.Title));
-                })
+                .Select(c => (Course: c, Placement: rooms.FindPlacement(c)))
+                .OrderBy(x => x.Course.Dates.Count == 0)
+                .ThenBy(x => x.Placement.Slot?.Day ?? 8)
+                .ThenBy(x => x.Course.StartTime)
+                .ThenBy(x => x.Course.Title)
+                .Select(x => new ImportModel.CourseEntry(
+                    x.Course,
+                    CoursePlanLogic.EventDescription(x.Course, x.Placement.Room, x.Placement.Slot),
+                    !x.Course.Title.IsSoloJazzTitle()))
                 .ToList(),
         };
     }

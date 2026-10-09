@@ -56,6 +56,14 @@ public static class HolidaysJson
 
 public static class RoomsJson
 {
+    /// <summary>Salen og bookingen et kurs er plassert i, eller (null, null) når det ikke er plassert.</summary>
+    public static (Room Room, RoomSlot Slot) FindPlacement(this IEnumerable<Room> rooms, MemberService.Data.CoursePlanning.PlannedCourse course)
+    {
+        var room = rooms.FirstOrDefault(r => r.Id == course.RoomId);
+        var slot = room?.Slots.FirstOrDefault(s => s.Id == course.SlotId);
+        return slot is null ? (null, null) : (room, slot);
+    }
+
     public static JsonSerializerOptions Options { get; } = new(JsonSerializerDefaults.Web)
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,

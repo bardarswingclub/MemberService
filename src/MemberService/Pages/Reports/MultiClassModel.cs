@@ -1,5 +1,7 @@
 namespace MemberService.Pages.Reports;
 
+using MemberService.Data;
+
 public class MultiClassModel
 {
     public List<SemesterBlock> Semesters { get; set; } = new();
@@ -66,7 +68,7 @@ public class MultiClassModel
         if (title.Contains("Shag", StringComparison.OrdinalIgnoreCase))
             return DanceStyle.Shag;
 
-        if (title.Contains("Solo Jazz", StringComparison.OrdinalIgnoreCase))
+        if (title.IsSoloJazzTitle())
             return DanceStyle.SoloJazz;
 
         return DanceStyle.Unknown;

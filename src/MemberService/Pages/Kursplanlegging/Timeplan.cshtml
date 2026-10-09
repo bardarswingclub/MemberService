@@ -5,7 +5,7 @@
     const double PxPerMinute = 1.1;
     var height = (Model.LastMinute - Model.FirstMinute) * PxPerMinute;
     string Top(int minute) => ((minute - Model.FirstMinute) * PxPerMinute).ToString(System.Globalization.CultureInfo.InvariantCulture);
-    string Color(TimeplanModel.Entry e) => e.Course.Color ?? e.Room.Color ?? "#dbe7f3";
+    string Color(TimeplanModel.Entry e) => e.Course.Color ?? e.Room.Color ?? CoursePlanLogic.Colors[0];
     // Bredder settes eksplisitt, slik at rammen alltid får nøyaktig samme bredde som salene,
     // uansett nettleser og font. Hver sal er RoomRem bred, og bredere når kurs deler den i kolonner.
     const double RoomRem = 9.5;

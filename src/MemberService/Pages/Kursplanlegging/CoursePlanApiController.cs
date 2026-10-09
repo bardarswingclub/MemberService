@@ -102,6 +102,29 @@ public class CoursePlanApiController(MemberContext database) : ControllerBase
         return NoContent();
     }
 
+    /// <summary>Beskrivelsen kurset vil få i påmeldingen, til forhåndsvisning i kurs-dialogen.</summary>
+    [HttpPost("{id}/preview-description")]
+    [ValidateAntiForgeryToken]
+    public async Task<ActionResult<DescriptionPreview>> PreviewDescription(Guid id, [FromBody] CourseDto input)
+    {
+        var plan = await database.CoursePlans.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
+        if (plan is null) return NotFound();
+
+        var course = new PlannedCourse
+        {
+            Description = CoursePlanLogic.SingleLine(CoursePlanLogic.Truncate(input.Description, Limits.Description)),
+            RoomId = input.RoomId,
+            SlotId = input.SlotId,
+            StartTime = CoursePlanLogic.SafeTime(input.StartTime),
+            EndTime = CoursePlanLogic.SafeTime(input.EndTime),
+        };
+        var (room, slot) = RoomsJson.Parse(plan.RoomsJson).FindPlacement(course);
+
+        return new DescriptionPreview(
+            CoursePlanLogic.EventDescription(course, room, slot) ?? course.Description,
+            slot is not null);
+    }
+
     [HttpPost("parse-booking")]
     [ValidateAntiForgeryToken]
     public ActionResult<CoursePlanLogic.ParsedBooking> ParseBooking([FromBody] ParseBookingRequest request)
@@ -113,6 +136,8 @@ public class CoursePlanApiController(MemberContext database) : ControllerBase
 }
 
 public record ParseBookingRequest(string Text);
+
+public record DescriptionPreview(string Description, bool Placed);
 
 /// <summary>Øvre grenser for det klienten kan lagre, så planen ikke kan vokse ubegrenset.</summary>
 public static class Limits

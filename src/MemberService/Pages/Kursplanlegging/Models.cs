@@ -24,6 +24,11 @@ public class CreatePlanInput
     public bool CopyRooms { get; set; }
 
     public bool CopyCourses { get; set; }
+
+    public string Validate()
+        => string.IsNullOrWhiteSpace(Title) || Title.Trim().Length > Limits.Name || EndDate < StartDate
+            ? $"Semesteret må ha et navn (maks {Limits.Name} tegn), og sluttdato må være etter startdato"
+            : null;
 }
 
 public class HolidaysModel
@@ -74,7 +79,7 @@ public class CopyCoursesModel
 
 public class ImportModel
 {
-    public record SemesterOption(Guid Id, string Title, bool IsActive);
+    public record SemesterOption(Guid Id, string Title);
 
     public record CourseEntry(PlannedCourse Course, string Description, bool Couples);
 
