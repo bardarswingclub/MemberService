@@ -1,0 +1,74 @@
+@model CopyCoursesModel
+
+@{
+    ViewData["Title"] = $"Hent kurs til {Model.Plan.Title}";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<p>
+    Velg hvilke kurs fra et tidligere semester som skal være med i planen for @Model.Plan.Title.
+    Kursene legges i listen under timeplanen, og kan så dras inn i salene.
+</p>
+
+@if (Model.Sources.Count == 0)
+{
+    <div class="alert alert-info">Det finnes ingen tidligere semestre med kurs å hente fra.</div>
+    <a asp-action="Plan" asp-route-id="@Model.Plan.Id">Tilbake til planleggingen</a>
+}
+else
+{
+    <form method="get" class="form-inline mb-3">
+        <label class="mr-2" for="source">Hent fra</label>
+        <select class="form-control mr-2" id="source" name="source" onchange="this.form.submit()">
+            @foreach (var source in Model.Sources)
+            {
+                <option value="@source.Key" selected="@(source.Key == Model.SelectedSource)">@source.Title</option>
+            }
+        </select>
+        <noscript><button class="btn btn-outline-secondary" type="submit">Vis</button></noscript>
+    </form>
+
+    @if (Model.AlreadyInPlan > 0)
+    {
+        <p class="text-muted">
+            @Model.AlreadyInPlan kurs med samme navn finnes allerede i planen, og vises ikke.
+        </p>
+    }
+
+    @if (Model.Candidates.Count == 0)
+    {
+        <div class="alert alert-info">Alle kursene herfra er allerede med i planen.</div>
+        <a asp-action="Plan" asp-route-id="@Model.Plan.Id">Tilbake til planleggingen</a>
+    }
+    else
+    {
+        <form method="post">
+            <input type="hidden" name="source" value="@Model.SelectedSource" />
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" checked title="Velg alle" onchange="document.querySelectorAll('input[name=keys]').forEach(c => c.checked = this.checked)" /></th>
+                        <th>Navn</th>
+                        <th>Uker</th>
+                        <th>Tid og sted sist</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var candidate in Model.Candidates)
+                    {
+                        <tr>
+                            <td><input type="checkbox" name="keys" value="@candidate.Key" id="c-@candidate.Key" checked /></td>
+                            <td><label class="mb-0" for="c-@candidate.Key">@candidate.Title</label></td>
+                            <td>@candidate.Weeks</td>
+                            <td class="text-muted small">@candidate.Details</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <button type="submit" class="btn btn-success">Legg valgte kurs til i planen</button>
+            <a class="btn btn-link" asp-action="Plan" asp-route-id="@Model.Plan.Id">Avbryt</a>
+        </form>
+    }
+}

@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 using R = Data.SemesterRole.RoleType;
+using EventType = Data.ValueTypes.EventType;
+using Roles = Data.ValueTypes.Roles;
 
 public class SemesterRequirementsHandler : IAuthorizationHandler
 {
@@ -36,7 +38,41 @@ public class SemesterRequirementsHandler : IAuthorizationHandler
         }
     }
 
+    // Instruktørkoordinatorer kan gjøre alt med kurs i aktive semestre. Kurs i tidligere semestre,
+    // andre arrangementer, semesterroller og avgiftsfritak har de ikke tilgang til.
+    private static readonly Policy[] ClassAdministrationPolicies =
+    [
+        Policy.CanViewEvent,
+        Policy.CanEditEvent,
+        Policy.CanSetEventSignupStatus,
+        Policy.CanSendEventEmail,
+        Policy.CanEditEventSignup,
+        Policy.CanEditEventOrganizers,
+        Policy.CanSetPresence,
+        Policy.CanAddPresenceLesson,
+        Policy.CanCreateSurvey,
+        Policy.CanViewSurvey,
+    ];
+
     private async Task<bool> IsAuthorized(ClaimsPrincipal user, Guid? id, Requirement requirement)
+    {
+        if (id is Guid eventId
+            && ClassAdministrationPolicies.Contains(requirement.Policy)
+            && user.IsInRole(Roles.INSTRUKTORKOORDINATOR)
+            && await IsClassInActiveSemester(eventId))
+        {
+            return true;
+        }
+
+        return await IsAuthorizedBySemesterRole(user, id, requirement);
+    }
+
+    // Id-en er et kurs, eller en påmelding til et kurs (redigering av påmelding bruker påmeldingens id)
+    private async Task<bool> IsClassInActiveSemester(Guid id)
+        => await _database.Events.AnyAsync(e => e.Id == id && e.Type == EventType.Class && e.Semester != null && e.Semester.IsActive())
+        || await _database.EventSignups.AnyAsync(s => s.Id == id && s.Event.Type == EventType.Class && s.Event.Semester != null && s.Event.Semester.IsActive());
+
+    private async Task<bool> IsAuthorizedBySemesterRole(ClaimsPrincipal user, Guid? id, Requirement requirement)
         => requirement.Policy switch
         {
             Policy.CanCreateSemesterEvent => await CheckCurrentSemesterRole(user, R.Coordinator),

@@ -7,6 +7,19 @@ using Microsoft.EntityFrameworkCore;
 
 public static class Logic
 {
+    /// <summary>Den som oppretter et arrangement blir arrangør med alle rettigheter.</summary>
+    public static EventOrganizer CreatorOrganizer(User user) => new()
+    {
+        User = user,
+        UpdatedByUser = user,
+        UpdatedAt = TimeProvider.UtcNow,
+        CanEdit = true,
+        CanEditOrganizers = true,
+        CanSetSignupStatus = true,
+        CanSetPresence = true,
+        CanAddPresenceLesson = true
+    };
+
     public static Task<List<EventEntry>> GetEvents(this MemberContext context, string userId, bool archived)
         => context.Events
             .AsNoTracking()
@@ -42,20 +55,7 @@ public static class Logic
                 AllowPartnerSignupHelp = model.AllowPartnerSignupHelp,
                 AutoAcceptedSignups = model.AutoAcceptedSignups
             },
-            Organizers =
-            {
-                    new()
-                    {
-                        User = user,
-                        UpdatedByUser = user,
-                        UpdatedAt = TimeProvider.UtcNow,
-                        CanEdit = true,
-                        CanEditOrganizers = true,
-                        CanSetSignupStatus = true,
-                        CanSetPresence = true,
-                        CanAddPresenceLesson = true
-                    }
-            }
+            Organizers = { CreatorOrganizer(user) }
         };
 
     public static void UpdateEvent(this Event entity, EventInputModel model)
@@ -214,20 +214,7 @@ public static class Logic
                         }).ToList()
                     }).ToList()
                 },
-            Organizers =
-                {
-                    new()
-                    {
-                        User = user,
-                        UpdatedByUser = user,
-                        UpdatedAt = TimeProvider.UtcNow,
-                        CanEdit = true,
-                        CanEditOrganizers = true,
-                        CanSetSignupStatus = true,
-                        CanSetPresence = true,
-                        CanAddPresenceLesson = true
-                    }
-                }
+            Organizers = { CreatorOrganizer(user) }
         });
 
         await context.SaveChangesAsync();

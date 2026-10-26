@@ -50,4 +50,6 @@ public enum Policy
     CanViewReports,
 
     CanEditMemberConsent,
+
+    CanPlanCourses,
 }

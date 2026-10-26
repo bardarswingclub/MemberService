@@ -55,6 +55,11 @@ public static partial class Extensions
     public static bool IsSignedUpFor(this User user, Guid id)
         => user.EventSignups.Any(e => e.EventId == id);
 
+    /// <summary>Kurs med solo jazz har påmelding for enkeltpersoner, ikke par.</summary>
+    public static bool IsSoloJazzTitle(this string title)
+        => title?.Contains("solo jazz", StringComparison.OrdinalIgnoreCase) == true
+        || title?.Contains("solojazz", StringComparison.OrdinalIgnoreCase) == true;
+
     [Expressionify]
     public static bool IsActive(this Semester semester)
         => semester.SignupOpensAt > TimeProvider.ThisSemesterUtc;

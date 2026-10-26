@@ -93,14 +93,12 @@ public class SemesterController : Controller
     public IActionResult Create()
     {
         var now = TimeProvider.UtcToday;
-        var season = now.Month >= 7 ? "Høsten" : "Våren";
-        var year = now.Year;
 
         var (date, _) = now.AddDays(7).GetLocalDateAndTime();
 
         var model = new SemesterInputModel
         {
-            Title = $"{season} {year}",
+            Title = now.GetSemesterTitle(),
             SignupOpensAtDate = date,
             SignupOpensAtTime = "12:00"
         };

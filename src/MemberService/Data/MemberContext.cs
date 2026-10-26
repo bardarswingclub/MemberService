@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MemberService.Data.Inventory;
+using MemberService.Data.CoursePlanning;
 
 public class MemberContext : IdentityDbContext<User, MemberRole, string, IdentityUserClaim<string>, UserRole, IdentityUserLogin<string>, IdentityRoleClaim<string>, IdentityUserToken<string>>, IDataProtectionKeyContext
 {
@@ -52,6 +53,10 @@ public class MemberContext : IdentityDbContext<User, MemberRole, string, Identit
     public DbSet<Inventory.InventoryBorrow> InventoryBorrows { get; set; }
 
     public DbSet<Inventory.InventoryBorrowItem> InventoryBorrowItems { get; set; }
+
+    public DbSet<CoursePlan> CoursePlans { get; set; }
+
+    public DbSet<PlannedCourse> PlannedCourses { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

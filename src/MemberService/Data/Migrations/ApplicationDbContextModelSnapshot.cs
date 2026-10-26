@@ -87,6 +87,108 @@ namespace MemberService.Data.Migrations
                     b.ToTable("AnnualMeetingAttendee");
                 });
 
+            modelBuilder.Entity("MemberService.Data.CoursePlanning.CoursePlan", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("HolidaysJson")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("[]");
+
+                    b.Property<string>("RoomsJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CoursePlans");
+                });
+
+            modelBuilder.Entity("MemberService.Data.CoursePlanning.PlannedCourse", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Color")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("CoursePlanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Dates")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EndTime")
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
+
+                    b.Property<Guid?>("EventId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RoomId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("SignupHelp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SlotId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StartTime")
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("Weeks")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CoursePlanId");
+
+                    b.HasIndex("EventId");
+
+                    b.ToTable("PlannedCourses");
+                });
+
             modelBuilder.Entity("MemberService.Data.Event", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1148,6 +1250,24 @@ namespace MemberService.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("MemberService.Data.CoursePlanning.PlannedCourse", b =>
+                {
+                    b.HasOne("MemberService.Data.CoursePlanning.CoursePlan", "CoursePlan")
+                        .WithMany("Courses")
+                        .HasForeignKey("CoursePlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemberService.Data.Event", "Event")
+                        .WithMany()
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("CoursePlan");
+
+                    b.Navigation("Event");
+                });
+
             modelBuilder.Entity("MemberService.Data.Event", b =>
                 {
                     b.HasOne("MemberService.Data.User", "CreatedByUser")
@@ -1540,6 +1660,11 @@ namespace MemberService.Data.Migrations
             modelBuilder.Entity("MemberService.Data.AnnualMeeting", b =>
                 {
                     b.Navigation("Attendees");
+                });
+
+            modelBuilder.Entity("MemberService.Data.CoursePlanning.CoursePlan", b =>
+                {
+                    b.Navigation("Courses");
                 });
 
             modelBuilder.Entity("MemberService.Data.Event", b =>

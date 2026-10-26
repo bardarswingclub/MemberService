@@ -1,0 +1,150 @@
+@model TimeplanModel
+
+@{
+    Layout = null;
+    const double PxPerMinute = 1.1;
+    var height = (Model.LastMinute - Model.FirstMinute) * PxPerMinute;
+    string Top(int minute) => ((minute - Model.FirstMinute) * PxPerMinute).ToString(System.Globalization.CultureInfo.InvariantCulture);
+    string Color(TimeplanModel.Entry e) => e.Course.Color ?? e.Room.Color ?? CoursePlanLogic.Colors[0];
+    // Bredder settes eksplisitt, slik at rammen alltid får nøyaktig samme bredde som salene,
+    // uansett nettleser og font. Hver sal er RoomRem bred, og bredere når kurs deler den i kolonner.
+    const double RoomRem = 9.5;
+    double Lanes(TimeplanModel.Column c) => c.Entries.Max(e => e.LaneCount);
+    double DayRem(TimeplanModel.Day d) => d.Columns.Sum(c => RoomRem * Lanes(c));
+    string Rem(double rem) => rem.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + "rem";
+    // Akse (3.2rem + 1px kantlinje) + alle dagene + 2px kantlinje mellom dagene
+    string WeekWidth() => $"calc({Rem(3.2 + Model.Days.Sum(DayRem))} + {1 + 2 * (Model.Days.Count - 1)}px)";
+    string Lane(TimeplanModel.Entry e) => e.LaneCount == 1
+        ? ""
+        : FormattableString.Invariant($"left:calc({100.0 * e.Lane / e.LaneCount:0.##}% + 2px);right:calc({100.0 * (e.LaneCount - e.Lane - 1) / e.LaneCount:0.##}% + 2px)");
+    string WeeksText(TimeplanModel.Entry e)
+    {
+        var dates = e.Course.Dates.OrderBy(d => d).ToList();
+        return dates.Count == Model.Weeks.Count
+            ? $"{dates.Count} uker"
+            : $"{dates.Count} uker, uke {dates[0].IsoWeek()}–{dates[^1].IsoWeek()}";
+    }
+}
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kursplan @Model.Title - Bårdar Swing Club</title>
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="~/css/kursplanlegging.css" asp-append-version="true" />
+</head>
+<body class="timeplan">
+    <div class="timeplan-toolbar no-print">
+        <a asp-action="Plan" asp-route-id="@ViewContext.RouteData.Values["id"]">← Tilbake til planleggingen</a>
+        <span>Ta et skjermbilde av ukeplanen og semesterplanen for å legge dem ut på nettsiden.</span>
+    </div>
+
+    @if (Model.Entries.Count == 0)
+    {
+        <p class="timeplan-sheet">Ingen kurs er plassert i timeplanen ennå.</p>
+    }
+    else
+    {
+        <section class="timeplan-sheet" id="ukeplan">
+            <h1>Ukeplan @Model.Title</h1>
+            <div class="tp-week" style="width:@WeekWidth()">
+                <div class="tp-axis">
+                    <div class="tp-dayhead">&nbsp;</div>
+                    <div class="tp-roomhead">&nbsp;</div>
+                    <div class="tp-body" style="height:@(height.ToString(System.Globalization.CultureInfo.InvariantCulture))px">
+                        @for (var m = Model.FirstMinute; m < Model.LastMinute; m += 60)
+                        {
+                            <div class="tp-hour" style="top:@(Top(m))px">@CoursePlanLogic.FromMinutes(m)</div>
+                        }
+                    </div>
+                </div>
+                @foreach (var day in Model.Days)
+                {
+                    <div class="tp-day" style="width:@Rem(DayRem(day))">
+                        <div class="tp-dayhead">@CoursePlanLogic.DayNames[day.DayOfWeek]</div>
+                        <div class="tp-rooms">
+                            @foreach (var column in day.Columns)
+                            {
+                                <div class="tp-room" style="width:@Rem(RoomRem * Lanes(column))">
+                                    <div class="tp-roomhead">
+                                        @column.Room.Name
+                                        @if (!string.IsNullOrWhiteSpace(column.Room.Venue) && column.Room.Venue != Model.MainVenue)
+                                        {
+                                            <small>@column.Room.Venue</small>
+                                        }
+                                    </div>
+                                    <div class="tp-body" style="height:@(height.ToString(System.Globalization.CultureInfo.InvariantCulture))px">
+                                        @for (var m = Model.FirstMinute; m < Model.LastMinute; m += 60)
+                                        {
+                                            <div class="tp-line" style="top:@(Top(m))px"></div>
+                                            <div class="tp-line tp-half" style="top:@(Top(m + 30))px"></div>
+                                        }
+                                        @foreach (var entry in column.Entries)
+                                        {
+                                            <div class="tp-course" style="top:@(Top(entry.Start))px;height:@(((entry.End - entry.Start) * PxPerMinute - 2).ToString(System.Globalization.CultureInfo.InvariantCulture))px;background:@Color(entry);@Lane(entry)">
+                                                <strong>@entry.Course.Title</strong>
+                                                <span>@entry.Course.StartTime–@entry.Course.EndTime</span>
+                                                <span class="tp-weeks">@WeeksText(entry)</span>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+            @if (Model.MainVenue != null)
+            {
+                <p class="tp-footnote">Alle kurs som ikke er markert med noe annet gjennomføres hos @Model.MainVenue.</p>
+            }
+        </section>
+
+        <section class="timeplan-sheet" id="semesterplan">
+            <h1>Semesterplan @Model.Title</h1>
+            <table class="tp-semester">
+                <thead>
+                    <tr>
+                        <th class="tp-name">Kurs</th>
+                        <th class="tp-when">Tid</th>
+                        @foreach (var week in Model.Weeks)
+                        {
+                            <th class="tp-wk @(Model.IsHolidayWeek(week) ? "tp-holiday" : "")" title="@week.ToString("d.M")">@week.IsoWeek()</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var day in Model.Entries.GroupBy(e => e.Slot.Day))
+                    {
+                        <tr class="tp-dayrow">
+                            <th colspan="@(Model.Weeks.Count + 2)">@CoursePlanLogic.DayNames[day.Key]</th>
+                        </tr>
+                        @foreach (var entry in day)
+                        {
+                            <tr>
+                                <td class="tp-name">@entry.Course.Title</td>
+                                <td class="tp-when">@entry.Course.StartTime–@entry.Course.EndTime, @Model.Place(entry)</td>
+                                @foreach (var week in Model.Weeks)
+                                {
+                                    var on = TimeplanModel.HasWeek(entry, week);
+                                    <td class="tp-wk @(on ? "on" : "")" style="@(on ? $"background:{Color(entry)}" : "")"></td>
+                                }
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+            <p class="tp-footnote">
+                Tallene øverst er ukenummer.
+                @if (Model.Holidays.Count > 0)
+                {
+                    <text>Ingen kurs:</text>
+                    @(string.Join(", ", Model.Holidays.Select(h => h.From == h.To ? $"{h.Name} ({h.From:d.M})" : $"{h.Name} ({h.From:d.M}–{h.To:d.M})")) + ".")
+                    <text>Kurs som faller på disse dagene flyttes til uka etter.</text>
+                }
+            </p>
+        </section>
+    }
+</body>
+</html>

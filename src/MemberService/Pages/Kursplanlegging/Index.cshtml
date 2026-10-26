@@ -1,0 +1,90 @@
+@model PlanListModel
+
+@{
+    ViewData["Title"] = "Kursplanlegging";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<p class="text-muted">
+    Planlegg hvilke kurs vi skal ha i hvilke saler neste semester. Når planen er klar kan du lage en timeplan
+    for nettsiden, og opprette kursene for påmelding.
+</p>
+
+@if (Model.Plans.Count > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Semester</th>
+                <th>Periode</th>
+                <th>Kurs</th>
+                <th>Opprettet for påmelding</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var plan in Model.Plans)
+            {
+                <tr>
+                    <td><a asp-action="Plan" asp-route-id="@plan.Id">@plan.Title</a></td>
+                    <td>@plan.StartDate.ToString("d.M.yyyy") – @plan.EndDate.ToString("d.M.yyyy")</td>
+                    <td>@plan.Courses</td>
+                    <td>@plan.Imported</td>
+                    <td class="text-right">
+                        <a class="btn btn-sm btn-outline-secondary" asp-action="Timeplan" asp-route-id="@plan.Id">Timeplan</a>
+                        <a class="btn btn-sm btn-outline-secondary" asp-action="Import" asp-route-id="@plan.Id">Opprett kurs</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div class="card mt-4">
+    <div class="card-body">
+        <h4 class="card-title">Planlegg nytt semester</h4>
+        <form method="post" asp-action="Create">
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="Title">Navn</label>
+                    <input class="form-control" id="Title" name="Title" value="@Model.Input.Title" required />
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="StartDate">Første kursdag</label>
+                    <input class="form-control" type="date" id="StartDate" name="StartDate" value="@Model.Input.StartDate.ToString("yyyy-MM-dd")" required />
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="EndDate">Siste kursdag</label>
+                    <input class="form-control" type="date" id="EndDate" name="EndDate" value="@Model.Input.EndDate.ToString("yyyy-MM-dd")" required />
+                </div>
+            </div>
+            @if (Model.Plans.Count > 0)
+            {
+                <div class="form-row align-items-end">
+                    <div class="form-group col-md-4">
+                        <label for="CopyFromId">Ta utgangspunkt i</label>
+                        <select class="form-control" id="CopyFromId" name="CopyFromId">
+                            <option value="">Ingenting (start blankt)</option>
+                            @foreach (var plan in Model.Plans)
+                            {
+                                <option value="@plan.Id" selected="@(plan.Id == Model.Input.CopyFromId)">@plan.Title</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group col-md-8">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="CopyRooms" name="CopyRooms" value="true" checked="@Model.Input.CopyRooms" />
+                            <label class="form-check-label" for="CopyRooms">Kopier saler (samme ukedager og tider, alle uker)</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="CopyCourses" name="CopyCourses" value="true" checked="@Model.Input.CopyCourses" />
+                            <label class="form-check-label" for="CopyCourses">Kopier kurs og plassering</label>
+                        </div>
+                    </div>
+                </div>
+            }
+            <button type="submit" class="btn btn-success">Start planlegging</button>
+        </form>
+    </div>
+</div>

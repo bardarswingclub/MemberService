@@ -1,0 +1,462 @@
+/* Kursplanlegging */
+
+.kp-week {
+    display: flex;
+    overflow-x: auto;
+    border: 1px solid #dee2e6;
+    background: #fff;
+}
+
+.kp-axis {
+    flex: 0 0 3.2rem;
+    border-right: 1px solid #dee2e6;
+}
+
+.kp-day {
+    flex: 1 0 auto;
+    border-right: 2px solid #adb5bd;
+}
+
+.kp-day:last-child {
+    border-right: none;
+}
+
+.kp-dayhead {
+    height: 2rem;
+    line-height: 2rem;
+    font-weight: bold;
+    text-align: center;
+    background: #343a40;
+    color: #fff;
+}
+
+.kp-cols {
+    display: flex;
+}
+
+.kp-col {
+    flex: 1 0 9rem;
+    min-width: 9rem;
+    border-right: 1px solid #dee2e6;
+}
+
+.kp-col:last-child {
+    border-right: none;
+}
+
+.kp-colhead {
+    height: 5rem;
+    padding: .2rem .4rem;
+    border-top: 4px solid #e9ecef;
+    border-bottom: 1px solid #dee2e6;
+    font-size: .8rem;
+    line-height: 1.2;
+    overflow: hidden;
+}
+
+.kp-colhead small {
+    display: block;
+    color: #6c757d;
+}
+
+.kp-body {
+    position: relative;
+    background: #f1f3f5;
+}
+
+.kp-hour {
+    position: absolute;
+    right: .3rem;
+    font-size: .75rem;
+    color: #6c757d;
+    transform: translateY(-50%);
+}
+
+.kp-hour:first-child {
+    transform: none;
+}
+
+.kp-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 1px dashed #dee2e6;
+}
+
+.kp-open {
+    position: absolute;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-top: 2px solid #adb5bd;
+    border-bottom: 2px solid #adb5bd;
+}
+
+.kp-course {
+    font-size: .8rem;
+    line-height: 1.2;
+    padding: .2rem .4rem;
+    border: 1px solid rgba(0, 0, 0, .2);
+    border-radius: .25rem;
+    cursor: grab;
+    user-select: none;
+    overflow: hidden;
+}
+
+.kp-course strong,
+.kp-course span {
+    display: block;
+}
+
+.kp-course .kp-weeks {
+    color: #495057;
+}
+
+.kp-course .kp-warn {
+    color: #c92a2a;
+    font-weight: bold;
+}
+
+.kp-course .bi {
+    position: absolute;
+    top: .15rem;
+    right: .25rem;
+}
+
+.kp-placed {
+    position: absolute;
+    margin-top: 1px;
+    left: 3px;
+    right: 3px;
+}
+
+.kp-inline {
+    position: relative;
+    display: inline-block;
+    min-width: 9rem;
+    margin: 0 .4rem .4rem 0;
+    padding-right: 1.2rem;
+}
+
+.kp-conflict {
+    border: 2px solid #c92a2a;
+    box-shadow: 0 0 0 2px rgba(201, 42, 42, .25);
+}
+
+.kp-pool-wrapper {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    margin-top: 1rem;
+    padding: .75rem;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 -.25rem .5rem rgba(0, 0, 0, .05);
+}
+
+.kp-pool {
+    min-height: 3rem;
+    max-height: 30vh;
+    overflow-y: auto;
+}
+
+.kp-dragging [data-drop] {
+    outline: 1px dashed #339af0;
+}
+
+.kp-over,
+.kp-dragging .kp-over {
+    outline: 2px solid #1c7ed6;
+    background-color: #e7f5ff;
+}
+
+.kp-sem-wrapper {
+    overflow-x: auto;
+}
+
+.kp-sem {
+    border-collapse: collapse;
+    font-size: .8rem;
+    background: #fff;
+}
+
+.kp-sem th,
+.kp-sem td {
+    border: 1px solid #dee2e6;
+    padding: .15rem;
+    text-align: center;
+    min-width: 1.8rem;
+}
+
+.kp-sem th:first-child,
+.kp-sem td:first-child {
+    text-align: left;
+    min-width: 14rem;
+    white-space: nowrap;
+}
+
+.kp-sem-day th {
+    background: #343a40;
+    color: #fff;
+}
+
+.kp-sem-slot th {
+    font-weight: normal;
+    background: #f1f3f5;
+}
+
+.kp-sem-slot td.booked {
+    background: #adb5bd;
+}
+
+.kp-sem-course td:first-child {
+    padding: .25rem .25rem 0 1rem;
+}
+
+.kp-sem td.kp-toggle {
+    cursor: pointer;
+    outline: 1px dashed #ced4da;
+    outline-offset: -3px;
+}
+
+.kp-sem td.kp-toggle:hover {
+    outline-color: #1c7ed6;
+}
+
+.kp-room {
+    border-left: 6px solid #e9ecef;
+}
+
+.kp-colors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25rem;
+}
+
+.kp-swatch {
+    width: 1.6rem;
+    height: 1.6rem;
+    border: 1px solid rgba(0, 0, 0, .25);
+    border-radius: 50%;
+    padding: 0;
+}
+
+.kp-swatch.selected {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #1c7ed6;
+}
+
+.kp-weekpicker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .3rem .8rem;
+    font-size: .8rem;
+}
+
+.kp-weekbox {
+    margin: 0;
+    white-space: nowrap;
+}
+
+/* Timeplan for nettsiden */
+
+body.timeplan {
+    margin: 0;
+    padding: 1rem;
+    background: #fff;
+    color: #212529;
+    font-family: Lato, "Helvetica Neue", Arial, sans-serif;
+}
+
+.timeplan-toolbar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: .9rem;
+    color: #6c757d;
+}
+
+.timeplan-sheet {
+    display: inline-block;
+    min-width: 640px;
+    margin: 0 0 2rem;
+    padding: 1.5rem;
+    background: #fff;
+}
+
+.timeplan-sheet h1 {
+    margin: 0 0 1rem;
+    font-size: 1.8rem;
+}
+
+/* Faste bredder, slik at rammen alltid følger innholdet uansett font */
+.tp-week {
+    display: flex;
+    box-sizing: content-box;
+    border: 1px solid #ced4da;
+}
+
+.tp-axis {
+    flex: 0 0 3.2rem;
+    box-sizing: content-box;
+    border-right: 1px solid #ced4da;
+}
+
+.tp-day {
+    flex: 0 0 auto;
+    box-sizing: content-box;
+    border-right: 2px solid #868e96;
+}
+
+.tp-day:last-child {
+    border-right: none;
+}
+
+.tp-dayhead {
+    height: 2.2rem;
+    line-height: 2.2rem;
+    font-weight: bold;
+    text-align: center;
+    background: #212529;
+    color: #fff;
+}
+
+.tp-rooms {
+    display: flex;
+}
+
+.tp-room {
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    border-right: 1px solid #ced4da;
+}
+
+.tp-room:last-child {
+    border-right: none;
+}
+
+.tp-roomhead {
+    height: 2.6rem;
+    padding: .2rem .4rem;
+    font-size: .8rem;
+    font-weight: bold;
+    line-height: 1.1;
+    text-align: center;
+    border-bottom: 1px solid #ced4da;
+}
+
+.tp-roomhead small {
+    display: block;
+    font-weight: normal;
+    color: #495057;
+}
+
+.tp-body {
+    position: relative;
+}
+
+/* Klokkeslettet står midt på linjen sin, slik at høyden leses riktig */
+.tp-hour {
+    position: absolute;
+    right: .3rem;
+    font-size: .75rem;
+    line-height: 1;
+    color: #495057;
+    transform: translateY(-50%);
+}
+
+.tp-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 1px solid #e9ecef;
+}
+
+.tp-line.tp-half {
+    border-top: 1px dashed #f1f3f5;
+}
+
+.tp-course {
+    box-sizing: border-box;
+    position: absolute;
+    margin-top: 1px; /* 1px luft over og under, så kurs kant i kant ikke går i hverandre */
+    left: 3px;
+    right: 3px;
+    padding: .25rem .4rem;
+    font-size: .8rem;
+    line-height: 1.2;
+    border: 1px solid rgba(0, 0, 0, .2);
+    border-radius: .25rem;
+    overflow: hidden;
+}
+
+.tp-course strong,
+.tp-course span {
+    display: block;
+}
+
+.tp-course .tp-weeks {
+    color: #495057;
+    font-size: .75rem;
+}
+
+.tp-footnote {
+    margin: .5rem 0 0;
+    font-size: .85rem;
+    font-style: italic;
+}
+
+.tp-semester {
+    border-collapse: collapse;
+    font-size: .85rem;
+}
+
+.tp-semester th,
+.tp-semester td {
+    border: 1px solid #ced4da;
+    padding: .25rem .35rem;
+}
+
+.tp-semester .tp-name {
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.tp-semester .tp-when {
+    white-space: nowrap;
+    color: #495057;
+}
+
+.tp-semester .tp-wk {
+    width: 1.9rem;
+    text-align: center;
+}
+
+.tp-semester .tp-dayrow th {
+    background: #212529;
+    color: #fff;
+    text-align: left;
+}
+
+@media print {
+    .no-print {
+        display: none;
+    }
+
+    .timeplan-sheet {
+        page-break-after: always;
+    }
+}
+
+.kp-course .kp-period {
+    font-size: .7rem;
+    color: #495057;
+}
+
+.kp-sem th.kp-closed,
+.kp-sem td.kp-closed {
+    background-image: repeating-linear-gradient(45deg, rgba(201, 42, 42, .25) 0 4px, transparent 4px 8px);
+}
+
+.tp-semester th.tp-holiday {
+    color: #c92a2a;
+}
