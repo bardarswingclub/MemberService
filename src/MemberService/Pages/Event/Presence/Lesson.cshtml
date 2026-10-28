@@ -1,0 +1,101 @@
+@using MemberService.Data.ValueTypes
+@model LessonModel
+
+@{
+    var presence = Model.Presence;
+    ViewData["Title"] = presence.Title;
+    var canEdit = !presence.Archived && await AuthorizationService.IsAuthorized(User, presence.Id, Policy.CanSetPresence);
+    var reasons = Enum.GetValues<AbsenceReason>();
+}
+
+<vc:semester-header id="@presence.SemesterId"></vc:semester-header>
+<vc:event-header id="@presence.Id" current-tab="presence"></vc:event-header>
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    @if (Model.HasPrevious)
+    {
+        <a class="btn btn-outline-secondary" asp-action="Lesson" asp-route-id="@presence.Id" asp-route-lesson="@(Model.Lesson - 1)">&laquo;</a>
+    }
+    else
+    {
+        <span class="btn invisible">&laquo;</span>
+    }
+    <h2 class="h4 mb-0">Uke @(Model.Lesson + 1) <small class="text-muted">av @presence.Count</small></h2>
+    @if (Model.HasNext)
+    {
+        <a class="btn btn-outline-secondary" asp-action="Lesson" asp-route-id="@presence.Id" asp-route-lesson="@(Model.Lesson + 1)">&raquo;</a>
+    }
+    else
+    {
+        <span class="btn invisible">&raquo;</span>
+    }
+</div>
+
+<p><a asp-action="Index" asp-route-id="@presence.Id">Tilbake til oversikten</a></p>
+
+@foreach (var role in presence.Roles)
+{
+    @if (role.Role != DanceRole.None)
+    {
+        <h3 class="mt-4">@role.Role.DisplayName()</h3>
+    }
+
+    @foreach (var participant in role.Participants)
+    {
+        var entry = participant.Absences[Model.Lesson];
+        var current = participant.Presence[Model.Lesson] ? "present" : entry?.Reason?.ToString() ?? "";
+        var name = $"status-{participant.Id}";
+
+        <form class="card card-body p-2 mb-2 attendance-form" method="post" asp-action="SetAttendance" asp-route-id="@presence.Id">
+            <input type="hidden" name="userId" value="@participant.UserId" />
+            <input type="hidden" name="lesson" value="@Model.Lesson" />
+            <div class="d-flex justify-content-between">
+                <strong>@participant.FriendlyName <span class="small font-weight-normal text-muted">(@participant.FullName)</span></strong>
+                <span class="save-state small text-muted"></span>
+            </div>
+            <div class="btn-group btn-group-toggle flex-wrap mt-1" data-toggle="buttons">
+                <label class="btn btn-outline-success @(current == "present" ? "active" : "") @(canEdit ? "" : "disabled")">
+                    <input type="radio" name="status" value="present" checked="@(current == "present")" disabled="@(!canEdit)" /> Til stede
+                </label>
+                @foreach (var reason in reasons)
+                {
+                    <label class="btn btn-outline-danger @(current == reason.ToString() ? "active" : "") @(canEdit ? "" : "disabled")">
+                        <input type="radio" name="status" value="@reason" checked="@(current == reason.ToString())" disabled="@(!canEdit)" /> @reason.DisplayName()
+                    </label>
+                }
+            </div>
+            <input type="text" name="note" class="form-control form-control-sm mt-2" maxlength="200" placeholder="Utdyp årsak (valgfritt)"
+                   value="@entry?.Note" disabled="@(!canEdit)" style="@(current == "present" || current == "" ? "display:none" : "")" />
+        </form>
+    }
+}
+
+@section Scripts{
+    <script>
+        $(function () {
+            function save(form) {
+                var state = form.find(".save-state").text("Lagrer...");
+                $.ajax({
+                    type: form.attr("method"),
+                    url: form.attr("action"),
+                    data: form.serialize(),
+                    success: function () { state.text("Lagret"); },
+                    error: function () { state.text("Feil – prøv igjen"); }
+                });
+            }
+
+            $(".attendance-form").on("change", "input[name='status']", function () {
+                var form = $(this).closest("form");
+                var absent = this.value !== "present" && this.value !== "";
+                form.find("input[name='note']").toggle(absent);
+                save(form);
+            });
+
+            $(".attendance-form").on("change", "input[name='note']", function () {
+                save($(this).closest("form"));
+            });
+
+            $(".attendance-form").on("submit", function (e) { e.preventDefault(); });
+        });
+    </script>
+}

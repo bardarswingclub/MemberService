@@ -1,0 +1,72 @@
+@page "{id}"
+@using MemberService.Data.ValueTypes
+@model MemberService.Pages.Event.InfoModel
+
+@{
+    ViewData["ContainerClass"] = "container-fluid";
+    ViewData["Title"] = Model.Title;
+}
+<vc:event-header id="@Model.EventId"></vc:event-header>
+
+<h2>Deltakerinfo</h2>
+
+@if (Model.Participants.Count == 0)
+{
+    <div class="alert alert-info">
+        Ingen deltakere å vise ennå.
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <h5>Hvor kommer de fra?</h5>
+            @if (Model.Origins.Count == 0)
+            {
+                <p class="text-muted">Ingen har oppgitt sted ennå.</p>
+            }
+            else
+            {
+                <ul class="list-unstyled">
+                    @foreach (var origin in Model.Origins)
+                    {
+                        <li>@origin.Origin <span class="badge badge-secondary">@origin.Count</span></li>
+                    }
+                </ul>
+            }
+        </div>
+        <div class="col-md-8">
+            <div class="table-responsive">
+                <table class="table table-striped table-sm">
+                    <thead>
+                        <tr>
+                            <th>Navn</th>
+                            <th>Kommer fra</th>
+                            <th>Andre behov</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in Model.Participants)
+                        {
+                            <tr>
+                                <td>
+                                    <a asp-page="/Members/Details" asp-route-id="@p.UserId" target="_blank">
+                                        @p.FriendlyName
+                                        <span class="text-small font-weight-normal text-muted">(@p.FullName)</span>
+                                    </a>
+                                    @if (p.Status == Status.Approved)
+                                    {
+                                        <span class="text-danger small">Ikke betalt</span>
+                                    }
+                                </td>
+                                <td>@p.Origin</td>
+                                <td class="@(string.IsNullOrWhiteSpace(p.SpecialNeeds) ? "" : "font-weight-bold")" style="white-space: pre-line">@p.SpecialNeeds</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-muted small">Viser deltakere med plass (betalt eller venter på betaling). Antall: @Model.Participants.Count</p>
+        </div>
+    </div>
+}
