@@ -13,6 +13,7 @@ Bootstrap 4, jQuery.
 | 2 | Deltakerinfo | «Kommer fra» og «andre behov» for Workshop/Fest, med egen tab |
 | 3 | Rediger påmelding | Synlig «Rediger»-lenke, utvidet redigeringsside |
 | 4 | Rollevalg | Fører / Følger / Switch, konfigurerbart per arrangement |
+| 5 | Nyhetsbrev | Avkrysning for Mailchimp-påmelding når man betaler medlemskap |
 
 Alle funksjoner har en EF-migrasjon som må kjøres i produksjon:
 
@@ -153,6 +154,54 @@ men den viser nå de tillatte rollene (inkl. Switch). `HomeController.Courses` b
 `roles[]` som `RolePreference`, sjekker mot `AllowedRoles` og setter både
 `Role` og `RolePreferences`. `CourseSignupModel.RoleDisplay` brukes i
 `_signup*.cshtml`.
+
+---
+
+## 5. Nyhetsbrev ved innmelding
+
+**Mål:** Når man melder seg inn i klubben (betaler medlemskap) skal man kunne krysse av
+for å melde seg på nyhetsbrevet. Boksen er **uavkrysset** og har teksten
+«Om du ikke allerede mottar nyhetsbrevet vårt, kryss av her for å melde deg på!».
+
+### Hvordan nyhetsbrevet på nettsiden fungerer
+Skjemaet på `bardarswingclub.com/meld-deg-pa-nyhetsbrevet/` er et Mailchimp
+«embedded form» (klassisk). Det er et vanlig `POST` til en offentlig adresse, uten
+API-nøkkel:
+
+```
+POST https://<konto>.<dc>.list-manage.com/subscribe/post?u=<u>&id=<listeid>&f_id=<f_id>
+EMAIL=...&FNAME=...&LNAME=...&b_<u>_<listeid>=      (honeypot-felt, skal være tomt)
+```
+
+Verdiene (`u`, `id`, `f_id`, honeypot-navnet) står i kildekoden til siden.
+
+### Implementasjon
+- `Services/NewsletterService.cs`: `INewsletterService` + `MailchimpNewsletterService`
+  (typed `HttpClient`, 5 sekunders timeout). Sender skjemafeltene over, splitter
+  `FullName` i fornavn/etternavn ved første mellomrom. **Kaster aldri** – feil logges
+  som warning og gir `false`, slik at innmelding/betaling aldri stoppes av nyhetsbrevet.
+- Innstillinger i `appsettings.json` under `Newsletter` (`SubscribeUrl`,
+  `HoneypotField`), bundet via `Configure<NewsletterSettings>`. Ikke hemmelig, men
+  kan overstyres per miljø.
+- UI: `Components/PayFee/Default.cshtml` viser avkrysningsboksen i betalingsskjemaet
+  når avgiften inkluderer medlemskap (`Fee.IncludesMembership`), det vil si
+  medlemskap, og treningsavgift/kursavgift når medlemskap ikke er betalt.
+  `PayFeeViewComponent.Model` har fått `OffersNewsletter`.
+- `PayController.Fee` tar imot `newsletter` og kaller `Subscribe` før betalingen
+  startes.
+
+### Avveininger / ting å vite
+- Påmeldingen skjer når man **starter** betalingen, ikke når den er fullført. Det er
+  enkelt og krever ingen lagring av valget gjennom Stripe/Vipps-flyten. Vil man ha
+  «kun etter fullført betaling», må valget lagres (f.eks. i en kolonne på betalingen)
+  og leses i `FeePaid`/betalingscallbackene.
+- Mailchimp kan sende en bekreftelses-e-post (double opt-in) – det styres i
+  Mailchimp, ikke her.
+- Mailchimp kan blokkere automatiserte kall (captcha). Alternativet er Marketing API
+  med API-nøkkel og `PUT /lists/{id}/members/{hash}`.
+- Enhetstester med falsk `HttpMessageHandler`:
+  `tests/MemberService.Tests/Newsletter/NewsletterServiceTests.cs`. Test aldri mot
+  den ekte listen, da melder du en ekte adresse på.
 
 ---
 

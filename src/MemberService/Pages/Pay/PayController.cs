@@ -18,25 +18,28 @@ public class PayController : Controller
     private readonly MemberContext _memberContext;
     private readonly IStripePaymentService _stripePaymentService;
     private readonly IVippsPaymentService _vippsPaymentService;
+    private readonly INewsletterService _newsletterService;
 
     public PayController(
         SignInManager<User> signInManager,
         UserManager<User> userManager,
         MemberContext memberContext,
         IStripePaymentService stripePaymentService,
-        IVippsPaymentService vippsPaymentService)
+        IVippsPaymentService vippsPaymentService,
+        INewsletterService newsletterService)
     {
         _signInManager = signInManager;
         _userManager = userManager;
         _memberContext = memberContext;
         _stripePaymentService = stripePaymentService;
         _vippsPaymentService = vippsPaymentService;
+        _newsletterService = newsletterService;
     }
 
     [HttpPost]
     [Authorize]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public async Task<IActionResult> Fee([FromForm] string type, [FromForm] string method, string returnUrl = null)
+    public async Task<IActionResult> Fee([FromForm] string type, [FromForm] string method, [FromForm] bool newsletter, string returnUrl = null)
     {
         var user = await GetCurrentUser();
 
@@ -46,6 +49,11 @@ public class PayController : Controller
         {
             return RedirectToPage("/Home/Fees");
         }
+        if (newsletter && fee.IncludesMembership)
+        {
+            await _newsletterService.Subscribe(user.Email, user.FullName);
+        }
+
         string url = method == "vipps"
             ? await CreateVippsPayment(user, fee, returnUrl ?? Request.Headers.Referer.ToString()?.Pipe(url => new Uri(url).PathAndQuery))
             : await CreateStripePayment(user, fee, returnUrl ?? Request.Headers.Referer.ToString()?.Pipe(url => new Uri(url).PathAndQuery));
