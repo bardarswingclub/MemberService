@@ -21,6 +21,10 @@ public partial class CourseSignupModel
 
     public DanceRole Role { get; set; }
 
+    public RolePreference RolePreferences { get; set; }
+
+    public string RoleDisplay => RolePreferences != RolePreference.None ? RolePreferences.Summary() : Role.DisplayName();
+
     public string PartnerEmail { get; set; }
 
     public bool RoleSignup { get; set; }
@@ -36,6 +40,7 @@ public partial class CourseSignupModel
         EventId = s.EventId,
         Status = s.Status,
         Role = s.Role,
+        RolePreferences = s.RolePreferences,
         PartnerEmail = s.PartnerEmail,
         RoleSignup = s.Event.SignupOptions.RoleSignup,
         AllowPartnerSignup = s.Event.SignupOptions.AllowPartnerSignup,

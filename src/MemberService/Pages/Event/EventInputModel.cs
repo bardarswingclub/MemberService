@@ -88,6 +88,9 @@ public abstract class EventInputModel : PageModel
     public string RoleSignupHelp { get; set; }
 
     [BindProperty]
+    public List<RolePreference> AllowedRoles { get; set; } = new();
+
+    [BindProperty]
     [DisplayName("La par melde seg på sammen")]
     public bool AllowPartnerSignup { get; set; }
 

@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 
 using MemberService.Data;
+using MemberService.Data.ValueTypes;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -39,6 +40,8 @@ public class EditModel : PageModel
 
     public bool CollectParticipantInfo { get; set; }
 
+    public RolePreference AllowedRoles { get; set; }
+
     public async Task<IActionResult> OnGet(Guid id, string redirectTo = null)
     {
         var model = await _database.Events
@@ -68,10 +71,12 @@ public class EditModel : PageModel
         AllowPartnerSignupHelp = model.SignupOptions.AllowPartnerSignupHelp;
         SurveyId = model.SurveyId;
         CollectParticipantInfo = model.Type.CollectsParticipantInfo();
+        AllowedRoles = model.SignupOptions.AllowedRoles.OrDefault();
 
         Input = new()
         {
             Role = signup.Role,
+            Preference = signup.RolePreferences != RolePreference.None ? signup.RolePreferences : RolePreferenceExtensions.FromRole(signup.Role),
             PartnerEmail = signup.PartnerEmail,
             Origin = signup.Origin,
             SpecialNeeds = signup.SpecialNeeds
@@ -98,9 +103,18 @@ public class EditModel : PageModel
 
         if (user.GetEditableEvent(id) is EventSignup eventSignup)
         {
-            eventSignup.AuditLog.Add($"Changed signup\n\n{eventSignup.Role} -> {input.Role}\n\n{eventSignup.PartnerEmail} -> {input.PartnerEmail}", user);
+            var preferences = model.SignupOptions.RoleSignup ? input.Preference : eventSignup.RolePreferences;
 
-            eventSignup.Role = input.Role;
+            if (model.SignupOptions.RoleSignup && (!preferences.IsSingleChoice() || (preferences & ~model.SignupOptions.AllowedRoles.OrDefault()) != RolePreference.None))
+            {
+                TempData.SetErrorMessage("Velg en danserolle");
+                return RedirectToPage(new { id });
+            }
+
+            eventSignup.AuditLog.Add($"Changed signup\n\n{eventSignup.RolePreferences} -> {preferences}\n\n{eventSignup.PartnerEmail} -> {input.PartnerEmail}", user);
+
+            eventSignup.RolePreferences = preferences;
+            eventSignup.Role = model.SignupOptions.RoleSignup ? preferences.ToRole() : eventSignup.Role;
             eventSignup.PartnerEmail = input.PartnerEmail?.Trim().Normalize().ToUpperInvariant();
 
             if (model.Type.CollectsParticipantInfo())

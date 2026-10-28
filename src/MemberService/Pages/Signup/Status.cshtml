@@ -85,7 +85,7 @@
             @if (Model.RoleSignup)
             {
                 <p>
-                    Du er påmeldt som <strong>@Model.Role.DisplayName().ToLower()</strong>
+                    Du er påmeldt som <strong>@(Model.RolePreferences != RolePreference.None ? Model.RolePreferences.Summary().ToLower() : Model.Role.DisplayName().ToLower())</strong>
                     @if (Model.AllowPartnerSignup)
                     {
                         if (string.IsNullOrWhiteSpace(Model.PartnerEmail))

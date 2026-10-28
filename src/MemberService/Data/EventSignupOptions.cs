@@ -3,6 +3,8 @@ namespace MemberService.Data;
 
 using System.ComponentModel.DataAnnotations.Schema;
 
+using MemberService.Data.ValueTypes;
+
 using Microsoft.EntityFrameworkCore;
 
 public class EventSignupOptions
@@ -37,6 +39,8 @@ public class EventSignupOptions
     public bool RoleSignup { get; set; }
 
     public string RoleSignupHelp { get; set; }
+
+    public RolePreference AllowedRoles { get; set; } = RolePreference.Lead | RolePreference.Follow;
 
     public bool AllowPartnerSignup { get; set; }
 

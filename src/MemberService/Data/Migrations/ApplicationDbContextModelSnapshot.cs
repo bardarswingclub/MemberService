@@ -391,6 +391,9 @@ namespace MemberService.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("RolePreferences")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("SignedUpAt")
                         .HasColumnType("datetime2");
 
@@ -457,6 +460,9 @@ namespace MemberService.Data.Migrations
 
                     b.Property<string>("AllowPartnerSignupHelp")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("AllowedRoles")
+                        .HasColumnType("int");
 
                     b.Property<int>("AutoAcceptedSignups")
                         .HasColumnType("int");

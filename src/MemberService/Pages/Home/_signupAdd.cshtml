@@ -17,8 +17,10 @@
             <label>Danserolle</label>
             <select class="form-control" name="roles[]" disabled required>
                 <option value="" disabled selected>Velg rolle</option>
-                <option value="@DanceRole.Lead">Fører</option>
-                <option value="@DanceRole.Follow">Følger</option>
+                @foreach (var choice in Model.AllowedRoles.OrDefault().ToChoices())
+                {
+                    <option value="@choice">@choice.DisplayName()</option>
+                }
             </select>
             <small class="form-text text-muted">
                 @Html.Markdown(Model.RoleSignupHelp)

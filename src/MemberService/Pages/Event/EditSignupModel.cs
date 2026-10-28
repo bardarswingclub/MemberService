@@ -19,6 +19,8 @@ public partial class EditSignupModel
 
     public DanceRole Role { get; set; }
 
+    public RolePreference RolePreferences { get; set; }
+
     public string PartnerEmail { get; set; }
 
     public User Partner { get; set; }
@@ -26,6 +28,8 @@ public partial class EditSignupModel
     public Guid EventId { get; set; }
 
     public string FullName { get; set; }
+
+    public RolePreference SelectedPreference => RolePreferences != RolePreference.None ? RolePreferences : RolePreferenceExtensions.FromRole(Role);
 
     public EventType Type { get; set; }
 
@@ -46,6 +50,7 @@ public partial class EditSignupModel
         Origin = e.Origin,
         SpecialNeeds = e.SpecialNeeds,
         Role = e.Role,
+        RolePreferences = e.RolePreferences,
         PartnerEmail = e.PartnerEmail,
         Partner = users.FirstOrDefault(u => e.PartnerEmail == u.NormalizedEmail),
         Courses = e.Event.Semester.Courses.ToList()

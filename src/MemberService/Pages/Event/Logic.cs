@@ -51,6 +51,7 @@ public static class Logic
                 SignupHelp = model.SignupHelp,
                 RoleSignup = model.RoleSignup,
                 RoleSignupHelp = model.RoleSignupHelp,
+                AllowedRoles = model.AllowedRoles.Combine().OrDefault(),
                 AllowPartnerSignup = model.AllowPartnerSignup,
                 AllowPartnerSignupHelp = model.AllowPartnerSignupHelp,
                 AutoAcceptedSignups = model.AutoAcceptedSignups
@@ -75,6 +76,7 @@ public static class Logic
         entity.SignupOptions.SignupHelp = model.SignupHelp;
         entity.SignupOptions.RoleSignup = model.RoleSignup;
         entity.SignupOptions.RoleSignupHelp = model.RoleSignupHelp;
+        entity.SignupOptions.AllowedRoles = model.AllowedRoles.Combine().OrDefault();
         entity.SignupOptions.AllowPartnerSignup = model.AllowPartnerSignup;
         entity.SignupOptions.AllowPartnerSignupHelp = model.AllowPartnerSignupHelp;
         entity.SignupOptions.AutoAcceptedSignups = model.AutoAcceptedSignups;
@@ -193,6 +195,7 @@ public static class Logic
                 RequiresTrainingFee = signupOptions.RequiresTrainingFee,
                 RoleSignup = signupOptions.RoleSignup,
                 RoleSignupHelp = signupOptions.RoleSignupHelp,
+                AllowedRoles = signupOptions.AllowedRoles,
                 SignupHelp = signupOptions.SignupHelp
             },
             Survey = survey == null

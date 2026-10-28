@@ -18,5 +18,7 @@ public class SignupInputModel
     [DisplayName("Andre behov, for eksempel allergier")]
     public string SpecialNeeds { get; set; }
 
+    public RolePreference Preference { get; set; }
+
     public IList<Answer> Answers { get; set; } = new List<Answer>();
 }

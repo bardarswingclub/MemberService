@@ -20,15 +20,11 @@
         @if (Model.RoleSignup)
         {
             <div class="form-group mt-4">
-                <label asp-for="Input.Role"></label>
-                <select class="form-control" asp-for="Input.Role">
-                    <option value="@DanceRole.Lead">Fører</option>
-                    <option value="@DanceRole.Follow">Følger</option>
-                </select>
+                <label>Danserolle</label>
+                <partial name="_RolePreferences" model="RoleChoices.For(Model.AllowedRoles, Model.Input.Preference)" />
                 <small class="form-text text-muted">
                     @Html.Markdown(Model.RoleSignupHelp)
                 </small>
-                <span asp-validation-for="Input.Role" class="text-danger"></span>
             </div>
 
             @if (Model.AllowPartnerSignup)

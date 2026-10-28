@@ -25,6 +25,11 @@
             </select>
         </div>
         <div class="form-group mt-4">
+            <label>Deltakerens valg av rolle</label>
+            <partial name="_RolePreferences" model="RoleChoices.For(RolePreferenceExtensions.Everything, Model.SelectedPreference, required: false)" />
+            <small class="form-text text-muted">Dansrollen over er den som brukes i listene. Valget er det deltakeren har gjort.</small>
+        </div>
+        <div class="form-group mt-4">
             <label asp-for="PartnerEmail"></label>
             <input type="text" class="form-control" asp-for="PartnerEmail" placeholder="epost@eksempel.no">
             @if (Model.Partner is User partner)

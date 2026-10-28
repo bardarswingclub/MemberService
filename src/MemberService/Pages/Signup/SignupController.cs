@@ -81,6 +81,7 @@ public class SignupController : Controller
                     AllowPartnerSignup = ev.Options.AllowPartnerSignup,
                     RoleSignup = ev.Options.RoleSignup,
                     Role = eventSignup.Role,
+                    RolePreferences = eventSignup.RolePreferences != RolePreference.None ? eventSignup.RolePreferences : RolePreferenceExtensions.FromRole(eventSignup.Role),
                     PartnerEmail = eventSignup.PartnerEmail,
                     CanEdit = eventSignup.CanEdit() && !ev.IsArchived && (ev.Options.RoleSignup || ev.SurveyId.HasValue)
                 });
@@ -128,6 +129,7 @@ public class SignupController : Controller
                     PriceForNonMembers = ev.Options.PriceForNonMembers,
                     RoleSignup = ev.Options.RoleSignup,
                     RoleSignupHelp = ev.Options.RoleSignupHelp,
+                    AllowedRoles = ev.Options.AllowedRoles.OrDefault(),
                     SignupHelp = ev.Options.SignupHelp,
                     SurveyId = ev.SurveyId,
                     CollectParticipantInfo = ev.Type.CollectsParticipantInfo()
@@ -175,9 +177,20 @@ public class SignupController : Controller
             return RedirectToAction(nameof(Event), new { id });
         }
 
-        var autoAccept = model.ShouldAutoAccept(input.Role);
+        var preferences = model.SignupOptions.RoleSignup ? input.Preference : RolePreference.None;
 
-        var signup = user.AddEventSignup(id, input.Role, input.PartnerEmail, autoAccept);
+        if (model.SignupOptions.RoleSignup && (!preferences.IsSingleChoice() || (preferences & ~model.SignupOptions.AllowedRoles.OrDefault()) != RolePreference.None))
+        {
+            TempData.SetErrorMessage("Velg en danserolle");
+            return RedirectToAction(nameof(Event), new { id });
+        }
+
+        var role = preferences.ToRole();
+
+        var autoAccept = model.ShouldAutoAccept(role);
+
+        var signup = user.AddEventSignup(id, role, input.PartnerEmail, autoAccept);
+        signup.RolePreferences = preferences;
 
         if (model.Type.CollectsParticipantInfo())
         {

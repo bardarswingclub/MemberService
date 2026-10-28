@@ -21,6 +21,8 @@ public class EventSignupModel
 
     public DanceRole Role { get; private set; }
 
+    public RolePreference RolePreferences { get; private set; }
+
     public bool Selected { get; private set; }
 
     public bool Ressursperson { get; set; }
@@ -41,6 +43,7 @@ public class EventSignupModel
             Status = s.Status,
             Partner = PartnerSignupModel.Create(s.PartnerEmail, partner, s.EventId),
             Role = s.Role,
+            RolePreferences = s.RolePreferences != RolePreference.None ? s.RolePreferences : RolePreferenceExtensions.FromRole(s.Role),
             AuditLog = s.AuditLog.ToList(),
             Ressursperson = ressursperson
 

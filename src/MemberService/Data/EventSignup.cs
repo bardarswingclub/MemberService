@@ -23,6 +23,8 @@ public class EventSignup
 
     public DanceRole Role { get; set; }
 
+    public RolePreference RolePreferences { get; set; }
+
     public string PartnerEmail { get; set; }
 
     public int Priority { get; set; }
