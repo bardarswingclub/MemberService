@@ -372,6 +372,9 @@ namespace MemberService.Data.Migrations
                     b.Property<Guid>("EventId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Origin")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PartnerEmail")
                         .HasColumnType("nvarchar(max)");
 
@@ -390,6 +393,9 @@ namespace MemberService.Data.Migrations
 
                     b.Property<DateTime>("SignedUpAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("SpecialNeeds")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
                         .IsRequired()

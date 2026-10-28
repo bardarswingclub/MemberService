@@ -13,6 +13,8 @@ public class SignupModel
 
     public bool RoleSignup { get; init; }
 
+    public bool CollectParticipantInfo { get; init; }
+
     public string RoleSignupHelp { get; init; }
 
     public bool AllowPartnerSignup { get; init; }

@@ -120,6 +120,12 @@
   <data name="Fyll inn e-post til partner hvis dere er to som ønsker å gå kurs sammen. Begge to må melde seg på og skrive opp hverandres e-post." xml:space="preserve">
     <value>Enter your partners e-mail address if the two of you want to sign up together. Both of you have to sign up and enter each others email address.</value>
   </data>
+  <data name="F.eks. Oslo, Norge" xml:space="preserve">
+    <value>E.g. Oslo, Norway</value>
+  </data>
+  <data name="Allergier, mattilpasninger eller andre behov vi bør vite om" xml:space="preserve">
+    <value>Allergies, dietary requirements or other needs we should know about</value>
+  </data>
   <data name="Følger" xml:space="preserve">
     <value>Follower</value>
   </data>

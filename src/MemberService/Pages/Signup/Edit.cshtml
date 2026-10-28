@@ -44,6 +44,19 @@
             }
         }
 
+        @if (Model.CollectParticipantInfo)
+        {
+            <div class="form-group mt-4">
+                <label asp-for="Input.Origin"></label>
+                <input type="text" class="form-control" asp-for="Input.Origin" maxlength="100" placeholder="F.eks. Oslo, Norge">
+            </div>
+
+            <div class="form-group mt-4">
+                <label asp-for="Input.SpecialNeeds"></label>
+                <textarea class="form-control" asp-for="Input.SpecialNeeds" rows="2" maxlength="500" placeholder="Allergier, mattilpasninger eller andre behov vi bør vite om"></textarea>
+            </div>
+        }
+
         <vc:survey-response id=Model.SurveyId />
     </div>
     <div class="card-footer">

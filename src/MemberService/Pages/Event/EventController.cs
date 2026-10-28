@@ -5,6 +5,7 @@ using MemberService.Auth;
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
 using MemberService.Pages.Semester;
+using MemberService.Pages.Signup;
 using MemberService.Services;
 
 using Microsoft.AspNetCore.Authorization;
@@ -69,7 +70,7 @@ public class EventController : Controller
 
     [HttpPost]
     [Authorize(nameof(Policy.CanEditEventSignup))]
-    public async Task<IActionResult> EditSignup(Guid id, [FromForm] DanceRole role, [FromForm] string partnerEmail, [FromForm] Guid? eventId, [FromServices] IAuthorizationService authorization)
+    public async Task<IActionResult> EditSignup(Guid id, [FromForm] DanceRole role, [FromForm] string partnerEmail, [FromForm] string origin, [FromForm] string specialNeeds, [FromForm] Guid? eventId, [FromServices] IAuthorizationService authorization)
     {
         // Flyttes påmeldingen til et annet arrangement, må man også ha tilgang til det arrangementet
         if (eventId.HasValue && !await authorization.IsAuthorized(User, eventId.Value, Policy.CanEditEventSignup))
@@ -97,6 +98,20 @@ public class EventController : Controller
             {
                 log += $"\n\n{signup.PartnerEmail} -> {partnerEmail}";
                 signup.PartnerEmail = partnerEmail;
+            }
+
+            origin = origin.TrimToNull();
+            if (signup.Origin != origin)
+            {
+                log += $"\n\nOrigin: {signup.Origin} -> {origin}";
+                signup.Origin = origin;
+            }
+
+            specialNeeds = specialNeeds.TrimToNull();
+            if (signup.SpecialNeeds != specialNeeds)
+            {
+                log += $"\n\nSpecial needs: {signup.SpecialNeeds} -> {specialNeeds}";
+                signup.SpecialNeeds = specialNeeds;
             }
 
             if (eventId.HasValue && signup.EventId != eventId)

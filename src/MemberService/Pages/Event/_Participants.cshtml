@@ -40,6 +40,10 @@
                             @signup.FullName
                         }
                     </a>
+                    @if (await AuthorizationService.IsAuthorized(User, Model.EventId, Policy.CanEditEventSignup))
+                    {
+                        <a class="small ml-2" asp-controller="Event" asp-action="EditSignup" asp-route-id="@signup.Id">Rediger</a>
+                    }
                 </td>
                 <td>
                     @if (Model.ShowPriority)

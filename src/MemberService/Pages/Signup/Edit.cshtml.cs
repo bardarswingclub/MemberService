@@ -37,6 +37,8 @@ public class EditModel : PageModel
 
     public Guid? SurveyId { get; set; }
 
+    public bool CollectParticipantInfo { get; set; }
+
     public async Task<IActionResult> OnGet(Guid id, string redirectTo = null)
     {
         var model = await _database.Events
@@ -65,11 +67,14 @@ public class EditModel : PageModel
         AllowPartnerSignup = model.SignupOptions.AllowPartnerSignup;
         AllowPartnerSignupHelp = model.SignupOptions.AllowPartnerSignupHelp;
         SurveyId = model.SurveyId;
+        CollectParticipantInfo = model.Type.CollectsParticipantInfo();
 
         Input = new()
         {
             Role = signup.Role,
-            PartnerEmail = signup.PartnerEmail
+            PartnerEmail = signup.PartnerEmail,
+            Origin = signup.Origin,
+            SpecialNeeds = signup.SpecialNeeds
         };
 
         return Page();
@@ -97,6 +102,12 @@ public class EditModel : PageModel
 
             eventSignup.Role = input.Role;
             eventSignup.PartnerEmail = input.PartnerEmail?.Trim().Normalize().ToUpperInvariant();
+
+            if (model.Type.CollectsParticipantInfo())
+            {
+                eventSignup.Origin = input.Origin.TrimToNull();
+                eventSignup.SpecialNeeds = input.SpecialNeeds.TrimToNull();
+            }
 
             try
             {

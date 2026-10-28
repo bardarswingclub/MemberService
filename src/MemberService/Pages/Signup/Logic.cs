@@ -24,6 +24,12 @@ public static partial class Logic
             .Select(e => EventModel.Create(e, userId))
             .ToListAsync();
 
+    public static bool CollectsParticipantInfo(this EventType type)
+        => type == EventType.Workshop || type == EventType.Party;
+
+    public static string TrimToNull(this string value)
+        => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
     public static async Task<Event> GetEditableEvent(this MemberContext db, Guid id)
         => await db.Events
             .Include(e => e.Signups)

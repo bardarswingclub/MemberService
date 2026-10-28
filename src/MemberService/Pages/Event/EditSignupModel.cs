@@ -27,6 +27,12 @@ public partial class EditSignupModel
 
     public string FullName { get; set; }
 
+    public EventType Type { get; set; }
+
+    public string Origin { get; set; }
+
+    public string SpecialNeeds { get; set; }
+
     public IReadOnlyList<Data.Event> Courses { get; set; }
 
     [Expressionify]
@@ -36,6 +42,9 @@ public partial class EditSignupModel
         Title = e.Event.Title,
         FullName = e.User.FullName,
         EventId = e.EventId,
+        Type = e.Event.Type,
+        Origin = e.Origin,
+        SpecialNeeds = e.SpecialNeeds,
         Role = e.Role,
         PartnerEmail = e.PartnerEmail,
         Partner = users.FirstOrDefault(u => e.PartnerEmail == u.NormalizedEmail),

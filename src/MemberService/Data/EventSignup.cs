@@ -27,6 +27,10 @@ public class EventSignup
 
     public int Priority { get; set; }
 
+    public string Origin { get; set; }
+
+    public string SpecialNeeds { get; set; }
+
     public Status Status { get; set; }
 
     public string PaymentId { get; set; }

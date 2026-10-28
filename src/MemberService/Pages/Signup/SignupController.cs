@@ -55,7 +55,8 @@ public class SignupController : Controller
                 IsArchived = e.Archived || !e.Semester.IsActive(),
                 IsOpen = e.IsOpen(),
                 Options = e.SignupOptions,
-                SurveyId = e.SurveyId
+                SurveyId = e.SurveyId,
+                Type = e.Type
             })
             .FirstOrDefaultAsync();
 
@@ -128,7 +129,8 @@ public class SignupController : Controller
                     RoleSignup = ev.Options.RoleSignup,
                     RoleSignupHelp = ev.Options.RoleSignupHelp,
                     SignupHelp = ev.Options.SignupHelp,
-                    SurveyId = ev.SurveyId
+                    SurveyId = ev.SurveyId,
+                    CollectParticipantInfo = ev.Type.CollectsParticipantInfo()
                 });
             }
         }
@@ -176,6 +178,12 @@ public class SignupController : Controller
         var autoAccept = model.ShouldAutoAccept(input.Role);
 
         var signup = user.AddEventSignup(id, input.Role, input.PartnerEmail, autoAccept);
+
+        if (model.Type.CollectsParticipantInfo())
+        {
+            signup.Origin = input.Origin.TrimToNull();
+            signup.SpecialNeeds = input.SpecialNeeds.TrimToNull();
+        }
 
         try
         {
