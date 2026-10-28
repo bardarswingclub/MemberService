@@ -1,5 +1,7 @@
 ﻿namespace MemberService.Data;
 
+using MemberService.Data.ValueTypes;
+
 
 
 public class Presence
@@ -13,6 +15,10 @@ public class Presence
     public int Lesson { get; set; }
 
     public bool Present { get; set; }
+
+    public AbsenceReason? AbsenceReason { get; set; }
+
+    public string AbsenceNote { get; set; }
 
     public DateTime RegisteredAt { get; set; }
 

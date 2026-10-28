@@ -729,6 +729,12 @@ namespace MemberService.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("AbsenceNote")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("AbsenceReason")
+                        .HasColumnType("int");
+
                     b.Property<int>("Lesson")
                         .HasColumnType("int");
 
