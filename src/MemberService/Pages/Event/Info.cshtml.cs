@@ -1,10 +1,11 @@
-namespace MemberService.Pages.Event;
+﻿namespace MemberService.Pages.Event;
 
 using Clave.ExtensionMethods;
 
 using MemberService.Auth;
 using MemberService.Data;
 using MemberService.Data.ValueTypes;
+using MemberService.Pages.Signup;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -55,6 +56,9 @@ public class InfoModel : PageModel
             .FirstOrDefaultAsync(e => e.Id == id);
 
         if (ev is null) return NotFound();
+
+        // Siden viser helseopplysninger, så den finnes bare for arrangementer som samler deltakerinfo
+        if (!ev.Type.CollectsParticipantInfo()) return NotFound();
 
         EventId = ev.Id;
         Title = ev.Title;
