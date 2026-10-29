@@ -187,14 +187,14 @@ Verdiene (`u`, `id`, `f_id`, honeypot-navnet) står i kildekoden til siden.
   når avgiften inkluderer medlemskap (`Fee.IncludesMembership`), det vil si
   medlemskap, og treningsavgift/kursavgift når medlemskap ikke er betalt.
   `PayFeeViewComponent.Model` har fått `OffersNewsletter`.
-- `PayController.Fee` tar imot `newsletter` og kaller `Subscribe` før betalingen
-  startes.
+- `PayController.Fee` tar imot `newsletter` og sender det som et flagg i retur-URL-en til
+  Stripe/Vipps (ingen persondata i URL-en).
 
 ### Avveininger / ting å vite
-- Påmeldingen skjer når man **starter** betalingen, ikke når den er fullført. Det er
-  enkelt og krever ingen lagring av valget gjennom Stripe/Vipps-flyten. Vil man ha
-  «kun etter fullført betaling», må valget lagres (f.eks. i en kolonne på betalingen)
-  og leses i `FeePaid`/betalingscallbackene.
+- Påmeldingen skjer i `FeePaid`, **etter** at betalingen er bekreftet (Stripe-sesjonen er
+  lagret / Vipps-reservasjonen fullført). Kallet til Mailchimp kjøres i bakgrunnen
+  (`Task.Run`, svelger alle feil), så det kan aldri forsinke eller avbryte betalingen.
+- Valget lagres ikke i databasen, så det finnes ingen samtykkelogg.
 - Mailchimp kan sende en bekreftelses-e-post (double opt-in) – det styres i
   Mailchimp, ikke her.
 - Mailchimp kan blokkere automatiserte kall (captcha). Alternativet er Marketing API
