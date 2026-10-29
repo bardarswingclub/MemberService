@@ -187,7 +187,7 @@ public class SignupController : Controller
 
         var role = preferences.ToRole();
 
-        var autoAccept = model.ShouldAutoAccept(role);
+        var autoAccept = model.ShouldAutoAccept(preferences);
 
         var signup = user.AddEventSignup(id, role, input.PartnerEmail, autoAccept);
         signup.RolePreferences = preferences;

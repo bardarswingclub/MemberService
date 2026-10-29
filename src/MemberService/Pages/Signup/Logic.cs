@@ -66,6 +66,12 @@ public static partial class Logic
     public static bool ShouldAutoAccept(this Data.Event model, DanceRole role)
         => model.SignupOptions.AutoAcceptedSignups > model.Signups.Count(s => s.Role == role);
 
+    /// <summary>Switch gir <see cref="DanceRole.None"/>, så de telles for seg og blander seg ikke med påmeldinger uten rolle.</summary>
+    public static bool ShouldAutoAccept(this Data.Event model, RolePreference preference)
+        => preference == RolePreference.Switch
+            ? model.SignupOptions.AutoAcceptedSignups > model.Signups.Count(s => s.RolePreferences == RolePreference.Switch)
+            : model.ShouldAutoAccept(preference.ToRole());
+
     public static EventSignup AddEventSignup(this User user, Guid id, DanceRole role, string partnerEmail, bool autoAccept, int priority = 1)
     {
         var status = autoAccept ? Status.Approved : Status.Pending;
