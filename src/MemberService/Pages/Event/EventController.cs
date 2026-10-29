@@ -16,6 +16,10 @@ using Microsoft.Extensions.Logging;
 [Authorize]
 public class EventController : Controller
 {
+    private const int MaxOriginLength = 100;
+
+    private const int MaxSpecialNeedsLength = 500;
+
     private readonly MemberContext _database;
 
     private readonly IEmailService _emailService;
@@ -37,6 +41,7 @@ public class EventController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     [Authorize(nameof(Policy.CanEditEvent))]
     public async Task<IActionResult> SetStatus(Guid id, [FromForm] string status, [FromForm] string date)
     {
@@ -69,6 +74,7 @@ public class EventController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     [Authorize(nameof(Policy.CanEditEventSignup))]
     public async Task<IActionResult> EditSignup(Guid id, [FromForm] DanceRole role, [FromForm(Name = "Input.Preference")] RolePreference preference, [FromForm] string partnerEmail, [FromForm] string origin, [FromForm] string specialNeeds, [FromForm] Guid? eventId, [FromServices] IAuthorizationService authorization)
     {
@@ -79,8 +85,19 @@ public class EventController : Controller
         }
 
         var signup = await _database.EventSignups
+            .Include(e => e.Event)
             .Include(e => e.AuditLog)
             .FirstOrDefaultAsync(e => e.Id == id);
+
+        if (signup is null)
+        {
+            return NotFound();
+        }
+
+        if (origin?.Length > MaxOriginLength || specialNeeds?.Length > MaxSpecialNeedsLength)
+        {
+            return BadRequest();
+        }
 
         var user = await _database.Get(User);
 
@@ -94,11 +111,11 @@ public class EventController : Controller
                 signup.Role = role;
             }
 
-            var newPreferences = preference.IsSingleChoice() ? preference : RolePreference.None;
-            if (signup.RolePreferences != newPreferences)
+            // Uten valgt radio er feltet ikke postet, og da skal deltakerens valg ligge urørt
+            if (preference.IsSingleChoice() && signup.RolePreferences != preference)
             {
-                log += $"\n\nChoices: {signup.RolePreferences} -> {newPreferences}";
-                signup.RolePreferences = newPreferences;
+                log += $"\n\nChoices: {signup.RolePreferences} -> {preference}";
+                signup.RolePreferences = preference;
             }
 
             if (signup.PartnerEmail != partnerEmail)
@@ -107,18 +124,24 @@ public class EventController : Controller
                 signup.PartnerEmail = partnerEmail;
             }
 
-            origin = origin.TrimToNull();
-            if (signup.Origin != origin)
+            // Feltene finnes bare i skjemaet for arrangementer som samler deltakerinfo. Uten denne sjekken
+            // ville redigering av andre arrangementer (eller flytting) slettet det deltakeren har fylt ut.
+            // Verdiene logges ikke, siden allergier er helseopplysninger.
+            if (signup.Event.Type.CollectsParticipantInfo())
             {
-                log += $"\n\nOrigin: {signup.Origin} -> {origin}";
-                signup.Origin = origin;
-            }
+                origin = origin.TrimToNull();
+                if (signup.Origin != origin)
+                {
+                    log += "\n\nOrigin changed";
+                    signup.Origin = origin;
+                }
 
-            specialNeeds = specialNeeds.TrimToNull();
-            if (signup.SpecialNeeds != specialNeeds)
-            {
-                log += $"\n\nSpecial needs: {signup.SpecialNeeds} -> {specialNeeds}";
-                signup.SpecialNeeds = specialNeeds;
+                specialNeeds = specialNeeds.TrimToNull();
+                if (signup.SpecialNeeds != specialNeeds)
+                {
+                    log += "\n\nSpecial needs changed";
+                    signup.SpecialNeeds = specialNeeds;
+                }
             }
 
             if (eventId.HasValue && signup.EventId != eventId)
@@ -135,6 +158,7 @@ public class EventController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     [Authorize(nameof(Policy.CanCreateEvent))]
     public async Task<IActionResult> Copy(Guid id)
     {

@@ -37,6 +37,7 @@ public class PayController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     [Authorize]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public async Task<IActionResult> Fee([FromForm] string type, [FromForm] string method, [FromForm] bool newsletter, string returnUrl = null)

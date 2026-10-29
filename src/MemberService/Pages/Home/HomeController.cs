@@ -123,10 +123,18 @@ public class HomeController : Controller
             .Select(c => c.Id)
             .ToReadOnlyList();
 
-        var addedSignups = items
+        var newItems = items
             .Where(i => classesNotSignedUpFor.Contains(i.Id))
+            .ToReadOnlyList();
+
+        var addedSignups = newItems
             .Where(i => IsAllowed(openedClasses.First(c => c.Id == i.Id), i.Role))
             .ToReadOnlyList();
+
+        if (addedSignups.Count != newItems.Count)
+        {
+            TempData.SetErrorMessage("Velg en danserolle som er tilgjengelig for kurset");
+        }
 
         foreach (var signup in addedSignups)
         {
@@ -171,7 +179,7 @@ public class HomeController : Controller
     private static bool IsAllowed(CourseModel course, RolePreference role)
         => !course.RoleSignup
             ? role == RolePreference.None
-            : role != RolePreference.None && (role & ~course.AllowedRoles.OrDefault()) == RolePreference.None;
+            : role.IsSingleChoice() && (role & ~course.AllowedRoles.OrDefault()) == RolePreference.None;
 
     private class ClassSignup
     {

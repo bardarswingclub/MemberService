@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore;
 [Route("/Event/{id}/Presence/{action}")]
 public class PresenceController : Controller
 {
+    private const int MaxNoteLength = 200;
+
     private readonly MemberContext _database;
 
     public PresenceController(
@@ -67,6 +69,7 @@ public class PresenceController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     [Authorize(nameof(Policy.CanAddPresenceLesson))]
     public async Task<IActionResult> AddLesson(Guid id)
     {
@@ -82,6 +85,7 @@ public class PresenceController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     [Authorize(nameof(Policy.CanSetPresence))]
     public async Task<IActionResult> SetPresence(
         Guid id,
@@ -90,6 +94,8 @@ public class PresenceController : Controller
         [FromForm] bool present)
     {
         var signup = await _database.EventSignups
+                .Include(p => p.Event)
+                .Include(p => p.Presence)
                 .Where(p => p.EventId == id)
                 .Where(p => p.UserId == userId)
                 .FirstOrDefaultAsync();
@@ -99,9 +105,15 @@ public class PresenceController : Controller
             return NotFound();
         }
 
+        if (lesson < 0 || lesson >= signup.Event.LessonCount)
+        {
+            return BadRequest();
+        }
+
         var user = await _database.Get(User);
 
         var presence = signup.Presence
+            .OrderBy(p => p.Id)
             .FirstOrDefault(p => p.Lesson == lesson);
 
         if (presence == null)
@@ -134,6 +146,7 @@ public class PresenceController : Controller
 
     /// <param name="status">"present", an <see cref="AbsenceReason"/> name, or empty for not registered</param>
     [HttpPost]
+    [ValidateAntiForgeryToken]
     [Authorize(nameof(Policy.CanSetPresence))]
     public async Task<IActionResult> SetAttendance(
         Guid id,
@@ -142,6 +155,11 @@ public class PresenceController : Controller
         [FromForm] string status,
         [FromForm] string note)
     {
+        if (note?.Length > MaxNoteLength)
+        {
+            return BadRequest();
+        }
+
         var present = status == "present";
         AbsenceReason? reason = null;
 
@@ -156,6 +174,7 @@ public class PresenceController : Controller
         }
 
         var signup = await _database.EventSignups
+                .Include(p => p.Event)
                 .Include(p => p.Presence)
                 .Where(p => p.EventId == id)
                 .Where(p => p.UserId == userId)
@@ -166,9 +185,15 @@ public class PresenceController : Controller
             return NotFound();
         }
 
+        if (lesson < 0 || lesson >= signup.Event.LessonCount)
+        {
+            return BadRequest();
+        }
+
         var user = await _database.Get(User);
 
         var presence = signup.Presence
+            .OrderBy(p => p.Id)
             .FirstOrDefault(p => p.Lesson == lesson);
 
         if (presence == null)

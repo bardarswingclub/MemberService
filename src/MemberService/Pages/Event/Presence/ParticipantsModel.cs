@@ -36,7 +36,7 @@ public class ParticipantsModel
     private static IReadOnlyList<bool> CreateList(IEnumerable<Data.Presence> presence, int count)
     {
         var list = new bool[count];
-        foreach (var p in presence.Where(x => x.Lesson < count))
+        foreach (var p in presence.Where(x => x.Lesson >= 0 && x.Lesson < count))
         {
             list[p.Lesson] = p.Present;
         }
@@ -47,7 +47,7 @@ public class ParticipantsModel
     private static IReadOnlyList<AbsenceEntry> CreateAbsences(IEnumerable<Data.Presence> presence, int count)
     {
         var list = new AbsenceEntry[count];
-        foreach (var p in presence.Where(x => x.Lesson < count))
+        foreach (var p in presence.Where(x => x.Lesson >= 0 && x.Lesson < count))
         {
             list[p.Lesson] = new AbsenceEntry(p.AbsenceReason, p.AbsenceNote);
         }

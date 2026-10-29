@@ -33,6 +33,8 @@ public partial class EditSignupModel
 
     public EventType Type { get; set; }
 
+    public RolePreference AllowedRoles { get; set; }
+
     public string Origin { get; set; }
 
     public string SpecialNeeds { get; set; }
@@ -47,6 +49,7 @@ public partial class EditSignupModel
         FullName = e.User.FullName,
         EventId = e.EventId,
         Type = e.Event.Type,
+        AllowedRoles = e.Event.SignupOptions.AllowedRoles,
         Origin = e.Origin,
         SpecialNeeds = e.SpecialNeeds,
         Role = e.Role,

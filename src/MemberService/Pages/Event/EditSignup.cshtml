@@ -26,7 +26,7 @@
         </div>
         <div class="form-group mt-4">
             <label>Deltakerens valg av rolle</label>
-            <partial name="_RolePreferences" model="RoleChoices.For(RolePreferenceExtensions.Everything, Model.SelectedPreference, required: false)" />
+            <partial name="_RolePreferences" model="RoleChoices.For(Model.AllowedRoles.OrDefault(), Model.SelectedPreference, required: false)" />
             <small class="form-text text-muted">Dansrollen over er den som brukes i listene. Valget er det deltakeren har gjort.</small>
         </div>
         <div class="form-group mt-4">
