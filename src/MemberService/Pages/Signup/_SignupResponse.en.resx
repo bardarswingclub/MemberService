@@ -127,9 +127,21 @@
     <value>Allergies, dietary requirements or other needs we should know about</value>
   </data>
   <data name="Følger" xml:space="preserve">
-    <value>Follower</value>
+    <value>Follow</value>
   </data>
   <data name="Fører" xml:space="preserve">
-    <value>Leader</value>
+    <value>Lead</value>
+  </data>
+  <data name="Hvilken by/land kommer du fra?" xml:space="preserve">
+    <value>Which city/country are you from?</value>
+  </data>
+  <data name="Andre behov, for eksempel allergier" xml:space="preserve">
+    <value>Other needs, for example allergies</value>
+  </data>
+  <data name="Danserolle" xml:space="preserve">
+    <value>Dance role</value>
+  </data>
+  <data name="Partners e-post" xml:space="preserve">
+    <value>Dance partner email</value>
   </data>
 </root>
