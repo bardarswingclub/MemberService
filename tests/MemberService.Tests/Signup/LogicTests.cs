@@ -34,6 +34,23 @@ public class LogicTests
         return model.ShouldAutoAccept(role);
     }
 
+    [Test]
+    public void ShouldAutoAccept_CountsSwitchSeparatelyFromNoRole()
+    {
+        var model = new Event
+        {
+            SignupOptions = new() { AutoAcceptedSignups = 2 },
+            Signups =
+            {
+                new EventSignup { Role = DanceRole.None },
+                new EventSignup { Role = DanceRole.None },
+                new EventSignup { Role = DanceRole.None, RolePreferences = RolePreference.Switch }
+            }
+        };
+
+        Assert.That(model.ShouldAutoAccept(RolePreference.Switch), Is.True);
+    }
+
     [TestCase(Status.Unknown, ExpectedResult = false)]
     [TestCase(Status.Pending, ExpectedResult = true)]
     [TestCase(Status.Recommended, ExpectedResult = true)]

@@ -23,9 +23,15 @@ public class EventSignup
 
     public DanceRole Role { get; set; }
 
+    public RolePreference RolePreferences { get; set; }
+
     public string PartnerEmail { get; set; }
 
     public int Priority { get; set; }
+
+    public string Origin { get; set; }
+
+    public string SpecialNeeds { get; set; }
 
     public Status Status { get; set; }
 

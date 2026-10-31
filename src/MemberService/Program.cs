@@ -219,6 +219,10 @@ services
 services.
     Configure<RecaptchaSettings>(builder.Configuration.GetSection("GoogleRecaptcha"));
 
+services
+    .Configure<NewsletterSettings>(builder.Configuration.GetSection("Newsletter"))
+    .AddHttpClient<INewsletterService, MailchimpNewsletterService>(client => client.Timeout = TimeSpan.FromSeconds(5));
+
 var app = builder.Build();
 
 Global.Services = app.Services;

@@ -1,6 +1,7 @@
 ﻿namespace MemberService.Components.EventHeader;
 
 using MemberService.Data;
+using MemberService.Data.ValueTypes;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
@@ -37,7 +38,8 @@ public class EventHeader : ViewComponent
                 HasClosed = e.HasClosed(),
                 Archived = e.Archived,
                 Cancelled = e.Cancelled,
-                Published = e.Published
+                Published = e.Published,
+                CollectsParticipantInfo = e.Type == EventType.Workshop || e.Type == EventType.Party
             })
             .FirstOrDefaultAsync(e => e.Id == id);
 
@@ -56,6 +58,7 @@ public class EventHeader : ViewComponent
         public bool HasClosed { get; init; }
         public bool IsOpen { get; init; }
         public bool IsSemester { get; init; }
+        public bool CollectsParticipantInfo { get; init; }
         public Guid? SurveyId { get; init; }
         public DateTime? SignupOpensAt { get; init; }
         public DateTime? SignupClosesAt { get; init; }

@@ -55,6 +55,17 @@
                 <span asp-validation-for="RoleSignup" class="text-danger"></span>
             </div>
             <div id="role-signup-help" class="form-group collapse @(Model.RoleSignup ? "show" : "")">
+                <label class="d-block">Mulige valg for deltakeren</label>
+                @{
+                    var allowedRoles = Model.AllowedRoles.Count == 0 ? RolePreferenceExtensions.LeadAndFollow.ToChoices() : Model.AllowedRoles;
+                }
+                @foreach (var choice in RolePreferenceExtensions.Everything.ToChoices())
+                {
+                    <div class="custom-control custom-checkbox custom-control-inline">
+                        <input type="checkbox" class="custom-control-input" id="allowed-@choice" name="AllowedRoles" value="@choice" checked="@allowedRoles.Contains(choice)" />
+                        <label class="custom-control-label" for="allowed-@choice">@choice.DisplayName()</label>
+                    </div>
+                }
                 <input type="text" class="form-control" asp-for="RoleSignupHelp">
                 <small class="form-text text-muted">Hjelpetekst for valg av rolle</small>
             </div>

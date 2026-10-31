@@ -1,6 +1,7 @@
 namespace MemberService.Pages.Signup;
 
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 using MemberService.Data.ValueTypes;
 
@@ -11,6 +12,16 @@ public class SignupInputModel
 
     [DisplayName("Partners e-post")]
     public string PartnerEmail { get; set; }
+
+    [DisplayName("Hvilken by/land kommer du fra?")]
+    [StringLength(100)]
+    public string Origin { get; set; }
+
+    [DisplayName("Andre behov, for eksempel allergier")]
+    [StringLength(500)]
+    public string SpecialNeeds { get; set; }
+
+    public RolePreference Preference { get; set; }
 
     public IList<Answer> Answers { get; set; } = new List<Answer>();
 }

@@ -372,6 +372,9 @@ namespace MemberService.Data.Migrations
                     b.Property<Guid>("EventId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Origin")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PartnerEmail")
                         .HasColumnType("nvarchar(max)");
 
@@ -388,8 +391,14 @@ namespace MemberService.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("RolePreferences")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("SignedUpAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("SpecialNeeds")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -451,6 +460,9 @@ namespace MemberService.Data.Migrations
 
                     b.Property<string>("AllowPartnerSignupHelp")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("AllowedRoles")
+                        .HasColumnType("int");
 
                     b.Property<int>("AutoAcceptedSignups")
                         .HasColumnType("int");
@@ -728,6 +740,12 @@ namespace MemberService.Data.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AbsenceNote")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("AbsenceReason")
+                        .HasColumnType("int");
 
                     b.Property<int>("Lesson")
                         .HasColumnType("int");

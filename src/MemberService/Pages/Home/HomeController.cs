@@ -104,7 +104,7 @@ public class HomeController : Controller
     [HttpPost]
     public async Task<IActionResult> Courses(
         [FromForm] IReadOnlyList<Guid> classes,
-        [FromForm] IReadOnlyList<DanceRole> roles,
+        [FromForm] IReadOnlyList<RolePreference> roles,
         [FromForm] IReadOnlyList<string> partners)
     {
         var items = new List<ClassSignup>();
@@ -123,13 +123,23 @@ public class HomeController : Controller
             .Select(c => c.Id)
             .ToReadOnlyList();
 
-        var addedSignups = items
+        var newItems = items
             .Where(i => classesNotSignedUpFor.Contains(i.Id))
             .ToReadOnlyList();
 
+        var addedSignups = newItems
+            .Where(i => IsAllowed(openedClasses.First(c => c.Id == i.Id), i.Role))
+            .ToReadOnlyList();
+
+        if (addedSignups.Count != newItems.Count)
+        {
+            TempData.SetErrorMessage("Velg en danserolle som er tilgjengelig for kurset");
+        }
+
         foreach (var signup in addedSignups)
         {
-            user.AddEventSignup(signup.Id, signup.Role, signup.PartnerEmail, false, signup.Priority);
+            var eventSignup = user.AddEventSignup(signup.Id, signup.Role.ToRole(), signup.PartnerEmail, false, signup.Priority);
+            eventSignup.RolePreferences = signup.Role;
         }
 
         var changedSignups = openedClasses
@@ -166,9 +176,14 @@ public class HomeController : Controller
         return LocalRedirect(returnUrl);
     }
 
+    private static bool IsAllowed(CourseModel course, RolePreference role)
+        => !course.RoleSignup
+            ? role == RolePreference.None
+            : role.IsSingleChoice() && (role & ~course.AllowedRoles.OrDefault()) == RolePreference.None;
+
     private class ClassSignup
     {
-        public ClassSignup(Guid id, DanceRole role, string partnerEmail, int priority)
+        public ClassSignup(Guid id, RolePreference role, string partnerEmail, int priority)
         {
             Id = id;
             Role = role;
@@ -178,7 +193,7 @@ public class HomeController : Controller
 
         public Guid Id { get; }
 
-        public DanceRole Role { get; }
+        public RolePreference Role { get; }
 
         public string PartnerEmail { get; }
 

@@ -1,0 +1,10 @@
+@using MemberService.Data.ValueTypes
+@model RoleChoices
+
+@foreach (var choice in Model.Allowed)
+{
+    <div class="custom-control custom-radio">
+        <input type="radio" class="custom-control-input" id="preference-@choice" name="Input.Preference" value="@choice" checked="@(Model.Selected == choice)" required="@Model.Required" />
+        <label class="custom-control-label" for="preference-@choice">@choice.DisplayName()</label>
+    </div>
+}

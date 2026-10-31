@@ -40,6 +40,14 @@
                             @signup.FullName
                         }
                     </a>
+                    @if (await AuthorizationService.IsAuthorized(User, Model.EventId, Policy.CanEditEventSignup))
+                    {
+                        <a class="small ml-2" asp-controller="Event" asp-action="EditSignup" asp-route-id="@signup.Id">Rediger</a>
+                    }
+                    @if (signup.RolePreferences != RolePreference.None)
+                    {
+                        <div class="small text-muted">Valg: @signup.RolePreferences.Summary()</div>
+                    }
                 </td>
                 <td>
                     @if (Model.ShowPriority)

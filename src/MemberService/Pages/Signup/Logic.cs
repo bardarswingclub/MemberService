@@ -24,6 +24,12 @@ public static partial class Logic
             .Select(e => EventModel.Create(e, userId))
             .ToListAsync();
 
+    public static bool CollectsParticipantInfo(this EventType type)
+        => type == EventType.Workshop || type == EventType.Party;
+
+    public static string TrimToNull(this string value)
+        => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
     public static async Task<Event> GetEditableEvent(this MemberContext db, Guid id)
         => await db.Events
             .Include(e => e.Signups)
@@ -59,6 +65,12 @@ public static partial class Logic
 
     public static bool ShouldAutoAccept(this Data.Event model, DanceRole role)
         => model.SignupOptions.AutoAcceptedSignups > model.Signups.Count(s => s.Role == role);
+
+    /// <summary>Switch gir <see cref="DanceRole.None"/>, så de telles for seg og blander seg ikke med påmeldinger uten rolle.</summary>
+    public static bool ShouldAutoAccept(this Data.Event model, RolePreference preference)
+        => preference == RolePreference.Switch
+            ? model.SignupOptions.AutoAcceptedSignups > model.Signups.Count(s => s.RolePreferences == RolePreference.Switch)
+            : model.ShouldAutoAccept(preference.ToRole());
 
     public static EventSignup AddEventSignup(this User user, Guid id, DanceRole role, string partnerEmail, bool autoAccept, int priority = 1)
     {

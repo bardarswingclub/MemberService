@@ -14,6 +14,7 @@ public class ParticipantsModel
         Status = s.Status;
         Refunded = s.Payment?.Refunded ?? false;
         Presence = CreateList(s.Presence, count);
+        Absences = CreateAbsences(s.Presence, count);
     }
 
     public Guid Id { get; }
@@ -30,14 +31,29 @@ public class ParticipantsModel
 
     public IReadOnlyList<bool> Presence { get; }
 
+    public IReadOnlyList<AbsenceEntry> Absences { get; }
+
     private static IReadOnlyList<bool> CreateList(IEnumerable<Data.Presence> presence, int count)
     {
         var list = new bool[count];
-        foreach (var p in presence.Where(x => x.Lesson < count))
+        foreach (var p in presence.Where(x => x.Lesson >= 0 && x.Lesson < count))
         {
             list[p.Lesson] = p.Present;
         }
 
         return list;
     }
+
+    private static IReadOnlyList<AbsenceEntry> CreateAbsences(IEnumerable<Data.Presence> presence, int count)
+    {
+        var list = new AbsenceEntry[count];
+        foreach (var p in presence.Where(x => x.Lesson >= 0 && x.Lesson < count))
+        {
+            list[p.Lesson] = new AbsenceEntry(p.AbsenceReason, p.AbsenceNote);
+        }
+
+        return list;
+    }
 }
+
+public record AbsenceEntry(AbsenceReason? Reason, string Note);

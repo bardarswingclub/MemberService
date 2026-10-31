@@ -6,7 +6,7 @@
 
         @if (Model.RoleSignup)
         {
-            @: som <strong>@Model.Role.DisplayName().ToLower()</strong>
+            @: som <strong>@Model.RoleDisplay.ToLower()</strong>
 
             @if (Model.AllowPartnerSignup)
             {

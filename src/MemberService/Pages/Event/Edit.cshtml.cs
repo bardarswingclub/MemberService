@@ -2,6 +2,7 @@
 
 using MemberService.Auth;
 using MemberService.Data;
+using MemberService.Data.ValueTypes;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -59,6 +60,7 @@ public class EditModel : EventInputModel
         SignupHelp = model.SignupOptions.SignupHelp;
         RoleSignup = model.SignupOptions.RoleSignup;
         RoleSignupHelp = model.SignupOptions.RoleSignupHelp;
+        AllowedRoles = model.SignupOptions.AllowedRoles.OrDefault().ToChoices().ToList();
         AllowPartnerSignup = model.SignupOptions.AllowPartnerSignup;
         AllowPartnerSignupHelp = model.SignupOptions.AllowPartnerSignupHelp;
         AutoAcceptedSignups = model.SignupOptions.AutoAcceptedSignups;

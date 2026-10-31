@@ -105,7 +105,7 @@
                         @signups.Display
                         @if (Model.RoleSignup && signups.Signups.Any())
                         {
-                            <span class="ml-1 badge badge-pill badge-secondary">@(signups.Leads.Count)+@signups.Follows.Count</span>
+                            <span class="ml-1 badge badge-pill badge-secondary">@(signups.Leads.Count)+@signups.Follows.Count@(signups.Solos.Any() ? $"+{signups.Solos.Count}" : "")</span>
                         }
                         else if (!Model.RoleSignup && signups.Solos.Any())
                         {
@@ -137,6 +137,15 @@
                             <h4>Følgere</h4>
                             <partial name="_Participants" for="@follows" />
                         </div>
+                        @if (signups.Solos.Any())
+                        {
+                            var solos = new ParticipantsModel(signups.Solos, Model);
+
+                            <div class="col-lg-12 mt-4">
+                                <h4>Uten rolle</h4>
+                                <partial name="_Participants" for="@solos" />
+                            </div>
+                        }
                     }
                     else
                     {

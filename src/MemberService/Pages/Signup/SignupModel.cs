@@ -1,4 +1,7 @@
 namespace MemberService.Pages.Signup;
+
+using MemberService.Data.ValueTypes;
+
 public class SignupModel
 {
     public string Title { get; init; }
@@ -13,6 +16,8 @@ public class SignupModel
 
     public bool RoleSignup { get; init; }
 
+    public bool CollectParticipantInfo { get; init; }
+
     public string RoleSignupHelp { get; init; }
 
     public bool AllowPartnerSignup { get; init; }
@@ -20,6 +25,10 @@ public class SignupModel
     public string AllowPartnerSignupHelp { get; init; }
 
     public SignupInputModel Input { get; init; }
+
+    public RolePreference AllowedRoles { get; init; } = RolePreferenceExtensions.LeadAndFollow;
+
+    public RoleChoices RoleChoices => RoleChoices.For(AllowedRoles, Input?.Preference ?? RolePreference.None);
 
     public Guid? SurveyId { get; init; }
 

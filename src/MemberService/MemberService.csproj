@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="Data\ValueTypes\RolePreference.en.resx" LogicalName="MemberService.Data.ValueTypes.RolePreference.en.resources" />
     <EmbeddedResource Include="Emails\Event\WaitingList.md" />
     <EmbeddedResource Include="Emails\Event\Default.md" />
     <EmbeddedResource Include="Emails\Event\Denied.md" />

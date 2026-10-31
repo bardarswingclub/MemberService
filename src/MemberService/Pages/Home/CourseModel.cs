@@ -3,6 +3,7 @@
 using Clave.Expressionify;
 
 using MemberService.Data;
+using MemberService.Data.ValueTypes;
 
 public partial class CourseModel
 {
@@ -24,6 +25,8 @@ public partial class CourseModel
 
     public string RoleSignupHelp { get; set; }
 
+    public RolePreference AllowedRoles { get; set; }
+
     public bool AllowPartnerSignup { get; set; }
 
     public string AllowPartnerSignupHelp { get; set; }
@@ -42,6 +45,7 @@ public partial class CourseModel
         HasClosed = e.HasClosed(),
         RoleSignup = e.SignupOptions.RoleSignup,
         RoleSignupHelp = e.SignupOptions.RoleSignupHelp,
+        AllowedRoles = e.SignupOptions.AllowedRoles,
         AllowPartnerSignup = e.SignupOptions.AllowPartnerSignup,
         AllowPartnerSignupHelp = e.SignupOptions.AllowPartnerSignupHelp,
         Signup = e.Signups
