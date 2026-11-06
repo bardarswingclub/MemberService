@@ -7,6 +7,11 @@
         labels = Model.Members.Select(m => m.Year.ToString()),
         values = Model.Members.Select(m => m.Count)
     };
+    var payerData = new
+    {
+        labels = Model.CoursePayers.Select(m => m.Year.ToString()),
+        values = Model.CoursePayers.Select(m => m.Count)
+    };
     var courseData = new
     {
         labels = Model.Semesters,
@@ -25,15 +30,29 @@
 }
 else
 {
-    <div class="mb-5" style="position: relative; height: 320px;">
+    <div class="mb-5" style="position: relative; height: 300px;">
         <canvas id="membersChart"></canvas>
+    </div>
+}
+
+<h2>Kursavgift per år</h2>
+<p class="text-muted">Unike personer som har betalt kursavgift (ikke refundert), gruppert på betalingsår.</p>
+
+@if (!Model.CoursePayers.Any())
+{
+    <p>Ingen data funnet.</p>
+}
+else
+{
+    <div class="mb-5" style="position: relative; height: 300px;">
+        <canvas id="payersChart"></canvas>
     </div>
 }
 
 <h2>Deltakere per kurs</h2>
 <p class="text-muted">
     Godkjente og betalte påmeldinger, unike personer per kurs per semester. Kurs med likt navn på tvers av semestre
-    (år og «høst/vår» ignoreres) vises som én linje. Klikk på navn i tegnforklaringen for å skjule/vise kurs.
+    (år og «høst/vår» ignoreres) vises som én linje. Grafen viser alltid alle semestre det finnes data for.
 </p>
 
 @if (!Model.Courses.Any())
@@ -42,13 +61,43 @@ else
 }
 else
 {
-    <div class="mb-3">
-        <button type="button" class="btn btn-sm btn-outline-secondary" id="showTop">Vis de 8 største</button>
-        <button type="button" class="btn btn-sm btn-outline-secondary" id="showAll">Vis alle</button>
-        <button type="button" class="btn btn-sm btn-outline-secondary" id="showNone">Skjul alle</button>
-    </div>
-    <div style="position: relative; height: 520px;">
-        <canvas id="coursesChart"></canvas>
+    <div class="row">
+        <div class="col-lg-4 mb-3">
+            <div class="mb-2">
+                <div class="small font-weight-bold mb-1">Tekst i kursnavn <span class="text-muted font-weight-normal">(kombineres med «eller»)</span></div>
+                <div id="keywordButtons" class="btn-group-toggle">
+                    @foreach (var keyword in new[] { "Lindy Hop", "Boogie", "Balboa", "Shag" })
+                    {
+                        <button type="button" class="btn btn-sm btn-outline-primary mb-1" data-keyword="@keyword" aria-pressed="false">@keyword</button>
+                    }
+                </div>
+            </div>
+            <div class="mb-2">
+                <label class="small font-weight-bold mb-1" for="yearSelect">Kurs som fantes i</label>
+                <select id="yearSelect" class="form-control form-control-sm">
+                    <option value="">Alle år</option>
+                </select>
+                <div class="small text-muted">Kombineres med tekstvalget over («og»).</div>
+            </div>
+            <div class="mb-2">
+                <input type="search" id="courseSearch" class="form-control form-control-sm" placeholder="Søk i listen …" />
+            </div>
+            <div class="mb-2">
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="selectVisible">Velg alle i listen</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="selectNone">Fjern alle</button>
+            </div>
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="showSum" />
+                <label class="form-check-label" for="showSum">Vis sum av valgte</label>
+            </div>
+            <div class="small text-muted mb-1"><span id="selectedCount">0</span> av @Model.Courses.Count valgt</div>
+            <div id="courseList" class="border rounded p-2" style="max-height: 460px; overflow-y: auto;"></div>
+        </div>
+        <div class="col-lg-8">
+            <div style="position: relative; height: 560px;">
+                <canvas id="coursesChart"></canvas>
+            </div>
+        </div>
     </div>
 
     <h4 class="mt-5">Tabell</h4>
@@ -84,17 +133,15 @@ else
     <script>
         (function () {
             var members = @Html.Raw(JsonSerializer.Serialize(memberData));
+            var payers = @Html.Raw(JsonSerializer.Serialize(payerData));
             var courses = @Html.Raw(JsonSerializer.Serialize(courseData));
-            var palette = ['#1f77b4', '#d62728', '#2ca02c', '#ff7f0e', '#9467bd', '#8c564b', '#e377c2', '#17becf', '#bcbd22', '#7f7f7f'];
 
-            var membersEl = document.getElementById('membersChart');
-            if (membersEl) {
-                new Chart(membersEl, {
+            function barChart(id, data, label, color) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                new Chart(el, {
                     type: 'bar',
-                    data: {
-                        labels: members.labels,
-                        datasets: [{ label: 'Medlemmer', data: members.values, backgroundColor: palette[0] }]
-                    },
+                    data: { labels: data.labels, datasets: [{ label: label, data: data.values, backgroundColor: color }] },
                     options: {
                         maintainAspectRatio: false,
                         plugins: { legend: { display: false } },
@@ -102,45 +149,124 @@ else
                     }
                 });
             }
+            barChart('membersChart', members, 'Medlemmer', '#1f77b4');
+            barChart('payersChart', payers, 'Betalt kursavgift', '#2ca02c');
 
             var coursesEl = document.getElementById('coursesChart');
-            if (coursesEl) {
-                var chart = new Chart(coursesEl, {
-                    type: 'line',
-                    data: {
-                        labels: courses.labels,
-                        datasets: courses.series.map(function (s, i) {
-                            var color = palette[i % palette.length];
-                            return {
-                                label: s.name,
-                                data: s.counts,
-                                borderColor: color,
-                                backgroundColor: color,
-                                borderDash: i >= palette.length ? [5, 4] : [],
-                                tension: 0.2,
-                                spanGaps: true,
-                                hidden: i >= 8
-                            };
-                        })
-                    },
-                    options: {
-                        maintainAspectRatio: false,
-                        interaction: { mode: 'nearest', intersect: false },
-                        plugins: { legend: { position: 'bottom' } },
-                        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+            if (!coursesEl) return;
+
+            var series = courses.series;
+            var selected = series.map(function () { return false; });
+            // Standard: de 8 største etter total deltakelse
+            series.map(function (s, i) { return { i: i, t: s.counts.reduce(function (a, c) { return a + (c || 0); }, 0) }; })
+                .sort(function (a, b) { return b.t - a.t; }).slice(0, 8)
+                .forEach(function (x) { selected[x.i] = true; });
+
+            function color(i) { return 'hsl(' + Math.round((i * 137.508) % 360) + ', 65%, 45%)'; }
+            function year(title) { return title.split(' ').pop(); }
+
+            var years = Array.from(new Set(courses.labels.map(year)));
+            var yearSelect = document.getElementById('yearSelect');
+            years.forEach(function (y) {
+                var o = document.createElement('option'); o.value = y; o.textContent = y; yearSelect.appendChild(o);
+            });
+
+            var datasets = series.map(function (s, i) {
+                return { label: s.name, data: s.counts, borderColor: color(i), backgroundColor: color(i), tension: 0.2, spanGaps: true, hidden: !selected[i] };
+            });
+            datasets.push({ label: 'Sum av valgte', data: [], borderColor: '#000', backgroundColor: '#000', borderWidth: 3, borderDash: [6, 4], tension: 0.2, hidden: true });
+
+            var chart = new Chart(coursesEl, {
+                type: 'line',
+                data: { labels: courses.labels, datasets: datasets },
+                options: {
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'nearest', intersect: true },
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                }
+            });
+
+            var list = document.getElementById('courseList');
+            var boxes = series.map(function (s, i) {
+                var label = document.createElement('label');
+                label.className = 'd-flex align-items-center mb-1';
+                label.style.cursor = 'pointer';
+                var box = document.createElement('input');
+                box.type = 'checkbox'; box.className = 'mr-2';
+                box.addEventListener('change', function () { selected[i] = box.checked; refresh(); });
+                var swatch = document.createElement('span');
+                swatch.style.cssText = 'display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:6px;flex:none;background:' + color(i);
+                var text = document.createElement('span'); text.textContent = s.name;
+                label.append(box, swatch, text);
+                list.appendChild(label);
+                return { box: box, label: label };
+            });
+
+            function refresh() {
+                var sum = courses.labels.map(function () { return 0; });
+                var count = 0;
+                series.forEach(function (s, i) {
+                    boxes[i].box.checked = selected[i];
+                    chart.setDatasetVisibility(i, selected[i]);
+                    if (selected[i]) {
+                        count++;
+                        s.counts.forEach(function (c, j) { sum[j] += c || 0; });
                     }
                 });
-
-                function show(predicate) {
-                    chart.data.datasets.forEach(function (d, i) {
-                        chart.setDatasetVisibility(i, predicate(i));
-                    });
-                    chart.update();
-                }
-                document.getElementById('showTop').addEventListener('click', function () { show(function (i) { return i < 8; }); });
-                document.getElementById('showAll').addEventListener('click', function () { show(function () { return true; }); });
-                document.getElementById('showNone').addEventListener('click', function () { show(function () { return false; }); });
+                var sumIndex = series.length;
+                datasets[sumIndex].data = sum;
+                chart.setDatasetVisibility(sumIndex, document.getElementById('showSum').checked && count > 0);
+                document.getElementById('selectedCount').textContent = count;
+                chart.update();
             }
+
+            function activeKeywords() {
+                return Array.from(document.querySelectorAll('#keywordButtons .active')).map(function (b) { return b.dataset.keyword; });
+            }
+            function matchesKeyword(name, kw) {
+                var n = name.toLowerCase();
+                if (n.indexOf(kw.toLowerCase()) >= 0) return true;
+                return kw === 'Lindy Hop' && /\blh\b/.test(n);
+            }
+            function applyFilters() {
+                var kws = activeKeywords(), y = yearSelect.value;
+                if (!kws.length && !y) return;
+                series.forEach(function (s, i) {
+                    var okKw = !kws.length || kws.some(function (k) { return matchesKeyword(s.name, k); });
+                    var okYear = !y || s.counts.some(function (c, j) { return c != null && year(courses.labels[j]) === y; });
+                    selected[i] = okKw && okYear;
+                });
+                refresh();
+            }
+
+            document.querySelectorAll('#keywordButtons button').forEach(function (b) {
+                b.addEventListener('click', function () {
+                    b.classList.toggle('active');
+                    b.setAttribute('aria-pressed', b.classList.contains('active'));
+                    applyFilters();
+                });
+            });
+            yearSelect.addEventListener('change', applyFilters);
+            document.getElementById('showSum').addEventListener('change', refresh);
+            document.getElementById('selectNone').addEventListener('click', function () {
+                selected = selected.map(function () { return false; });
+                document.querySelectorAll('#keywordButtons .active').forEach(function (b) { b.classList.remove('active'); });
+                yearSelect.value = '';
+                refresh();
+            });
+            document.getElementById('selectVisible').addEventListener('click', function () {
+                boxes.forEach(function (b, i) { if (b.label.style.display !== 'none') selected[i] = true; });
+                refresh();
+            });
+            document.getElementById('courseSearch').addEventListener('input', function (e) {
+                var q = e.target.value.trim().toLowerCase();
+                boxes.forEach(function (b, i) {
+                    b.label.style.display = !q || series[i].name.toLowerCase().indexOf(q) >= 0 ? '' : 'none';
+                });
+            });
+
+            refresh();
         })();
     </script>
 }
