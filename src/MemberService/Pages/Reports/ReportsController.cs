@@ -121,17 +121,21 @@ public class ReportsController : Controller
     {
         var model = new StatisticsModel();
 
-        // Medlemmer per år: unike brukere med ikke-refundert betaling som inkluderer medlemskap
-        var membershipPayments = await _database.Payments
-            .Where(p => p.IncludesMembership && !p.Refunded)
-            .Select(p => new { UserId = p.User.Id, p.PayedAtUtc })
+        // Medlemmer og kursavgift per år: unike brukere med ikke-refundert betaling
+        var payments = await _database.Payments
+            .Where(p => (p.IncludesMembership || p.IncludesClasses) && !p.Refunded)
+            .Select(p => new { UserId = p.User.Id, p.PayedAtUtc, p.IncludesMembership, p.IncludesClasses })
             .ToListAsync();
 
-        model.Members = membershipPayments
-            .GroupBy(p => p.PayedAtUtc.ToOsloZone().Year)
-            .OrderBy(g => g.Key)
-            .Select(g => new StatisticsModel.MembersPerYear(g.Key, g.Select(p => p.UserId).Distinct().Count()))
-            .ToList();
+        static List<StatisticsModel.PerYear> CountPerYear<T>(IEnumerable<T> items, Func<T, DateTime> date, Func<T, string> user)
+            => items
+                .GroupBy(p => date(p).ToOsloZone().Year)
+                .OrderBy(g => g.Key)
+                .Select(g => new StatisticsModel.PerYear(g.Key, g.Select(user).Distinct().Count()))
+                .ToList();
+
+        model.Members = CountPerYear(payments.Where(p => p.IncludesMembership), p => p.PayedAtUtc, p => p.UserId);
+        model.CoursePayers = CountPerYear(payments.Where(p => p.IncludesClasses), p => p.PayedAtUtc, p => p.UserId);
 
         // Deltakere per kurs per semester
         var semesters = await _database.Semesters
@@ -181,7 +185,7 @@ public class ReportsController : Controller
             while (s.Counts.Count < model.Semesters.Count) s.Counts.Add(null);
         }
 
-        model.Courses = series.Values.OrderByDescending(s => s.Total).ThenBy(s => s.Name).ToList();
+        model.Courses = series.Values.OrderBy(s => s.Name, StringComparer.CurrentCultureIgnoreCase).ToList();
 
         return View(model);
     }

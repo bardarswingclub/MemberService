@@ -6,12 +6,15 @@ public class StatisticsModel
     public List<string> Semesters { get; set; } = new();
 
     /// <summary>Ett punkt per år: antall unike medlemmer med betalt medlemskap.</summary>
-    public List<MembersPerYear> Members { get; set; } = new();
+    public List<PerYear> Members { get; set; } = new();
+
+    /// <summary>Ett punkt per år: antall unike personer som har betalt kursavgift.</summary>
+    public List<PerYear> CoursePayers { get; set; } = new();
 
     /// <summary>Kurs med sammenlignbart navn på tvers av semestre.</summary>
     public List<CourseSeries> Courses { get; set; } = new();
 
-    public record MembersPerYear(int Year, int Count);
+    public record PerYear(int Year, int Count);
 
     public class CourseSeries
     {
