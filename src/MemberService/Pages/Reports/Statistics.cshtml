@@ -1,0 +1,146 @@
+@model MemberService.Pages.Reports.StatisticsModel
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Statistikk";
+    var memberData = new
+    {
+        labels = Model.Members.Select(m => m.Year.ToString()),
+        values = Model.Members.Select(m => m.Count)
+    };
+    var courseData = new
+    {
+        labels = Model.Semesters,
+        series = Model.Courses.Select(c => new { name = c.Name, counts = c.Counts })
+    };
+}
+
+<partial name="_Tabs" />
+
+<h2>Medlemmer per år</h2>
+<p class="text-muted">Unike personer med betalt (ikke refundert) medlemskap, gruppert på betalingsår.</p>
+
+@if (!Model.Members.Any())
+{
+    <p>Ingen data funnet.</p>
+}
+else
+{
+    <div class="mb-5" style="position: relative; height: 320px;">
+        <canvas id="membersChart"></canvas>
+    </div>
+}
+
+<h2>Deltakere per kurs</h2>
+<p class="text-muted">
+    Godkjente og betalte påmeldinger, unike personer per kurs per semester. Kurs med likt navn på tvers av semestre
+    (år og «høst/vår» ignoreres) vises som én linje. Klikk på navn i tegnforklaringen for å skjule/vise kurs.
+</p>
+
+@if (!Model.Courses.Any())
+{
+    <p>Ingen data funnet.</p>
+}
+else
+{
+    <div class="mb-3">
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="showTop">Vis de 8 største</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="showAll">Vis alle</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="showNone">Skjul alle</button>
+    </div>
+    <div style="position: relative; height: 520px;">
+        <canvas id="coursesChart"></canvas>
+    </div>
+
+    <h4 class="mt-5">Tabell</h4>
+    <div class="table-responsive">
+        <table class="table table-sm table-bordered table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th>Kurs</th>
+                    @foreach (var semester in Model.Semesters)
+                    {
+                        <th class="text-right">@semester</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var course in Model.Courses)
+                {
+                    <tr>
+                        <td>@course.Name</td>
+                        @foreach (var count in course.Counts)
+                        {
+                            <td class="text-right">@(count?.ToString() ?? "-")</td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@section Scripts {
+    <script src="~/lib/chartjs/chart.umd.js" asp-append-version="true"></script>
+    <script>
+        (function () {
+            var members = @Html.Raw(JsonSerializer.Serialize(memberData));
+            var courses = @Html.Raw(JsonSerializer.Serialize(courseData));
+            var palette = ['#1f77b4', '#d62728', '#2ca02c', '#ff7f0e', '#9467bd', '#8c564b', '#e377c2', '#17becf', '#bcbd22', '#7f7f7f'];
+
+            var membersEl = document.getElementById('membersChart');
+            if (membersEl) {
+                new Chart(membersEl, {
+                    type: 'bar',
+                    data: {
+                        labels: members.labels,
+                        datasets: [{ label: 'Medlemmer', data: members.values, backgroundColor: palette[0] }]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                    }
+                });
+            }
+
+            var coursesEl = document.getElementById('coursesChart');
+            if (coursesEl) {
+                var chart = new Chart(coursesEl, {
+                    type: 'line',
+                    data: {
+                        labels: courses.labels,
+                        datasets: courses.series.map(function (s, i) {
+                            var color = palette[i % palette.length];
+                            return {
+                                label: s.name,
+                                data: s.counts,
+                                borderColor: color,
+                                backgroundColor: color,
+                                borderDash: i >= palette.length ? [5, 4] : [],
+                                tension: 0.2,
+                                spanGaps: true,
+                                hidden: i >= 8
+                            };
+                        })
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        interaction: { mode: 'nearest', intersect: false },
+                        plugins: { legend: { position: 'bottom' } },
+                        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                    }
+                });
+
+                function show(predicate) {
+                    chart.data.datasets.forEach(function (d, i) {
+                        chart.setDatasetVisibility(i, predicate(i));
+                    });
+                    chart.update();
+                }
+                document.getElementById('showTop').addEventListener('click', function () { show(function (i) { return i < 8; }); });
+                document.getElementById('showAll').addEventListener('click', function () { show(function () { return true; }); });
+                document.getElementById('showNone').addEventListener('click', function () { show(function () { return false; }); });
+            }
+        })();
+    </script>
+}

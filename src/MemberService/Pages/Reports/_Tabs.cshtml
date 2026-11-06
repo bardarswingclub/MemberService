@@ -1,0 +1,11 @@
+@{
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+}
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link @(action == "MultiClass" ? "active" : "")" asp-controller="Reports" asp-action="MultiClass">Påmeldte per semester</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(action == "Statistics" ? "active" : "")" asp-controller="Reports" asp-action="Statistics">Statistikk</a>
+    </li>
+</ul>
