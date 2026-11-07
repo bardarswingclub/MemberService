@@ -467,6 +467,12 @@ namespace MemberService.Data.Migrations
                     b.Property<int>("AutoAcceptedSignups")
                         .HasColumnType("int");
 
+                    b.Property<bool>("ExcludeOrigin")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ExcludeSpecialNeeds")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IncludedInClassesFee")
                         .HasColumnType("bit");
 

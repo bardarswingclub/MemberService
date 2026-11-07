@@ -27,6 +27,12 @@ public static partial class Logic
     public static bool CollectsParticipantInfo(this EventType type)
         => type == EventType.Workshop || type == EventType.Party;
 
+    public static bool CollectsOrigin(this Data.Event e)
+        => e.Type.CollectsParticipantInfo() && !e.SignupOptions.ExcludeOrigin;
+
+    public static bool CollectsSpecialNeeds(this Data.Event e)
+        => e.Type.CollectsParticipantInfo() && !e.SignupOptions.ExcludeSpecialNeeds;
+
     public static string TrimToNull(this string value)
         => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 

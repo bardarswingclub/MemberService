@@ -64,6 +64,8 @@ public class EditModel : EventInputModel
         AllowPartnerSignup = model.SignupOptions.AllowPartnerSignup;
         AllowPartnerSignupHelp = model.SignupOptions.AllowPartnerSignupHelp;
         AutoAcceptedSignups = model.SignupOptions.AutoAcceptedSignups;
+        ExcludeOrigin = model.SignupOptions.ExcludeOrigin;
+        ExcludeSpecialNeeds = model.SignupOptions.ExcludeSpecialNeeds;
 
         return Page();
     }

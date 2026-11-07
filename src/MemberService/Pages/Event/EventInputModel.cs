@@ -101,4 +101,12 @@ public abstract class EventInputModel : PageModel
     [BindProperty]
     [DisplayName("Automatisk tildelte plasser")]
     public int AutoAcceptedSignups { get; set; }
+
+    [BindProperty]
+    [DisplayName("Ikke spør hvor deltakeren kommer fra")]
+    public bool ExcludeOrigin { get; set; }
+
+    [BindProperty]
+    [DisplayName("Ikke spør om allergier og andre behov")]
+    public bool ExcludeSpecialNeeds { get; set; }
 }

@@ -47,4 +47,10 @@ public class EventSignupOptions
     public string AllowPartnerSignupHelp { get; set; }
 
     public int AutoAcceptedSignups { get; set; }
+
+    /// <summary>Skrur av spørsmålet "hvor kommer du fra" (på som standard).</summary>
+    public bool ExcludeOrigin { get; set; }
+
+    /// <summary>Skrur av spørsmålet om allergier og andre behov (på som standard).</summary>
+    public bool ExcludeSpecialNeeds { get; set; }
 }

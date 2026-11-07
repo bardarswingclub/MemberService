@@ -86,6 +86,7 @@ public class EventController : Controller
 
         var signup = await _database.EventSignups
             .Include(e => e.Event)
+                .ThenInclude(e => e.SignupOptions)
             .Include(e => e.AuditLog)
             .FirstOrDefaultAsync(e => e.Id == id);
 
@@ -127,7 +128,7 @@ public class EventController : Controller
             // Feltene finnes bare i skjemaet for arrangementer som samler deltakerinfo. Uten denne sjekken
             // ville redigering av andre arrangementer (eller flytting) slettet det deltakeren har fylt ut.
             // Verdiene logges ikke, siden allergier er helseopplysninger.
-            if (signup.Event.Type.CollectsParticipantInfo())
+            if (signup.Event.CollectsOrigin())
             {
                 origin = origin.TrimToNull();
                 if (signup.Origin != origin)
@@ -135,7 +136,10 @@ public class EventController : Controller
                     log += "\n\nOrigin changed";
                     signup.Origin = origin;
                 }
+            }
 
+            if (signup.Event.CollectsSpecialNeeds())
+            {
                 specialNeeds = specialNeeds.TrimToNull();
                 if (signup.SpecialNeeds != specialNeeds)
                 {

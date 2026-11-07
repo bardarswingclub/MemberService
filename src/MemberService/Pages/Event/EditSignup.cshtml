@@ -41,12 +41,15 @@
                 <span class="text-muted">(ukjent partner)</span>
             }
         </div>
-        @if (Model.Type.CollectsParticipantInfo())
+        @if (Model.CollectOrigin)
         {
             <div class="form-group mt-4">
                 <label for="origin">Hvilken by/land kommer deltakeren fra?</label>
                 <input type="text" class="form-control" id="origin" name="origin" value="@Model.Origin" maxlength="100">
             </div>
+        }
+        @if (Model.CollectSpecialNeeds)
+        {
             <div class="form-group mt-4">
                 <label for="specialNeeds">Andre behov, for eksempel allergier</label>
                 <textarea class="form-control" id="specialNeeds" name="specialNeeds" rows="2" maxlength="500">@Model.SpecialNeeds</textarea>
