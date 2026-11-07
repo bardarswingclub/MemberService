@@ -40,13 +40,16 @@
             }
         }
 
-        @if (Model.CollectParticipantInfo)
+        @if (Model.CollectOrigin)
         {
             <div class="form-group mt-4">
                 <label asp-for="Input.Origin"></label>
                 <input type="text" class="form-control" asp-for="Input.Origin" maxlength="100" placeholder="F.eks. Oslo, Norge">
             </div>
+        }
 
+        @if (Model.CollectSpecialNeeds)
+        {
             <div class="form-group mt-4">
                 <label asp-for="Input.SpecialNeeds"></label>
                 <textarea class="form-control" asp-for="Input.SpecialNeeds" rows="2" maxlength="500" placeholder="Allergier, mattilpasninger eller andre behov"></textarea>

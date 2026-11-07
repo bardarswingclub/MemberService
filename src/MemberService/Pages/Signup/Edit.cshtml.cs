@@ -38,7 +38,9 @@ public class EditModel : PageModel
 
     public Guid? SurveyId { get; set; }
 
-    public bool CollectParticipantInfo { get; set; }
+    public bool CollectOrigin { get; set; }
+
+    public bool CollectSpecialNeeds { get; set; }
 
     public RolePreference AllowedRoles { get; set; }
 
@@ -70,7 +72,8 @@ public class EditModel : PageModel
         AllowPartnerSignup = model.SignupOptions.AllowPartnerSignup;
         AllowPartnerSignupHelp = model.SignupOptions.AllowPartnerSignupHelp;
         SurveyId = model.SurveyId;
-        CollectParticipantInfo = model.Type.CollectsParticipantInfo();
+        CollectOrigin = model.CollectsOrigin();
+        CollectSpecialNeeds = model.CollectsSpecialNeeds();
         AllowedRoles = model.SignupOptions.AllowedRoles.OrDefault();
 
         Input = new()
@@ -117,9 +120,13 @@ public class EditModel : PageModel
             eventSignup.Role = model.SignupOptions.RoleSignup ? preferences.ToRole() : eventSignup.Role;
             eventSignup.PartnerEmail = input.PartnerEmail?.Trim().Normalize().ToUpperInvariant();
 
-            if (model.Type.CollectsParticipantInfo())
+            if (model.CollectsOrigin())
             {
                 eventSignup.Origin = input.Origin.TrimToNull();
+            }
+
+            if (model.CollectsSpecialNeeds())
+            {
                 eventSignup.SpecialNeeds = input.SpecialNeeds.TrimToNull();
             }
 

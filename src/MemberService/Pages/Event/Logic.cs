@@ -54,7 +54,9 @@ public static class Logic
                 AllowedRoles = model.AllowedRoles.Combine().OrDefault(),
                 AllowPartnerSignup = model.AllowPartnerSignup,
                 AllowPartnerSignupHelp = model.AllowPartnerSignupHelp,
-                AutoAcceptedSignups = model.AutoAcceptedSignups
+                AutoAcceptedSignups = model.AutoAcceptedSignups,
+                ExcludeOrigin = model.ExcludeOrigin,
+                ExcludeSpecialNeeds = model.ExcludeSpecialNeeds
             },
             Organizers = { CreatorOrganizer(user) }
         };
@@ -80,6 +82,8 @@ public static class Logic
         entity.SignupOptions.AllowPartnerSignup = model.AllowPartnerSignup;
         entity.SignupOptions.AllowPartnerSignupHelp = model.AllowPartnerSignupHelp;
         entity.SignupOptions.AutoAcceptedSignups = model.AutoAcceptedSignups;
+        entity.SignupOptions.ExcludeOrigin = model.ExcludeOrigin;
+        entity.SignupOptions.ExcludeSpecialNeeds = model.ExcludeSpecialNeeds;
     }
 
     public static void SetEventStatus(this Event model, string status, string date = null)
@@ -186,6 +190,8 @@ public static class Logic
                 AllowPartnerSignup = signupOptions.AllowPartnerSignup,
                 AllowPartnerSignupHelp = signupOptions.AllowPartnerSignupHelp,
                 AutoAcceptedSignups = signupOptions.AutoAcceptedSignups,
+                ExcludeOrigin = signupOptions.ExcludeOrigin,
+                ExcludeSpecialNeeds = signupOptions.ExcludeSpecialNeeds,
                 IncludedInClassesFee = signupOptions.IncludedInClassesFee,
                 IncludedInTrainingFee = signupOptions.IncludedInTrainingFee,
                 PriceForMembers = signupOptions.PriceForMembers,

@@ -93,6 +93,15 @@
                 <input class="form-control" asp-for="AutoAcceptedSignups">
                 <small class="form-text text-muted">Gi plass til de første n som melder seg på. Ved påmelding med roller så gjelder dette per rolle</small>
             </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" asp-for="ExcludeOrigin">
+                <label class="form-check-label" asp-for="ExcludeOrigin"></label>
+                <small class="form-text text-muted">Gjelder kurs-/arrangementtyper som samler deltakerinfo (workshop og fest)</small>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" asp-for="ExcludeSpecialNeeds">
+                <label class="form-check-label" asp-for="ExcludeSpecialNeeds"></label>
+            </div>
         </div>
     </div>
 </div>

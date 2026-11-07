@@ -132,7 +132,8 @@ public class SignupController : Controller
                     AllowedRoles = ev.Options.AllowedRoles.OrDefault(),
                     SignupHelp = ev.Options.SignupHelp,
                     SurveyId = ev.SurveyId,
-                    CollectParticipantInfo = ev.Type.CollectsParticipantInfo()
+                    CollectOrigin = ev.Type.CollectsParticipantInfo() && !ev.Options.ExcludeOrigin,
+                    CollectSpecialNeeds = ev.Type.CollectsParticipantInfo() && !ev.Options.ExcludeSpecialNeeds
                 });
             }
         }
@@ -192,9 +193,13 @@ public class SignupController : Controller
         var signup = user.AddEventSignup(id, role, input.PartnerEmail, autoAccept);
         signup.RolePreferences = preferences;
 
-        if (model.Type.CollectsParticipantInfo())
+        if (model.CollectsOrigin())
         {
             signup.Origin = input.Origin.TrimToNull();
+        }
+
+        if (model.CollectsSpecialNeeds())
+        {
             signup.SpecialNeeds = input.SpecialNeeds.TrimToNull();
         }
 

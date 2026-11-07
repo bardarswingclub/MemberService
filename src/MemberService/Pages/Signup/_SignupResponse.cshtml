@@ -28,14 +28,17 @@
     }
 }
 
-@if (Model.CollectParticipantInfo)
+@if (Model.CollectOrigin)
 {
     <div class="form-group mt-4">
         <label asp-for="Input.Origin">@Localizer["Hvilken by/land kommer du fra?"]</label>
         <input type="text" class="form-control" asp-for="Input.Origin" maxlength="100" placeholder="@Localizer["F.eks. Oslo, Norge"]">
         <span asp-validation-for="Input.Origin" class="text-danger"></span>
     </div>
+}
 
+@if (Model.CollectSpecialNeeds)
+{
     <div class="form-group mt-4">
         <label asp-for="Input.SpecialNeeds">@Localizer["Andre behov, for eksempel allergier"]</label>
         <textarea class="form-control" asp-for="Input.SpecialNeeds" rows="2" maxlength="500" placeholder="@Localizer["Allergier, mattilpasninger eller andre behov vi bør vite om"]"></textarea>

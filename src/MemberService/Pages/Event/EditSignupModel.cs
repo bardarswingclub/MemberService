@@ -35,6 +35,10 @@ public partial class EditSignupModel
 
     public RolePreference AllowedRoles { get; set; }
 
+    public bool CollectOrigin { get; set; }
+
+    public bool CollectSpecialNeeds { get; set; }
+
     public string Origin { get; set; }
 
     public string SpecialNeeds { get; set; }
@@ -50,6 +54,8 @@ public partial class EditSignupModel
         EventId = e.EventId,
         Type = e.Event.Type,
         AllowedRoles = e.Event.SignupOptions.AllowedRoles,
+        CollectOrigin = (e.Event.Type == EventType.Workshop || e.Event.Type == EventType.Party) && !e.Event.SignupOptions.ExcludeOrigin,
+        CollectSpecialNeeds = (e.Event.Type == EventType.Workshop || e.Event.Type == EventType.Party) && !e.Event.SignupOptions.ExcludeSpecialNeeds,
         Origin = e.Origin,
         SpecialNeeds = e.SpecialNeeds,
         Role = e.Role,

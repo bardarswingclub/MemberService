@@ -16,7 +16,9 @@ public class SignupModel
 
     public bool RoleSignup { get; init; }
 
-    public bool CollectParticipantInfo { get; init; }
+    public bool CollectOrigin { get; init; }
+
+    public bool CollectSpecialNeeds { get; init; }
 
     public string RoleSignupHelp { get; init; }
 
