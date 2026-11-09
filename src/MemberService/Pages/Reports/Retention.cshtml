@@ -1,0 +1,243 @@
+@model MemberService.Pages.Reports.RetentionModel
+@using System.Text.Json
+@using System.Globalization
+@using MemberService.Pages.Reports
+@{
+    ViewData["Title"] = "Frafall";
+    var nb = CultureInfo.GetCultureInfo("nb-NO");
+    string Pct(double? value) => value.HasValue ? value.Value.ToString("0", nb) + " %" : "-";
+    string Dec(double value) => value.ToString("0.0", nb);
+    string EraName(RetentionEra era) => era switch
+    {
+        RetentionEra.PreCovid => "Før covid",
+        RetentionEra.Covid => "Covid",
+        _ => "Etter covid"
+    };
+    string EraColor(RetentionEra era) => era switch
+    {
+        RetentionEra.PreCovid => "#1f77b4",
+        RetentionEra.Covid => "#d62728",
+        _ => "#2ca02c"
+    };
+
+    var distributionData = new
+    {
+        labels = Model.Distribution.Select((_, i) => (i + 1).ToString()),
+        values = Model.Distribution
+    };
+    var transitionData = new
+    {
+        labels = Model.Transitions.Select(t => t.Semester),
+        values = Model.Transitions.Select(t => t.Percent.HasValue ? Math.Round(t.Percent.Value, 1) : (double?)null),
+        colors = Model.Transitions.Select(t => EraColor(t.Era))
+    };
+    var curveData = Model.Curves
+        .Where(c => c.Points.Any())
+        .Select(c => new
+        {
+            name = EraName(c.Era) + " (" + c.People + " nye)",
+            color = EraColor(c.Era),
+            points = c.Points.Select(p => new { x = p.SemestersAfter, y = Math.Round(p.Percent, 1) })
+        });
+    var covid = Model.Covid;
+}
+
+<partial name="_Tabs" />
+
+<h2>Forblir folk på kurs?</h2>
+<p class="text-muted">
+    Basert på godkjente og betalte påmeldinger til kurs, regnet som unike personer per semester. Avlyste kurs er utelatt.
+    Semestre uten deltakere hoppes over. Bare ferdige semestre brukes til å måle frafall@(Model.OngoingSemester ? "; det pågående semesteret regnes som aktivt, men ikke som frafall" : "").
+    Covid er regnet som semestre med påmelding åpnet fra @RetentionCalculator.CovidStart.Year til og med @(RetentionCalculator.CovidEnd.Year - 1).
+</p>
+
+@if (Model.CompletedSemesters == 0 || Model.All.People == 0)
+{
+    <p>Ingen data funnet.</p>
+    return;
+}
+
+<h3 class="mt-4">Hvor mange semestre går folk på kurs?</h3>
+<div class="table-responsive mb-3">
+    <table class="table table-sm table-bordered" style="max-width: 640px;">
+        <thead class="thead-light">
+            <tr>
+                <th></th>
+                <th class="text-right">Alle</th>
+                <th class="text-right">Ikke lenger aktive</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Personer</td><td class="text-right">@Model.All.People</td><td class="text-right">@Model.Ended.People</td></tr>
+            <tr><td>Snitt antall semestre</td><td class="text-right">@Dec(Model.All.Mean)</td><td class="text-right">@Dec(Model.Ended.Mean)</td></tr>
+            <tr><td>Median</td><td class="text-right">@Dec(Model.All.Median)</td><td class="text-right">@Dec(Model.Ended.Median)</td></tr>
+            <tr><td>Typetall (vanligst)</td><td class="text-right">@Model.All.Mode <span class="text-muted">(@Model.All.ModeCount)</span></td><td class="text-right">@Model.Ended.Mode <span class="text-muted">(@Model.Ended.ModeCount)</span></td></tr>
+            <tr><td>Bare ett semester</td><td class="text-right">@Model.All.OneSemester <span class="text-muted">(@Pct(Model.All.OneSemesterPercent))</span></td><td class="text-right">@Model.Ended.OneSemester <span class="text-muted">(@Pct(Model.Ended.OneSemesterPercent))</span></td></tr>
+            <tr><td>Flest semestre</td><td class="text-right">@Model.All.MostSemesters <span class="text-muted">(@Model.All.MostSemestersCount pers.)</span></td><td class="text-right">@Model.Ended.MostSemesters <span class="text-muted">(@Model.Ended.MostSemestersCount pers.)</span></td></tr>
+        </tbody>
+    </table>
+</div>
+<p class="text-muted small">
+    «Alle» inkluderer @Model.ActiveNow som fortsatt er aktive og derfor har et ufullstendig løp, så snittet er for lavt.
+    «Ikke lenger aktive» er løp som er avsluttet, men favoriserer de som begynte tidlig.
+    Tall i parentes ved typetall er antall personer, ved «bare ett semester» andel av gruppen.
+    Datasettet starter i @Model.Semesters.First(), så de som var med da kan ha begynt tidligere.
+</p>
+
+<div class="mb-5" style="position: relative; height: 300px;">
+    <canvas id="distributionChart"></canvas>
+</div>
+
+<h3>Kommer folk tilbake neste semester?</h3>
+<p class="text-muted">
+    Andel av deltakerne i et semester som også var med i neste. Fargen viser semesteret deltakerne var med i.
+</p>
+<div class="mb-5" style="position: relative; height: 320px;">
+    <canvas id="transitionChart"></canvas>
+</div>
+
+<h3>Blir nye deltakere lenger nå enn før?</h3>
+<p class="text-muted">
+    For personer som startet etter første semester i datasettet: andel som var med n semestre etter det første.
+    Delt etter når de startet. Kullene slås sammen, og et punkt tas bare med for kull som er gamle nok til å ha et n-te semester.
+</p>
+@if (!curveData.Any())
+{
+    <p>Ikke nok data funnet.</p>
+}
+else
+{
+    <div class="mb-4" style="position: relative; height: 320px;">
+        <canvas id="curveChart"></canvas>
+    </div>
+}
+
+@if (Model.CohortYears.Any())
+{
+    <div class="table-responsive mb-5">
+        <table class="table table-sm table-bordered table-hover" style="max-width: 720px;">
+            <thead class="thead-light">
+                <tr>
+                    <th>Startår</th>
+                    <th class="text-right">Nye deltakere</th>
+                    <th class="text-right">Med 1 semester senere</th>
+                    <th class="text-right">Med 2 semestre senere</th>
+                    <th class="text-right">Med 4 semestre senere</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in Model.CohortYears)
+                {
+                    <tr>
+                        <td>@row.Year</td>
+                        <td class="text-right">@row.NewPeople</td>
+                        <td class="text-right">@Pct(row.After1.Total > 0 ? row.After1.Percent : null)</td>
+                        <td class="text-right">@Pct(row.After2.Total > 0 ? row.After2.Percent : null)</td>
+                        <td class="text-right">@Pct(row.After4.Total > 0 ? row.After4.Percent : null)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<h3>Covid</h3>
+@if (covid is null)
+{
+    <p class="text-muted">Datasettet har ikke både semestre før og i 2020, så covid-sammenligningen vises ikke.</p>
+}
+else
+{
+    <p class="text-muted">
+        Utgangspunktet er alle som var med i @covid.BaseSemester, siste semester før covid.
+        Covid-året er @string.Join(" og ", covid.CovidYearSemesters).
+    </p>
+    <div class="row mb-3">
+        <div class="col-6 col-md-3 mb-2"><div class="border rounded p-2"><div class="h4 mb-0">@covid.BasePeople</div><div class="small text-muted">var med før covid</div></div></div>
+        <div class="col-6 col-md-3 mb-2"><div class="border rounded p-2"><div class="h4 mb-0">@covid.StayedThroughCovidYear</div><div class="small text-muted">var med minst ett semester i covid-året</div></div></div>
+        <div class="col-6 col-md-3 mb-2"><div class="border rounded p-2"><div class="h4 mb-0">@covid.LeftInCovidYear</div><div class="small text-muted">var ikke med noe semester i covid-året (@covid.LeftButReturnedLater kom tilbake senere)</div></div></div>
+        <div class="col-6 col-md-3 mb-2"><div class="border rounded p-2"><div class="h4 mb-0">@covid.StillActive</div><div class="small text-muted">er fortsatt aktive (@covid.NeverReturned kom aldri tilbake)</div></div></div>
+    </div>
+    <div class="table-responsive mb-5">
+        <table class="table table-sm table-bordered" style="max-width: 560px;">
+            <thead class="thead-light">
+                <tr><th>Semester</th><th>Periode</th><th class="text-right">Fra utgangsgruppen</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var t in covid.Following)
+                {
+                    <tr>
+                        <td>@t.Semester</td>
+                        <td>@EraName(t.Era)</td>
+                        <td class="text-right">@t.Returned <span class="text-muted">(@Pct(t.Percent))</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@section Scripts {
+    <script src="~/lib/chartjs/chart.umd.js" asp-append-version="true"></script>
+    <script>
+        (function () {
+            var distribution = @Html.Raw(JsonSerializer.Serialize(distributionData));
+            var transitions = @Html.Raw(JsonSerializer.Serialize(transitionData));
+            var curves = @Html.Raw(JsonSerializer.Serialize(curveData));
+
+            new Chart(document.getElementById('distributionChart'), {
+                type: 'bar',
+                data: { labels: distribution.labels, datasets: [{ label: 'Personer', data: distribution.values, backgroundColor: '#1f77b4' }] },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, title: { display: true, text: 'Personer per antall semestre på kurs' } },
+                    scales: {
+                        x: { title: { display: true, text: 'Antall semestre' } },
+                        y: { beginAtZero: true, ticks: { precision: 0 } }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('transitionChart'), {
+                type: 'line',
+                data: {
+                    labels: transitions.labels,
+                    datasets: [{
+                        label: 'Med i neste semester (%)',
+                        data: transitions.values,
+                        borderColor: '#888',
+                        pointBackgroundColor: transitions.colors,
+                        pointBorderColor: transitions.colors,
+                        pointRadius: 5,
+                        tension: 0.2
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, max: 100, ticks: { callback: function (v) { return v + ' %'; } } } }
+                }
+            });
+
+            var curveEl = document.getElementById('curveChart');
+            if (curveEl) {
+                new Chart(curveEl, {
+                    type: 'line',
+                    data: {
+                        datasets: curves.map(function (c) {
+                            return { label: c.name, data: c.points, borderColor: c.color, backgroundColor: c.color, tension: 0.2 };
+                        })
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        parsing: { xAxisKey: 'x', yAxisKey: 'y' },
+                        scales: {
+                            x: { type: 'linear', min: 1, title: { display: true, text: 'Semestre etter første semester' }, ticks: { precision: 0, stepSize: 1 } },
+                            y: { beginAtZero: true, max: 100, ticks: { callback: function (v) { return v + ' %'; } }, title: { display: true, text: 'Andel som er med' } }
+                        }
+                    }
+                });
+            }
+        })();
+    </script>
+}
