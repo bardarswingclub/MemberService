@@ -70,7 +70,7 @@ public class RoleRequirementsHandler : IAuthorizationHandler
             Policy.CanManageInventory => user.IsInAnyRole(R.INVENTORY_MANAGER),
             Policy.CanBorrowInventory => user.IsInAnyRole(R.INVENTORY_MANAGER, R.INVENTORY_USER),
 
-            Policy.CanViewReports => user.IsInAnyRole(R.STYRET),
+            Policy.CanViewReports => user.IsInAnyRole(R.STYRET, R.INSTRUKTORKOORDINATOR),
 
             Policy.CanEditMemberConsent => user.IsInAnyRole(R.STYRET),
 
