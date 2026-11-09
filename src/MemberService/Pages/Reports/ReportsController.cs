@@ -190,6 +190,39 @@ public class ReportsController : Controller
         return View(model);
     }
 
+    [HttpGet]
+    [Authorize(nameof(Policy.CanViewReports))]
+    public async Task<IActionResult> Retention()
+    {
+        // Avlyste kurs teller ikke. Arkiverte kurs teller med, siden gamle kurs ofte er arkivert og ellers ville gitt hull i historikken.
+        var semesters = await _database.Semesters
+            .OrderBy(s => s.SignupOpensAt)
+            .Select(s => new
+            {
+                s.Title,
+                s.SignupOpensAt,
+                UserIds = s.Courses
+                    .Where(e => !e.Cancelled)
+                    .SelectMany(e => e.Signups
+                        .Where(sg => sg.Status == Status.Approved || sg.Status == Status.AcceptedAndPayed)
+                        .Select(sg => sg.UserId))
+            })
+            .ToListAsync();
+
+        var thisSemester = TimeProvider.ThisSemesterUtc;
+
+        var inputs = semesters
+            .Select(s => new RetentionCalculator.SemesterInput(
+                s.Title,
+                s.SignupOpensAt,
+                s.SignupOpensAt > thisSemester,
+                s.UserIds.Distinct().ToList()))
+            .Where(s => s.UserIds.Count > 0)
+            .ToList();
+
+        return View(RetentionCalculator.Calculate(inputs));
+    }
+
     private static readonly Regex NoiseTokens = new(
         @"\b(19|20)\d{2}\b|\b[hv]\d{2}\b|\b(høst(en)?|vår(en)?|semester|kurs)\b|[()\[\],:;–—-]",
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
