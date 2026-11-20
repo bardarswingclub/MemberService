@@ -76,11 +76,12 @@ public static class RetentionCalculator
         }
 
         // Nye deltakere: første semester er etter det første i datasettet, ellers vet vi ikke om de er nye
-        var cohorts = Enumerable.Range(1, Math.Max(0, lastCompleted))
-            .Where(i => i <= lastCompleted)
+        // Inkluderer pågående semester, slik at nye i år telles selv om semesteret ikke er ferdig
+        var allCohorts = Enumerable.Range(1, Math.Max(0, semesters.Count - 1))
             .Select(i => (Index: i, Users: attendance.Where(a => a.Value.Min() == i).Select(a => a.Value).ToList()))
             .Where(c => c.Users.Count > 0)
             .ToList();
+        var cohorts = allCohorts.Where(c => c.Index <= lastCompleted).ToList();
 
         RetentionPoint Pooled(IEnumerable<(int Index, List<HashSet<int>> Users)> group, int after)
         {
@@ -103,7 +104,7 @@ public static class RetentionCalculator
             model.Curves.Add(new EraCurve(era, inEra.Count, inEra.Sum(c => c.Users.Count), points));
         }
 
-        model.CohortYears = cohorts
+        model.CohortYears = allCohorts
             .GroupBy(c => semesters[c.Index].SignupOpensAt.Year)
             .OrderBy(g => g.Key)
             .Select(g => new CohortYear(g.Key, g.Sum(c => c.Users.Count), Pooled(g, 1), Pooled(g, 2), Pooled(g, 4)))
