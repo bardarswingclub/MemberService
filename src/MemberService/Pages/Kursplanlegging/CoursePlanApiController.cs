@@ -188,6 +188,9 @@ public record CourseDto
 
     public int SortOrder { get; init; }
 
+    /// <summary>Antall instruktører som regnes med i instruktørtimene (settes av serveren).</summary>
+    public int InstructorCount { get; init; }
+
     public string RoomId { get; init; }
 
     public string SlotId { get; init; }
@@ -221,6 +224,7 @@ public record CourseDto
         Weeks = c.Weeks,
         Color = c.Color,
         SortOrder = c.SortOrder,
+        InstructorCount = CoursePlanLogic.InstructorCount(c),
         RoomId = c.RoomId,
         SlotId = c.SlotId,
         StartTime = c.StartTime,

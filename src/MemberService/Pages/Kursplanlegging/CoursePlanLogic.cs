@@ -19,6 +19,14 @@ public static partial class CoursePlanLogic
 
     public static int IsoWeek(this DateOnly date) => ISOWeek.GetWeekOfYear(date.ToDateTime(TimeOnly.MinValue));
 
+    public const int DefaultInstructors = 2;
+
+    public const int SoloJazzInstructors = 1;
+
+    /// <summary>Antall instruktører på kurset: 1 for solo jazz og 2 for andre kurs.</summary>
+    public static int InstructorCount(PlannedCourse course)
+        => course.Title.IsSoloJazzTitle() ? SoloJazzInstructors : DefaultInstructors;
+
     /// <summary>Mandagen i hver uke i semesteret.</summary>
     public static List<DateOnly> Weeks(DateOnly start, DateOnly end)
     {

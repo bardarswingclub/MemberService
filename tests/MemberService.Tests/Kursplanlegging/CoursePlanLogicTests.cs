@@ -116,6 +116,14 @@ public class CoursePlanLogicTests
         CoursePlanLogic.Describe(course, room, slot).ShouldBe("Onsdag kl 18.00-19.30 Sal 3 på Bårdar Instituttet");
     }
 
+    [TestCase("Balboa Basic", 2)]
+    [TestCase("Solo Jazz 1", 1)]
+    [TestCase("Intro til solojazz", 1)]
+    public void InstructorCount_DefaultsByCourseType(string title, int expected)
+    {
+        CoursePlanLogic.InstructorCount(new PlannedCourse { Title = title }).ShouldBe(expected);
+    }
+
     [TestCase("Balboa Basic", true)]
     [TestCase("Solo Jazz 1", false)]
     [TestCase("Intro til solojazz", false)]

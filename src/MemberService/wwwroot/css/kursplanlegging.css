@@ -460,3 +460,15 @@ body.timeplan {
 .tp-semester th.tp-holiday {
     color: #c92a2a;
 }
+
+.kp-instructors {
+    padding: .5rem .75rem;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: .25rem;
+}
+
+.kp-instr-total {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
