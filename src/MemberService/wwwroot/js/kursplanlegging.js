@@ -23,6 +23,8 @@
     const roomsPanel = document.getElementById('kp-rooms');
     const weekSelect = document.getElementById('kp-week');
     const statusText = document.getElementById('kp-status');
+    const instructorsPanel = document.getElementById('kp-instructors');
+    let instructorsDetails = false;
 
     let plan = null;
     let mode = 'week';
@@ -496,6 +498,49 @@
         saveCourse({ ...course, dates });
     }
 
+    // ---------- Instruktørtimer ----------
+
+    const hoursText = h => (Math.round(h * 10) / 10).toLocaleString('nb-NO') + ' t';
+
+    // Instruktørtimer = antall kursganger × lengde på timen × antall instruktører. Bare plasserte kurs teller.
+    function instructorSummary() {
+        const rows = plan.courses
+            .filter(c => findPlacement(c) && c.dates.length)
+            .map(c => {
+                const hours = c.dates.length * lengthOf(c) / 60;
+                return { course: c, sessions: c.dates.length, hours, instructors: c.instructorCount, total: hours * c.instructorCount };
+            })
+            .sort((a, b) => b.total - a.total);
+        return { rows, total: rows.reduce((s, r) => s + r.total, 0), classHours: rows.reduce((s, r) => s + r.hours, 0) };
+    }
+
+    function renderInstructors() {
+        const { rows, total, classHours } = instructorSummary();
+        const unplaced = plan.courses.length - rows.length;
+        const table = el('table', { class: 'table table-sm mb-0 mt-2 kp-instr-table' },
+            el('thead', {}, el('tr', {},
+                el('th', {}, 'Kurs'), el('th', { class: 'text-right' }, 'Ganger'), el('th', { class: 'text-right' }, 'Timer/gang'),
+                el('th', { class: 'text-right' }, 'Instruktører'), el('th', { class: 'text-right' }, 'Instruktørtimer'))),
+            el('tbody', {}, ...rows.map(r => el('tr', {},
+                el('td', {}, r.course.title),
+                el('td', { class: 'text-right' }, r.sessions),
+                el('td', { class: 'text-right' }, hoursText(r.hours / r.sessions)),
+                el('td', { class: 'text-right' }, r.instructors),
+                el('td', { class: 'text-right' }, hoursText(r.total))))));
+        instructorsPanel.replaceChildren(
+            el('div', { class: 'd-flex flex-wrap align-items-baseline' },
+                el('strong', { class: 'mr-2' }, 'Instruktørtimer:'),
+                el('span', { class: 'kp-instr-total mr-3' }, hoursText(total)),
+                el('span', { class: 'text-muted small mr-3' },
+                    `${rows.length} plasserte kurs, ${hoursText(classHours)} undervisning`
+                    + (unplaced ? `, ${unplaced} kurs ikke plassert og ikke med` : '')),
+                rows.length && el('button', {
+                    type: 'button', class: 'btn btn-sm btn-link p-0',
+                    onclick: () => { instructorsDetails = !instructorsDetails; renderInstructors(); },
+                }, instructorsDetails ? 'skjul fordeling' : 'vis fordeling')),
+            rows.length && instructorsDetails ? table : null);
+    }
+
     function renderPool() {
         const unplaced = plan.courses.filter(c => !findPlacement(c));
         pool.replaceChildren(...(unplaced.length
@@ -586,6 +631,7 @@
         weekSelect.classList.toggle('d-none', mode !== 'week');
         board.replaceChildren(mode === 'week' ? renderWeek() : renderSemester());
         renderPool();
+        renderInstructors();
     }
 
     function roomsChanged() {
